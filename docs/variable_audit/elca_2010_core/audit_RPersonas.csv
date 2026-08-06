@@ -1,0 +1,416 @@
+variable,dtype,n_obs,n_missing,pct_missing,n_unique,sample_values,min,max
+ola,int64,21019,0,0.0,1,1,1.0,1.0
+consecutivo,int64,21019,0,0.0,4578,121116 | 121117 | 121118 | 121119 | 121120,121116.0,226290.0
+orden,int64,21019,0,0.0,19,1 | 2 | 3 | 4 | 5,1.0,19.0
+llave_id_lb,int64,21019,0,0.0,21019,12111601 | 12111602 | 12111603 | 12111604 | 12111701,12111601.0,22629003.0
+nac_dia,object,21019,0,0.0,32,21 | 11 | 4 | 2 | 26,,
+nac_mes,object,21019,0,0.0,13,1 | 4 | 7 | 10 | 8,,
+nac_ano,int64,21019,0,0.0,103,1953 | 1960 | 1994 | 2002 | 1977,1903.0,2010.0
+edad,int64,21019,0,0.0,102,57 | 49 | 15 | 7 | 32,0.0,106.0
+edad_meses,int64,21019,0,0.0,12,2 | 11 | 8 | 10 | 1,0.0,11.0
+sexo,object,21019,0,0.0,2,Hombre | Mujer,,
+seguimiento,object,21019,0,0.0,2,Si | No,,
+parentesco,object,21019,0,0.0,18,Jefe de hogar | C�nyuge o compa�era(o) | Hijo(a) | Hijastro(a) | Nieto(a),,
+es_bisnieto,object,21019,21000,0.9991,1,S�,,
+orden_pariente,int64,21019,0,0.0,18,3 | 2 | 1 | 5 | 4,1.0,19.0
+pariente,object,21019,0,0.0,17,Hijo(a) | Padre o madre | C�nyuge o compa�era(o) | Abuelo(a) | Hermano(a),,
+padre_vive,object,21019,0,0.0,4,No | Ya falleci� | Si | 9,,
+orden_padre,float64,21019,13041,0.6204,13,1.0 | 4.0 | 2.0 | 6.0 | 3.0,1.0,15.0
+ano_nac_p,object,21019,7979,0.3796,120,1929 | No sabe | 1952 | 1930 | 1953,,
+educ_padre,object,21019,7986,0.3799,11,Ninguno | No sabe | Algunos a�os de primaria | Toda la primaria | Algunos a�os de secundaria,,
+trabajo_padre,object,21019,7986,0.3799,11,Jornalero o pe�n | Trabajador de su propia finca o de una finca que ten�a o tiene en arriendo o aparcer�a | Trabajador por cuenta propia | Patr�n o empleador | No sabe,,
+enfermedad_p,object,21019,7986,0.3799,4,No informa | Si | No | No sabe,,
+presion_p,object,21019,16824,0.8004,2,Si | No,,
+diabetes_p,object,21019,16824,0.8004,2,No | Si,,
+artritis_p,object,21019,16824,0.8004,2,No | Si,,
+corazon_p,object,21019,16823,0.8004,2,No | Si,,
+coronaria_p,object,21019,16824,0.8004,2,Si | No,,
+bronquitis_p,object,21019,16824,0.8004,2,No | Si,,
+asma_p,object,21019,16824,0.8004,2,No | Si,,
+espalda_p,object,21019,16824,0.8004,2,No | No sabe,,
+cerebral_p,object,21019,16824,0.8004,2,No | No informa,,
+depresion_p,object,21019,16824,0.8004,2,No | Si,,
+gastritis_p,object,21019,16824,0.8004,2,No | Si,,
+rinon_p,object,21019,16824,0.8004,2,No | Si,,
+cancer_p,object,21019,16824,0.8004,2,No | Si,,
+vih_p,object,21019,16824,0.8004,2,No | Si,,
+madre_vive,object,21019,0,0.0,4,Ya falleci� | Si | No | 9,,
+orden_madre,float64,21019,10548,0.5018,16,2.0 | 3.0 | 1.0 | 4.0 | 5.0,1.0,17.0
+ano_nac_m,object,21019,10471,0.4982,117,No sabe | 1953 | 1931 | 1940 | 1982,,
+educ_madre,object,21019,10477,0.4985,11,No sabe | Algunos a�os de primaria | Ninguno | Toda la secundaria | Algunos a�os de secundaria,,
+trabajo_madre,object,21019,10477,0.4985,11,No sabe | Trabajador por cuenta propia | Nunca ha trabajado o nunca trabaj� | Empleado dom�stico | Obrero o empleado particular,,
+enfermedad_m,object,21019,10477,0.4985,4,No informa | Si | No | No sabe,,
+presion_m,object,21019,16047,0.7635,2,No | Si,,
+diabetes_m,object,21019,16047,0.7635,2,No | Si,,
+artritis_m,object,21019,16047,0.7635,2,Si | No,,
+corazon_m,object,21019,16047,0.7635,2,No | Si,,
+coronaria_m,object,21019,16047,0.7635,2,No | Si,,
+bronquitis_m,object,21019,16047,0.7635,2,No | Si,,
+asma_m,object,21019,16047,0.7635,2,No | Si,,
+espalda_m,object,21019,16047,0.7635,2,No | No sabe,,
+cerebral_m,object,21019,16047,0.7635,2,No | No informa,,
+depresion_m,object,21019,16047,0.7635,2,No | Si,,
+gastritis_m,object,21019,16047,0.7635,2,Si | No,,
+rinon_m,object,21019,16047,0.7635,2,No | Si,,
+cancer_m,object,21019,16047,0.7635,2,No | Si,,
+vih_m,object,21019,16047,0.7635,1,No,,
+etnia,object,21019,8451,0.4021,6,"Ninguno de los anteriores | ROM o gitano | Ind�gena | Negro, mulato (afrodescendiente) | Palenquero",,
+lugar_nacimiento,object,21019,8452,0.4021,4,En otro municipio de Colombia | En la zona urbana de este municipio | En la zona rural de este municipio | En otro pa�s,,
+id_dpto_nac,float64,21019,17582,0.8365,28,6.0 | 9.0 | 3.0 | 23.0 | 2.0,1.0,28.0
+id_mpio_nac,float64,21019,17582,0.8365,350,186.0 | 307.0 | 102.0 | 107.0 | 187.0,1.0,574.0
+pais_nac,object,21019,21007,0.9994,5,Espa�a | Rep�blica Dominicana | Estados Unidos | Venezuela | Ecuador,,
+cabecera_nac,object,21019,17582,0.8365,2,No | Si,,
+vivia_con,object,21019,12863,0.612,5,Con personas diferentes a padre y madre | Padre y madre | S�lo con la madre | S�lo con el padre | Viv�a solo(a),,
+razon_novivia,object,21019,18776,0.8933,9,Lo abandonaron | Otra raz�n | Uno de los 2 hab�a fallecido | Por estudio o trabajo | Se separaron,,
+razon_nv_cual,object,21019,21000,0.9991,18,POR ENFERMEDAD | LOS PADRES SE ENCONTRABAN EN EL EXTERIOR | POR EL TRABAJO DE LOS PADRES NO LA LLEVARON | POR QUE LO CASTIGABAN LOS HERMANOS MAYORES | EL SE FUE A VIVIR CON EL PAPA MEJOR RECURSO,,
+lugar_vivia,object,21019,12863,0.612,4,En otro municipio de Colombia | En la zona urbana de este municipio | En la zona rural de este municipio | En otro pa�s,,
+id_dpto_vivia,float64,21019,18698,0.8896,28,6.0 | 27.0 | 3.0 | 23.0 | 2.0,1.0,31.0
+id_mpio_vivia,float64,21019,18698,0.8896,311,34.0 | 210.0 | 107.0 | 187.0 | 112.0,1.0,568.0
+pais_vivia,object,21019,21013,0.9997,4,Espa�a | Rep�blica Dominicana | Venezuela | Ecuador,,
+cabecera_vivia,object,21019,18697,0.8895,2,No | Si,,
+lugar_vivia5,object,21019,12863,0.612,3,En otro municipio de Colombia | En este municipio | En otro pa�s,,
+id_dpto_vivia5,float64,21019,20050,0.9539,28,9.0 | 3.0 | 2.0 | 18.0 | 21.0,2.0,32.0
+id_mpio_vivia5,float64,21019,20050,0.9539,161,307.0 | 107.0 | 339.0 | 97.0 | 102.0,1.0,556.0
+pais_vivia5,object,21019,21003,0.9992,8,Costa Rica | Espa�a | Estados Unidos | Suiza | Venezuela,,
+cabecera_vivia5,object,21019,12879,0.6127,2,Si | No,,
+vivido_siempre5,object,21019,13848,0.6588,2,Si | No,,
+razon_llego,object,21019,19952,0.9492,7,Trabajo | Conflicto armado | Traslado del hogar | Estudio | Otro,,
+razon_llego_cual,object,21019,20983,0.9983,30,ESTA ABURRIDA ALLA | PLAN DE VIVIENDA | POR QUE DONDE VIVIA LO ROBARON | LE GUSTO ESTE SITIO PARA VIVIR | POR GUSTO,,
+vivido_otro5,object,21019,19952,0.9492,2,No | Si,,
+afiliacion,object,21019,12863,0.612,2,Si | No,,
+sss,object,21019,20407,0.9709,2,Si | No,,
+sss_meses,float64,21019,20905,0.9946,13,2.0 | 9.0 | 10.0 | 7.0 | 8.0,0.0,12.0
+regimen,object,21019,13361,0.6357,3,"Subsidiado | Contributivo | Especial (Fuerzas Armadas, Polic�a Nacional, Ecopetrol, Universidades P�blicas, Magisterio)",,
+sss_porque,object,21019,20117,0.9571,3,"Trabaja(�) como asalariado, independiente o es pensionado | Es familiar de trabajador asalariado, independiente o de un pensionado (beneficiario) | Lo tiene afiliado(a) una persona de este u otro hogar con la que no tiene v�nculo laboral",,
+tiempo_anos,float64,21019,13361,0.6357,47,5.0 | 7.0 | 10.0 | 22.0 | 20.0,0.0,50.0
+tiempo_meses,float64,21019,13361,0.6357,12,0.0 | 2.0 | 7.0 | 10.0 | 8.0,0.0,11.0
+prepagada,object,21019,12863,0.612,2,No | Si,,
+cotiza_fp,object,21019,12862,0.6119,8,"No cotiza porque no tiene dinero | No cotiza porque no quiere o no le interesa | No cotiza porque no trabaja | No cotiza porque est� esperando cumplir la edad para pensionarse | Si est� cotizando, pero todav�a no es pensionado",,
+vr_rec_pension,object,21019,20932,0.9959,44,3000000 | 2340000 | 2000000 | 980000 | 800000,,
+beneficiario_sss,object,21019,16608,0.7901,2,Si | No,,
+beneficiario_orden,float64,21019,17070,0.8121,16,97.0 | 0.0 | 1.0 | 3.0 | 2.0,0.0,99.0
+ev_enfe,object,21019,8452,0.4021,2,No | Si,,
+ev_acci,object,21019,8452,0.4021,2,No | Si,,
+ev_odon,object,21019,8452,0.4021,2,No | Si,,
+ev_ciru,object,21019,8452,0.4021,2,No | Si,,
+ev_ning,object,21019,8452,0.4021,2,No tuvo ning�n problema de salud | Si tuvo problemas de salud,,
+vr_enfe,object,21019,19120,0.9097,149,9500 | No se pag� nada | 3000 | 800 | 6000,,
+vr_acci,object,21019,20885,0.9936,36,No se pag� nada | 170000 | 400000 | 50000 | 6000,,
+vr_odon,object,21019,20788,0.989,38,No se pag� nada | 10000 | 2100 | 20000 | 1000,,
+vr_ciru,object,21019,20975,0.9979,20,7000 | No se pag� nada | 83000 | 40000 | 35000,,
+tratar_enfe,object,21019,19120,0.9097,8,"Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud | Se auto recet� | Nada | Acudi� al boticario, farmaceuta, droguista | Acudi� a un m�dico general, especialista particular u odont�logo",,
+tratar_acci,object,21019,20885,0.9936,8,"Us� remedios caseros | Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud | Nada | Se auto recet� | Acudi� a un m�dico general, especialista particular u odont�logo",,
+tratar_odon,object,21019,20788,0.989,7,"Nada | Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud | Acudi� a un m�dico general, especialista particular u odont�logo | Se auto recet� | Acudi� al boticario, farmaceuta, droguista",,
+tratar_ciru,object,21019,20975,0.9979,2,"Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud | Us� remedios caseros",,
+noprof_enfe,object,21019,20496,0.9751,12,Falta de dinero | El caso era leve | No tuvo tiempo | Otra | No tiene EPS o seguro m�dico,,
+noprof_acci,object,21019,20982,0.9982,8,Falta de dinero | El caso era leve | El centro de atenci�n queda lejos | Otra | Muchos tr�mites para la cita,,
+noprof_odon,object,21019,20942,0.9963,9,No tuvo tiempo | El centro de atenci�n queda lejos | Falta de dinero | El caso era leve | No tiene EPS o seguro m�dico,,
+noprof_ciru,object,21019,21018,1.0,1,Falta de dinero,,
+dias_noasistio,float64,21019,19427,0.9243,35,2.0 | 0.0 | 1.0 | 15.0 | 30.0,0.0,365.0
+hospitalizado,object,21019,8452,0.4021,2,No | Si,,
+hospital_veces,float64,21019,19957,0.9495,12,2.0 | 1.0 | 3.0 | 5.0 | 10.0,1.0,17.0
+ultima_hosp,object,21019,19957,0.9495,10,Enfermedad | Accidente de trabajo | Parto natural | Cirug�a | Accidente casero,,
+ult_hosp_cual,object,21019,21014,0.9998,5,ENDOSCOPIA | CUANDO NACIO | SIN INFORMACION | COMIO LIQUIDO | DESMAYO,,
+vr_ult_hosp,object,21019,19957,0.9495,130,No se pag� nada | 50000 | 1400 | 7000 | 150000,,
+ult_hosp_dias,float64,21019,20267,0.9642,44,3.0 | 15.0 | 10.0 | 4.0 | 1.0,0.0,365.0
+ceguera,object,21019,16608,0.7901,2,No | Si,,
+sordera,object,21019,16608,0.7901,2,No | Si,,
+mudez,object,21019,16608,0.7901,2,No | Si,,
+dif_moverse,object,21019,16608,0.7901,2,No | Si,,
+dif_banarse,object,21019,16608,0.7901,2,No | Si,,
+dif_calle,object,21019,16608,0.7901,2,No | Si,,
+dif_aprender,object,21019,16608,0.7901,2,No | Si,,
+dif_ninguna,object,21019,16735,0.7962,1,No,,
+prev_med,object,21019,8452,0.4021,2,No | Si,,
+prev_pediatra,object,21019,16608,0.7901,2,No | Si,,
+prev_odo,object,21019,8452,0.4021,2,No | Si,,
+prev_opto,object,21019,8452,0.4021,2,No | Si,,
+prev_malter,object,21019,8452,0.4021,2,No | Si,,
+prev_planif,object,21019,12863,0.612,2,No | Si,,
+prev_nousa,object,21019,8454,0.4022,2,Si | No,,
+informante,object,21019,12863,0.612,3,Si | No | Encuestado id�neo,,
+movilidad,object,21019,12863,0.612,3,No tiene problemas para caminar | Tiene algunos problemas para caminar | Tiene que estar en cama,,
+t_movilidad,object,21019,20119,0.9572,2,No | Si,,
+cuidado_personal,object,21019,12863,0.612,3,No tiene problemas con el cuidado personal | Tiene algunos problemas para ba�arse y vestirse | Es incapaz de ba�arse o vestirse,,
+t_cuidado_personal,object,21019,20895,0.9941,2,No | Si,,
+act_cotidiana,object,21019,12863,0.612,3,Tiene algunos problemas para realizar sus actividades cotidianas | No tiene problemas para realizar sus actividades cotidianas | Es incapaz de realizar sus actividades cotidianas,,
+t_act_cotidiana,object,21019,20517,0.9761,2,No | Si,,
+malestar,object,21019,12863,0.612,3,Tiene moderado dolor o malestar | No tiene dolor ni malestar | Tiene mucho dolor o malestar,,
+t_malestar,object,21019,18632,0.8864,2,No | Si,,
+angustia,object,21019,12863,0.612,3,No est� angustiado(a) ni deprimido(a) | Est� moderamente angustiado(a) o deprimido(a) | Est� muy angustiado(a) o deprimido(a),,
+t_angustia,object,21019,19488,0.9272,2,No | Si,,
+califica_salud,float64,21019,12863,0.612,50,50.0 | 10.0 | 80.0 | 100.0 | 90.0,1.0,100.0
+lee_escribe,object,21019,10517,0.5004,2,Si | No,,
+estudia,object,21019,10517,0.5004,2,No | Si,,
+razon_noestudia,object,21019,12953,0.6163,13,"Necesita trabajar | Debe encargarse de labores dom�sticas y/o del cuidado de los ni�os, ancianos o discapacitados | Falta de dinero | No existe centro educativo cercano o el establecimiento asignado es muy lejano | No quiere estudiar m�s",,
+noestudia_cual,object,21019,20913,0.995,95,CAMBIO DE DOMICILIO | POR QUE SE ESTAN CAMBIANDO CADA RATO DE VIVIENDA | CONFLICTOS CON DIRECTOR DE LA ALCALDIA EN EDUCACIO | FALTA DE DOCUMENTOS | HASTA AHORA LA ESTAN MATRICULANDO EN LA ESCUELA,,
+nivel_educ,object,21019,13024,0.6196,11,B�sica secundaria (6 a 13) | B�sica primaria (1 a 5) | Ninguno | Posgrado con t�tulo | T�cnico con t�tulo,,
+grado_educ,float64,21019,13994,0.6658,13,8.0 | 2.0 | 3.0 | 4.0 | 5.0,1.0,13.0
+anos_superior,float64,21019,20868,0.9928,16,19.0 | 2.0 | 15.0 | 16.0 | 14.0,1.0,19.0
+edad_dejoestudio,object,21019,13923,0.6624,57,16 | 10 | 17 | 13 | 36,,
+tipo_estab,object,21019,18583,0.8841,2,No | Si,,
+nivel_educ_cursa,object,21019,18583,0.8841,7,B�sica primaria (1 a 5) | Preescolar | B�sica secundaria(6 a 13) | Tecnol�gico | T�cnico,,
+grado_educ_cursa,float64,21019,18583,0.8841,13,2.0 | 1.0 | 9.0 | 3.0 | 5.0,0.0,13.0
+est_superiores,float64,21019,20981,0.9982,9,3.0 | 0.0 | 10.0 | 6.0 | 1.0,0.0,10.0
+tareas,object,21019,18583,0.8841,3,"S�, del hogar | S�, de otro hogar | No",,
+orden_tareas,float64,21019,18934,0.9008,11,2.0 | 1.0 | 3.0 | 5.0 | 7.0,1.0,14.0
+consulta_libros,object,21019,18583,0.8841,5,No consulta | La biblioteca del establecimiento donde estudia | Una biblioteca del hogar | Una biblioteca p�blica | Internet,,
+prestamo_libros,object,21019,20409,0.971,2,Si | No,,
+rec_refrigerio,object,21019,18583,0.8841,2,No | S�,,
+rec_desayuno,object,21019,18583,0.8841,2,No | S�,,
+rec_almuerzo,object,21019,18583,0.8841,2,S� | No,,
+rec_balimenta,object,21019,18583,0.8841,2,No | S�,,
+rec_btransp,object,21019,18583,0.8841,2,No | S�,,
+rec_bfotocop,object,21019,18583,0.8841,2,No | S�,,
+rec_uniformes,object,21019,18583,0.8841,2,No | S�,,
+rec_nada,object,21019,18590,0.8844,2,S� | No recibe nada,,
+pago_matricula,object,21019,18583,0.8841,2,No | Si,,
+vr_matricula,object,21019,20590,0.9796,78,No sabe | 4000 | 17800 | 5700 | 9000,,
+inc_libros,object,21019,20590,0.9796,2,No | S�,,
+inc_salidasp,object,21019,20590,0.9796,2,No | S�,,
+inc_otros,object,21019,20590,0.9796,2,No | S�,,
+inc_solom,object,21019,20590,0.9796,2,"S�, s�lo matr�cula | No",,
+pago_uniformes,object,21019,18583,0.8841,2,No | Si,,
+vr_uniformes,object,21019,19519,0.9286,120,50000 | 10000 | 25000 | 150000 | 120000,,
+pago_utiles,object,21019,18583,0.8841,2,Si | No,,
+vr_utiles,object,21019,18924,0.9003,109,32000 | 20000 | No sabe | 15000 | 25000,,
+pago_complem,object,21019,18583,0.8841,2,No | Si,,
+vr_complem,object,21019,20428,0.9719,50,2500 | 2200 | 10000 | 5000 | 2000,,
+pago_bono,object,21019,18583,0.8841,2,No | Si,,
+vr_bono,object,21019,20990,0.9986,15,5000 | 1900 | 12000 | 1000 | 15000,,
+pago_pension,object,21019,18583,0.8841,2,No | Si,,
+vr_pension,object,21019,20937,0.9961,29,25000 | 40000 | 80000 | 7000 | 6000,,
+pinc_transp,object,21019,20937,0.9961,2,No | S�,,
+pinc_aliment,object,21019,20937,0.9961,2,No | S�,,
+pinc_otros,object,21019,20937,0.9961,2,No | S�,,
+pinc_solop,object,21019,20937,0.9961,2,S� | No,,
+recibio_beca,object,21019,18583,0.8841,4,"No recibi� ninguno | S�, subsidio | S�, beca | S�, beca y subsidio",,
+beca_accionsocial,object,21019,20526,0.9765,2,S� | No,,
+beca_prg_gob,object,21019,20526,0.9765,2,No | S�,,
+beca_cajacom,object,21019,20526,0.9765,2,No | S�,,
+beca_emp_pub,object,21019,20526,0.9765,1,No,,
+beca_emp_pri,object,21019,20526,0.9765,2,No | S�,,
+beca_misma_ins,object,21019,20526,0.9765,2,No | S�,,
+beca_otro,object,21019,20526,0.9765,2,No | S�,,
+beca_cual,object,21019,21012,0.9997,7,COMITE DE CAFETEROS | PLAN COLOMBIA | de un politico | SERVICONAL LES DA MATERIALES PARA EL COLEGIO | SUDADERA ESCOLAR CREDIFLORES,,
+beca_periodicidad,object,21019,20526,0.9765,6,Bimestral | Mensual | Anual | Trimestral | Una sola vez,,
+vr_beca,object,21019,20526,0.9765,29,15000 | 10000 | 5000 | 7000 | 12000,,
+credito_estudiar,object,21019,18583,0.8841,2,No | Si,,
+cred_icetex,object,21019,21017,0.9999,2,No | S�,,
+cred_cajacom,object,21019,21017,0.9999,1,No,,
+cred_banco,object,21019,21017,0.9999,1,No,,
+cred_emp_pub,float64,21019,21017,0.9999,1,0.0,0.0,0.0
+cred_emp_pri,object,21019,21017,0.9999,1,No,,
+cred_fondo,object,21019,21017,0.9999,2,S� | No,,
+cred_fna,object,21019,21017,0.9999,1,No,,
+cred_misma_ins,object,21019,21017,0.9999,1,No,,
+cred_otro,object,21019,21017,0.9999,1,No,,
+cred_cual,float64,21019,21019,1.0,0,,,
+cred_periodicidad,object,21019,21017,0.9999,1,Semestral,,
+vr_credito,object,21019,21017,0.9999,1,No informa,,
+incapac_perm,object,21019,12863,0.612,2,No | Si,,
+trabajo_ultimo12,object,21019,13116,0.624,2,Si | No,,
+trabajo_ultimo12_cuantos,float64,21019,19182,0.9126,12,1.0 | 2.0 | 7.0 | 3.0 | 12.0,1.0,12.0
+t_tod,object,21019,19182,0.9126,2,Si | No,,
+t_ene,object,21019,20349,0.9681,2,No | Si,,
+t_feb,object,21019,20349,0.9681,2,No | Si,,
+t_mar,object,21019,20349,0.9681,2,No | Si,,
+t_abr,object,21019,20349,0.9681,2,No | Si,,
+t_may,object,21019,20349,0.9681,2,No | Si,,
+t_jun,object,21019,20349,0.9681,2,No | Si,,
+t_jul,object,21019,20349,0.9681,2,No | Si,,
+t_ago,object,21019,20349,0.9681,2,No | Si,,
+t_sep,object,21019,20349,0.9681,2,No informa | No,,
+t_oct,object,21019,20349,0.9681,2,Si | No,,
+t_nov,object,21019,20349,0.9681,2,Si | No,,
+t_dic,object,21019,20349,0.9681,2,No | Si,,
+vr_salario,object,21019,19182,0.9126,187,400000 | 500000 | 280000 | 240000 | 100000,,
+rec_alimentos_pago,object,21019,19182,0.9126,2,No | Si,,
+vr_alimentos_pago,object,21019,20689,0.9843,64,170000 | 160000 | 240000 | 192000 | 288000,,
+rec_vivienda_pago,object,21019,19182,0.9126,2,Si | No,,
+vr_vivienda_pago,object,21019,20549,0.9776,24,60000 | 50000 | 10000 | 40000 | 80000,,
+finan_educ_pago,object,21019,19182,0.9126,2,No | Si,,
+vr_educ_pago,float64,21019,21014,0.9998,4,200000.0 | 250000.0 | 300000.0 | 50000.0,50000.0,300000.0
+sub_aliment,object,21019,19182,0.9126,2,No | Si,,
+vr_subalimentacion,object,21019,20996,0.9989,19,30000 | 27000 | 50000 | 130000 | 300000,,
+sub_transp,object,21019,19182,0.9126,2,No | Si,,
+vr_subtransporte,object,21019,20928,0.9957,44,No informa | 200000 | 58000 | 40000 | 80000,,
+sub_familiar,object,21019,19182,0.9126,2,No | Si,,
+vr_subfamiliar,object,21019,20917,0.9951,49,34400 | 20000 | 64000 | 17500 | 40000,,
+ing_hextras,object,21019,19182,0.9126,2,No | Si,,
+vr_ing_hextras,object,21019,20967,0.9975,28,30000 | No sabe | 20000 | 50000 | 70000,,
+horas_normal,object,21019,19182,0.9126,89,40 | 30 | 55 | 90 | 72,,
+ocupacion,object,21019,19182,0.9126,5,Jornalero o pe�n | Otro | Obrero o empleado de empresa particular | Empleado dom�stico | Obrero o empleado del gobierno,,
+ocupacion_cual,object,21019,20829,0.991,85,TRABAJA PARA LOS PADRES DE FAMILIA DEL RESTAURANTE | POR TURNO | PAGO SEMANAL | POR TURNOS | POR PORCENTAJE,,
+descrip_rama,object,21019,19182,0.9126,1196,CULTIVO DE CAFE Y DE PLATANO | RESTAURANTE ESCOLAR | PRODUCCION DE GANADO DE ENGORDE Y LECHERO | LEVANTE DE GANADO VACUNO DE CARNE Y DE LECHE | HOGAR,,
+cod_rama,float64,21019,19182,0.9126,146,111.0 | 5521.0 | 121.0 | 9500.0 | 140.0,11.0,9999.0
+cod_rama1,object,21019,19182,0.9126,41,"Agricultura, ganader�a, caza y actividades de servicios conexas | Alojamiento en hoteles, campamentos y otros tipos de hospedaje no permanente | Hogares privados con servicio dom�stico | Actividades de esparcimimento y actividades culturales y deportivas | Organizaciones y �rganos extraterritoriales",,
+edad_tenia,float64,21019,19182,0.9126,67,55.0 | 0.0 | 42.0 | 40.0 | 39.0,0.0,99.0
+mes_inicio,float64,21019,19182,0.9126,13,0.0 | 6.0 | 1.0 | 5.0 | 2.0,0.0,12.0
+ano_inicio,float64,21019,19182,0.9126,24,0.0 | 2008.0 | 2010.0 | 2005.0 | 2009.0,0.0,2010.0
+t_este_hogar,object,21019,19182,0.9126,2,No | Si,,
+noson_hogar,object,21019,19489,0.9272,7,"Por insuficiencia de ingresos | Porque no hay suficiente trabajo en las fincas, negocios o empresas de este hogar | Porque no tiene finca o empresa propia | Otro | Por independencia econ�mica",,
+noson_hogar_cual,object,21019,20999,0.999,20,LE GUSTABA | POR PROBLEMAS FAMILIARES | PORQUE ESTA PAGANDO UNA DEUDA | PORQUE EN EL MUNICIPIO DE CORDOBA NO HAY EMPLEO | TRABAJO ESTABLE,,
+bustrab_fh,object,21019,13116,0.624,3,"S�, en todos los meses | No | S�, en algunos meses",,
+bustrab_fh1,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh2,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh3,object,21019,20291,0.9654,2,Si | No,,
+bustrab_fh4,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh5,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh6,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh7,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh8,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh9,object,21019,20291,0.9654,2,No | No informa,,
+bustrab_fh10,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh11,object,21019,20291,0.9654,2,No | Si,,
+bustrab_fh12,object,21019,20291,0.9654,2,No | Si,,
+fue_jornalero,object,21019,13116,0.624,2,No | Si,,
+fue_jornalero1,float64,21019,18760,0.8925,29,0.0 | 20.0 | 10.0 | 30.0 | 15.0,0.0,31.0
+fue_jornalero2,float64,21019,18760,0.8925,28,0.0 | 20.0 | 15.0 | 10.0 | 2.0,0.0,28.0
+fue_jornalero3,float64,21019,18760,0.8925,30,15.0 | 0.0 | 20.0 | 10.0 | 1.0,0.0,31.0
+fue_jornalero4,float64,21019,18760,0.8925,30,20.0 | 0.0 | 10.0 | 15.0 | 1.0,0.0,30.0
+fue_jornalero5,float64,21019,18760,0.8925,32,20.0 | 0.0 | 10.0 | 15.0 | 1.0,0.0,31.0
+fue_jornalero6,float64,21019,18760,0.8925,29,15.0 | 0.0 | 20.0 | 10.0 | 1.0,0.0,30.0
+fue_jornalero7,float64,21019,18760,0.8925,31,10.0 | 0.0 | 20.0 | 1.0 | 30.0,0.0,31.0
+fue_jornalero8,float64,21019,18760,0.8925,32,10.0 | 0.0 | 20.0 | 15.0 | 1.0,0.0,31.0
+fue_jornalero9,float64,21019,18760,0.8925,30,15.0 | 0.0 | 20.0 | 10.0 | 1.0,0.0,30.0
+fue_jornalero10,float64,21019,18760,0.8925,31,20.0 | 0.0 | 5.0 | 10.0 | 1.0,0.0,31.0
+fue_jornalero11,float64,21019,18760,0.8925,30,20.0 | 0.0 | 2.0 | 8.0 | 10.0,0.0,30.0
+fue_jornalero12,float64,21019,18760,0.8925,29,15.0 | 10.0 | 20.0 | 0.0 | 1.0,0.0,31.0
+razon_jornalero,object,21019,18760,0.8925,7,"No tener finca propia | Insuficiencia de ingresos | Insuficiencia de trabajo en las fincas, negocios o empresas de este hogar | Mejores pagos o m�s rentabilidad | Independencia econ�mica",,
+razon_jornalero_cual,object,21019,20995,0.9989,24,"POR INUNDACION CUANDO HAY INVIERNO, CUANDO ES VERA | SIEMPRE HA SIDO SU TRABAJO | NO LE ALCANZA EL PEDAZO DE TIERRA PARA VIVR DE ELL | POR LA CAPACIDAD DE TRABAJAR SOLO EN JORNALERIA | POR EXPERIENCIA Y POR QUE ES LO UNICO QUE SABE HAC",,
+cargo_cr,object,21019,13116,0.624,3,"No | S�, en algunos meses | S�, en todos los meses",,
+cargo1,object,21019,20260,0.9639,2,No | Si,,
+cargo2,object,21019,20260,0.9639,2,Si | No,,
+cargo3,object,21019,20260,0.9639,2,No | Si,,
+cargo4,object,21019,20260,0.9639,2,No | Si,,
+cargo5,object,21019,20260,0.9639,2,No | Si,,
+cargo6,object,21019,20260,0.9639,2,No | Si,,
+cargo7,object,21019,20260,0.9639,2,No | Si,,
+cargo8,object,21019,20260,0.9639,2,No | Si,,
+cargo9,object,21019,20260,0.9639,2,No | No informa,,
+cargo10,object,21019,20260,0.9639,2,No | Si,,
+cargo11,object,21019,20260,0.9639,2,No | Si,,
+cargo12,object,21019,20260,0.9639,2,No | Si,,
+ahorra,object,21019,12863,0.612,3,"No | No, no recibe ingresos | Si",,
+vr_ahorro,object,21019,20250,0.9634,35,100000 | 20000 | 10000 | 80000 | 30000,,
+razon_noahorra,object,21019,15878,0.7554,5,Si ahorra no le alcanza para vivir | Otra | Est� pagando una deuda | No lo considera necesario | No tiene necesidad,,
+razon_na_cual,object,21019,21006,0.9994,13,INVIERTE EN SU FINCA | ESTAN INVIRTIENDO EN LA FINCA | POR INVERTIR EN EL NEGOCIO | CULTURA DEL AHORRO | LO INVIERTE COMPRANDO PARA DESPUES VENDER,,
+lugar_ahorra,object,21019,20250,0.9634,6,En un banco o entidad financiera | En efectivo | En activos | Fondos de empleados | Otro,,
+lugar_ahorra_cual,object,21019,21012,0.9997,7,FAMILIAR | EN COMPRA Y MANTENIMIENTO DE ANIMALES | PRESTA Y RECIBE INTERESES | COOPERATIVA | SE LOS AHORRAN EN EL TRABAJO,,
+razon_nsfinan,object,21019,20379,0.9696,7,El dinero no est� disponible inmediatamente | No hay un banco o entidad cerca | Otro | La rentabilidad no es buena | Es muy costoso,,
+razon_nsfinan_cual,object,21019,20998,0.999,18,TAMBIEN AHORRA EN COOPERATIVA DE TRABAJADORES | NO LEGUSTA | PREFIERE AHORRAR  CON EL FONDO DE AHORROS | PREFIERE INVERTIR LOS AHORROS EN ACTIVOS | NO SABE,,
+ahorro_futuro,object,21019,20250,0.9634,2,S� | No,,
+ahorro_educ,object,21019,20250,0.9634,2,No | S�,,
+ahorro_casa,object,21019,20250,0.9634,2,No | S�,,
+ahorro_carro,object,21019,20250,0.9634,2,No | S�,,
+ahorro_otros_act,object,21019,20250,0.9634,2,No | S�,,
+ahorro_event,object,21019,20250,0.9634,2,No | S�,,
+ahorro_recre,object,21019,20250,0.9634,2,No | S�,,
+ahorro_montar,object,21019,20250,0.9634,2,No | S�,,
+ahorro_otro,object,21019,20250,0.9634,2,No | S�,,
+cr_activ1_ma,object,21019,12862,0.6119,13,"Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Trabajos no agropecuarios en fincas, negocios o empresas de otro hogar | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento",,
+hor_aactv1_ma,float64,21019,12863,0.612,11,2.0 | 0.0 | 1.0 | 3.0 | 6.0,0.0,10.0
+min_activ1_ma,float64,21019,12863,0.612,27,0.0 | 15.0 | 30.0 | 25.0 | 20.0,0.0,50.0
+cr_activ2_ma,object,21019,12862,0.6119,16,"Trabajos agropecuarios en fincas, negocios o empresas de otro hogar | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Ida y regreso al trabajo | Trabajos no agropecuarios en fincas, negocios o empresas de otro hogar | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda",,
+hor_aactv2_ma,float64,21019,12931,0.6152,11,6.0 | 0.0 | 2.0 | 4.0 | 5.0,0.0,10.0
+min_activ2_ma,float64,21019,12931,0.6152,24,0.0 | 30.0 | 15.0 | 20.0 | 25.0,0.0,55.0
+cr_activ3_ma,object,21019,12930,0.6152,16,"Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Trabajos agropecuarios en fincas, negocios o empresas de otro hogar | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | 0 | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento",,
+hor_aactv3_ma,float64,21019,14188,0.675,11,1.0 | 0.0 | 6.0 | 3.0 | 4.0,0.0,10.0
+min_activ3_ma,float64,21019,14188,0.675,20,0.0 | 15.0 | 30.0 | 20.0 | 10.0,0.0,50.0
+cr_activ4_ma,object,21019,14188,0.675,15,"0 | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Trabajos agropecuarios en fincas, negocios o empresas de otro hogar",,
+hor_aactv4_ma,float64,21019,16871,0.8027,9,4.0 | 3.0 | 0.0 | 2.0 | 1.0,0.0,8.0
+min_activ4_ma,float64,21019,16871,0.8027,17,0.0 | 30.0 | 10.0 | 20.0 | 15.0,0.0,55.0
+cr_activ5_ma,object,21019,16871,0.8027,16,"0 | Ida y regreso al trabajo | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Tr�mites para solicitar cr�ditos o pr�stamos; solicitar subsidios; participar en grupos de producci�n o cooperativas | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento",,
+hor_aactv5_ma,float64,21019,19463,0.926,7,0.0 | 3.0 | 1.0 | 2.0 | 4.0,0.0,6.0
+min_activ5_ma,float64,21019,19463,0.926,12,10.0 | 0.0 | 30.0 | 15.0 | 20.0,0.0,55.0
+cr_activ6_ma,object,21019,19463,0.926,14,"0 | Trabajos no agropecuarios en fincas, negocios o empresas de otro hogar | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Cuidado de ni�os; cuidado de ancianos, personas enfermas o discapacitadas (del hogar)",,
+hor_aactv6_ma,float64,21019,20628,0.9814,7,1.0 | 3.0 | 0.0 | 2.0 | 5.0,0.0,6.0
+min_activ6_ma,float64,21019,20628,0.9814,9,0.0 | 30.0 | 25.0 | 10.0 | 20.0,0.0,50.0
+cr_activ1_ta,object,21019,12862,0.6119,15,"Trabajos agropecuarios en fincas, negocios o empresas de otro hogar | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Ida y regreso al trabajo",,
+hor_aactv1_ta,float64,21019,12863,0.612,10,3.0 | 0.0 | 1.0 | 4.0 | 2.0,0.0,10.0
+min_activ1_ta,float64,21019,12863,0.612,22,0.0 | 30.0 | 15.0 | 10.0 | 20.0,0.0,50.0
+cr_activ2_ta,object,21019,12862,0.6119,16,"Ida y regreso al trabajo | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento",,
+hor_aactv2_ta,float64,21019,12996,0.6183,10,0.0 | 1.0 | 4.0 | 3.0 | 2.0,0.0,9.0
+min_activ2_ta,float64,21019,12996,0.6183,20,20.0 | 0.0 | 30.0 | 15.0 | 45.0,0.0,50.0
+cr_activ3_ta,object,21019,12995,0.6183,16,"Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Actividades de servicio social o a la comunidad | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Trabajos no agropecuarios en fincas, negocios o empresas de otro hogar",,
+hor_aactv3_ta,float64,21019,14405,0.6853,10,0.0 | 3.0 | 1.0 | 2.0 | 4.0,0.0,9.0
+min_activ3_ta,float64,21019,14405,0.6853,20,30.0 | 0.0 | 40.0 | 15.0 | 10.0,0.0,50.0
+cr_activ4_ta,object,21019,14404,0.6853,16,"0 | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Ida y regreso al trabajo",,
+hor_aactv4_ta,float64,21019,17532,0.8341,8,1.0 | 2.0 | 0.0 | 3.0 | 4.0,0.0,8.0
+min_activ4_ta,float64,21019,17532,0.8341,19,1.0 | 0.0 | 30.0 | 20.0 | 10.0,0.0,50.0
+cr_activ5_ta,object,21019,17531,0.8341,13,"0 | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Trabajos no agropecuarios en fincas, negocios o empresas del hogar | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda",,
+hor_aactv5_ta,float64,21019,19738,0.9391,7,0.0 | 1.0 | 4.0 | 3.0 | 2.0,0.0,9.0
+min_activ5_ta,float64,21019,19738,0.9391,12,15.0 | 30.0 | 0.0 | 10.0 | 20.0,0.0,55.0
+cr_activ6_ta,object,21019,19738,0.9391,13,"0 | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Trabajos no agropecuarios en fincas, negocios o empresas de otro hogar | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud",,
+hor_aactv6_ta,float64,21019,20638,0.9819,6,1.0 | 2.0 | 0.0 | 3.0 | 4.0,0.0,5.0
+min_activ6_ta,float64,21019,20638,0.9819,10,0.0 | 30.0 | 20.0 | 10.0 | 15.0,0.0,50.0
+cr_activ1_no,object,21019,12862,0.6119,14,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | No hacer nada | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Trabajos agropecuarios en fincas, negocios o empresas de otro hogar",,
+hor_aactv1_no,float64,21019,12863,0.612,10,1.0 | 0.0 | 3.0 | 2.0 | 4.0,0.0,9.0
+min_activ1_no,float64,21019,12863,0.612,20,0.0 | 30.0 | 20.0 | 11.0 | 10.0,0.0,50.0
+cr_activ2_no,object,21019,12862,0.6119,15,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidado de ni�os; cuidado de ancianos, personas enfermas o discapacitadas (del hogar) | 0 | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda",,
+hor_aactv2_no,float64,21019,13937,0.6631,10,1.0 | 2.0 | 0.0 | 3.0 | 4.0,0.0,9.0
+min_activ2_no,float64,21019,13937,0.6631,18,0.0 | 30.0 | 15.0 | 10.0 | 20.0,0.0,50.0
+cr_activ3_no,object,21019,17727,0.8434,14,"No hacer nada | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Cuidado de ni�os; cuidado de ancianos, personas enfermas o discapacitadas (del hogar)",,
+hor_aactv3_no,float64,21019,17793,0.8465,11,0.0 | 2.0 | 4.0 | 1.0 | 3.0,0.0,10.0
+min_activ3_no,float64,21019,17793,0.8465,16,30.0 | 0.0 | 10.0 | 15.0 | 11.0,0.0,50.0
+cr_activ4_no,object,21019,17793,0.8465,12,"0 | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda | Trabajos agropecuarios en fincas, negocios o empresas del hogar | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud",,
+hor_aactv4_no,float64,21019,20324,0.9669,10,3.0 | 1.0 | 0.0 | 2.0 | 4.0,0.0,9.0
+min_activ4_no,float64,21019,20324,0.9669,9,0.0 | 30.0 | 15.0 | 10.0 | 20.0,0.0,50.0
+cr_activ5_no,object,21019,20324,0.9669,9,"0 | Trabajos agropecuarios en fincas, negocios o empresas de otro hogar | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | Cuidado de ni�os; cuidado de ancianos, personas enfermas o discapacitadas (del hogar) | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud",,
+hor_aactv5_no,float64,21019,20928,0.9957,10,1.0 | 2.0 | 3.0 | 0.0 | 6.0,0.0,9.0
+min_activ5_no,float64,21019,20928,0.9957,7,0.0 | 30.0 | 15.0 | 10.0 | 20.0,0.0,45.0
+cr_activ6_no,object,21019,20928,0.9957,4,"0 | Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento | No hacer nada | Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud",,
+hor_aactv6_no,float64,21019,21007,0.9994,7,1.0 | 0.0 | 5.0 | 8.0 | 6.0,0.0,8.0
+min_activ6_no,float64,21019,21007,0.9994,2,0.0 | 30.0,0.0,30.0
+estado_civil,object,21019,12859,0.6118,5,En uni�n libre | Casado(a) | Soltero(a) | Separado(a) o divorciado(a) | Viudo(a),,
+vive_conyuge,object,21019,13788,0.656,2,Si | No,,
+orden_conyuge,float64,21019,13875,0.6601,5,2.0 | 1.0 | 5.0 | 3.0 | 10.0,1.0,10.0
+edad_unionm,float64,21019,13789,0.656,58,36.0 | 32.0 | 22.0 | 15.0 | 35.0,0.0,71.0
+mes_unionm,float64,21019,19531,0.9292,12,11.0 | 6.0 | 9.0 | 12.0 | 8.0,1.0,12.0
+ano_unionm,float64,21019,19531,0.9292,55,1984.0 | 1976.0 | 1999.0 | 2001.0 | 1996.0,1947.0,2010.0
+hijos_hombres_unionm,float64,21019,13789,0.656,11,1.0 | 0.0 | 2.0 | 3.0 | 4.0,0.0,11.0
+hijos_mujeres_unionm,float64,21019,13789,0.656,11,1.0 | 0.0 | 3.0 | 6.0 | 2.0,0.0,10.0
+edad_hijo_mayor,float64,21019,14579,0.6936,56,15.0 | 5.0 | 27.0 | 9.0 | 10.0,0.0,60.0
+edad_hijo_mayorm,float64,21019,20424,0.9717,12,4.0 | 5.0 | 9.0 | 8.0 | 10.0,1.0,12.0
+edad_hijo_mayora,float64,21019,20424,0.9717,48,2009.0 | 1999.0 | 2004.0 | 1997.0 | 1978.0,1948.0,2010.0
+otras_unionesm,object,21019,13316,0.6335,2,Si | No,,
+cuantas_unionesm,float64,21019,19462,0.9259,8,2.0 | 5.0 | 4.0 | 3.0 | 9.0,1.0,9.0
+org_jac,object,21019,12863,0.612,2,No | S�,,
+org_caridad,object,21019,12863,0.612,2,No | S�,,
+org_comunitaria,object,21019,12863,0.612,2,No | S�,,
+org_religiosa,object,21019,12863,0.612,2,No | S�,,
+junta_edif,object,21019,12863,0.612,1,No,,
+org_iestado,object,21019,12863,0.612,2,No | S�,,
+org_etnica,object,21019,12863,0.612,2,No | S�,,
+org_culdep,object,21019,12863,0.612,2,No | S�,,
+org_educ,object,21019,12863,0.612,2,No | S�,,
+org_mamb,object,21019,12863,0.612,2,No | S�,,
+asoc_vigil,object,21019,12863,0.612,2,No | S�,,
+sindicato,object,21019,12863,0.612,2,No | S�,,
+mov_parpol,object,21019,12863,0.612,2,No | S�,,
+org_otra,object,21019,12863,0.612,2,No | S�,,
+org_otra_cual,object,21019,20921,0.9953,84,COOPERATIVA DE PROFESORES | ASOCIACION DE MADRES EN ACCION | GRUPO DE SALUD | COOPERATIVA DE MOTORISTAS DE CONTRASCOR | SUBCOMITE MUNICIPAL DE CAFETEROS,,
+org_ninguna,object,21019,12863,0.612,2,No participa | S�,,
+cr_asisteorg1,object,21019,18859,0.8972,2,Si | No,,
+cr_asisteorg2,object,21019,20733,0.9864,2,Si | No,,
+cr_asisteorg3,object,21019,20979,0.9981,2,Si | No,,
+cr_asisteorg4,object,21019,21008,0.9995,1,Si,,
+cr_asisteorg5,object,21019,21011,0.9996,1,Si,,
+nhoras_org1,float64,21019,19022,0.905,33,3.0 | 1.0 | 2.0 | 12.0 | 7.0,0.0,70.0
+nhoras_org2,float64,21019,20758,0.9876,21,1.0 | 0.0 | 2.0 | 3.0 | 24.0,0.0,56.0
+nhoras_org3,float64,21019,20984,0.9983,9,2.0 | 30.0 | 4.0 | 1.0 | 5.0,0.0,30.0
+nhoras_org4,float64,21019,21008,0.9995,8,30.0 | 2.0 | 15.0 | 8.0 | 3.0,0.0,30.0
+nhoras_org5,float64,21019,21011,0.9996,4,10.0 | 1.0 | 0.0 | 2.0,0.0,10.0
+ptd_org1,object,21019,19022,0.905,2,Si | No,,
+ptd_org2,object,21019,20758,0.9876,2,Si | No,,
+ptd_org3,object,21019,20984,0.9983,2,Si | No,,
+ptd_org4,object,21019,21008,0.9995,1,Si,,
+ptd_org5,object,21019,21011,0.9996,1,Si,,
+crlider_org1,object,21019,19022,0.905,2,No | Si,,
+crlider_org2,object,21019,20758,0.9876,2,Si | No,,
+crlider_org3,object,21019,20984,0.9983,2,Si | No,,
+crlider_org4,object,21019,21008,0.9995,2,Si | No,,
+crlider_org5,object,21019,21011,0.9996,2,Si | No,,
+fpers,float64,21019,0,0.0,96,3.530487804878049 | 7.2375 | 2.88125 | 5.762499999999999 | 5.7625,2.7375,69.55
+fexpers,float64,21019,0,0.0,93,0.417805596943808 | 0.8565014737348065 | 0.3409733846215421 | 0.6819467692430842 | 0.6819467692430843,0.3239616973193828,8.230698099931715

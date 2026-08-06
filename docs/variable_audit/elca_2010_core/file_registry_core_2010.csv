@@ -1,0 +1,5 @@
+dataset,file_name,n_rows,n_cols
+UHogar,UHogar.tab,5275,451
+RHogar,RHogar.tab,4578,384
+UPersonas,UPersonas.tab,22179,455
+RPersonas,RPersonas-csv.tab,21019,415

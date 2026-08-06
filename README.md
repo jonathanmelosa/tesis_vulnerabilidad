@@ -22,6 +22,15 @@ The project is fully reproducible:
 - `outputs/`: tables, figures, models
 - `paper/`: manuscript
 
+## Sentinel-1 Workflow
+The modular Sentinel-1 workflow lives in `src/sentinel1_pipeline/` and is split into:
+- `config.py`: runtime configuration
+- `gee.py`: Earth Engine initialization
+- `sentinel1.py`: Sentinel-1 collection and composite helpers
+- `export.py`: export task helpers
+- `pipeline.py`: orchestration layer
+- `cli.py`: command-line entry point
+
 ## Pipeline
 1. Download data
 2. Build datasets per round

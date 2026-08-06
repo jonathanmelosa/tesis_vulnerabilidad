@@ -1,0 +1,456 @@
+variable,dtype,n_obs,n_missing,pct_missing,n_unique,sample_values,min,max
+ola,int64,22179,0,0.0,1,1,1.0,1.0
+consecutivo,int64,22179,0,0.0,5275,111001 | 111002 | 111003 | 111004 | 111006,111001.0,226628.0
+orden,int64,22179,0,0.0,28,1 | 2 | 3 | 4 | 5,1.0,28.0
+llave_id_lb,int64,22179,0,0.0,22179,11100101 | 11100102 | 11100103 | 11100201 | 11100202,11100101.0,22662804.0
+nac_dia,int64,22179,0,0.0,32,15 | 4 | 24 | 18 | 10,1.0,99.0
+nac_mes,int64,22179,0,0.0,13,5 | 3 | 10 | 7 | 1,1.0,99.0
+nac_ano,int64,22179,0,0.0,101,1955 | 1983 | 2008 | 1970 | 1966,1910.0,9999.0
+edad,float64,22179,0,0.0,99,54.0 | 26.0 | 1.0 | 39.0 | 43.0,0.0,999.0
+edad_meses,float64,22179,0,0.0,12,9.0 | 11.0 | 4.0 | 7.0 | 0.0,0.0,11.0
+sexo,int64,22179,0,0.0,2,2 | 1,1.0,2.0
+seguimiento,int64,22179,0,0.0,2,1 | 2,1.0,2.0
+es_bisnieto,float64,22179,22150,0.9987,1,1.0,1.0,1.0
+parentesco,int64,22179,0,0.0,18,1 | 3 | 5 | 2 | 10,1.0,18.0
+orden_pariente,int64,22179,0,0.0,21,2 | 1 | 4 | 5 | 3,1.0,27.0
+pariente,int64,22179,0,0.0,17,3 | 6 | 2 | 8 | 12,2.0,18.0
+padre_vive,int64,22179,0,0.0,4,3 | 2 | 1 | 9,1.0,9.0
+orden_padre,float64,22179,15521,0.6998,16,6.0 | 1.0 | 2.0 | 4.0 | 3.0,1.0,27.0
+ano_nac_p,float64,22179,6668,0.3006,120,1926.0 | 1948.0 | 1965.0 | 9998.0 | 1934.0,1823.0,9999.0
+educ_padre,float64,22179,6669,0.3007,11,2.0 | 1.0 | 7.0 | 4.0 | 98.0,1.0,99.0
+trabajo_padre,float64,22179,6669,0.3007,11,1.0 | 3.0 | 7.0 | 5.0 | 2.0,1.0,99.0
+enfermedad_p,float64,22179,6669,0.3007,4,1.0 | 2.0 | 8.0 | 9.0,1.0,9.0
+presion_p,float64,22179,17541,0.7909,2,1.0 | 0.0,0.0,1.0
+diabetes_p,float64,22179,17543,0.791,2,0.0 | 2.0,0.0,2.0
+artritis_p,float64,22179,17543,0.791,2,0.0 | 3.0,0.0,3.0
+corazon_p,float64,22179,17543,0.791,2,0.0 | 4.0,0.0,4.0
+coronaria_p,float64,22179,17543,0.791,2,0.0 | 5.0,0.0,5.0
+bronquitis_p,float64,22179,17543,0.791,2,0.0 | 6.0,0.0,6.0
+asma_p,float64,22179,17543,0.791,2,0.0 | 7.0,0.0,7.0
+espalda_p,float64,22179,17542,0.7909,3,0.0 | 8.0 | 1.0,0.0,8.0
+cerebral_p,float64,22179,17543,0.791,2,0.0 | 9.0,0.0,9.0
+depresion_p,float64,22179,17543,0.791,2,0.0 | 10.0,0.0,10.0
+gastritis_p,float64,22179,17543,0.791,2,0.0 | 11.0,0.0,11.0
+rinon_p,float64,22179,17543,0.791,2,0.0 | 12.0,0.0,12.0
+cancer_p,float64,22179,17543,0.791,2,0.0 | 13.0,0.0,13.0
+vih_p,float64,22179,17543,0.791,2,0.0 | 14.0,0.0,14.0
+madre_vive,int64,22179,0,0.0,4,2 | 1 | 3 | 9,1.0,9.0
+orden_madre,float64,22179,11226,0.5062,16,1.0 | 2.0 | 4.0 | 7.0 | 10.0,1.0,24.0
+ano_nac_m,float64,22179,10955,0.4939,115,1928.0 | 9998.0 | 1953.0 | 1945.0 | 1951.0,1860.0,9999.0
+educ_madre,float64,22179,10955,0.4939,11,2.0 | 1.0 | 9.0 | 3.0 | 98.0,1.0,99.0
+trabajo_madre,float64,22179,10955,0.4939,11,9.0 | 5.0 | 4.0 | 1.0 | 2.0,1.0,99.0
+enfermedad_m,float64,22179,10955,0.4939,4,2.0 | 1.0 | 8.0 | 9.0,1.0,9.0
+presion_m,float64,22179,17000,0.7665,2,1.0 | 0.0,0.0,1.0
+diabetes_m,float64,22179,17000,0.7665,2,0.0 | 2.0,0.0,2.0
+artritis_m,float64,22179,17000,0.7665,2,0.0 | 3.0,0.0,3.0
+corazon_m,float64,22179,17000,0.7665,2,0.0 | 4.0,0.0,4.0
+coronaria_m,float64,22179,17000,0.7665,2,0.0 | 5.0,0.0,5.0
+bronquitis_m,float64,22179,17000,0.7665,2,0.0 | 6.0,0.0,6.0
+asma_m,float64,22179,17000,0.7665,2,0.0 | 7.0,0.0,7.0
+espalda_m,float64,22179,17000,0.7665,2,0.0 | 8.0,0.0,8.0
+cerebral_m,float64,22179,17000,0.7665,2,0.0 | 9.0,0.0,9.0
+depresion_m,float64,22179,17000,0.7665,2,0.0 | 10.0,0.0,10.0
+gastritis_m,float64,22179,17000,0.7665,2,11.0 | 0.0,0.0,11.0
+rinon_m,float64,22179,17000,0.7665,2,0.0 | 12.0,0.0,12.0
+cancer_m,float64,22179,17000,0.7665,2,0.0 | 13.0,0.0,13.0
+vih_m,float64,22179,17000,0.7665,2,0.0 | 14.0,0.0,14.0
+etnia,float64,22179,9108,0.4107,6,1.0 | 6.0 | 5.0 | 4.0 | 2.0,1.0,6.0
+lugar_nacimiento,float64,22179,9108,0.4107,4,3.0 | 1.0 | 2.0 | 4.0,1.0,4.0
+id_dpto_nac,float64,22179,17027,0.7677,32,14.0 | 3.0 | 2.0 | 18.0 | 26.0,1.0,32.0
+id_mpio_nac,float64,22179,17027,0.7677,505,193.0 | 102.0 | 279.0 | 6.0 | 204.0,1.0,583.0
+pais_nac,float64,22179,22120,0.9973,12,850.0 | 245.0 | 69.0 | 249.0 | 239.0,23.0,998.0
+cabecera_nac,float64,22179,17022,0.7675,2,2.0 | 1.0,1.0,2.0
+vivia_con,float64,22179,13392,0.6038,5,1.0 | 4.0 | 2.0 | 3.0 | 5.0,1.0,5.0
+razon_novivia,float64,22179,19358,0.8728,9,3.0 | 9.0 | 2.0 | 4.0 | 8.0,1.0,9.0
+razon_nv_cual,object,22179,22130,0.9978,48,NO LO RECONOCIERON COMO HIJO | SE HABIA ORGANIZADO CON UN SE�OR | PAPA Y MAMA PELEABAN MUCHO | DECISION PROPIA DE LOS PADRES | TRADICION FAMILIAR,,
+lugar_vivia,float64,22179,13392,0.6038,4,3.0 | 1.0 | 2.0 | 4.0,1.0,4.0
+id_dpto_vivia,float64,22179,18952,0.8545,32,14.0 | 3.0 | 18.0 | 26.0 | 13.0,1.0,32.0
+id_mpio_vivia,float64,22179,18952,0.8545,461,178.0 | 102.0 | 279.0 | 6.0 | 55.0,1.0,583.0
+pais_vivia,float64,22179,22142,0.9983,11,23.0 | 850.0 | 105.0 | 239.0 | 589.0,23.0,998.0
+cabecera_vivia,float64,22179,18771,0.8463,2,2.0 | 1.0,1.0,2.0
+lugar_vivia5,float64,22179,13392,0.6038,3,1.0 | 2.0 | 3.0,1.0,3.0
+id_dpto_vivia5,float64,22179,21320,0.9613,31,14.0 | 20.0 | 16.0 | 12.0 | 11.0,1.0,32.0
+id_mpio_vivia5,float64,22179,21320,0.9613,196,279.0 | 102.0 | 96.0 | 77.0 | 98.0,1.0,554.0
+pais_vivia5,float64,22179,22143,0.9984,11,850.0 | 23.0 | 239.0 | 249.0 | 245.0,23.0,850.0
+cabecera_vivia5,float64,22179,13428,0.6054,2,1.0 | 2.0,1.0,2.0
+vivido_siempre5,float64,22179,14434,0.6508,2,1.0 | 2.0,1.0,2.0
+razon_llego,float64,22179,21039,0.9486,7,6.0 | 7.0 | 1.0 | 5.0 | 2.0,1.0,7.0
+razon_llego_cual,object,22179,22115,0.9971,60,PROBLEMAS CON LA FAMILIA PATERNA | PREDICACION DEL EVANGELIO | QUERIA VIVIR AQUI | PARA SER MINISTRO VOLUNTARIO | LES GUSTA FONSECA,,
+vivido_otro5,float64,22179,21039,0.9486,2,1.0 | 2.0,1.0,2.0
+afiliacion,float64,22179,13392,0.6038,2,2.0 | 1.0,1.0,2.0
+sss,float64,22179,21398,0.9648,2,2.0 | 1.0,1.0,2.0
+sss_meses,float64,22179,21889,0.9869,12,12.0 | 10.0 | 1.0 | 5.0 | 6.0,1.0,12.0
+regimen,float64,22179,13883,0.626,3,3.0 | 1.0 | 2.0,1.0,3.0
+sss_porque,float64,22179,17147,0.7731,3,1.0 | 2.0 | 3.0,1.0,3.0
+tiempo_anos,float64,22179,13883,0.626,54,14.0 | 2.0 | 5.0 | 9.0 | 0.0,0.0,62.0
+tiempo_meses,float64,22179,13883,0.626,12,0.0 | 2.0 | 3.0 | 1.0 | 6.0,0.0,11.0
+prepagada,float64,22179,13392,0.6038,2,2.0 | 1.0,1.0,2.0
+cotiza_fp,float64,22179,13392,0.6038,8,7.0 | 5.0 | 3.0 | 8.0 | 2.0,1.0,8.0
+vr_rec_pension,float64,22179,21780,0.982,115,2500000.0 | 3000000.0 | 1200000.0 | 98.0 | 1947000.0,98.0,7500000.0
+beneficiario_sss,float64,22179,17896,0.8069,2,1.0 | 2.0,1.0,2.0
+beneficiario_orden,float64,22179,18293,0.8248,15,2.0 | 4.0 | 1.0 | 0.0 | 3.0,0.0,99.0
+ev_enfe,float64,22179,9109,0.4107,2,0.0 | 1.0,0.0,1.0
+ev_acci,float64,22179,9109,0.4107,2,0.0 | 2.0,0.0,2.0
+ev_odon,float64,22179,9109,0.4107,2,0.0 | 3.0,0.0,3.0
+ev_ciru,float64,22179,9109,0.4107,2,0.0 | 4.0,0.0,4.0
+ev_ning,float64,22179,9109,0.4107,2,5.0 | 0.0,0.0,5.0
+vr_enfe,float64,22179,20004,0.9019,158,20000.0 | 5000.0 | 0.0 | 6000.0 | 40000.0,0.0,4000000.0
+vr_acci,float64,22179,22024,0.993,42,0.0 | 35000.0 | 38000.0 | 30000.0 | 150000.0,0.0,2000000.0
+vr_odon,float64,22179,21870,0.9861,71,155000.0 | 95000.0 | 30000.0 | 15000.0 | 0.0,0.0,4000000.0
+vr_ciru,float64,22179,22105,0.9967,34,75000.0 | 150000.0 | 0.0 | 100000.0 | 8000.0,0.0,2800000.0
+tratar_enfe,float64,22179,20004,0.9019,8,7.0 | 1.0 | 8.0 | 2.0 | 6.0,1.0,8.0
+tratar_acci,float64,22179,22024,0.993,7,1.0 | 5.0 | 4.0 | 2.0 | 8.0,1.0,8.0
+tratar_odon,float64,22179,21870,0.9861,7,2.0 | 7.0 | 6.0 | 1.0 | 4.0,1.0,8.0
+tratar_ciru,float64,22179,22104,0.9966,3,1.0 | 2.0 | 8.0,1.0,8.0
+noprof_enfe,float64,22179,21650,0.9761,12,11.0 | 9.0 | 12.0 | 3.0 | 8.0,1.0,12.0
+noprof_acci,float64,22179,22161,0.9992,8,12.0 | 1.0 | 6.0 | 11.0 | 4.0,1.0,12.0
+noprof_odon,float64,22179,22123,0.9975,11,12.0 | 1.0 | 8.0 | 2.0 | 4.0,1.0,12.0
+noprof_ciru,float64,22179,22178,1.0,1,12.0,12.0,12.0
+dias_noasistio,float64,22179,20413,0.9204,44,0.0 | 4.0 | 16.0 | 5.0 | 3.0,0.0,999.0
+hospitalizado,float64,22179,9109,0.4107,2,2.0 | 1.0,1.0,2.0
+hospital_veces,float64,22179,20817,0.9386,12,1.0 | 2.0 | 5.0 | 3.0 | 4.0,1.0,20.0
+ultima_hosp,float64,22179,20817,0.9386,10,7.0 | 4.0 | 3.0 | 2.0 | 1.0,1.0,10.0
+ult_hosp_cual,object,22179,22152,0.9988,26,INFECCION EN TALON | por la vacuna que le aplicaron sintio reaccion | DEPRESION | NACIO PREMATURA | NACIO PREMATURO,,
+vr_ult_hosp,float64,22179,20817,0.9386,174,120000.0 | 20000.0 | 560000.0 | 0.0 | 500000.0,0.0,8000000.0
+ult_hosp_dias,float64,22179,21256,0.9584,60,15.0 | 90.0 | 7.0 | 10.0 | 30.0,0.0,365.0
+ceguera,float64,22179,17896,0.8069,2,0.0 | 1.0,0.0,1.0
+sordera,float64,22179,17896,0.8069,2,0.0 | 2.0,0.0,2.0
+mudez,float64,22179,17896,0.8069,2,0.0 | 3.0,0.0,3.0
+dif_moverse,float64,22179,17896,0.8069,2,0.0 | 4.0,0.0,4.0
+dif_banarse,float64,22179,17896,0.8069,2,0.0 | 5.0,0.0,5.0
+dif_calle,float64,22179,17896,0.8069,2,0.0 | 6.0,0.0,6.0
+dif_aprender,float64,22179,17896,0.8069,2,0.0 | 7.0,0.0,7.0
+dif_ninguna,float64,22179,17897,0.8069,2,8.0 | 0.0,0.0,8.0
+prev_med,float64,22179,9109,0.4107,2,0.0 | 1.0,0.0,1.0
+prev_pediatra,float64,22179,17896,0.8069,2,2.0 | 0.0,0.0,2.0
+prev_odo,float64,22179,9109,0.4107,2,0.0 | 3.0,0.0,3.0
+prev_opto,float64,22179,9109,0.4107,2,0.0 | 4.0,0.0,4.0
+prev_malter,float64,22179,9109,0.4107,2,0.0 | 5.0,0.0,5.0
+prev_planif,float64,22179,13392,0.6038,2,0.0 | 6.0,0.0,6.0
+prev_nousa,float64,22179,9111,0.4108,2,7.0 | 0.0,0.0,7.0
+informante,float64,22179,13392,0.6038,3,1.0 | 2.0 | 3.0,1.0,3.0
+movilidad,float64,22179,13392,0.6038,3,1.0 | 2.0 | 3.0,1.0,3.0
+t_movilidad,float64,22179,21428,0.9661,2,2.0 | 1.0,1.0,2.0
+cuidado_personal,float64,22179,13392,0.6038,3,1.0 | 2.0 | 3.0,1.0,3.0
+t_cuidado_personal,float64,22179,22049,0.9941,2,2.0 | 1.0,1.0,2.0
+act_cotidiana,float64,22179,13392,0.6038,3,1.0 | 2.0 | 3.0,1.0,3.0
+t_act_cotidiana,float64,22179,21724,0.9795,2,2.0 | 1.0,1.0,2.0
+malestar,float64,22179,13392,0.6038,3,1.0 | 3.0 | 2.0,1.0,3.0
+t_malestar,float64,22179,20018,0.9026,2,2.0 | 1.0,1.0,2.0
+angustia,float64,22179,13392,0.6038,3,1.0 | 2.0 | 3.0,1.0,3.0
+t_angustia,float64,22179,20364,0.9182,2,2.0 | 1.0,1.0,2.0
+califica_salud,float64,22179,13392,0.6038,50,90.0 | 85.0 | 70.0 | 80.0 | 5.0,1.0,100.0
+lee_escribe,float64,22179,11234,0.5065,2,1.0 | 2.0,1.0,2.0
+estudia,float64,22179,11234,0.5065,2,2.0 | 1.0,1.0,2.0
+razon_noestudia,float64,22179,13781,0.6214,14,3.0 | 13.0 | 7.0 | 6.0 | 2.0,1.0,99.0
+noestudia_cual,object,22179,22072,0.9952,104,CAMBIO DE MUNICIPIO | P0R FALTA DE PAPELES | NO HAN INICIADO CLASES EN EL SENA | FNO TIENE LOS DOCUMENTOS | FALTA DE DOCUMENTOS,,
+nivel_educ,float64,22179,13783,0.6214,12,4.0 | 3.0 | 6.0 | 12.0 | 8.0,1.0,12.0
+grado_educ,float64,22179,14159,0.6384,13,6.0 | 5.0 | 2.0 | 9.0 | 11.0,1.0,13.0
+anos_superior,float64,22179,20536,0.9259,17,4.0 | 3.0 | 7.0 | 5.0 | 6.0,1.0,20.0
+edad_dejoestudio,float64,22179,14158,0.6384,62,14.0 | 12.0 | 11.0 | 18.0 | 37.0,0.0,99.0
+tipo_estab,float64,22179,19632,0.8852,2,1.0 | 2.0,1.0,2.0
+nivel_educ_cursa,float64,22179,19632,0.8852,7,2.0 | 4.0 | 1.0 | 6.0 | 5.0,1.0,7.0
+grado_educ_cursa,float64,22179,19632,0.8852,12,1.0 | 2.0 | 3.0 | 4.0 | 5.0,0.0,11.0
+est_superiores,float64,22179,21856,0.9854,15,0.0 | 2.0 | 4.0 | 1.0 | 7.0,0.0,15.0
+tareas,float64,22179,19632,0.8852,3,1.0 | 2.0 | 3.0,1.0,3.0
+orden_tareas,float64,22179,20162,0.9091,15,2.0 | 1.0 | 3.0 | 7.0 | 5.0,1.0,20.0
+consulta_libros,float64,22179,19632,0.8852,5,3.0 | 5.0 | 4.0 | 2.0 | 1.0,1.0,5.0
+prestamo_libros,float64,22179,21882,0.9866,2,2.0 | 1.0,1.0,2.0
+rec_refrigerio,float64,22179,19632,0.8852,2,1.0 | 0.0,0.0,1.0
+rec_desayuno,float64,22179,19632,0.8852,2,0.0 | 2.0,0.0,2.0
+rec_almuerzo,float64,22179,19632,0.8852,2,0.0 | 3.0,0.0,3.0
+rec_balimenta,float64,22179,19632,0.8852,2,0.0 | 4.0,0.0,4.0
+rec_btransp,float64,22179,19632,0.8852,2,0.0 | 5.0,0.0,5.0
+rec_bfotocop,float64,22179,19632,0.8852,2,0.0 | 6.0,0.0,6.0
+rec_uniformes,float64,22179,19632,0.8852,2,0.0 | 7.0,0.0,7.0
+rec_nada,float64,22179,19633,0.8852,2,0.0 | 8.0,0.0,8.0
+pago_matricula,float64,22179,19632,0.8852,2,2.0 | 1.0,1.0,2.0
+vr_matricula,float64,22179,20928,0.9436,270,450000.0 | 195000.0 | 200000.0 | 17000.0 | 650000.0,98.0,7200000.0
+inc_libros,float64,22179,20928,0.9436,2,0.0 | 1.0,0.0,1.0
+inc_salidasp,float64,22179,20928,0.9436,2,0.0 | 2.0,0.0,2.0
+inc_otros,float64,22179,20928,0.9436,2,0.0 | 3.0,0.0,3.0
+inc_solom,float64,22179,20927,0.9436,2,4.0 | 0.0,0.0,4.0
+pago_uniformes,float64,22179,19632,0.8852,2,2.0 | 1.0,1.0,2.0
+vr_uniformes,float64,22179,20406,0.9201,161,100000.0 | 180000.0 | 80000.0 | 150000.0 | 140000.0,98.0,1500000.0
+pago_utiles,float64,22179,19632,0.8852,2,1.0 | 2.0,1.0,2.0
+vr_utiles,float64,22179,19986,0.9011,149,100000.0 | 50000.0 | 80000.0 | 30000.0 | 150000.0,98.0,1500000.0
+pago_complem,float64,22179,19632,0.8852,2,2.0 | 1.0,1.0,2.0
+vr_complem,float64,22179,21498,0.9693,92,43000.0 | 60000.0 | 50000.0 | 5000.0 | 2000.0,98.0,700000.0
+pago_bono,float64,22179,19632,0.8852,2,2.0 | 1.0,1.0,2.0
+vr_bono,float64,22179,22151,0.9987,10,56000.0 | 20000.0 | 5000.0 | 3000.0 | 36000.0,3000.0,200000.0
+pago_pension,float64,22179,19632,0.8852,2,2.0 | 1.0,1.0,2.0
+vr_pension,float64,22179,21647,0.976,171,145000.0 | 211000.0 | 55000.0 | 50000.0 | 143000.0,98.0,2000000.0
+pinc_transp,float64,22179,21647,0.976,2,0.0 | 1.0,0.0,1.0
+pinc_aliment,float64,22179,21647,0.976,2,0.0 | 2.0,0.0,2.0
+pinc_otros,float64,22179,21647,0.976,2,0.0 | 3.0,0.0,3.0
+pinc_solop,float64,22179,21647,0.976,2,4.0 | 0.0,0.0,4.0
+recibio_beca,float64,22179,19632,0.8852,4,4.0 | 1.0 | 2.0 | 3.0,1.0,4.0
+beca_accionsocial,float64,22179,21835,0.9845,2,0.0 | 1.0,0.0,1.0
+beca_prg_gob,float64,22179,21835,0.9845,2,0.0 | 2.0,0.0,2.0
+beca_cajacom,float64,22179,21835,0.9845,2,0.0 | 3.0,0.0,3.0
+beca_emp_pub,float64,22179,21835,0.9845,2,0.0 | 4.0,0.0,4.0
+beca_emp_pri,float64,22179,21835,0.9845,2,0.0 | 5.0,0.0,5.0
+beca_misma_ins,float64,22179,21835,0.9845,2,6.0 | 0.0,0.0,6.0
+beca_otro,float64,22179,21835,0.9845,2,0.0 | 7.0,0.0,7.0
+beca_cual,object,22179,22173,0.9997,4,DONDE  EL TRABAJA | SIN INFORMACION | SAMARITANOS DE LA CALLE | POLITICA,,
+beca_periodicidad,float64,22179,21835,0.9845,6,4.0 | 6.0 | 5.0 | 1.0 | 2.0,1.0,6.0
+vr_beca,float64,22179,21835,0.9845,75,450000.0 | 180000.0 | 200000.0 | 390000.0 | 260000.0,98.0,10800000.0
+credito_estudiar,float64,22179,19632,0.8852,2,2.0 | 1.0,1.0,2.0
+cred_icetex,float64,22179,22136,0.9981,2,1.0 | 0.0,0.0,1.0
+cred_cajacom,float64,22179,22136,0.9981,2,0.0 | 2.0,0.0,2.0
+cred_banco,float64,22179,22136,0.9981,2,0.0 | 3.0,0.0,3.0
+cred_emp_pub,float64,22179,22136,0.9981,2,0.0 | 4.0,0.0,4.0
+cred_emp_pri,float64,22179,22136,0.9981,2,0.0 | 5.0,0.0,5.0
+cred_fondo,float64,22179,22136,0.9981,2,0.0 | 6.0,0.0,6.0
+cred_fna,float64,22179,22136,0.9981,1,0.0,0.0,0.0
+cred_misma_ins,float64,22179,22136,0.9981,2,0.0 | 8.0,0.0,8.0
+cred_otro,float64,22179,22136,0.9981,2,0.0 | 9.0,0.0,9.0
+cred_cual,object,22179,22172,0.9997,7,INSTITUTO DONDE ESTUDIA | INVERSORA PICHINCHA | GOBERNACION DE VILLAVICENCIO | CORSAN - CORPORACION DE SANTANDER | PRESTAMISTA,,
+cred_periodicidad,float64,22179,22136,0.9981,4,4.0 | 1.0 | 6.0 | 5.0,1.0,6.0
+vr_credito,float64,22179,22136,0.9981,36,2500000.0 | 100000.0 | 1401000.0 | 780000.0 | 220000.0,98.0,10000000.0
+poc,float64,22179,16072,0.7246,1,1.0,1.0,1.0
+pin,float64,22179,20229,0.9121,1,1.0,1.0,1.0
+pds,float64,22179,21449,0.9671,1,1.0,1.0,1.0
+pta,float64,22179,15760,0.7106,1,1.0,1.0,1.0
+ppt,float64,22179,17240,0.7773,1,1.0,1.0,1.0
+actividad_ppal,float64,22179,13392,0.6038,6,1.0 | 6.0 | 3.0 | 2.0 | 4.0,1.0,6.0
+cod_rama,float64,22179,16072,0.7246,328,9500.0 | 4521.0 | 5521.0 | 2529.0 | 8060.0,111.0,9999.0
+descrip_rama,object,22179,16071,0.7246,4828,CUIDADO DEL NIETO | CONSTRUCCION DE VIVIENDAS | VENTA DE COMIDAS COCINADAS | FABRICACION Y VENTA DE EMPPAQUES FLEXIBES PARA ALIMENTOS | FABRICA YVENTA DE BOLSAS PLASTICAS PARA LA BASURA,,
+descripcion_ciiu,object,22179,16130,0.7273,327,Hogares privados con servicio dom�stico | Construcci�n de edificaciones para uso recidencial | Expendio a la mesa de comidas preparadas en restaurantes | Fabricaci�n de articulos de pl�stico ncp | Educaci�n no formal,,
+cod_rama1,float64,22179,16071,0.7246,57,95.0 | 45.0 | 55.0 | 25.0 | 80.0,1.0,99.0
+descripcion_ciiu_2digitos,object,22179,16071,0.7246,57,"Hogares privados con servicio dom�stico | Construcci�n | Alojamiento en hoteles, campamentos y otros tipo de hospedaje no permanente | Fabricaci�n de productos de caucho y de pl�stico | Educaci�n",,
+nombre_empresa,object,22179,16071,0.7246,5039,MARIA ELIZABETH | NO TIENE | FLEXO SPRING S.A | JD | POLITECNICO UNICAP,,
+cod_oficio,float64,22179,16071,0.7246,590,5403.0 | 9512.0 | 5313.0 | 9039.0 | 9035.0,38.0,9999.0
+descrip_oficio,object,22179,16072,0.7246,4342,CUIDAR EL NIETO | AYUDANTE DE CONSTRUCCION | COCINA Y AYUDA A ATENDER MESAS | OPERARIO DE MAQUINA O REFILADOR | FABRICACION DE BOLSAS PARA LA BASURA,,
+descripcion_cno,object,22179,16149,0.7281,572,"Doncella o ayuda de c�mara, ni�era | Alba�il (construcci�n) | Cocinero (excepto servicios dom�sticos) | Operario de troqueladora de polietileno | Armador de productos de pl�stico",,
+cod_oficio2,float64,22179,16071,0.7246,82,54.0 | 95.0 | 53.0 | 90.0 | 32.0,1.0,99.0
+descripcion_cno_2digitos,object,22179,16073,0.7247,78,"Personal de servidumbre no clasificado bajo otros ep�grafes | Trabajadores de la construcci�n | Cocineros, camareros, b�rmanes y trabajadores asimilados | Operarios de la fabricaci�n de productos de caucho y pl�stico | Secretarias, mecan�grafas, taqu�grafas y operadores de m�quinas perforadas de tarjetas y cintas",,
+edad_tenia,float64,22179,16072,0.7246,68,0.0 | 22.0 | 20.0 | 31.0 | 51.0,0.0,99.0
+meses_trabaja,float64,22179,20540,0.9261,12,0.0 | 7.0 | 3.0 | 1.0 | 2.0,0.0,11.0
+anos_trabaja,float64,22179,20540,0.9261,41,0.0 | 5.0 | 1.0 | 4.0 | 2.0,0.0,47.0
+mes_inicio,float64,22179,21671,0.9771,12,10.0 | 6.0 | 1.0 | 3.0 | 9.0,1.0,12.0
+ano_inicio,float64,22179,21671,0.9771,43,2008.0 | 1995.0 | 2001.0 | 1975.0 | 2009.0,1947.0,9999.0
+medio_consiguio,float64,22179,16072,0.7246,13,1.0 | 5.0 | 10.0 | 99.0 | 9.0,1.0,99.0
+medio_cons_cual,object,22179,22140,0.9982,30,EL EMPLEADOR LA TRASLADO AL REDIL | LA EMPRESA DE VIGILANCIA LO TRASLADO A EL POMAR | VOLUNTAD PROPIA DE REALIZAR ESTA LABOR | POR QUE LA ESPOSA TEN | EMPALME DE UNA EMPRESA CON OTRA,,
+ocupacion,float64,22179,16072,0.7246,11,7.0 | 1.0 | 6.0 | 11.0 | 2.0,1.0,11.0
+ocupacion_cual,object,22179,22016,0.9927,77,ASALARIADO DE EMPRESA PARTICULAR SIN CONTRATO | ASALARIADA DE EMPRESA PARTICULAR SIN CONTRATO | TRABAJADOR DE EMPRESA PARTICULAR SIN CONTRATO | SIN INFORMACION | PRESTACION DE SERVICIOS,,
+vr_salario,float64,22179,19019,0.8575,375,690000.0 | 480000.0 | 610000.0 | 700000.0 | 0.0,0.0,8000000.0
+rec_alimentos_pago,float64,22179,19019,0.8575,2,2.0 | 1.0,1.0,2.0
+vr_alimentos_pago,float64,22179,21854,0.9853,89,150000.0 | 139500.0 | 90000.0 | 120000.0 | 600000.0,98.0,800000.0
+rec_vivienda_pago,float64,22179,19019,0.8575,2,2.0 | 1.0,1.0,2.0
+vr_vivienda_pago,float64,22179,22132,0.9979,19,70000.0 | 100000.0 | 250000.0 | 200000.0 | 120000.0,98.0,2000000.0
+finan_educ_pago,float64,22179,19019,0.8575,2,2.0 | 1.0,1.0,2.0
+vr_educ_pago,float64,22179,22154,0.9989,19,400000.0 | 99.0 | 250000.0 | 650000.0 | 55000.0,98.0,8000000.0
+rec_otros_pago,float64,22179,19019,0.8575,2,2.0 | 1.0,1.0,2.0
+vr_subalimentacion,float64,22179,20920,0.9432,77,0.0 | 35000.0 | 100000.0 | 98.0 | 80000.0,0.0,700000.0
+vr_subtransporte,float64,22179,20920,0.9432,120,0.0 | 25000.0 | 62000.0 | 48000.0 | 61500.0,0.0,1000000.0
+vr_subfamiliar,float64,22179,20920,0.9432,129,40000.0 | 0.0 | 20000.0 | 97000.0 | 19500.0,0.0,2200000.0
+vr_bonos,float64,22179,20920,0.9432,34,0.0 | 250000.0 | 10000.0 | 100000.0 | 98.0,0.0,1900000.0
+vr_ganancia,float64,22179,19502,0.8793,159,100000.0 | 200000.0 | 99.0 | 120000.0 | 20000.0,0.0,20000000.0
+meses_ganancia,float64,22179,19607,0.884,6,1.0 | 99.0 | 98.0 | 2.0 | 3.0,1.0,99.0
+vr_ingmen_ase,float64,22179,19502,0.8793,131,100000.0 | 99.0 | 120000.0 | 20000.0 | 98.0,98.0,15000000.0
+disp_pagar_vr,float64,22179,19502,0.8793,92,515000.0 | 700000.0 | 99.0 | 240000.0 | 70000.0,98.0,14000000.0
+fundo_negocio,float64,22179,19502,0.8793,6,1.0 | 9.0 | 4.0 | 5.0 | 3.0,1.0,9.0
+registro_mercantil,float64,22179,19502,0.8793,5,3.0 | 4.0 | 9.0 | 2.0 | 1.0,1.0,9.0
+razon_tiene_negocio,float64,22179,19502,0.8793,9,8.0 | 7.0 | 9.0 | 1.0 | 3.0,1.0,9.0
+razon_tn_cual,object,22179,22046,0.994,122,SIN INFORMACION | PARA AYUDAR A UNA HERMANA | PORQUE ES LO QUE SABE HACER Y TIENE EL  PERMISO | POR AMOR AL FUTBOL | EL AMOR POR LA PREDICACION DEL EVANGELIO,,
+vr_negocio,float64,22179,19502,0.8793,137,0.0 | 99.0 | 98.0 | 10000000.0 | 35000000.0,0.0,1500000000.0
+porcentaje_participacion,float64,22179,19502,0.8793,18,100.0 | 999.0 | 50.0 | 30.0 | 20.0,7.0,999.0
+contabilidad,float64,22179,16072,0.7246,2,2.0 | 1.0,1.0,2.0
+tam_empresa,float64,22179,16072,0.7246,6,1.0 | 3.0 | 2.0 | 6.0 | 5.0,1.0,6.0
+n_empleados,float64,22179,19700,0.8882,46,6.0 | 2.0 | 10.0 | 25.0 | 5.0,2.0,99.0
+horas_normal,float64,22179,16072,0.7246,103,12.0 | 50.0 | 55.0 | 60.0 | 72.0,1.0,126.0
+desempleado,float64,22179,16072,0.7246,2,1.0 | 2.0,1.0,2.0
+disp_recibir,float64,22179,16430,0.7408,120,800000.0 | 515000.0 | 450000.0 | 750000.0 | 500000.0,98.0,20000000.0
+empleo2,float64,22179,16072,0.7246,2,2.0 | 1.0,1.0,2.0
+horas_2,float64,22179,21674,0.9772,38,24.0 | 14.0 | 20.0 | 8.0 | 6.0,1.0,48.0
+ocupacion2,float64,22179,21674,0.9772,9,5.0 | 1.0 | 2.0 | 8.0 | 3.0,1.0,9.0
+vr_empleo2,float64,22179,21692,0.978,93,0.0 | 40000.0 | 380000.0 | 300000.0 | 1100000.0,0.0,4000000.0
+cr_arriendos,float64,22179,13392,0.6038,2,1.0 | 2.0,1.0,2.0
+vr_rec_arriendos,float64,22179,21687,0.9778,74,450000.0 | 250000.0 | 500000.0 | 900000.0 | 200000.0,98.0,6000000.0
+cr_dividendos,float64,22179,13392,0.6038,2,2.0 | 1.0,1.0,2.0
+vr_rec_dividendos,float64,22179,22086,0.9958,46,2000000.0 | 120000.0 | 4200000.0 | 5000000.0 | 30000.0,98.0,6000000.0
+trabajo_antes,float64,22179,15343,0.6918,2,1.0 | 2.0,1.0,2.0
+dejo_trabajo,float64,22179,17728,0.7993,2,1.0 | 2.0,1.0,2.0
+meses_dejo_trab,float64,22179,19939,0.899,49,10.0 | 2.0 | 21.0 | 6.0 | 3.0,0.0,120.0
+meses_busc_trab,float64,22179,19939,0.899,40,0.0 | 2.0 | 6.0 | 5.0 | 7.0,0.0,120.0
+diligencias4,float64,22179,19555,0.8817,2,2.0 | 1.0,1.0,2.0
+horas_conseguir_t,float64,22179,21642,0.9758,51,25.0 | 8.0 | 3.0 | 28.0 | 36.0,0.0,280.0
+diligencias12,float64,22179,20091,0.9059,2,2.0 | 1.0,1.0,2.0
+ofertas_empleo,float64,22179,21381,0.964,2,2.0 | 1.0,1.0,2.0
+ofertas_emp12,float64,22179,22021,0.9929,7,2.0 | 1.0 | 4.0 | 3.0 | 5.0,1.0,8.0
+ofertas_emp1,float64,22179,22021,0.9929,6,1.0 | 0.0 | 3.0 | 2.0 | 5.0,0.0,6.0
+vr_salario_ofr,float64,22179,22021,0.9929,38,80000.0 | 98.0 | 600000.0 | 515000.0 | 500000.0,98.0,4000000.0
+razon_noacepto,float64,22179,22021,0.9929,6,3.0 | 6.0 | 2.0 | 1.0 | 5.0,1.0,6.0
+razon_noacepto_cual,object,22179,22120,0.9973,55,EL ESPOSO NO LE PERMITIO | VA A SALIR DEL PAIS | TUVO QUE CUIDAR A LA MAMA QUE ESTA ENFERMA | CUIDADO DE MENORES | POR NO DEJAR A SUS HIJOS,,
+disponibilidad,float64,22179,21381,0.964,2,1.0 | 2.0,1.0,2.0
+vr_salario_disp,float64,22179,21449,0.9671,38,515000.0 | 500000.0 | 1000000.0 | 600000.0 | 1600000.0,50000.0,3000000.0
+t_bustrab_a,float64,22179,21449,0.9671,16,0.0 | 1.0 | 10.0 | 4.0 | 2.0,0.0,36.0
+t_bustrab_m,float64,22179,21449,0.9671,12,1.0 | 2.0 | 5.0 | 0.0 | 3.0,0.0,11.0
+medio_busco,float64,22179,21449,0.9671,10,5.0 | 1.0 | 7.0 | 2.0 | 4.0,1.0,10.0
+medio_busco_cual,object,22179,22168,0.9995,10,"NO HA ESTADO BUSCANDO TRABAJO | POR INICIATIVA PROPIA PARA ABRIR SU NEGOCIO | BUSCANDO DINERO PRESTADO | TRABAJO HASTA EL 1 DE JUNIO, ESTA ESPERANDO | SIN INFORMACION",,
+edad_tenia_ds,float64,22179,21512,0.9699,55,23.0 | 29.0 | 37.0 | 0.0 | 20.0,0.0,75.0
+meses_dejo,float64,22179,22056,0.9945,7,0.0 | 2.0 | 6.0 | 1.0 | 4.0,0.0,7.0
+anos_dejo,float64,22179,22056,0.9945,8,1.0 | 0.0 | 2.0 | 5.0 | 11.0,0.0,11.0
+mes_dejo_t,float64,22179,22056,0.9945,12,2.0 | 1.0 | 9.0 | 7.0 | 11.0,1.0,12.0
+ano_dejo_t,float64,22179,22056,0.9945,13,2009.0 | 2010.0 | 2005.0 | 1995.0 | 2007.0,1986.0,9999.0
+actividad_principal,float64,22179,20229,0.9121,5,1.0 | 3.0 | 4.0 | 5.0 | 2.0,1.0,5.0
+aceptar_trabajo,float64,22179,20229,0.9121,2,2.0 | 1.0,1.0,2.0
+vr_salario_acep,float64,22179,21245,0.9579,39,515000.0 | 500000.0 | 200000.0 | 150000.0 | 300000.0,98.0,2500000.0
+t_busco_trab,float64,22179,20229,0.9121,4,3.0 | 1.0 | 4.0 | 2.0,1.0,4.0
+razon_dejo_bus,float64,22179,20854,0.9403,10,10.0 | 8.0 | 3.0 | 7.0 | 6.0,1.0,10.0
+razon_db_cual,object,22179,22128,0.9977,51,LO QUE SE GANA NO SE JUSTIFICA PARA LO QUE HACE | VIAJE | POQUE SON MINISTROS VOLUNTARIOS | POR SER MINISTRO RELIGIOSO | SE TRASLADO EL HOGAR,,
+t_dejo_trabajar,float64,22179,20229,0.9121,5,1.0 | 4.0 | 5.0 | 2.0 | 3.0,1.0,5.0
+razon_dejo_trab,float64,22179,20807,0.9381,15,12.0 | 6.0 | 10.0 | 13.0 | 2.0,1.0,15.0
+razon_dt_cual,object,22179,22130,0.9978,49,SE CANSO DE BUSCAR TABAJO | POR SER MINISTROS RELIGIOSOS | POR SER MINISTRO RELIGIOSO | PORQUE NO TENIA LOS IMPLEMENTOS COMPLETOS-HORNO | EL COMERCIO NO ERA BUENO PARA SU NEGOCIO,,
+des_rama_trabajaba,object,22179,15761,0.7106,4840,FABRICACION DE PRODUCTOS DE BELLEZA | TRANSPORTE DE PASAJEROS | ARREGLO9 DE UNA CASA DE FAMILIA | VENTA DE JUEGOS DE AZAR | VENTA DE MATERIALES PARA CONSTRUCCION,,
+cod_rama_trabajaba,float64,22179,15764,0.7108,343,2424.0 | 6031.0 | 9500.0 | 9242.0 | 5241.0,110.0,9999.0
+cod_rama1_ta,float64,22179,15764,0.7108,57,24.0 | 60.0 | 95.0 | 92.0 | 52.0,1.0,99.0
+des_rama1_ta,object,22179,15765,0.7108,56,"Fabricaci�n de sustancias y productos qu�micos | Transporte por v�a terrestre; transporte por tuber�as | Hogares privados con servicio dom�stico | Actividades de esparcimiento y actividades culturales y deportivas | Comercio al por menor, excepto el comercio de veh�culos automotores y motocicletas; reparaci�n de efectos personales y enseres dom�sticos",,
+oficio_trabajaba,object,22179,15765,0.7108,4200,LIMPIEZA DE PIEL | CONDUCTOR DE UN TAXI | ARREGLO EN GENERAL DE LA CASA | VENTA DE CHANCE LOTERIA Y BALOTO | AYUDANTE DE LA CAMIONETA QUE REPARTIA LOS MATERIALES,,
+cod_oficio_trabajaba,float64,22179,15765,0.7108,577,5703.0 | 9853.0 | 5402.0 | 4522.0 | 9711.0,38.0,58978.0
+cod_oficio2_ta,float64,22179,15765,0.7108,82,57.0 | 98.0 | 54.0 | 45.0 | 97.0,1.0,58978.0
+des_oficio2_ta,object,22179,15767,0.7109,78,"Peluqueros especialistas en tratamientos de belleza y trabajadores asimilados | Conductores de veh�culos de transporte | Personal de servidumbre no clasificado bajo otros ep�grafes | Vendedores, empleados de comercio y trabajadores asimilados | Trabajadores y operadores de la manipulaci�n de mercanc�as y materiales y de movimiento de tierras",,
+edad_retirot,float64,22179,15768,0.7109,67,0.0 | 34.0 | 42.0 | 23.0 | 18.0,0.0,99.0
+meses_retiro,float64,22179,21098,0.9513,14,0.0 | 9.0 | 11.0 | 6.0 | 4.0,0.0,15.0
+anos_retiro,float64,22179,21098,0.9513,34,0.0 | 19.0 | 10.0 | 1.0 | 4.0,0.0,98.0
+mes_retiro,float64,22179,21433,0.9664,13,0.0 | 10.0 | 7.0 | 9.0 | 5.0,0.0,12.0
+ano_retiro,float64,22179,21431,0.9663,33,1995.0 | 1999.0 | 2007.0 | 2005.0 | 2003.0,1979.0,9999.0
+meses_duro,float64,22179,15764,0.7108,13,0.0 | 6.0 | 3.0 | 10.0 | 2.0,0.0,99.0
+ano_duro,float64,22179,15764,0.7108,53,4.0 | 1.0 | 0.0 | 11.0 | 3.0,0.0,99.0
+mes_inicio_ta,float64,22179,22052,0.9943,12,6.0 | 1.0 | 2.0 | 8.0 | 5.0,1.0,12.0
+ano_inicio_ta,float64,22179,22052,0.9943,38,2001.0 | 1975.0 | 1998.0 | 2004.0 | 2000.0,1947.0,9999.0
+horas_normal_ta,float64,22179,15761,0.7106,112,44.0 | 60.0 | 45.0 | 8.0 | 54.0,1.0,126.0
+estaba_sss,float64,22179,15763,0.7107,3,1.0 | 2.0 | 9.0,1.0,9.0
+estaba_fp,float64,22179,15763,0.7107,3,2.0 | 1.0 | 9.0,1.0,9.0
+tamano_tenia,float64,22179,15763,0.7107,7,6.0 | 2.0 | 1.0 | 3.0 | 4.0,1.0,9.0
+n_empleados_tenia,float64,22179,19001,0.8567,44,2.0 | 7.0 | 8.0 | 17.0 | 20.0,2.0,99.0
+ocupacion_tenia,float64,22179,15763,0.7107,9,1.0 | 5.0 | 4.0 | 9.0 | 2.0,1.0,9.0
+ocupacion_tenia_cual,object,22179,22037,0.9936,48,EMPLEADO DE EMPRESA PARTICULAR SIN CONTRATO |   | PRESTACION DE SERVICIOS | SATELITE | DESTAJO,,
+cr_ganaba_in,float64,22179,15903,0.717,4,4.0 | 3.0 | 2.0 | 1.0,1.0,4.0
+vr_ganaba_in,float64,22179,21079,0.9504,178,150000.0 | 600000.0 | 400000.0 | 1400000.0 | 50000.0,98.0,6000000.0
+razon_retiro_in,float64,22179,15763,0.7107,16,5.0 | 1.0 | 3.0 | 12.0 | 6.0,1.0,99.0
+razon_ri_cual,object,22179,22080,0.9955,95,SE FUE A PRESTAR EL SEVICIO MILITAR | LO INDEMNIZARON | POR LLAMADO AL MINISSTERIO PASTORAL | POR FALTA DE SEGURIDAD | SE CANSO DE BUSCAR TABAJO,,
+anos_trabajo,float64,22179,15763,0.7107,63,8.0 | 20.0 | 25.0 | 15.0 | 24.0,0.0,99.0
+empleo2_ta,float64,22179,15763,0.7107,2,1.0 | 2.0,1.0,2.0
+edad_primert,float64,22179,17241,0.7774,45,16.0 | 15.0 | 10.0 | 20.0 | 12.0,0.0,52.0
+ano_primert,float64,22179,22135,0.998,30,2003.0 | 2000.0 | 2001.0 | 1996.0 | 9998.0,1966.0,9998.0
+anos_primert,float64,22179,17243,0.7774,42,3.0 | 5.0 | 2.0 | 0.0 | 9.0,0.0,99.0
+ano_retiro_pt,float64,22179,21795,0.9827,51,2006.0 | 1998.0 | 2008.0 | 2004.0 | 2001.0,1941.0,9999.0
+horas_normal_pt,float64,22179,17241,0.7774,103,12.0 | 40.0 | 44.0 | 8.0 | 4.0,2.0,144.0
+ocupacion_pt,float64,22179,17241,0.7774,9,4.0 | 5.0 | 8.0 | 1.0 | 2.0,1.0,9.0
+ocupacion_pt_cual,object,22179,22112,0.997,50,PRESTACION DE SERVICIOS | DESTAJO | TABAJO A PERSONAS DESCONOCIDAS Y SU PAGO FUE OSPED | CONTRATO TEMPORAL DE VACACIONES | CONTRATO VERBAL,,
+recibia_pt,float64,22179,17563,0.7919,4,3.0 | 2.0 | 4.0 | 1.0,1.0,4.0
+vr_recibia_pt,float64,22179,21675,0.9773,137,100.0 | 8000.0 | 90000.0 | 2000.0 | 45000.0,100.0,7000000.0
+sss_pt,float64,22179,17241,0.7774,2,2.0 | 1.0,1.0,2.0
+afiliado_fp_pt,float64,22179,17241,0.7774,2,2.0 | 1.0,1.0,2.0
+tamano_pt,float64,22179,17241,0.7774,6,1.0 | 2.0 | 6.0 | 5.0 | 3.0,1.0,6.0
+n_empleados_pt,float64,22179,19292,0.8698,36,2.0 | 5.0 | 3.0 | 4.0 | 30.0,2.0,49.0
+razon_retiro_pt,float64,22179,17241,0.7774,15,13.0 | 1.0 | 9.0 | 7.0 | 3.0,1.0,15.0
+razon_rpt_cual,object,22179,22095,0.9962,63,SE FUE A PRESTAR EL SERVICIO MILITAR | LA TRASLADARON DE COLEGIO | PRESTACION DE SERVICIO MILITAR | PRESTAR SERVICIO MILITAR | SE ENAMORO DE UN EMPLEADO DEL ALMACEN,,
+cuando_monto,float64,22179,11235,0.5066,2,2.0 | 1.0,1.0,2.0
+cuando_monto_edad,float64,22179,21874,0.9862,10,12.0 | 11.0 | 13.0 | 9.0 | 14.0,5.0,14.0
+ahorra,float64,22179,13392,0.6038,3,2.0 | 1.0 | 3.0,1.0,3.0
+vr_ahorro,float64,22179,20657,0.9314,68,100000.0 | 30000.0 | 200000.0 | 50000.0 | 120000.0,98.0,3000000.0
+razon_noahorra,float64,22179,16457,0.742,5,1.0 | 5.0 | 2.0 | 3.0 | 4.0,1.0,5.0
+razon_na_cual,float64,22179,22179,1.0,0,,,
+lugar_ahorra,float64,22179,20657,0.9314,6,3.0 | 2.0 | 4.0 | 1.0 | 5.0,1.0,6.0
+lugar_ahorra_cual,object,22179,22170,0.9996,9,INVIERTE PARA LA CASA EN ARREGLOS | CON UN FAMILIAR | FONDO COMUN | A UNA PERSONA DE CONFIANZA | SE LO  DA ASU PADRE PARA   CONSTRUIR LA CASA,,
+razon_nsfinan,float64,22179,21123,0.9524,7,7.0 | 5.0 | 6.0 | 1.0 | 2.0,1.0,7.0
+razon_nsfinan_cual,object,22179,22111,0.9969,62,MAYOR FACILIDAD PARA UN PRESTAMO EN EL FONDO DE EM | PORQUE LE DESCUENTAN POR NOMINA | NO SE GASTA TANTO EL DIENRO ESTANDO EN LA CASA | NO SE LO HA PROPUESTO | PORQUE SE LO GASTA AHI MISMO,,
+ahorro_futuro,float64,22179,20657,0.9314,2,1.0 | 0.0,0.0,1.0
+ahorro_educ,float64,22179,20657,0.9314,2,0.0 | 2.0,0.0,2.0
+ahorro_casa,float64,22179,20657,0.9314,2,3.0 | 0.0,0.0,3.0
+ahorro_carro,float64,22179,20657,0.9314,2,0.0 | 4.0,0.0,4.0
+ahorro_otros_act,float64,22179,20657,0.9314,2,0.0 | 5.0,0.0,5.0
+ahorro_event,float64,22179,20657,0.9314,2,0.0 | 6.0,0.0,6.0
+ahorro_recre,float64,22179,20657,0.9314,2,0.0 | 7.0,0.0,7.0
+ahorro_montar,float64,22179,20657,0.9314,2,0.0 | 8.0,0.0,8.0
+ahorro_otro,float64,22179,20657,0.9314,2,0.0 | 9.0,0.0,9.0
+estado_civil,float64,22179,13386,0.6035,5,3.0 | 1.0 | 4.0 | 2.0 | 5.0,1.0,5.0
+vive_conyuge,float64,22179,15069,0.6794,2,1.0 | 2.0,1.0,2.0
+orden_conyuge,float64,22179,15188,0.6848,9,2.0 | 1.0 | 13.0 | 4.0 | 5.0,1.0,13.0
+edad_unionm,float64,22179,15074,0.6797,56,0.0 | 31.0 | 27.0 | 26.0 | 35.0,0.0,99.0
+mes_unionm,float64,22179,20705,0.9335,13,3.0 | 9.0 | 12.0 | 6.0 | 4.0,1.0,99.0
+ano_unionm,float64,22179,20705,0.9335,52,2009.0 | 1993.0 | 1973.0 | 2007.0 | 2002.0,1960.0,9999.0
+hijos_hombres_unionm,float64,22179,15074,0.6797,10,0.0 | 1.0 | 3.0 | 2.0 | 5.0,0.0,9.0
+hijos_mujeres_unionm,float64,22179,15074,0.6797,10,0.0 | 1.0 | 2.0 | 3.0 | 4.0,0.0,9.0
+edad_hijo_mayor,float64,22179,16173,0.7292,53,14.0 | 0.0 | 1.0 | 24.0 | 15.0,0.0,59.0
+edad_hijo_mayorm,float64,22179,21797,0.9828,12,7.0 | 3.0 | 12.0 | 1.0 | 9.0,1.0,12.0
+edad_hijo_mayora,float64,22179,21797,0.9828,41,1975.0 | 2008.0 | 1985.0 | 1977.0 | 1991.0,1964.0,2010.0
+otras_unionesm,float64,22179,13935,0.6283,2,1.0 | 2.0,1.0,2.0
+cuantas_unionesm,float64,22179,20281,0.9144,7,1.0 | 2.0 | 4.0 | 5.0 | 3.0,1.0,7.0
+org_jac,float64,22179,13392,0.6038,2,0.0 | 1.0,0.0,1.0
+org_caridad,float64,22179,13392,0.6038,2,0.0 | 2.0,0.0,2.0
+org_comunitaria,float64,22179,13392,0.6038,2,0.0 | 3.0,0.0,3.0
+org_religiosa,float64,22179,13392,0.6038,2,0.0 | 4.0,0.0,4.0
+junta_edif,float64,22179,13392,0.6038,2,0.0 | 5.0,0.0,5.0
+org_iestado,float64,22179,13392,0.6038,2,0.0 | 6.0,0.0,6.0
+org_etnica,float64,22179,13392,0.6038,2,0.0 | 7.0,0.0,7.0
+org_culdep,float64,22179,13392,0.6038,2,0.0 | 8.0,0.0,8.0
+org_educ,float64,22179,13392,0.6038,2,0.0 | 9.0,0.0,9.0
+org_mamb,float64,22179,13392,0.6038,2,0.0 | 10.0,0.0,10.0
+asoc_vigil,float64,22179,13392,0.6038,2,0.0 | 11.0,0.0,11.0
+sindicato,float64,22179,13392,0.6038,2,0.0 | 12.0,0.0,12.0
+mov_parpol,float64,22179,13392,0.6038,2,0.0 | 13.0,0.0,13.0
+org_otra,float64,22179,13392,0.6038,2,0.0 | 14.0,0.0,14.0
+org_otra_cual,object,22179,22106,0.9967,67,DEFENSA CIVIL | ACCION  SOCIAL | ASOCIACION DE PADRES USUARIOS DE HOGARES DEL BIENE | REUNIONES DEL BIENESTAR FAMILIAR | CONCEJO DIRECTIVO DE LA INSTITUCION,,
+org_ninguna,float64,22179,13392,0.6038,2,15.0 | 0.0,0.0,15.0
+cr_asisteorg1,float64,22179,20917,0.9431,2,2.0 | 1.0,1.0,2.0
+cr_asisteorg2,float64,22179,21993,0.9916,2,1.0 | 2.0,1.0,2.0
+cr_asisteorg3,float64,22179,22133,0.9979,2,1.0 | 2.0,1.0,2.0
+cr_asisteorg4,float64,22179,22164,0.9993,2,1.0 | 2.0,1.0,2.0
+cr_asisteorg5,float64,22179,22175,0.9998,1,1.0,1.0,1.0
+nhoras_org1,float64,22179,21029,0.9481,53,8.0 | 6.0 | 0.0 | 1.0 | 12.0,0.0,360.0
+nhoras_org2,float64,22179,22005,0.9922,24,3.0 | 8.0 | 48.0 | 20.0 | 2.0,0.0,144.0
+nhoras_org3,float64,22179,22137,0.9981,12,30.0 | 0.0 | 12.0 | 2.0 | 5.0,0.0,80.0
+nhoras_org4,float64,22179,22166,0.9994,6,4.0 | 2.0 | 16.0 | 6.0 | 0.0,0.0,16.0
+nhoras_org5,float64,22179,22175,0.9998,3,4.0 | 5.0 | 6.0,4.0,6.0
+ptd_org1,float64,22179,21029,0.9481,2,1.0 | 2.0,1.0,2.0
+ptd_org2,float64,22179,22005,0.9922,2,1.0 | 2.0,1.0,2.0
+ptd_org3,float64,22179,22137,0.9981,2,2.0 | 1.0,1.0,2.0
+ptd_org4,float64,22179,22166,0.9994,2,1.0 | 2.0,1.0,2.0
+ptd_org5,float64,22179,22175,0.9998,1,1.0,1.0,1.0
+crlider_org1,float64,22179,21029,0.9481,2,1.0 | 2.0,1.0,2.0
+crlider_org2,float64,22179,22005,0.9922,2,1.0 | 2.0,1.0,2.0
+crlider_org3,float64,22179,22137,0.9981,2,1.0 | 2.0,1.0,2.0
+crlider_org4,float64,22179,22166,0.9994,2,2.0 | 1.0,1.0,2.0
+crlider_org5,float64,22179,22175,0.9998,2,1.0 | 2.0,1.0,2.0
+proyecto,object,22179,21564,0.9723,10,"Apoyo a los estudiantes de colegios oficiales (transporte, ��tiles, subsidios por asistencia, etc.) | Alimentaci��n escolar | Comedores comunitarios | Misi��n Bogot�� | Salud a su casa",,
+cod_programa_1,float64,22179,21564,0.9723,10,1.0 | 3.0 | 4.0 | 8.0 | 2.0,1.0,10.0
+beneficiario_1,float64,22179,21564,0.9723,2,1.0 | 2.0,1.0,2.0
+desde_edad_1,float64,22179,21661,0.9766,47,3.0 | 10.0 | 0.0 | 12.0 | 9.0,0.0,77.0
+desde_mes_1,float64,22179,22142,0.9983,8,6.0 | 3.0 | 2.0 | 1.0 | 11.0,1.0,12.0
+desde_ano_1,float64,22179,22142,0.9983,11,2009.0 | 2010.0 | 1995.0 | 2005.0 | 2008.0,1982.0,2010.0
+benef_antes_1,float64,22179,22082,0.9956,1,1.0,1.0,1.0
+benef_antesm_1,float64,22179,22082,0.9956,26,3.0 | 2.0 | 12.0 | 11.0 | 36.0,0.0,99.0
+cod_programa_2,float64,22179,21970,0.9906,9,5.0 | 9.0 | 3.0 | 2.0 | 6.0,2.0,10.0
+beneficiario_2,float64,22179,21970,0.9906,2,1.0 | 2.0,1.0,2.0
+desde_edad_2,float64,22179,22002,0.992,24,0.0 | 40.0 | 1.0 | 2.0 | 22.0,0.0,50.0
+desde_mes_2,float64,22179,22172,0.9997,4,4.0 | 10.0 | 2.0 | 6.0,2.0,10.0
+desde_ano_2,float64,22179,22172,0.9997,5,1998.0 | 2009.0 | 2004.0 | 2007.0 | 2010.0,1998.0,2010.0
+benef_antes_2,float64,22179,22147,0.9986,1,1.0,1.0,1.0
+benef_antesm_2,float64,22179,22147,0.9986,17,18.0 | 6.0 | 2.0 | 24.0 | 5.0,0.0,98.0
+cod_programa_3,float64,22179,22109,0.9968,6,6.0 | 3.0 | 9.0 | 5.0 | 10.0,3.0,10.0
+beneficiario_3,float64,22179,22109,0.9968,2,1.0 | 2.0,1.0,2.0
+desde_edad_3,float64,22179,22120,0.9973,17,0.0 | 12.0 | 2.0 | 1.0 | 3.0,0.0,19.0
+desde_mes_3,float64,22179,22177,0.9999,1,3.0,3.0,3.0
+desde_ano_3,float64,22179,22177,0.9999,2,1999.0 | 1997.0,1997.0,1999.0
+benef_antes_3,float64,22179,22168,0.9995,1,1.0,1.0,1.0
+benef_antesm_3,float64,22179,22168,0.9995,9,6.0 | 36.0 | 60.0 | 67.0 | 12.0,1.0,67.0
+cod_programa_4,float64,22179,22162,0.9992,4,7.0 | 4.0 | 5.0 | 6.0,4.0,7.0
+beneficiario_4,float64,22179,22162,0.9992,2,1.0 | 2.0,1.0,2.0
+desde_edad_4,float64,22179,22164,0.9993,8,2.0 | 8.0 | 4.0 | 6.0 | 3.0,1.0,9.0
+desde_mes_4,float64,22179,22179,1.0,0,,,
+desde_ano_4,float64,22179,22179,1.0,0,,,
+benef_antes_4,float64,22179,22177,0.9999,1,1.0,1.0,1.0
+benef_antesm_4,float64,22179,22177,0.9999,2,24.0 | 10.0,10.0,24.0
+cod_programa_5,float64,22179,22175,0.9998,1,5.0,5.0,5.0
+beneficiario_5,float64,22179,22173,0.9997,2,1.0 | 2.0,1.0,2.0
+desde_edad_5,float64,22179,22173,0.9997,5,5.0 | 10.0 | 4.0 | 8.0 | 6.0,4.0,10.0
+desde_mes_5,float64,22179,22177,0.9999,1,4.0,4.0,4.0
+desde_ano_5,float64,22179,22177,0.9999,1,11.0,11.0,11.0
+benef_antes_5,float64,22179,22179,1.0,0,,,
+benef_antesm_5,float64,22179,22179,1.0,0,,,
+fexpers,float64,22179,0,0.0,2879,1.0957783716218326 | 0.9897323400314249 | 0.9227490274563 | 1.184795189115866 | 0.8398511724380588,0.0064500211381893,40.80405258569314
+fpers,float64,22179,0,0.0,2879,1552.9869101300494 | 1402.6936544898688 | 1307.7618595938306 | 1679.1455895946397 | 1190.275251849745,9.14126310308955,57829.35782173736

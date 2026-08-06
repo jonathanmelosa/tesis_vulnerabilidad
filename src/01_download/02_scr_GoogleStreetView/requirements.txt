@@ -1,0 +1,61 @@
+# Dependencias del pipeline GSV-ELCA
+# Instalar con:  pip install -r requirements.txt
+#
+# Nota: este archivo cubre los scripts 00–03 del pipeline de descarga GSV
+# y también el script 00_analisis_coordenadas.py que está en la carpeta
+# src/01_download/ (análisis exploratorio de coordenadas del panel ELCA).
+
+# ── Manipulación de datos ──────────────────────────────────────────────────────
+pandas>=1.5          # scripts 00, 01, 02, 03 — DataFrames y exportación CSV/Parquet
+numpy>=1.22          # scripts 00, 03 — operaciones numéricas y arrays
+
+# ── Lectura de archivos Stata (.dta) ──────────────────────────────────────────
+# Requerido cuando los archivos de entrada del ELCA están en formato Stata 14+.
+# pandas llama a pyreadstat internamente en pd.read_stata() para esas versiones.
+# Si los archivos son .csv, este paquete no es necesario.
+pyreadstat>=1.2      # script 00_construir_panel_coordenadas.py — leer archivos .dta Stata 14+
+
+# ── Consultas HTTP ─────────────────────────────────────────────────────────────
+requests>=2.28       # scripts 01, 02 — consultas a la GSV Metadata API y descarga de imágenes
+tqdm>=4.64           # scripts 01, 02, 03 — barras de progreso
+
+# ── Visualización (00_analisis_coordenadas.py) ────────────────────────────────
+matplotlib>=3.5      # 00_analisis_coordenadas.py — histogramas, scatter plots, boxplots
+
+# ── Tablas en consola (00_analisis_coordenadas.py) ───────────────────────────
+tabulate>=0.9        # 00_analisis_coordenadas.py — tablas formateadas en el reporte de consola
+
+# ── Estadísticas (00_analisis_coordenadas.py, opcional) ──────────────────────
+# Solo para la curva KDE sobre histogramas; el script continúa sin scipy.
+scipy>=1.9           # 00_analisis_coordenadas.py — curva KDE en histogramas (opcional)
+
+# ── Extracción de embeddings (script 03) ──────────────────────────────────────
+# Instalar PyTorch siguiendo pytorch.org/get-started/locally según tu hardware:
+#   CPU:               pip install torch torchvision
+#   Apple Silicon MPS: pip install torch torchvision
+#   NVIDIA GPU CUDA:   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+torch>=2.0
+torchvision>=0.15
+Pillow>=9.0          # carga de imágenes JPEG para el Dataset de PyTorch
+pyarrow>=12.0        # exportación a formato Parquet (embeddings)
+
+# ── Embeddings CLIP (script 03b) ───────────────────────────────────────────────
+# open_clip_torch cubre las variantes ViT-B/32, ViT-L/14, RN50, etc.
+open_clip_torch>=2.20
+
+# ── Scores de percepción urbana Place Pulse 2.0 / StreetScore (script 03d) ────
+# zensvi trae sus propias dependencias (torch, huggingface_hub, timm) y
+# descarga los pesos preentrenados automáticamente desde Hugging Face Hub.
+zensvi>=0.9
+
+# ── Segmentación por concepto SAM3 (script 03e) ────────────────────────────────
+# NO está en PyPI: instalar desde el repo, en una máquina con GPU CUDA 12.6+
+# (no hay soporte documentado para CPU ni MPS de Mac):
+#   git clone https://github.com/facebookresearch/sam3.git
+#   cd sam3 && pip install -e .
+# Requiere además solicitar acceso al checkpoint y autenticarse:
+#   huggingface-cli login
+# Requisitos de la librería: Python 3.12+, PyTorch 2.7+ (más nuevo que el
+# torch>=2.0 usado por los scripts 03/03b — usar un entorno virtual aparte
+# para 03e si el resto del pipeline se queda en una versión de PyTorch más
+# antigua).

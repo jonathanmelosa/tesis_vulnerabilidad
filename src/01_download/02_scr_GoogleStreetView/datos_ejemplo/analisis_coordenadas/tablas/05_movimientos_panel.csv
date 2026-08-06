@@ -1,0 +1,7 @@
+clasificacion,n_hogares,pct,descripcion
+ESTABLE_3_OLAS,423,42.6,Mismo domicilio en las 3 olas
+ESTABLE_2_OLAS,252,25.4,Mismo domicilio en las 2 olas observadas
+MOVIO_1_VEZ,142,14.3,Cambió de domicilio en 1 de las 2 transiciones
+SOLO_1_OLA,108,10.9,Solo aparece en 1 ola (desgaste de panel o ingreso tardío)
+MOVIO_2_OLAS,61,6.1,Domicilio distinto entre las 2 olas observadas
+MOVIO_2_VECES,8,0.8,Cambió de domicilio en las 2 transiciones

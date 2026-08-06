@@ -22,3 +22,18 @@ outputs/
 
 # Logs
 *.log
+
+# Credenciales GEE (NUNCA commitear el JSON de la cuenta de servicio)
+src/sentinel1_pipeline/credenciales/*.json
+src/sentinel2_pipeline/credenciales/*.json
+src/viirs_pipeline/credenciales/*.json
+
+# Token de Hugging Face (NUNCA commitear — acceso al checkpoint gated de SAM3)
+src/01_download/02_scr_GoogleStreetView/.hf_token
+
+# Credencial de cuenta de servicio de Google Cloud (NUNCA commitear)
+plasma-minutia-*.json
+
+# Copia pesada (~1GB) de datos crudos de la ELCA dentro de src/ (duplica
+# data/interim/raw/, que ya esta protegido); no se versiona.
+src/01_download/02_scr_GoogleStreetView/raw/

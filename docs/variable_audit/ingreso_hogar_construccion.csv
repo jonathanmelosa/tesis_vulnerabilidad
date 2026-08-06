@@ -1,0 +1,26 @@
+variable,motivo
+ing_t_actagr,Solo existe en ola 2010 (bloque agropecuario retrospectivo de 12 meses); confirmado ausente en los .tab crudos de 2013/2016.
+ing_t_actnag,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+ing_t_vtapastos,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+ing_t_vtaanimales,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+act_vtaanimdes,Venta de animales de desecho: solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+gan_actagr,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+gan_actnag,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+gan_vtaanimales,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+gto_t_actagr,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+gto_t_actnag,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+gto_t_vtaanimales,Solo existe en ola 2010; confirmado ausente en los .tab crudos de 2013/2016.
+act_bonos_emp_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_bonos_gob_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_cesantias_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_dinero_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_dineroprestado_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_fondos_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_inversiones_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_roscas_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_segcosechas_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_segmaq_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_segotros_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_segveh_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_segvida_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."
+act_segviv_vr,"El indicador Si/No sigue existiendo en 2013/2016, pero la pregunta de VALOR ($) fue eliminada del cuestionario a partir de 2013 (confirmado: la columna _vr no existe en los .tab crudos de 2013/2016, solo el indicador)."

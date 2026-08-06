@@ -1,0 +1,153 @@
+=================================================================
+REPORTE DE CALIDAD — PANEL COORDENADAS ELCA
+=================================================================
+
+── 1. CALIDAD DEL PANEL ──────────────────────────────────
+
+  QUÉ MIDE ESTA SECCIÓN
+  Describe la estructura del panel longitudinal: cuántos hogares
+  se identificaron en la ola base (2010), cuántos se lograron
+  seguir en olas posteriores y cuántos se dividieron en sub-hogares.
+  No involucra coordenadas; es una verificación de integridad de los
+  identificadores.
+  Fuente: archivos RHogar-csv.tab y UHogar-csv.tab de cada ola.
+
+  Consecutivos únicos (hogares originales 2010): 9,853
+
+  EXPLICACIÓN
+  'Consecutivo' es el identificador del hogar en 2010 (ola base).
+  Este número es el total de hogares originales encuestados en 2010
+  y sirve como referencia máxima posible de hogares seguidos en el panel.
+
+  Cobertura del panel (por consecutivo):
+  LÓGICA: para cada consecutivo se cuenta en cuántas olas distintas
+  aparece (1, 2 ó 3). Un consecutivo puede tener varias filas por
+  divisiones de hogar, pero aquí solo importa si aparece o no en cada ola.
+    En 1 ola(s): 773 consecutivos (7.8 %)
+    En 2 ola(s): 1,345 consecutivos (13.7 %)
+    En 3 ola(s): 7,735 consecutivos (78.5 %)
+
+  INTERPRETACIÓN
+  - Hogares en 3 olas: núcleo del panel equilibrado (seguimiento completo).
+  - Hogares en 2 olas: abandonaron el panel en algún punto o tienen
+    problemas de vinculación de identificadores entre olas.
+  - Hogares en 1 ola:  mayor pérdida; encuestados una única vez por
+    abandono, fallecimiento o problema de identificación.
+
+  Observaciones y hogares únicos por ola:
+  LÓGICA: cada columna mide algo distinto.
+  - 'obs': filas totales en esa ola (incluye sub-hogares por divisiones).
+  - 'consecutivos': hogares originales de 2010 presentes en la ola.
+    Un consecutivo puede tener más de una fila si el hogar se dividió.
+  - 'ID únicos (llave / llave_n16)': identificador propio de cada ola,
+    que sí distingue sub-hogares. Por construcción es igual a 'obs'.
+    ID por ola → 2010: consecutivo | 2013: llave | 2016: llave_n16.
+  INTERPRETACIÓN: si obs > consecutivos únicos en 2013 o 2016, hay
+  hogares divididos (consecutivos que aparecen más de una vez).
+  En 2010 las tres columnas son iguales porque no existe división.
+    2010: 9,853 obs / 9,853 consecutivos / 9,853 consecutivo únicos
+    2013: 9,261 obs / 8,729 consecutivos / 9,261 llave únicos
+    2016: 8,818 obs / 8,086 consecutivos / 8,818 llave_n16 únicos
+
+  Hogares divididos (es_split=1) por ola:
+  LÓGICA: un hogar se 'divide' cuando miembros del hogar original
+  forman un nuevo hogar independiente entre olas. La ELCA lo rastrea
+  con la variable 'hogar' (2013) y 'hogar_n16' (2016):
+    hogar / hogar_n16 == 1  →  hogar principal  →  es_split = 0
+    hogar / hogar_n16 != 1  →  sub-hogar dividido →  es_split = 1
+  En 2010 no existe esta variable (es la ola base, sin divisiones).
+  INTERPRETACIÓN: los sub-hogares (es_split=1) se tratan como
+  observaciones independientes pero comparten la coordenada de
+  referencia de la ola anterior (el domicilio del que se separaron).
+    2010: 0 hogares divididos
+    2013: 840 hogares divididos
+    2016: 1,299 hogares divididos
+
+  Duplicados del ID único por ola (error real si > 0):
+  LÓGICA: cada ola tiene su propio identificador que debe ser único
+  por fila → 2010: consecutivo | 2013: llave | 2016: llave_n16.
+  Los duplicados de 'consecutivo' en 2013/2016 son ESPERADOS (splits).
+  Un duplicado del ID único de la ola SÍ es un error de construcción.
+    2010 (consecutivo): ninguno — OK
+    2013 (llave): ninguno — OK
+    2016 (llave_n16): ninguno — OK
+
+── 2. CALIDAD DE COORDENADAS ─────────────────────────────
+
+  QUÉ MIDE ESTA SECCIÓN
+  Verifica si las variables de coordenadas configuradas en el script
+  existen en los archivos de cada ola y cuántos hogares tienen
+  coordenadas válidas para consultar la API de Google Street View.
+  Fuente: variables de lat/lon de RHogar-csv.tab y UHogar-csv.tab.
+
+  Variables de coordenadas por ola:
+  LÓGICA: el script busca en cada archivo las columnas cuyos nombres
+  aparecen aquí. Si la columna no existe, lat_decimal y lon_decimal
+  quedan como NaN para toda la ola.
+  - 2010 y 2013: variables decimales directas.
+  - 2016: se construyen desde componentes grados-minutos-segundos (GMS)
+    usando la fórmula: decimal = grados + minutos/60 + segundos/3600.
+    La longitud se niega porque Colombia está íntegramente al oeste
+    de Greenwich (longitudes negativas entre -79° y -67°).
+    Ola 2010: lat='coord_latitud'  lon='coord_longitud'
+    Ola 2013: lat='coord_latitud'  lon='coord_longitud'
+    Ola 2016: construida desde GMS → lat(coorlat_gra, coorlat_min, coorlat_seg)  lon(coorlon_gra, coorlon_min, coorlon_seg)
+
+  Disponibilidad y validez de coordenadas por ola:
+  LÓGICA de coord_valida_ola:
+  - 2010 y 2013: usa 'coordenadas_obs' (revisión manual previa en ELCA).
+    coordenadas_obs == 0  →  coord_valida_ola = 1  (válida)
+    coordenadas_obs == 1 o 2  →  coord_valida_ola = 0  (inválida)
+    Si coordenadas_obs no existe  →  coord_valida_ola = NA
+  - 2016: valida con bounding box del territorio colombiano
+    (lat entre -4.2° y 12.5°; lon entre -79.0° y -66.8°).
+    Dentro del bbox  →  coord_valida_ola = 1
+    Fuera del bbox   →  coord_valida_ola = 0
+    Coordenada ausente  →  coord_valida_ola = NA
+  INTERPRETACIÓN: solo los hogares con coord_valida_ola = 1 serán
+  consultados en la API de Google Street View.
+  Si el porcentaje de coordenadas decimales es 0 %, los nombres de
+  las variables en el archivo no coinciden con los configurados.
+  Ola 2010 — con coordenadas decimales: 0/9,853 (0.0 %)
+            coord_valida_ola: {nan: 9853}
+  Ola 2013 — con coordenadas decimales: 0/9,261 (0.0 %)
+            coord_valida_ola: {nan: 9261}
+  Ola 2016 — con coordenadas decimales: 0/8,818 (0.0 %)
+            coord_valida_ola: {nan: 8818}
+
+── 3. CAMBIO DE RESIDENCIA ───────────────────────────────
+
+  QUÉ MIDE ESTA SECCIÓN
+  Indica si cada hogar cambió de domicilio entre olas consecutivas,
+  comparando las coordenadas del hogar en la ola anterior y la actual.
+  Fuente: lat_decimal y lon_decimal construidas en la sección 2.
+
+  LÓGICA
+  Se calcula la distancia en metros entre las coordenadas del hogar
+  en la ola anterior y en la ola actual usando la fórmula de Haversine
+  (considera la curvatura de la Tierra). Si la distancia supera la
+  tolerancia, el hogar se considera que cambió de residencia.
+  Tolerancia: 50 m — umbral bajo el cual se
+  asume mismo domicilio; 50 m distingue casas distintas incluso en
+  zonas urbanas densas.
+  Clave de enlace: consecutivo (2010→2013); llave (2013→2016).
+  Define qué columna empareja cada hogar con su versión anterior.
+  Los sub-hogares divididos (es_split=1) heredan la coordenada de
+  referencia del hogar original del que se separaron.
+
+  Valores posibles de cambio_residencia_ola:
+    0  =  distancia < tolerancia → mismo domicilio
+    1  =  distancia >= tolerancia → cambió de residencia
+    NA =  sin referencia anterior (primera ola del hogar)
+          o coordenada faltante en alguna de las dos olas
+
+  Distribución:
+    sin dato / primera ola      (NA): 27,932 (100.0 %)
+
+  INTERPRETACIÓN: si el 100 % es NA, las coordenadas no estaban
+  disponibles en ninguna ola (ver sección 2). Una vez corregidos
+  los nombres de las variables, esta sección mostrará valores 0 y 1
+  para hogares de 2013 y 2016, y NA solo para los de 2010 (sin
+  ola anterior de referencia) y hogares sin coordenada en alguna ola.
+
+=================================================================
