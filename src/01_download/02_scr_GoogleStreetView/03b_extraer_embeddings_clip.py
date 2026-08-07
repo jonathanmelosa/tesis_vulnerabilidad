@@ -91,6 +91,26 @@ _HERE = Path(__file__).resolve().parent   # carpeta GoogleStreetView/
 CONFIG = {
     # ── Modelo ─────────────────────────────────────────────────────────────────
     # Variante de CLIP (open_clip). Ejemplos: "ViT-B-32", "ViT-L-14", "RN50".
+    #
+    # ViT-B-32 (Vision Transformer, Base, parches de 32x32 px):
+    #   · ~86M parámetros en el encoder de imagen, embedding_dim=512.
+    #   · Parches grandes → menos tokens → rápido, pero pierde detalle fino.
+    #   · Default recomendado para prototipar o correr en CPU/MPS (laptop).
+    #
+    # ViT-L-14 (Vision Transformer, Large, parches de 14x14 px):
+    #   · ~304M parámetros, embedding_dim=768.
+    #   · Parches pequeños → más detalle espacial capturado → mejor accuracy
+    #     zero-shot que ViT-B-32 en benchmarks estándar, pero mucho más lento
+    #     y pesado en memoria. Preferible con GPU, o cuando ViT-B-32 no logra
+    #     discriminar bien conceptos visualmente sutiles (p. ej. grietas,
+    #     cableado expuesto).
+    #
+    # RN50 (ResNet-50, backbone convolucional, no Transformer):
+    #   · Arquitectura pre-ViT, embedding_dim=1024.
+    #   · En el paper original de CLIP queda por debajo de ViT-B-32 en
+    #     accuracy zero-shot promedio. Usar solo si se necesita comparar
+    #     contra una arquitectura convolucional o compatibilidad con
+    #     pipelines basados en CNN.
     "variante_clip": "ViT-B-32",
 
     # Checkpoint preentrenado a usar con open_clip (ver open_clip.list_pretrained()).

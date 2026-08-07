@@ -1,0 +1,355 @@
+% ============================================================
+%  TESIS MECA — UNIANDES
+%  ¿Pueden los datos geoespaciales públicos mejorar la
+%  predicción de la vulnerabilidad a la pobreza?
+%  Evidencia para hogares colombianos con base en la ELCO
+%
+%  Objetivo: ≤ 35 páginas de texto (sin contar portada,
+%  resumen ejecutivo, tablas en apéndice ni referencias)
+%  Distribución aproximada por sección (ver comentarios)
+% ============================================================
+
+\documentclass[12pt, letterpaper]{article}
+
+% ── Paquetes ──────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, es-nodecimaldot]{babel}
+\usepackage[
+  top=2.5cm, bottom=2.5cm,
+  left=3cm,  right=2.5cm
+]{geometry}
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{lmodern}
+
+% Matemáticas
+\usepackage{amsmath, amssymb, amsthm}
+\newtheorem{proposition}{Proposición}
+
+% Figuras y tablas
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{rotating}
+
+% Colores e hipervínculos
+\usepackage[dvipsnames]{xcolor}
+\usepackage[
+  colorlinks = true,
+  linkcolor  = NavyBlue,
+  citecolor  = NavyBlue,
+  urlcolor   = NavyBlue
+]{hyperref}
+
+% Bibliografía
+\usepackage[
+  backend    = biber,
+  style      = apa,
+  sorting    = nyt,
+  natbib     = true
+]{biblatex}
+\addbibresource{referencias.bib}   % <-- tu archivo .bib
+
+% Encabezados
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small\textit{Vulnerabilidad a la pobreza y datos geoespaciales}}
+\lhead{\small\textit{Melo, J. (2025)}}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Espaciado
+\onehalfspacing
+
+% ── Datos del documento ───────────────────────────────────
+\title{
+  \textbf{¿Pueden los datos geoespaciales públicos mejorar la
+  predicción de la vulnerabilidad a la pobreza?} \\[6pt]
+  \large Evidencia para hogares colombianos con base en
+  la Encuesta Longitudinal de Colombia (ELCO)
+}
+\author{
+  Jonathan Melo Sarta \\
+  \small Maestría en Economía Aplicada \\
+  \small Universidad de los Andes \\
+  \small \href{mailto:correo@uniandes.edu.co}{correo@uniandes.edu.co}
+}
+\date{Bogotá, \the\year}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+\maketitle
+\thispagestyle{empty}
+
+% ── Resumen ──────────────────────────────────────────────
+% TARGET: 200–250 palabras (no cuenta en el límite de páginas)
+\begin{abstract}
+\noindent
+% Estructura sugerida del abstract (borrar este comentario):
+% (1) Problema y pregunta — 2 oraciones
+% (2) Qué hace este paper: datos, método — 2 oraciones
+% (3) Resultado principal — 1–2 oraciones
+% (4) Implicación de política — 1 oración
+\textbf{Palabras clave:} vulnerabilidad a la pobreza,
+aprendizaje de máquinas, datos geoespaciales, ELCO,
+focalización, Colombia.
+
+\noindent\textbf{Clasificación JEL:} I32, C55, O18, R12.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================
+% SECCIÓN 1 — INTRODUCCIÓN          TARGET: 5–6 páginas
+% ============================================================
+% Estructura interna recomendada:
+%   1.1 Motivación y problema (por qué importa) — 1–1.5 pp.
+%   1.2 Vacío en la literatura — 1 p.
+%   1.3 Qué hace este paper y qué encuentra — 1 p.
+%   1.4 Contribución explícita — 0.5–1 p.
+%   1.5 Mapa del documento — 0.5 p.
+% ============================================================
+\section{Introducción}
+\label{sec:intro}
+
+% [TEXTO AQUÍ]
+
+% ============================================================
+% SECCIÓN 2 — MARCO CONCEPTUAL Y LITERATURA   TARGET: 6–7 pp.
+% ============================================================
+% Estructura interna recomendada:
+%   2.1 Vulnerabilidad a la pobreza: fundamentos — 2–2.5 pp.
+%   2.2 ML para predicción de pobreza y transiciones — 2 pp.
+%   2.3 Variables geoespaciales como complemento — 1.5–2 pp.
+%   2.4 Síntesis: vacío específico que llena este paper — 0.5 p.
+% ============================================================
+\section{Marco conceptual y revisión de literatura}
+\label{sec:literatura}
+
+\subsection{Vulnerabilidad a la pobreza: fundamentos conceptuales}
+\label{subsec:vulnerabilidad}
+
+% [TEXTO AQUÍ]
+
+\subsection{Aprendizaje de máquinas en la predicción de pobreza}
+\label{subsec:ml_pobreza}
+
+% [TEXTO AQUÍ]
+
+\subsection{Variables geoespaciales como fuente complementaria}
+\label{subsec:geoespacial}
+
+% [TEXTO AQUÍ]
+
+\subsection{Síntesis y vacío que llena este trabajo}
+\label{subsec:gap}
+
+% [TEXTO AQUÍ]
+
+% ============================================================
+% SECCIÓN 3 — DATOS                 TARGET: 5–6 páginas
+% ============================================================
+% Estructura interna recomendada:
+%   3.1 ELCO/ELCA: olas, cobertura, atrición, missings — 2 pp.
+%   3.2 Fuentes geoespaciales y construcción de variables — 2 pp.
+%   3.3 Estadísticas descriptivas (texto + Tabla 1) — 1–2 pp.
+% ============================================================
+\section{Datos}
+\label{sec:datos}
+
+\subsection{Encuesta Longitudinal Colombiana (ELCO)}
+\label{subsec:elco}
+
+% [TEXTO AQUÍ — incluir Tabla 1: resumen de olas,
+%  N hogares, tasa de atrición, variables clave]
+
+\subsection{Fuentes geoespaciales}
+\label{subsec:geo}
+
+% [TEXTO AQUÍ — satélite (luminosidad nocturna),
+%  OpenStreetMap, Google Street View.
+%  Describir buffers espaciales y nivel de agregación]
+
+\subsection{Estadísticas descriptivas}
+\label{subsec:desc}
+
+% [TEXTO AQUÍ — incluir Tabla 2: estadísticas por
+%  cuadrante de transición]
+
+% ============================================================
+% SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
+% ============================================================
+% Estructura interna recomendada:
+%   4.1 Variable de resultado: matrices de transición — 1–1.5 pp.
+%   4.2 Especificación de modelos — 2–2.5 pp.
+%   4.3 Validación y métricas de desempeño — 1–1.5 pp.
+%   4.4 Tratamiento del desbalance de clases — 0.5–1 p.
+%   4.5 Importancia de variables e interpretabilidad — 0.5–1 p.
+% ============================================================
+\section{Estrategia empírica}
+\label{sec:estrategia}
+
+\subsection{Construcción de la variable de resultado}
+\label{subsec:outcome}
+
+% [TEXTO AQUÍ — matrices de transición, definición
+%  formal de CaidaPobreza_{i,t+1}, línea DANE]
+%
+% Incluir Tabla 3: matriz de transición descriptiva
+% (proporción de hogares en cada cuadrante)
+
+\subsection{Especificación de modelos}
+\label{subsec:modelos}
+
+% [TEXTO AQUÍ]
+%
+% Modelo base:
+%   - Regresión logística
+%   - LASSO / Ridge
+%
+% Modelo extendido:
+%   - Random Forest
+%   - Gradient Boosting (XGBoost)
+%   - [Opcional] Red neuronal
+%
+% Justificar cada elección con referencia a la literatura
+
+% Ecuación del modelo base
+\begin{equation}
+  P\!\left(\text{CaidaPobreza}_{i,t+1} = 1 \mid X_{it}\right)
+  = F\!\left(X_{it}\,\beta\right)
+  \label{eq:modelo_base}
+\end{equation}
+
+\noindent donde $F(\cdot)$ es la función logística en el modelo
+base y una aproximación no paramétrica en los modelos de ML,
+y $X_{it}$ es el vector de características del hogar $i$
+observadas en el periodo $t$.
+
+\subsection{Validación fuera de muestra y métricas}
+\label{subsec:validacion}
+
+% [TEXTO AQUÍ — partición train/test por ola,
+%  AUC-ROC, precision, recall, F1, errores de
+%  inclusión y exclusión como métricas de targeting]
+
+\subsection{Tratamiento del desbalance de clases}
+\label{subsec:desbalance}
+
+% [TEXTO AQUÍ — pesos de clase, SMOTE,
+%  optimización por recall; justificar elección]
+
+\subsection{Importancia de variables e interpretabilidad}
+\label{subsec:interpretabilidad}
+
+% [TEXTO AQUÍ — SHAP values, permutation importance,
+%  contribución marginal geoespacial vs. ELCO]
+
+% ============================================================
+% SECCIÓN 5 — RESULTADOS            TARGET: 9–10 páginas
+% ============================================================
+% Estructura interna recomendada:
+%   5.1 Dinámica de transiciones en la ELCO — 1–1.5 pp.
+%   5.2 Desempeño comparativo de modelos — 2–3 pp.
+%   5.3 Contribución marginal de variables geoespaciales — 2 pp.
+%   5.4 Heterogeneidad territorial — 1.5–2 pp.
+%   5.5 Comparación con clasificación SISBEN — 1.5 pp. [condicional]
+% ============================================================
+\section{Resultados}
+\label{sec:resultados}
+
+\subsection{Dinámica de transiciones a la pobreza en la ELCO}
+\label{subsec:transiciones}
+
+% [TEXTO AQUÍ — Figura 1: distribución de cuadrantes
+%  por región / área urbana-rural]
+
+\subsection{Desempeño comparativo de modelos}
+\label{subsec:desempeno}
+
+% [TEXTO AQUÍ — Tabla 4: AUC-ROC, F1, recall,
+%  errores de exclusión por modelo y especificación]
+
+\subsection{Contribución marginal de las variables geoespaciales}
+\label{subsec:marginal}
+
+% [TEXTO AQUÍ — Figura 2: SHAP summary plot o
+%  permutation importance; Tabla 5: ganancia en AUC
+%  al agregar cada fuente geoespacial]
+
+\subsection{Heterogeneidad territorial}
+\label{subsec:heterogeneidad}
+
+% [TEXTO AQUÍ — Tabla 6 o Figura 3: desempeño
+%  por región / municipio urbano vs. rural]
+
+\subsection{Comparación con la clasificación del SISBÉN}
+\label{subsec:sisben}
+
+% [INCLUIR SOLO SI SE TIENEN DATOS]
+% [TEXTO AQUÍ — Tabla 7: tasas de error de exclusión
+%  modelo vs. SISBÉN contemporáneo]
+
+% ============================================================
+% SECCIÓN 6 — CONCLUSIONES          TARGET: 3–4 páginas
+% ============================================================
+% Estructura interna recomendada:
+%   6.1 Síntesis de hallazgos — 1–1.5 pp.
+%   6.2 Implicaciones para política — 1 p.
+%   6.3 Limitaciones y agenda de investigación — 1 p.
+% ============================================================
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+\subsection{Síntesis de hallazgos}
+\label{subsec:sintesis}
+
+% [TEXTO AQUÍ]
+
+\subsection{Implicaciones para la política pública}
+\label{subsec:politica}
+
+% [TEXTO AQUÍ — SISBÉN, sistemas de alerta temprana,
+%  actualización entre encuestas, DNP]
+
+\subsection{Limitaciones y agenda de investigación}
+\label{subsec:limitaciones}
+
+% [TEXTO AQUÍ]
+
+% ============================================================
+% REFERENCIAS
+% ============================================================
+\newpage
+\printbibliography[heading=bibintoc, title={Referencias}]
+
+% ============================================================
+% APÉNDICES
+% ============================================================
+\newpage
+\appendix
+\renewcommand{\thesection}{\Alph{section}}
+
+\section{Tablas y figuras complementarias}
+\label{apx:tablas}
+
+% Robusteces, descriptivos adicionales, mapas,
+% curvas ROC por modelo, etc.
+% Las tablas del apéndice NO cuentan en el límite de 35 pp.
+
+\section{Detalles de construcción de variables geoespaciales}
+\label{apx:geo}
+
+% Pipeline GSV, buffers, fuentes satelitales,
+% código de referencia si aplica.
+
+\end{document}

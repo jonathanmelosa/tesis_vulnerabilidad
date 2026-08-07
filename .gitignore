@@ -37,3 +37,19 @@ plasma-minutia-*.json
 # Copia pesada (~1GB) de datos crudos de la ELCA dentro de src/ (duplica
 # data/interim/raw/, que ya esta protegido); no se versiona.
 src/01_download/02_scr_GoogleStreetView/raw/
+
+# Zips generados para subir a Overleaf
+overleaf_uploads/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.toc
+paper/*.bbl
+paper/*.bcf
+paper/*.blg
+paper/*.run.xml
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
