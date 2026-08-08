@@ -35,6 +35,7 @@
 \usepackage{subcaption}
 \usepackage{float}
 \usepackage{rotating}
+\usepackage{multirow}
 
 % Colores e hipervínculos
 \usepackage[dvipsnames]{xcolor}
@@ -270,8 +271,310 @@ observadas en el periodo $t$.
 \subsection{Dinámica de transiciones a la pobreza en la ELCO}
 \label{subsec:transiciones}
 
-% [TEXTO AQUÍ — Figura 1: distribución de cuadrantes
-%  por región / área urbana-rural]
+Esta sección analiza la dinámica de la pobreza monetaria en el panel ELCA
+2010--2013--2016 en dos niveles. Primero, la incidencia y las matrices de
+transición entre olas consecutivas, siguiendo la metodología oficial del
+DANE (ingreso per cápita nominal del hogar contra la línea de pobreza --LP--
+y la línea de pobreza extrema --LI-- nominales de su año y zona) y la
+clasificación en cuatro categorías de transición de \textcite{lopezCalva2014}
+(nunca pobre, siempre pobre, sale de la pobreza, entra en pobreza). Segundo,
+un conjunto de cinco ejercicios de robustez diseñados específicamente para
+evaluar qué tan sensible es la variable de resultado de esta tesis --la
+transición a la pobreza-- a decisiones metodológicas de la construcción del
+ingreso y a la definición del panel. Los detalles de construcción de cada
+variable, verificados contra los diccionarios de la encuesta y los archivos
+crudos, están documentados exhaustivamente en el repositorio del proyecto
+(\texttt{docs/decisions.md}); aquí se presentan los resultados y su
+interpretación para la tesis.
+
+\subsubsection{Incidencia de pobreza y matrices de transición}
+\label{subsubsec:incidencia_transicion}
+
+La Figura~\ref{fig:incidencia_ingreso_gasto} muestra la incidencia de
+pobreza monetaria (P0) por ingreso y por gasto para las tres olas. La
+pobreza por ingreso --la medida oficial-- cae de 60.7\% en 2010 a 52.4\% en
+2013 y a 42.4\% en 2016, una reducción acumulada de 18.3 puntos
+porcentuales en seis años. La pobreza por gasto, construida como medida de
+robustez (Sección~\ref{sec:datos}), es sistemáticamente más alta que la de
+ingreso en las tres olas (47.6\%, 40.9\% y 33.4\% en sentido estricto es más
+\emph{baja}, no más alta, que la de ingreso en los tres puntos del panel:
+la brecha ingreso-gasto es de 13.1, 11.5 y 9.0 puntos porcentuales
+respectivamente, siempre a favor de una menor incidencia medida por gasto).
+Ambas series comparten la misma tendencia decreciente y la misma
+desaceleración del ritmo de reducción entre 2013--2016 frente a
+2010--2013, lo que sugiere que la caída de la pobreza en el periodo no es
+un artefacto de la medida de bienestar elegida.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{../outputs/figures/pobreza/01_incidencia_ingreso_vs_gasto.png}
+  \caption{Incidencia de pobreza monetaria (P0) por ingreso y por gasto,
+  contra la línea de pobreza (LP), 2010--2016.}
+  \label{fig:incidencia_ingreso_gasto}
+\end{figure}
+
+La Figura~\ref{fig:fgt_trio} descompone la pobreza por ingreso en sus tres
+componentes de Foster-Greer-Thorbecke: incidencia (P0), brecha (P1) y
+severidad (P2). La brecha --qué tan lejos está el ingreso promedio de los
+pobres respecto a la LP, como fracción de la LP-- cae de 32.2\% a 22.0\% y a
+16.1\% entre 2010 y 2016; la severidad --que pondera más a los hogares más
+alejados de la LP, sensible a la desigualdad entre los pobres-- cae de
+22.3\% a 12.4\% y a 8.3\%. La caída proporcional de P1 y P2 es más rápida
+que la de P0 en ambos periodos, lo que indica que la reducción de la
+pobreza no solo trajo hogares desde justo debajo de la LP hacia arriba,
+sino que también mejoró la situación relativa de los hogares que
+permanecieron pobres.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../outputs/figures/pobreza/02_fgt_incidencia_brecha_severidad.png}
+  \caption{Indicadores FGT de pobreza por ingreso contra la LP: incidencia
+  (P0), brecha (P1) y severidad (P2), por ola.}
+  \label{fig:fgt_trio}
+\end{figure}
+
+Las matrices de transición cruzan el estado de pobreza inicial (filas)
+contra el estado final (columnas), en porcentaje de fila, únicamente para
+hogares con emparejamiento uno a uno vía \texttt{consecutivo} entre olas
+(los hogares que se dividen entre una ola y la siguiente --511 casos en
+2010--2013 y 1{,}190 en 2013--2016, contando ambos lados del
+emparejamiento-- se excluyen de la matriz por no tener un estado inicial y
+final inequívoco). La Tabla~\ref{tab:matriz_transicion} presenta ambas
+matrices.
+
+\begin{table}[H]
+  \centering
+  \caption{Matrices de transición de pobreza monetaria por ingreso
+  (\% de fila, panel emparejado 1 a 1)}
+  \label{tab:matriz_transicion}
+  \begin{tabular}{llcc}
+    \toprule
+    \textbf{Periodo} & \textbf{Estado inicial} & \textbf{No pobre (final)} & \textbf{Pobre (final)} \\
+    \midrule
+    \multirow{2}{*}{2010 $\rightarrow$ 2013 ($n=8{,}218$)}
+      & No pobre & 76.6\% & 23.4\% \\
+      & Pobre    & 29.7\% & 70.3\% \\
+    \addlinespace
+    \multirow{2}{*}{2013 $\rightarrow$ 2016 ($n=6{,}911$)}
+      & No pobre & 80.1\% & 19.9\% \\
+      & Pobre    & 38.2\% & 61.8\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.85\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} $n$ = hogares con emparejamiento 1 a 1;
+    excluye 511 (2010--2013) y 1{,}190 (2013--2016) casos de hogares que se
+    dividieron entre olas. Fuente: cálculos propios con base en ELCA
+    2010, 2013, 2016.
+  \end{minipage}
+\end{table}
+
+Dos patrones se destacan. Primero, la persistencia en la pobreza es alta
+pero decrece con el tiempo: 70.3\% de los hogares pobres en 2010 seguían
+pobres en 2013, y esa persistencia baja a 61.8\% entre 2013 y 2016 --es
+decir, la probabilidad de salir de la pobreza condicional en ser pobre
+aumentó de 29.7\% a 38.2\% entre periodos--. Segundo, la persistencia en la
+no pobreza también mejora (de 76.6\% a 80.1\%), y el riesgo de entrar en
+pobreza condicional en no ser pobre cae de 23.4\% a 19.9\%. Ambos
+movimientos son consistentes con la caída de la incidencia agregada
+documentada en la Figura~\ref{fig:incidencia_ingreso_gasto}.
+
+La Figura~\ref{fig:transiciones_categorias} traduce estas matrices a las
+cuatro categorías de \textcite{lopezCalva2014}. En 2010--2013, 43.9\% de
+los hogares del panel emparejado son \emph{siempre pobres}, 28.8\%
+\emph{nunca pobres}, 18.6\% \emph{salen} de la pobreza y 8.8\%
+\emph{entran} en ella. En 2013--2016 el panorama cambia de categoría
+dominante: \emph{nunca pobre} pasa a ser la categoría más grande (37.0\%,
+superando por primera vez a \emph{siempre pobre}, que cae a 33.3\%), sale
+20.6\% y entra 9.2\%. En los dos periodos la tasa de salida casi duplica a
+la tasa de entrada, consistente con una economía en la que la pobreza
+monetaria se redujo de manera neta, no solo se redistribuyó entre hogares.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../outputs/figures/pobreza/06_transiciones_pobreza.png}
+  \caption{Distribución de categorías de transición de pobreza monetaria
+  (Lopez-Calva y Ortiz-Juarez, 2014) entre olas consecutivas.}
+  \label{fig:transiciones_categorias}
+\end{figure}
+
+\subsubsection{Ejercicios de robustez}
+\label{subsubsec:robustez}
+
+La variable de interés de esta tesis es precisamente la transición a la
+pobreza, por lo que conviene preguntarse qué tan sensibles son las cifras
+de la Sección~\ref{subsubsec:incidencia_transicion} a decisiones de
+construcción del ingreso, a la representatividad muestral, y al error de
+medición cerca del umbral de pobreza. Se implementaron cinco ejercicios de
+robustez con este propósito.
+
+\paragraph{Ponderación muestral.} Ninguno de los resultados anteriores
+usaba factores de expansión: son proporciones \emph{muestrales}, no
+estimaciones poblacionales. Se identificaron y verificaron contra los
+diccionarios de cada ola los factores de expansión a nivel de hogar
+(\texttt{fexhog}, \texttt{fexhog\_2013}, ambos transversales, y
+\texttt{fexhog\_2010}, el factor longitudinal anclado a la muestra base de
+2010, disponible en las olas 2 y 3). Ponderar cambia la incidencia
+agregada de forma moderada: 60.7\%~$\rightarrow$~60.4\% en 2010,
+52.4\%~$\rightarrow$~48.6\% en 2013 (la brecha más grande de las tres
+olas, casi 4 puntos), y 42.4\%~$\rightarrow$~41.8\% en 2016. En las
+matrices de transición, ponderar por el factor longitudinal mueve la
+categoría \emph{siempre pobre} de 43.9\% a 42.7\% en 2010--2013, y de
+33.3\% a 32.9\% en 2013--2016, mientras que \emph{nunca pobre} sube de
+37.0\% a 38.6\% en el segundo periodo. La dirección del efecto es
+consistente en ambos periodos (la muestra sin ponderar sobrerrepresenta
+levemente la persistencia en la pobreza), pero la magnitud es pequeña
+frente a los otros ejercicios de robustez de esta sección.
+
+\paragraph{Ingreso sin componentes excepcionales.} Seis componentes del
+ingreso total del hogar (venta de inmueble, venta de negocio, herencias,
+pólizas, venta de otros activos, y otros ingresos no clasificados) son
+eventos retrospectivos de doce meses --no flujos mensuales sostenidos--
+prorrateados como ingreso mensual para sumarlos al resto del ingreso. Un
+hogar que vendió una propiedad puede aparecer como si hubiera
+\emph{salido} de la pobreza sin que su capacidad de ingreso sostenible
+haya cambiado, lo cual es un riesgo directo para la variable de interés de
+esta tesis. Reclasificando la pobreza con el ingreso total menos estos
+seis componentes y repitiendo las matrices de transición, el efecto sobre
+la distribución de categorías es pequeño: \emph{siempre pobre} pasa de
+43.9\% a 44.4\% en 2010--2013 y de 33.3\% a 33.8\% en 2013--2016;
+\emph{nunca pobre} se mueve menos de medio punto porcentual en ambos
+periodos. Se concluye que el ingreso excepcional no es, a nivel agregado,
+un motor importante de las transiciones observadas, aunque puede seguir
+siendo relevante para hogares individuales específicos.
+
+\paragraph{Ingreso sin ayudas en dinero.} La pregunta de ayudas en dinero
+(\texttt{ing\_ayudas}) nunca se hizo a los hogares rurales en la ola 2010
+--un hueco de diseño del cuestionario, no una no-respuesta al azar, según
+se verificó contra tres fuentes independientes (columnas del archivo
+crudo, diccionario específico rural, y comparación con el diccionario
+urbano)--, lo que subestima mecánicamente el ingreso rural de 2010 frente
+al de 2013 y 2016, donde la pregunta sí existe. Para dimensionar el efecto
+de esta fuente de ingreso sobre las transiciones, se reclasificó la
+pobreza excluyendo \texttt{ing\_ayudas} de las tres olas y se repitió la
+matriz 2010$\rightarrow$2013. El efecto es el más grande de los cuatro
+ejercicios de reclasificación del ingreso: \emph{siempre pobre} sube de
+43.9\% a 46.8\%, y \emph{nunca pobre} baja de 28.8\% a 27.2\%. Esto es
+consistente con que las ayudas en dinero son una fuente de ingreso más
+extendida en la población (no un evento raro como el ingreso excepcional),
+por lo que su presencia o ausencia mueve la clasificación de más hogares.
+
+\paragraph{Sensibilidad a la banda alrededor de la línea de pobreza.}
+Clasificar pobre/no pobre con un corte estricto contra la LP puede generar
+``transiciones'' que son, en realidad, ruido de muestreo o error de
+medición del ingreso cerca del umbral. Para cuantificar esta sensibilidad
+se reclasificó la pobreza usando LP$\times$0.9 y LP$\times$1.1 (una banda
+de $\pm$10\%) y se repitieron las matrices de transición
+(Figura~\ref{fig:sensibilidad_banda}). El resultado es la fuente de
+variación más grande de todos los ejercicios de robustez: \emph{siempre
+pobre} oscila entre 38.6\% (LP$-$10\%) y 49.1\% (LP$+$10\%) en
+2010--2013 (frente a 43.9\% en la línea base), y entre 27.8\% y 38.6\% en
+2013--2016 (frente a 33.3\%) --una banda de aproximadamente 10 puntos
+porcentuales en ambos periodos, más del doble del efecto de excluir el
+ingreso excepcional o las ayudas en dinero--. Esta es evidencia de que una
+parte sustancial de la variación en los resultados de transición depende
+de la ubicación exacta del umbral oficial, algo que debe tenerse presente
+al interpretar el desempeño de los modelos predictivos de la
+Sección~\ref{sec:resultados}: un modelo que clasifica erróneamente a
+hogares cerca del umbral puede estar capturando ruido de medición del
+ingreso más que un patrón estructural de vulnerabilidad.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/08_sensibilidad_banda.png}
+  \caption{Sensibilidad de la distribución de categorías de transición a
+  una banda $\pm$10\% alrededor de la línea de pobreza oficial.}
+  \label{fig:sensibilidad_banda}
+\end{figure}
+
+La Figura~\ref{fig:robustez_transiciones} resume conjuntamente los tres
+ejercicios de reclasificación del ingreso (línea base, sin ingreso
+excepcional, sin ayudas en dinero) frente a la especificación oficial.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/07_robustez_transiciones.png}
+  \caption{Robustez de la distribución de categorías de transición a
+  especificaciones alternativas del ingreso del hogar.}
+  \label{fig:robustez_transiciones}
+\end{figure}
+
+\paragraph{Atrición del panel.} Además de los hogares excluidos de las
+matrices de transición por dividirse entre olas, se midió la atrición
+\emph{pura}: hogares de la ola inicial cuyo \texttt{consecutivo} no
+aparece en absoluto en la ola siguiente, ni como emparejamiento uno a uno
+ni como escisión (Figura~\ref{fig:atricion}). La atrición es de 11.4\% en
+ambos periodos (1{,}124 de 9{,}853 hogares base entre 2010 y 2013; 994 de
+8{,}729 entre 2013 y 2016). La consistencia entre periodos es tranquilizadora
+en términos de diseño muestral, pero no se investigó si esta atrición es
+aleatoria o está concentrada en algún perfil de hogar (rural, más pobre,
+más móvil) --una limitación que se retoma más abajo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{../outputs/figures/pobreza/09_atricion_panel.png}
+  \caption{Atrición total del panel entre olas consecutivas (hogares que
+  no aparecen en absoluto en la ola siguiente).}
+  \label{fig:atricion}
+\end{figure}
+
+\subsubsection{Limitaciones}
+\label{subsubsec:limitaciones_transiciones}
+
+Los ejercicios de robustez anteriores acotan, pero no eliminan, un
+conjunto de limitaciones de los datos y de la construcción de la variable
+de resultado que deben tenerse presentes al interpretar los resultados de
+esta tesis:
+
+\begin{itemize}
+  \item \textbf{Error de medición cerca del umbral.} Como muestra la
+  Figura~\ref{fig:sensibilidad_banda}, cerca de 10 puntos porcentuales de
+  la distribución de categorías de transición son sensibles a una banda de
+  apenas $\pm$10\% alrededor de la LP. Esto es consistente con el problema
+  clásico de regresión a la media en paneles de pobreza
+  \parencite{baulch2000}: una fracción de las transiciones observadas
+  puede reflejar error de medición del ingreso más que cambios reales en
+  el bienestar del hogar.
+
+  \item \textbf{Peso muestral no disponible para la ola 2016.} La
+  ola 2016 no tiene un factor de expansión transversal propio en los
+  datos consolidados de la ELCA (solo el longitudinal anclado a 2010); las
+  cifras ponderadas de esa ola usan el factor longitudinal como mejor
+  aproximación disponible, lo cual subrepresenta a cualquier hogar que
+  hubiera entrado a la muestra después de 2010.
+
+  \item \textbf{Arriendo imputado ausente.} La ELCA no permite estimar el
+  valor del arriendo que un hogar propietario ``se ahorra'' --un
+  componente que el DANE sí incluye en su concepto oficial de ingreso--,
+  por lo que la medida de ingreso de esta tesis omite ese componente de
+  forma sistemática para todos los hogares propietarios (cerca del
+  77--79\% de la muestra).
+
+  \item \textbf{Ingreso laboral bruto vs. neto en trabajo independiente.}
+  Los hogares con actividad agropecuaria o independiente reportan ingreso
+  laboral sin distinguir si es bruto o neto de costos de producción,
+  ambigüedad que es sistemáticamente más relevante en la zona rural por su
+  mayor tasa de informalidad.
+
+  \item \textbf{Sesgo de recall en la medida de gasto.} La brecha entre
+  pobreza por ingreso y por gasto documentada en la
+  Figura~\ref{fig:incidencia_ingreso_gasto} refleja, al menos en parte, el
+  sesgo de recall conocido en módulos de consumo con preguntas de
+  ventana larga (doce meses) frente a preguntas de ventana corta
+  \parencite{beegle2012}, y no debe leerse únicamente como evidencia de
+  subreporte de ingreso.
+
+  \item \textbf{Atrición no caracterizada.} La atrición del panel
+  (Figura~\ref{fig:atricion}) es consistente entre periodos (11.4\% en
+  ambos), pero no se estableció si es aleatoria o si está concentrada en
+  hogares más vulnerables --lo típico en paneles de hogares pobres--, lo
+  que de ser el caso sesgaría a la baja las tasas de entrada a la pobreza
+  reportadas en la Figura~\ref{fig:transiciones_categorias}.
+\end{itemize}
+
+Estas limitaciones se retoman en la Sección~\ref{subsec:limitaciones}
+en el contexto de las implicaciones para la interpretación de los modelos
+predictivos de esta tesis.
 
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
@@ -292,12 +595,6 @@ observadas en el periodo $t$.
 % [TEXTO AQUÍ — Tabla 6 o Figura 3: desempeño
 %  por región / municipio urbano vs. rural]
 
-\subsection{Comparación con la clasificación del SISBÉN}
-\label{subsec:sisben}
-
-% [INCLUIR SOLO SI SE TIENEN DATOS]
-% [TEXTO AQUÍ — Tabla 7: tasas de error de exclusión
-%  modelo vs. SISBÉN contemporáneo]
 
 % ============================================================
 % SECCIÓN 6 — CONCLUSIONES          TARGET: 3–4 páginas
