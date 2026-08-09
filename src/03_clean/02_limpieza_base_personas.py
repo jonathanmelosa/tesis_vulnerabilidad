@@ -109,6 +109,36 @@ MARCADOR = "�"  # "�"
 # vocabulario cerrado, aunque su cardinalidad real es manejable a mano.
 
 CORRECCIONES_MANUALES_PRIORITARIAS = {
+    "estaba_sss": {
+        # mismo patron que "sindicato"/"cotiza_fp": encontrado al comparar
+        # descripciones de pregunta contra los diccionarios PDF para buscar
+        # renombrados entre olas (`estaba_sss` <-> `segsoc_salud`).
+        "S�": "Sí",
+    },
+    "estaba_fp": {
+        # mismo patron, encontrado junto con "estaba_sss" al armonizar
+        # `estaba_fp` (ola 1) con `afiliacion_fp` (ola 2/3).
+        "S�": "Sí",
+    },
+    "cotiza_fp": {
+        # mismo patron que "sindicato": categoria exclusiva de ola 1 sin
+        # candidato limpio en la misma columna contra el cual hacer match
+        # automatico. Encontrado junto con "sindicato" al armonizar
+        # `cotiza_fp` (ola 1) con `cotizando` (ola 2/3) en
+        # build_ahorro_capital_social_hogar.py.
+        "Si est� cotizando y recibe pensi�n": "Si está cotizando y recibe pensión",
+    },
+    "sindicato": {
+        # cardinalidad cerrada (2) pero SIN candidato limpio en la misma
+        # columna: en ola 1, TODAS las respuestas "Sí" quedaron corruptas
+        # como "S�" (175 casos) -- la correccion automatica no tiene con
+        # que comparar dentro de la columna y lo deja en el residual
+        # (ver personas_corrupcion_residual.csv, fila "sindicato"). Unico
+        # candidato compatible con el vocabulario Sí/No/No informa de la
+        # pregunta: "Sí". Encontrado al verificar renombrados entre olas
+        # (sindicato/org_sindicato) para build_ahorro_capital_social_hogar.py.
+        "S�": "Sí",
+    },
     "parentesco": {
         # cardinalidad (26) > CARDINALIDAD_MAXIMA_CERRADA: nunca pasa por la
         # correccion automatica, se listan aqui las 5 corruptas completas.
@@ -261,6 +291,359 @@ CORRECCIONES_MANUALES_PRIORITARIAS = {
     },
 }
 
+# ─── Correcciones verificadas contra los diccionarios PDF de la encuesta ─────
+# A diferencia de CORRECCIONES_MANUALES_PRIORITARIAS (verificadas a mano por
+# ortografia), estas se extrajeron programaticamente de los 15 diccionarios
+# disponibles (Personas + Hogar + RActivos_hogar, olas 2010/2013/2016, ambas
+# zonas -- data/interim/raw/elca_*/{R,U}{Personas,Hogar,Activos_hogar}.pdf
+# via pdftotext), que documentan las etiquetas de cada categoria en texto NO
+# corrupto -- una fuente independiente del archivo .tab exportado (se
+# amplio de los 4 diccionarios de Personas 2010/2013 a los 15 disponibles
+# tras una segunda ronda de revision, ver docs/decisions.md). Para cada
+# valor corrupto se construyo un patron con limites de palabra (cada '�' es
+# un comodin de 1 caracter) y se busco una coincidencia UNICA en el texto
+# completo de los 15 diccionarios; solo se acepta si hay exactamente un
+# candidato Y pasa la validacion de longitud/posicion (ver
+# validar_correccion() en las pruebas de docs/decisions.md): la cadena
+# limpia debe tener EXACTAMENTE la misma longitud que la corrupta, y todo
+# caracter que no sea '�' en el original debe coincidir caracter por
+# caracter con el resultado. Un bug de anclaje de regex en la primera
+# version de este metodo (que no exigia coincidencia de longitud) genero
+# varias correcciones falsas, detectadas en revision manual antes de
+# aplicarse -- ver docs/decisions.md para el detalle completo.
+CORRECCIONES_DICCIONARIO_PDF = {
+    'bebe_freq': {
+        'No consumiste alcohol los �ltimos 12 meses': 'No consumiste alcohol los últimos 12 meses',
+    },
+    'bustrab_fh': {
+        'S�, en todos los meses': 'Sí, en todos los meses',
+        'S�, en algunos meses': 'Sí, en algunos meses',
+    },
+    'cargo_cr': {
+        'S�, en algunos meses': 'Sí, en algunos meses',
+        'S�, en todos los meses': 'Sí, en todos los meses',
+    },
+    'celular_vecinos': {
+        'La mayor�a': 'La mayoría',
+    },
+    'cotiza_fp': {
+        'Si est� cotizando, pero todav�a no es pensionado': 'Si está cotizando, pero todavía no es pensionado',
+        'No, porque ya est� pensionado': 'No, porque ya está pensionado',
+        'No cotiza porque est� esperando cumplir la edad para pensionarse': 'No cotiza porque está esperando cumplir la edad para pensionarse',
+    },
+    'cr_ganaba_in': {
+        'M�s del salario m�nimo': 'Más del salario mínimo',
+        'El salario m�nimo': 'El salario mínimo',
+        'Menos del salario m�nimo': 'Menos del salario mínimo',
+    },
+    'crees_vivir': {
+        'A�os': 'Años',
+    },
+    'cuidado_personal': {
+        'Es incapaz de ba�arse o vestirse': 'Es incapaz de bañarse o vestirse',
+    },
+    'dejoestudio': {
+        'a�os': 'años',
+    },
+    'descrip_activ3': {
+        'Actividades art�sticas, de entretenimiento y recreaci�n': 'Actividades artísticas, de entretenimiento y recreación',
+        'Agricultura, ganader�a, caza, silvicultura y pesca': 'Agricultura, ganadería, caza, silvicultura y pesca',
+    },
+    'descrip_activ4': {
+        'Construcci�n': 'Construcción',
+        'Actividades de atenci�n de la salud humana y de asistencia social': 'Actividades de atención de la salud humana y de asistencia social',
+        'Agricultura, ganader�a, caza, silvicultura y pesca': 'Agricultura, ganadería, caza, silvicultura y pesca',
+    },
+    'descrip_activ5': {
+        'Agricultura, ganader�a, caza, silvicultura y pesca': 'Agricultura, ganadería, caza, silvicultura y pesca',
+    },
+    'descrip_activ6': {
+        'Agricultura, ganader�a, caza, silvicultura y pesca': 'Agricultura, ganadería, caza, silvicultura y pesca',
+    },
+    'diria_que_eleccion': {
+        'Vota en la mayor�a de las elecciones': 'Vota en la mayoría de las elecciones',
+    },
+    'diria_que_partido': {
+        'Vota por el mismo partido en la mayor�a de las elecciones': 'Vota por el mismo partido en la mayoría de las elecciones',
+    },
+    'educ_madre': {
+        'Algunos a�os de primaria': 'Algunos años de primaria',
+        'Algunos a�os de secundaria': 'Algunos años de secundaria',
+        'Universidad con t�tulo': 'Universidad con título',
+        'Universidad sin t�tulo': 'Universidad sin título',
+        'Uno o m�s a�os de t�cnica o tecnol�gica': 'Uno o más años de técnica o tecnológica',
+    },
+    'educ_padre': {
+        'Algunos a�os de primaria': 'Algunos años de primaria',
+        'Universidad con t�tulo': 'Universidad con título',
+        'Algunos a�os de secundaria': 'Algunos años de secundaria',
+        'Universidad sin t�tulo': 'Universidad sin título',
+        'Uno o m�s a�os de t�cnica o tecnol�gica': 'Uno o más años de técnica o tecnológica',
+    },
+    'pcuida_niveledu': {
+        'Uno o m�s a�os de t�cnica o tecnol�gica': 'Uno o más años de técnica o tecnológica',
+    },
+    'fuente_amigos': {
+        'Us�': 'Usó',
+        'No us�': 'No usó',
+    },
+    'fuente_diarios': {
+        'No us�': 'No usó',
+        'Us�': 'Usó',
+    },
+    'fuente_internet': {
+        'No us�': 'No usó',
+        'Us�': 'Usó',
+    },
+    'fuente_libros': {
+        'No us�': 'No usó',
+        'Us�': 'Usó',
+    },
+    'fuente_radio': {
+        'No us�': 'No usó',
+        'Us�': 'Usó',
+    },
+    'fuente_revistas': {
+        'No us�': 'No usó',
+        'Us�': 'Usó',
+    },
+    'fuente_tv': {
+        'Us�': 'Usó',
+        'No us�': 'No usó',
+    },
+    'fundo_negocio': {
+        '�l(Ella) y otros familiares': 'El(Ella) y otros familiares',
+        'Lo hered�': 'Lo heredó',
+    },
+    'informante': {
+        'Encuestado id�neo': 'Encuestado idóneo',
+    },
+    'lugar_nacimiento': {
+        'En otro pa�s': 'En otro país',
+    },
+    'lugar_vivia': {
+        'En otro pa�s': 'En otro país',
+    },
+    'lugar_vivia5': {
+        'En otro pa�s': 'En otro país',
+    },
+    'motivo_mig_1': {
+        'Regres� al hogar': 'Regresó al hogar',
+    },
+    'motivo_mig_2': {
+        'Regres� al hogar': 'Regresó al hogar',
+    },
+    'motivo_mig_3': {
+        'Regres� al hogar': 'Regresó al hogar',
+    },
+    'nivel_educ_2010': {
+        'T�cnico sin t�tulo': 'Técnico sin título',
+        'Tecnol�gico sin t�tulo': 'Tecnológico sin título',
+        'Universitario con t�tulo': 'Universitario con título',
+        'Universitario sin t�tulo': 'Universitario sin título',
+        'T�cnico con t�tulo': 'Técnico con título',
+        'Posgrado con t�tulo': 'Posgrado con título',
+        'Tecnol�gico con t�tulo': 'Tecnológico con título',
+    },
+    'noprof_acci': {
+        'No tiene EPS o seguro m�dico': 'No tiene EPS o seguro médico',
+        'No conf�a en los m�dicos': 'No confía en los médicos',
+        'Muchos tr�mites para la cita': 'Muchos trámites para la cita',
+        'El centro de atenci�n queda lejos': 'El centro de atención queda lejos',
+    },
+    'noprof_enfe': {
+        'No tiene EPS o seguro m�dico': 'No tiene EPS o seguro médico',
+        'Muchos tr�mites para la cita': 'Muchos trámites para la cita',
+        'El centro de atenci�n queda lejos': 'El centro de atención queda lejos',
+        'No conf�a en los m�dicos': 'No confía en los médicos',
+    },
+    'noprof_odon': {
+        'El centro de atenci�n queda lejos': 'El centro de atención queda lejos',
+        'Muchos tr�mites para la cita': 'Muchos trámites para la cita',
+        'No conf�a en los m�dicos': 'No confía en los médicos',
+        'No tiene EPS o seguro m�dico': 'No tiene EPS o seguro médico',
+    },
+    'noprof_problema': {
+        'No sab�a que ten�a derecho': 'No sabía que tenía derecho',
+    },
+    'noson_hogar': {
+        'Por independencia econ�mica': 'Por independencia económica',
+        'Porque pagan mejor o es m�s rentable': 'Porque pagan mejor o es más rentable',
+    },
+    'noson_hogar2': {
+        'Por independencia econ�mica': 'Por independencia económica',
+    },
+    'ocupacion_pt': {
+        'Empleado dom�stico': 'Empleado doméstico',
+        'Trabajador familiar sin remuneraci�n': 'Trabajador familiar sin remuneración',
+        'Jornalero o pe�n': 'Jornalero o peón',
+        'Patr�n o empleador': 'Patrón o empleador',
+    },
+    'ocupacion_tenia': {
+        'Empleado dom�stico': 'Empleado doméstico',
+        'Trabajador familiar sin remuneraci�n': 'Trabajador familiar sin remuneración',
+        'Jornalero o pe�n': 'Jornalero o peón',
+        'Patr�n o empleador': 'Patrón o empleador',
+    },
+    'pais_nac': {
+        'Espa�a': 'España',
+        'Per�': 'Perú',
+        'Rep�blica Dominicana': 'República Dominicana',
+    },
+    'pais_vivia': {
+        'Per�': 'Perú',
+        'Espa�a': 'España',
+        'Rep�blica Dominicana': 'República Dominicana',
+    },
+    'pais_vivia5': {
+        'Espa�a': 'España',
+    },
+    'parent_inform': {
+        'Servicio dom�stico, cuidandero y sus parientes': 'Servicio doméstico, cuidandero y sus parientes',
+    },
+    'pariente': {
+        'Servicio dom�stico, cuidandero y sus parientes': 'Servicio doméstico, cuidandero y sus parientes',
+    },
+    'prestamo_vecino': {
+        'La mayor�a': 'La mayoría',
+    },
+    'quien_cuida': {
+        'Una ni�era': 'Una niñera',
+    },
+    'quisiera_vivir': {
+        'A�os': 'Años',
+    },
+    'razon_jornalero': {
+        'Mejores pagos o m�s rentabilidad': 'Mejores pagos o más rentabilidad',
+        'Independencia econ�mica': 'Independencia económica',
+    },
+    'razon_llego': {
+        'Regres� al hogar': 'Regresó al hogar',
+    },
+    'razon_negocio1': {
+        'Por tradici�n familiar': 'Por tradición familiar',
+    },
+    'razon_negocio2': {
+        'Por tradici�n familiar': 'Por tradición familiar',
+    },
+    'razon_negocio3': {
+        'Por tradici�n familiar': 'Por tradición familiar',
+    },
+    'razon_negocio4': {
+        'Por tradici�n familiar': 'Por tradición familiar',
+    },
+    'razon_noacepto': {
+        'Ubicaci�n geogr�fica inadecuada': 'Ubicación geográfica inadecuada',
+    },
+    'razon_noahorra': {
+        'Est� pagando una deuda': 'Está pagando una deuda',
+    },
+    'razon_novivia': {
+        'Otra raz�n': 'Otra razón',
+        'Se fue de la casa o abandon� el hogar': 'Se fue de la casa o abandonó el hogar',
+        'Ambos hab�an fallecido': 'Ambos habían fallecido',
+    },
+    'razon_nsfinan': {
+        'Hay que hacer muchos tr�mites': 'Hay que hacer muchos trámites',
+        'El dinero no est� disponible inmediatamente': 'El dinero no está disponible inmediatamente',
+        'No conf�a en el sistema financiero': 'No confía en el sistema financiero',
+    },
+    'razon_retiro_in': {
+        'Cierre o reestructuraci�n de la empresa': 'Cierre o reestructuración de la empresa',
+        'Le sali� un trabajo mejor': 'Le salió un trabajo mejor',
+        'Decidi� no trabajar m�s': 'Decidió no trabajar más',
+        'Despido o declaraci�n de insubsistencia': 'Despido o declaración de insubsistencia',
+        'Cumpli� el ciclo en ese trabajo': 'Cumplió el ciclo en ese trabajo',
+        'Otra raz�n': 'Otra razón',
+    },
+    'razon_retiro_pt': {
+        'Decidi� no trabajar m�s': 'Decidió no trabajar más',
+        'Le sali� un trabajo mejor': 'Le salió un trabajo mejor',
+        'Despido o declaraci�n de insubsistencia': 'Despido o declaración de insubsistencia',
+        'Otra raz�n': 'Otra razón',
+        'Cierre o reestructuraci�n de la empresa': 'Cierre o reestructuración de la empresa',
+        'Cumpli� el ciclo en ese trabajo': 'Cumplió el ciclo en ese trabajo',
+    },
+    'recibia_pt': {
+        'El salario m�nimo': 'El salario mínimo',
+        'Menos del salario m�nimo': 'Menos del salario mínimo',
+    },
+    'recibio_ganancia': {
+        'No recibi�': 'No recibió',
+    },
+    'rzn_dejoestudiar': {
+        'Deb�a encargarse de labores dom�sticas y/o del cuidado de los ni�os, ancianos o': 'Debía encargarse de labores domésticas y/o del cuidado de los niños, ancianos o',
+    },
+    'sss_porque': {
+        'Lo tiene afiliado(a) una persona de este u otro hogar con la que no tiene v�nculo laboral': 'Lo tiene afiliado(a) una persona de este u otro hogar con la que no tiene vínculo laboral',
+    },
+    't_dejo_trabajar': {
+        'Menos de 1 a�o': 'Menos de 1 año',
+        'Hace m�s de 5 a�os': 'Hace más de 5 años',
+        'Entre 1 y menos de 2 a�os': 'Entre 1 y menos de 2 años',
+        'Entre 2 y menos de 5 a�os': 'Entre 2 y menos de 5 años',
+    },
+    'tam_empresa': {
+        '50 personas y m�s': '50 personas y más',
+    },
+    'tamano_pt': {
+        '50 personas y m�s': '50 personas y más',
+    },
+    'tamano_tenia': {
+        '50 personas y m�s': '50 personas y más',
+    },
+    'tipo_contrato3': {
+        'Contrato escrito a t�rmino fijo': 'Contrato escrito a término fijo',
+    },
+    'tratar_acci': {
+        'Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud': 'Acudió a un hospital, clínica, centro de salud u otra institución de salud',
+        'Consult� a un tegua, curandero, yerbatero, comadrona': 'Consultó a un tegua, curandero, yerbatero, comadrona',
+        'Acudi� al boticario, farmaceuta, droguista': 'Acudió al boticario, farmaceuta, droguista',
+        'Acudi� a un m�dico general, especialista particular u odont�logo': 'Acudió a un médico general, especialista particular u odontólogo',
+        'Us� remedios caseros': 'Usó remedios caseros',
+        'Acudi� a un profesional de medicina alternativa': 'Acudió a un profesional de medicina alternativa',
+    },
+    'tratar_ciru': {
+        'Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud': 'Acudió a un hospital, clínica, centro de salud u otra institución de salud',
+        'Acudi� a un m�dico general, especialista particular u odont�logo': 'Acudió a un médico general, especialista particular u odontólogo',
+        'Us� remedios caseros': 'Usó remedios caseros',
+    },
+    'tratar_enfe': {
+        'Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud': 'Acudió a un hospital, clínica, centro de salud u otra institución de salud',
+        'Acudi� a un m�dico general, especialista particular u odont�logo': 'Acudió a un médico general, especialista particular u odontólogo',
+        'Us� remedios caseros': 'Usó remedios caseros',
+        'Acudi� al boticario, farmaceuta, droguista': 'Acudió al boticario, farmaceuta, droguista',
+        'Acudi� a un profesional de medicina alternativa': 'Acudió a un profesional de medicina alternativa',
+        'Consult� a un tegua, curandero, yerbatero, comadrona': 'Consultó a un tegua, curandero, yerbatero, comadrona',
+    },
+    'tratar_odon': {
+        'Acudi� a un m�dico general, especialista particular u odont�logo': 'Acudió a un médico general, especialista particular u odontólogo',
+        'Us� remedios caseros': 'Usó remedios caseros',
+        'Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud': 'Acudió a un hospital, clínica, centro de salud u otra institución de salud',
+        'Acudi� al boticario, farmaceuta, droguista': 'Acudió al boticario, farmaceuta, droguista',
+        'Acudi� a un profesional de medicina alternativa': 'Acudió a un profesional de medicina alternativa',
+        'Consult� a un tegua, curandero, yerbatero, comadrona': 'Consultó a un tegua, curandero, yerbatero, comadrona',
+    },
+    'tratar_problema': {
+        'Acudi� a un m�dico general, especialista particular u odont�logo': 'Acudió a un médico general, especialista particular u odontólogo',
+        'Us� remedios caseros': 'Usó remedios caseros',
+        'Consult� a un tegua, curandero, yerbatero, comadrona': 'Consultó a un tegua, curandero, yerbatero, comadrona',
+    },
+    'vivia_con': {
+        'S�lo con la madre': 'Sólo con la madre',
+        'S�lo con el padre': 'Sólo con el padre',
+    },
+    'vr_ganancia4': {
+        'No recibi�': 'No recibió',
+    },
+    'vr_ganancia5': {
+        'No recibi�': 'No recibió',
+    },
+    'vr_ganancia6': {
+        'No recibi�': 'No recibió',
+    },
+}
+
 
 # ─── Funciones de limpieza ────────────────────────────────────────────────────
 
@@ -332,6 +715,20 @@ def corregir_vocabulario_cerrado_automatico(
     return df, mapa_aplicado, residual
 
 
+def aplicar_correcciones_diccionario_pdf(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Aplica CORRECCIONES_DICCIONARIO_PDF. A diferencia de
+    aplicar_correcciones_manuales_prioritarias, NO se valida con assert que
+    la columna quede en 0 -- estas correcciones cubren solo los valores que
+    tuvieron una coincidencia unica en el diccionario, algunas columnas
+    pueden conservar otros valores corruptos sin resolver.
+    """
+    df = df.copy()
+    for col, mapa in CORRECCIONES_DICCIONARIO_PDF.items():
+        df[col] = df[col].replace(mapa)
+    return df
+
+
 def aplicar_correcciones_manuales_prioritarias(df: pd.DataFrame) -> pd.DataFrame:
     """Aplica CORRECCIONES_MANUALES_PRIORITARIAS y valida que no quede '�'."""
     df = df.copy()
@@ -345,35 +742,29 @@ def aplicar_correcciones_manuales_prioritarias(df: pd.DataFrame) -> pd.DataFrame
     return df
 
 
-def documentar_residual(
-    residual_automatico: dict, columnas_texto_libre: list, df_original: pd.DataFrame
-) -> None:
+def documentar_residual(df_final: pd.DataFrame, columnas_texto_libre: list) -> None:
     """
-    Guarda un CSV con todas las columnas que quedan con corrupcion sin
-    resolver (vocabulario cerrado sin match automatico + texto libre nunca
-    tocado), para no tener que redescubrir el problema si se necesitan
-    despues.
+    Guarda un CSV con todas las columnas que quedan con corrupcion "�" sin
+    resolver EN EL RESULTADO FINAL (tras las 4 capas de correccion:
+    automatica, diccionario PDF, familia, manual), para no tener que
+    redescubrir el problema si se necesitan despues. Se calcula sobre el
+    dataframe ya corregido, no sobre listas intermedias, para que el reporte
+    sea siempre exacto sin importar cuantas capas de correccion se agreguen.
     """
     DOC_PATH.parent.mkdir(parents=True, exist_ok=True)
     filas = []
-    for col, valores in residual_automatico.items():
-        if col in CORRECCIONES_MANUALES_PRIORITARIAS:
-            continue  # ya resuelto a mano
+    for col in df_final.select_dtypes(include="object").columns:
+        serie = df_final[col].astype(str)
+        mask = serie.str.contains(MARCADOR, regex=False, na=False)
+        n = mask.sum()
+        if n == 0:
+            continue
+        tipo = "texto_libre_no_tocado" if col in columnas_texto_libre else "vocabulario_cerrado_sin_match"
         filas.append({
             "columna": col,
-            "tipo": "vocabulario_cerrado_sin_match",
-            "n_valores_residuales": len(valores),
-            "ejemplo": valores[0],
-        })
-    for col in columnas_texto_libre:
-        if col in CORRECCIONES_MANUALES_PRIORITARIAS:
-            continue  # ya resuelto a mano (cardinalidad > 25 pero cubierto de todas formas)
-        n = df_original[col].astype(str).str.contains(MARCADOR, regex=False, na=False).sum()
-        filas.append({
-            "columna": col,
-            "tipo": "texto_libre_no_tocado",
+            "tipo": tipo,
             "n_valores_residuales": n,
-            "ejemplo": "",
+            "ejemplo": serie[mask].iloc[0] if tipo == "vocabulario_cerrado_sin_match" else "",
         })
     pd.DataFrame(filas).sort_values("n_valores_residuales", ascending=False).to_csv(
         DOC_PATH, index=False
@@ -397,14 +788,19 @@ def main() -> None:
     print(f"  Valores corregidos: {n_aplicado} en {len(mapa_aplicado)} columnas")
     print(f"  Valores sin resolver automaticamente: {n_residual} en {len(residual)} columnas")
 
+    df = aplicar_correcciones_diccionario_pdf(df)
+    n_dicc = sum(len(v) for v in CORRECCIONES_DICCIONARIO_PDF.values())
+    print(f"\nCorreccion via diccionarios PDF (fuente independiente del .tab corrupto):")
+    print(f"  Valores corregidos: {n_dicc} en {len(CORRECCIONES_DICCIONARIO_PDF)} columnas")
+
     df = aplicar_correcciones_manuales_prioritarias(df)
     n_manual = sum(len(v) for v in CORRECCIONES_MANUALES_PRIORITARIAS.values())
     print(f"\nCorreccion manual de variables prioritarias: {n_manual} valores en "
           f"{len(CORRECCIONES_MANUALES_PRIORITARIAS)} columnas ({', '.join(CORRECCIONES_MANUALES_PRIORITARIAS)})")
     print(f"  Validado: 0 valores '�' restantes en esas {len(CORRECCIONES_MANUALES_PRIORITARIAS)} columnas.")
 
-    documentar_residual(residual, abiertas, pd.read_parquet(INPUT_PATH))
-    print(f"\nBacklog de columnas no resueltas documentado en: {DOC_PATH}")
+    documentar_residual(df, abiertas)
+    print(f"\nBacklog de columnas no resueltas (calculado sobre el resultado final) en: {DOC_PATH}")
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(OUTPUT_PATH, index=False)

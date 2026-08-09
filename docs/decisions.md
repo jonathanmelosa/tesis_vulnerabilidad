@@ -1097,8 +1097,7 @@ Resultado de las transiciones (ingreso, medida oficial):
   2013->2016 (n=6.911): 37.0% nunca pobre, 33.3% siempre pobre, 20.6% sale
   de la pobreza, 9.2% entra en pobreza.
 
-### 2026-08-08 (cont.) — Revision del panel de economistas/sociologos (Banco
-Mundial, Harvard, MIT, Oxford, LSE) sobre construccion de ingreso, gasto y
+### 2026-08-08 (cont.) — Revision de la construccion de ingreso, gasto y
 pobreza
 
 Se sometio el pipeline completo (`config_dane.py`, `build_ingreso_hogar.py`,
@@ -1240,12 +1239,9 @@ vulnerables tienden a perderse mas). Tabla: `atricion_panel.csv`.
 particion temporal, especificaciones de ingreso, y criterio de agregacion
 de covariables
 
-Definicion conjunta (discusion iterativa) de la metodologia del modelo
+Definicion de la metodologia del modelo
 predictivo benchmark -- el que se comparara despues contra la version que
-suma variables derivadas de fotos de Google Street View. Estas son
-decisiones de diseno tomadas HOY, no documentacion retroactiva de codigo
-ya escrito; el pipeline de construccion de features todavia no se ha
-implementado.
+suma variables derivadas de fotos de Google Street View. 
 
 **1. Poblacion de analisis: modelo de "entrada" condicional, no
 pobreza incondicional en t+1.** "Caer en pobreza" solo esta definido
@@ -1284,8 +1280,7 @@ resultado principal:
     desempeño con mas datos pero sacrifica validez temporal genuina (no
     detecta *drift* macro entre periodos).
 
-Justificacion (discutida como panel economista de pobreza /
-econometrista / ML): el holdout temporal hacia adelante es el unico que
+Justificacion: el holdout temporal hacia adelante es el unico que
 prueba generalizacion real ante drift macro (regimenes economicos
 distintos 2010-2013 vs. 2013-2016); es standard en literatura de alerta
 temprana / credit scoring por la misma razon. El riesgo de un unico split
@@ -1329,9 +1324,7 @@ benchmark, dado que ELCA sigue a la MISMA poblacion en el tiempo pero
     panel -- no existe una ola previa contra la cual calcular un cambio
     para la muestra de entrenamiento. Por construccion, NINGUNA variable
     dinamica puede entrar al benchmark principal (estaria vacia para el
-    100% de la muestra de entrenamiento 2010->2013); esto no es una
-    preferencia, es una imposibilidad matematica dada la particion del
-    punto 2.
+    100% de la muestra de entrenamiento 2010->2013).
 
   De estos dos ejes se deriva la regla de tres partes:
     (a) **Nivel en t** (estado del hogar/persona/niño en la ola base) →
@@ -1418,23 +1411,22 @@ sujeta a decision variable por variable):
     categorias abiertas). Modulo de desastres (`inu_*`/`ava_*`/`desb_*`)
     es **X** para 2010 si no tiene equivalente esa ola (agregado desde
     2013, ver auditoria de comunidades mas arriba).
-  - **Choques -- HALLAZGO CRITICO, bloquea decision hasta resolver**: la
-    base consolidada de choques NO tiene una fila por cada hogar del
-    panel. De 9.853 hogares en 2010 solo 3.406 aparecen en la tabla de
-    choques (35%); en 2013, 6.067 de 8.729 (70%); en 2016, 6.160 de 8.086
-    (76%). Esto sugiere que el archivo solo incluye hogares que
-    reportaron AL MENOS UN choque, no todos los hogares con un vector de
-    ceros para "no tuvo ningun choque". Si se hiciera `merge` +
-    `fillna(0)` sin verificar esto, se asumiria silenciosamente que
-    ausencia de fila = "no tuvo choques", cuando podria significar un
-    filtro distinto o un problema de consolidacion. ANTES de usar
-    `choque_*` como feature hay que volver a los `.tab` crudos y
-    confirmar que significa la ausencia de fila para un hogar dado.
-    `imp_econ_*` sigue siendo **X** puro (no existe en 2010, ya
-    documentado). `resp_*` tiene cobertura en las 3 olas pero decreciente
-    (73%->52%->50%), candidata **A** con revision.
+  - **Choques -- HALLAZGO CRITICO (RESUELTO 2026-08-09, ver seccion
+    "Choques: se resuelve el HALLAZGO CRITICO" mas abajo)**: la base
+    consolidada de choques NO tenia una fila por cada hogar del panel. De
+    9.853 hogares en 2010 solo 3.406 aparecian en la tabla de choques
+    (35%); en 2013, 6.067 de 8.729 (70%); en 2016, 6.160 de 8.086 (76%).
+    Se confirmo contra los `.tab` crudos que el archivo fuente SI trae una
+    fila (2010) o un bloque de filas con tuvo_choque='No' (2013/2016) por
+    cada hogar sin excepcion -- el problema era un filtro aplicado ANTES
+    de pivotear en `01_consolidacion_bases_choques.py`, no una limitacion
+    de los datos. Corregido: reindexado del pivote contra el universo
+    completo de hogares del archivo crudo. `imp_econ_*` sigue siendo **X**
+    puro (no existe en 2010, ya documentado). `resp_*` tiene cobertura en
+    las 3 olas pero decreciente (73%->52%->50%), candidata **A** con
+    revision.
 
-**Proximos pasos acordados**: decidir variable por variable dentro de
+**Proximos pasos**: decidir variable por variable dentro de
 Personas primero (el modulo con mas candidatas **N** limpias y mas
 directamente ligado a vulnerabilidad -- composicion, educacion,
 ocupacion), dejando la verificacion de choques como tarea aparte antes de
@@ -1650,3 +1642,1395 @@ o candidata con corrupcion residual explicada), no hay ninguna columna
 que se haya ignorado sin razon. Lo que queda pendiente (los ~600 valores
 residuales en las ~270 columnas fuera del pool de 139, mas las 3 de texto
 libre) esta acotado y documentado, no oculto.
+
+### 2026-08-09 — Segunda ronda de rescate: diccionarios PDF como fuente
+independiente de verdad, mas 3 hallazgos adicionales
+
+El usuario pidio explicitamente explorar "de otras maneras" si se podia
+rescatar mas informacion, no solo aceptar el estado anterior (136 de 139
+candidatas limpias, 634 valores residuales sin resolver en el resto del
+modulo). Se probaron 4 enfoques distintos.
+
+**1. Busqueda de variables renombradas entre olas (intento fallido, resultado
+honesto).** Se investigo si columnas "solo en ola1" (310) y "no en ola1"
+(369) eran en realidad la MISMA pregunta con nombre distinto entre olas
+(mismo patron que `ARMONIZACION_ARTICULOS` en gasto). Dos metodos:
+  - Coincidencia de nombre normalizado (quitando sufijos `_2010`/`_2013`):
+    solo 3 coincidencias, todas factores de expansion (`fexpers`/`fpers`),
+    no contenido sustantivo.
+  - Similitud de vocabulario (Jaccard) entre los valores de categoria de
+    ambos grupos: con columnas binarias (Si/No) el metodo genera ruido
+    masivo sin valor (cualquier par de columnas Si/No tiene Jaccard=1.0);
+    restringiendo a columnas con >=4 categorias, siguen apareciendo
+    coincidencias altas que resultan ser artefactos de escalas genericas
+    compartidas (meses del año, rangos de horas) entre preguntas NO
+    relacionadas, no renombres reales.
+  Conclusion original (CORREGIDA el 2026-08-09, ver seccion "Segunda
+  vuelta de busqueda de renombrados" mas abajo): con estos dos metodos
+  (coincidencia exacta de nombre normalizado; Jaccard de vocabulario) no
+  aparecio nada rescatable. Los dos metodos resultaron ser demasiado
+  estrictos/ruidosos para el patron real -- ver correccion.
+
+**2. Diccionarios PDF como fuente de verdad independiente -- el hallazgo
+principal de esta ronda.** Se verifico que los diccionarios de la encuesta
+(`data/interim/raw/elca_{2010,2013}/{U,R}Personas.pdf`, extraidos con
+`pdftotext -layout`) contienen las etiquetas de cada categoria en texto
+LIMPIO -- son un documento generado por separado del archivo .tab
+exportado, no heredan su corrupcion (confirmado contra `parentesco` en el
+diccionario 2013: "Cónyuge o compañero(a)" aparece bien escrito ahi,
+aunque el .tab trae "C�nyuge o compa�era(o)"). Metodo: se unieron los 4
+diccionarios de las olas corruptas (2010 y 2013, U y R) en un solo texto,
+y para cada valor corrupto residual se construyo un patron con limites de
+palabra (`\b...\b`, cada "�" = 1 comodin) buscado en ese texto completo;
+solo se acepta si hay exactamente una coincidencia.
+
+  **Bug encontrado y corregido durante el desarrollo, antes de aplicarlo**:
+  una primera version uso `re.match()` sin anclar el string al final
+  (`$`), lo que permitia que un patron corto como "S." emparejara el
+  INICIO de cualquier cadena mas larga que empezara con "S" (ej. "S�"
+  resolvio incorrectamente a "SECRETARIA DE EDUCACION", una respuesta de
+  texto libre no relacionada, en 7 columnas `cred_*`). Se detecto en la
+  revision manual de una muestra ANTES de aplicar las correcciones al
+  script -- exactamente el tipo de error que la revision manual esta
+  para atrapar. Corregido anclando todos los patrones de coincidencia por
+  columna/familia con `^...$` (match completo); el metodo de diccionario ya
+  usaba `\b...\b` (limites de palabra) sobre el texto completo, que no
+  tenia este problema. Tras la correccion, una muestra aleatoria de 25
+  valores resueltos se verifico manualmente uno por uno, todos correctos.
+
+  Resultado: 163 valores adicionales resueltos en 77 columnas
+  (`CORRECCIONES_DICCIONARIO_PDF` en el script), sin ningun conflicto
+  frente al metodo automatico existente. Sumado a los metodos previos:
+  **reduccion total de celdas corruptas en el dataset completo: de 51.9% a
+  72.7%** (de 1.014.488 originales, quedan 276.784 sin resolver, vs.
+  487.671 antes de esta ronda).
+
+**3. Segundo patron de corrupcion, distinto e independiente, encontrado por
+casualidad al usar el diccionario como contraste.** El texto literal
+"???" (tres signos de interrogación, NO el caracter U+FFFD) aparece en
+**108 columnas / 98.360 celdas** de personas_elca_longitudinal, un
+problema separado del que este script atiende. Verificado: **100% de esas
+celdas estan en ola 3 (2016)**, cero en ola 1 y ola 2. Como ola 3 nunca es
+fuente de features en el diseño del benchmark (solo aporta el resultado
+observado, ver seccion de metodologia), esto NO bloquea el trabajo actual
+-- se documenta como hallazgo real y pendiente, no se corrige en este
+script (que se enfoca en U+FFFD). Queda para cuando/si se necesite
+contenido de ola 3 mas alla del estado de pobreza.
+
+**4. Revision del bucket "casi vacio" (427 columnas, <1% cobertura) --
+confirmado que NO esconde informacion valiosa.** De las 427, 234 tienen
+algo de cobertura (no exactamente 0%), pero incluso las de MAYOR cobertura
+dentro de ese grupo no superan 0.9% en ninguna ola (ej. `control_prenatal`,
+`semana_embarazo`, `curso_yoga`, actividades de uso del tiempo en slots
+altos como `hor_aactv6_ma`). Son preguntas con filtro previo muy
+restrictivo (ej. solo aplica a mujeres actualmente embarazadas en el
+momento de la entrevista) -- la baja cobertura es un reflejo correcto del
+diseño del cuestionario, no una perdida de datos ni un error de
+consolidacion. No se encontro ninguna variable tematicamente relevante
+para pobreza escondida en este bucket con cobertura suficiente para ser
+usable.
+
+**Conclusion de esta ronda**: se agotaron los metodos razonables para
+rescatar mas informacion sin recurrir a revision manual columna por
+columna de las ~270 columnas de vocabulario cerrado que siguen sin
+resolver (ninguna de ellas es candidata al benchmark hoy) y las 58 de
+texto libre. El pool de 139 candidatas al benchmark se mantiene en 136/139
+limpias (las 3 restantes son texto libre de alta cardinalidad, decision de
+alcance ya tomada, no un residuo tecnico). Script actualizado:
+`src/03_clean/02_limpieza_base_personas.py` (nueva funcion
+`aplicar_correcciones_diccionario_pdf`, nueva constante
+`CORRECCIONES_DICCIONARIO_PDF`, `documentar_residual` rediseñada para
+calcular el remanente sobre el resultado final en vez de listas
+intermedias, mas preciso y menos propenso a errores de conteo).
+
+### 2026-08-09 (cont.) — Verificacion sistematica (no muestral) de todas
+las correcciones + ampliacion del corpus de diccionarios a los 15
+disponibles
+
+El usuario pregunto, con razon, como estar seguro de que no quedan mas
+errores silenciosos como el detectado en la ronda anterior (el bug de
+anclaje de regex), dado que la revision manual previa fue solo sobre una
+muestra de 25 valores. Se implemento una verificacion que cubre el 100%
+de las correcciones, no una muestra, usando una invariante matematica
+simple derivada de como funciona la corrupcion misma:
+
+**Invariante de verificacion**: cada caracter "�" (U+FFFD) reemplaza
+EXACTAMENTE un caracter original (confirmado en la investigacion de la
+causa raiz, sesion anterior: "cada � reemplaza exactamente una vocal").
+De ahi se derivan dos chequeos automaticos, aplicables a CUALQUIER par
+(valor corrupto, valor propuesto como correccion):
+
+  1. **Longitud identica**: `len(corrupto) == len(limpio)`, siempre,
+     salvo una excepcion documentada explicitamente en el codigo (el caso
+     truncado de `actividad_ppal` donde se completo una palabra cortada en
+     la fuente, sumando un caracter a proposito).
+  2. **Coincidencia caracter por caracter en toda posicion que NO es
+     comodin**: si `corrupto[i] != '�'`, entonces `limpio[i]` debe ser
+     IDENTICO a `corrupto[i]`.
+
+  Esta es exactamente la regla que el bug de la ronda anterior violaba
+  (`len('S�')=2` vs. `len('SECRETARIA DE EDUCACION')=23` -- se habria
+  detectado al instante). Se implemento como funcion `validar_correccion()`
+  y se corrio contra las TRES fuentes de correccion del script:
+  `CORRECCIONES_MANUALES_PRIORITARIAS` (88 valores),
+  `CORRECCIONES_DICCIONARIO_PDF` (170 valores), y la correccion automatica
+  en tiempo de ejecucion (322 valores, recalculada llamando directamente a
+  `corregir_vocabulario_cerrado_automatico()`). **Resultado: 580 de 580
+  correcciones pasan la invariante, cero errores nuevos** -- la unica
+  excepcion es la ya documentada y deliberada de `actividad_ppal`.
+
+**Metodo adicional para rescatar mas columnas: ampliar el corpus de
+diccionarios de 4 a 15.** La ronda anterior solo usaba los diccionarios de
+Personas 2010/2013 (2 olas x 2 zonas). Se amplio a los 15 diccionarios
+disponibles del proyecto: Personas + Hogar + RActivos_hogar, las 3 olas
+(2010/2013/2016) y ambas zonas -- el razonamiento es que categorias
+compartidas entre modulos (niveles educativos, "Sí/No", listas de
+"razones") pueden aparecer documentadas en un diccionario de un modulo
+distinto al de la columna corrupta. El blob de texto de referencia paso de
+346.736 a 895.494 caracteres. Con el corpus ampliado (y ya con la
+invariante de validacion integrada directamente en la busqueda, no solo
+como chequeo posterior) se resolvieron 7 valores adicionales
+(`educ_padre`, `educ_madre`, `pcuida_niveledu`, `descrip_activ3-6`, todos
+sobre las categorias "Uno o más años de técnica o tecnológica" y
+"Agricultura, ganadería, caza, silvicultura y pesca") -- una ganancia
+modesta, que confirma que el corpus de 4 diccionarios ya capturaba la
+mayor parte de lo recuperable por este metodo.
+
+**Total acumulado de esta y la ronda anterior**: 322 (automatico) + 170
+(diccionario, corpus ampliado) + 88 (manual) = 580 valores corregidos y
+verificados al 100%, sin muestreo. Reduccion total de celdas corruptas en
+el dataset completo respecto al original: de 1.014.488 a ~276.000 (~73%).
+
+**Diagnostico honesto sobre lo que queda (409 valores en ~187 columnas de
+vocabulario cerrado, mas 58 de texto libre)**: se agotaron los metodos
+automatizables y verificables disponibles (mismo-columna, familia,
+regla Sí/Sí, diccionario contra el corpus completo de 15 documentos). Lo
+que resta no tiene ninguna version limpia en ningun documento disponible
+del proyecto -- o la pregunta fue exclusiva de la ola/zona corrupta sin
+documentacion sobreviviente en otro lado, o es una respuesta de filtro
+tan rara que nunca aparece sin corrupcion en ningun contexto. La unica via
+adicional seria revision manual pagina por pagina de cada diccionario para
+cada columna especifica -- viable si en el futuro se decide incorporar
+alguna de esas columnas al modelo (mismo criterio ya establecido: se
+resuelve en el momento en que una columna se activa como candidata, no
+antes). **Importante: ninguna de las 139 candidatas al benchmark esta en
+este residual** -- las 3 unicas candidatas afectadas (texto libre de alta
+cardinalidad) ya estaban excluidas por decision de alcance, no por falta
+de intento. Seguir persiguiendo este residual no tiene impacto en el
+modelo benchmark que se esta construyendo; se documenta como backlog
+abierto y se retoma la construccion de features.
+
+### 2026-08-09 (cont.) — Primer bloque de features del benchmark:
+composicion del hogar (build_personas_hogar.py)
+
+Primer script de construccion de covariables desde el modulo Personas,
+sobre `personas_elca_longitudinal_clean.parquet` (no el original -- usar
+el sin limpiar contaria "Jefe(a)" y "Jefe de hogar" como personas
+distintas entre olas). Cubre el grupo de variables mas directamente ligado
+a vulnerabilidad y sin ninguna ambiguedad de cobertura (ver inventario de
+139 candidatas, seccion anterior).
+
+**Variables construidas**: `n_ninos_5` (edad<6), `n_ninos_12` (edad<12),
+`n_adultos_mayores` (edad>=65), `razon_dependencia_demografica`
+((menores 15 + mayores 65) / personas 15-64, NaN si el denominador es 0),
+`pct_mujeres_hogar`, `sexo_jefe`/`edad_jefe` (tomados directo del jefe,
+identificado con el mismo `JEFE_TOKENS` que ya usa
+`build_pobreza_desagregaciones.py`), y `tiene_conyuge_jefe` (1 si algun
+miembro del sub-hogar tiene `parentesco`="Cónyuge o compañera(o)").
+
+**Nombrado deliberado de `tiene_conyuge_jefe`, no `hogar_monoparental`**:
+la ausencia de conyuge del jefe no implica por si sola que haya hijos en
+el hogar: se nombra por lo que mide literalmente, y se deja para el script
+de modelado combinarla con `n_ninos_5`/`n_ninos_12` si se quiere una
+definicion mas estricta de monoparentalidad.
+
+`tamano_hogar` NO se reconstruye aqui: ya existe como `t_personas` en
+`hogar_elca_longitudinal_clean.parquet`, validado que coincide con el
+conteo real de filas en Personas (diferencia maxima 3 personas en total).
+
+**Problema de performance encontrado y corregido antes de terminar**: la
+primera version uso `groupby().apply()` con funciones lambda de Python (6
+llamadas separadas) para las variables de conteo -- tardo mas de 100
+segundos para 118.824 filas. Se reescribio vectorizado (precomputar
+columnas indicadoras 0/1 por persona, UN solo `groupby().sum()` para
+todas juntas): mismo resultado exacto, 3.8 segundos (~30x mas rapido). Con
+139 variables candidatas por construir, el patron `groupby().apply()` con
+lambdas escalaria mal -- se adopta el patron vectorizado como estandar
+para el resto de scripts de este modulo.
+
+**Validacion del resultado**: 27.932 filas (coincide exactamente con el
+universo de `hogar_elca_longitudinal_clean.parquet`), 0 hogares sin jefe
+identificado (`sexo_jefe` sin nulos, solo categorias Hombre/Mujer), 0
+nulos en `pct_mujeres_hogar`, 396 nulos en `razon_dependencia_demografica`
+(hogares sin nadie en edad de trabajar -- comportamiento esperado, no un
+error).
+
+Output: `data/processed/personas_hogar_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Segundo bloque de features del benchmark:
+educacion y mercado laboral (build_educacion_ocupacion_hogar.py)
+
+Segundo script de construccion de covariables desde Personas. Antes de
+construir las variables se encontraron y corrigieron 2 problemas de
+calidad de datos nuevos, NO relacionados con la corrupcion U+FFFD ya
+documentada:
+
+  1. **Duplicacion de categoria por doble espacio interno**: `actividad_ppal`
+     tiene la MISMA respuesta contada como dos categorias por un doble
+     espacio en el texto fuente (ej. ola 2: "...por el que recibe
+     ingresos" con un espacio, 173 casos, vs. "...por  el que recibe
+     ingresos" con dos espacios, 118 casos). Se corrige con
+     `normalizar_espacios()` (colapsar espacios multiples) ANTES de
+     cualquier mapeo categorico -- de lo contrario el indicador `ocupado`
+     quedaria mal clasificado para esos 118 casos.
+  2. **"Sí"/"Si" sin unificar** en `lee_escribe` y `estudia` (mismo patron
+     que ya se documento para otras variables): se normaliza a {"Sí",
+     "No"}.
+
+**Escala ordinal de `nivel_educ`** (0-9, propia del proyecto, no oficial
+del DANE): se unifican "Básica secundaria (6 a 13)" y "Básica secundaria y
+media (6 a 13)" como el mismo nivel (ambas cubren los mismos grados 6-13,
+la diferencia es solo de redaccion entre olas). Escala completa en el
+docstring del script.
+
+**Regrupamiento de `ocupacion` a 7 categorias**: los datos crudos tienen
+20 categorias que mezclan niveles de detalle distintos entre olas (ej.
+"Asalariado de empresa particular" sin desagregar tipo de contrato en
+unas filas, desagregado en "...con contrato a termino indefinido/fijo" en
+otras). Se regrupa preservando el gradiente de informalidad: Patrón o
+empleador > Asalariado > Cuenta propia > Jornalero > Empleado doméstico >
+Sin remuneración > Otro.
+
+**Definicion de `ocupado` y su limitacion documentada**: 1 si la persona
+trabajo >=1 hora (incluye trabajador familiar sin remuneracion, criterio
+OIT/DANE) o tiene empleo del que esta temporalmente ausente; 0 para
+"Ninguna de las anteriores" e "incapacitado permanente"; NaN para "no
+informa". La categoria residual "Ninguna de las anteriores" MEZCLA
+personas inactivas (estudiantes, hogar, jubilados) con posibles
+desocupados buscando trabajo -- esta variable de la ELCA no permite
+separar desocupado de inactivo con confianza, asi que este script
+construye solo el indicador binario ocupado/no-ocupado, no una tasa de
+desempleo propiamente dicha. Documentado como limitacion de los datos, no
+resuelto con una distincion forzada.
+
+**Hallazgo adicional en ola 3, no relacionado con U+FFFD, no bloquea el
+benchmark**: al validar `tasa_ocupacion_hogar` por ola, ola 3 mostraba
+13.1% vs. 69.5%/65.1% en olas 1/2 -- una caida obviamente espuria.
+Investigado: `actividad_ppal` en ola 3 tiene DOS variantes de texto que no
+calzaban con el conjunto `ACTIVIDAD_OCUPADO` construido sobre olas 1/2:
+una truncada sin relacion con U+FFFD ("...en una actividad que le gene",
+cortada antes de "generó", 8.088 casos) y otra con el "???" literal ya
+documentado como exclusivo de ola 3 (5.907 casos, ver seccion anterior
+"HALLAZGO CRITICO"). Se agregaron ambas variantes a `ACTIVIDAD_OCUPADO`
+-- tras el ajuste, `tasa_ocupacion_hogar` en ola 3 sube a 65.1%, consistente
+con las otras olas. Esto NO afecta al benchmark (ola 3 nunca es fuente de
+features), se corrigio solo para que la variable no quede erroneamente
+sub-estimada si se usa ola 3 para otra cosa (validacion, EDA, o una
+especificacion dinamica futura).
+
+**Validacion del resultado** (ola 1 y 2, las que importan para el
+benchmark): `nivel_educ_jefe` sin nulos; los 545 nulos de
+`nivel_educ_ordinal_jefe` y los 4.602 de `ocupado_jefe` se verificaron
+como missingness genuina de la fuente (valor crudo `None`/"No informa",
+no un error de mapeo). `categoria_ocupacional_jefe`/`horas_trabajo_jefe`
+en NaN para jefes no ocupados, por diseño (no aplica). `tasa_asistencia_
+escolar` en NaN para hogares sin ningun miembro de 6 a 17 años, por diseño.
+
+Output: `data/processed/educacion_ocupacion_hogar_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Tercer bloque de features del benchmark: salud y
+discapacidad (build_salud_discapacidad_hogar.py) -- hallazgo de
+comparabilidad que la auditoria de cobertura original no detectaba
+
+Motivacion: los choques de salud son un mecanismo clasico de entrada a la
+pobreza en la literatura de vulnerabilidad (Dercon, 2002, ya citado en
+`paper/referencias.bib`). Tercer bloque de Personas (los anteriores:
+composicion del hogar, educacion/ocupacion).
+
+**Hallazgo importante: la pregunta de discapacidad cronica
+(`dif_moverse/banarse/calle/aprender`, `ceguera/sordera/mudez`) NO se hizo
+a la misma poblacion en las 3 olas**, un problema de comparabilidad que
+la auditoria de cobertura de la seccion "Auditoria completa de
+personas_elca_longitudinal" NO detecto porque esa auditoria solo medía
+TASA de no-nulo (>1% = "presente en la ola"), no A QUIEN se le pregunta.
+Verificado por edad: en ola 1 (2010) estas 7 preguntas se hicieron
+EXCLUSIVAMENTE a niños de 0 a 10 años (edad maxima entre respuestas
+no-nulas = 10.0 exacto -- es un sub-modulo de niños integrado en
+Personas). En ola 2/3 (2013/2016) la cobertura se amplio a todas las
+edades (0 a 97 años). Dos consecuencias practicas:
+  - Un indicador a nivel de JEFE de hogar seria 100% NaN en ola 1 (el
+    jefe nunca tiene 0-10 años) -- estructuralmente inutilizable como
+    feature de entrenamiento. NO se construyo `discapacidad_jefe`.
+  - Un indicador "algun miembro del hogar" mezclaria poblaciones distintas
+    por ola (solo niños en 2010 vs. todos en 2013/2016), violando el Eje
+    1 de comparabilidad del constructo (ver metodologia del benchmark).
+  Solucion, mismo principio ya usado para el modulo de niños (restriccion
+  a 6-9 años, unico rango comparable en las 3 olas): se restringe el
+  indicador a **niños de 0 a 10 años**, produciendo
+  `pct_ninos_con_discapacidad` en vez de un indicador de discapacidad del
+  hogar en general. Verificado consistente entre olas tras el ajuste:
+  2.5%/2.7%/2.9% en olas 1/2/3 (antes del ajuste, sin filtrar por edad, la
+  comparacion habria sido invalida por mezclar poblaciones).
+
+**Implicacion metodologica mas amplia**: la auditoria de cobertura de
+`docs/variable_audit/personas_hogar_construccion.csv` (basada en tasa de
+no-nulo por ola) es una condicion NECESARIA pero NO SUFICIENTE para
+comparabilidad -- puede pasar por alto cambios en LA POBLACION
+evaluada dentro de una columna que aparenta estar "presente" en las 3
+olas. Al construir cada bloque de variables restante hay que verificar
+tambien la distribucion de edad (u otro filtro poblacional relevante) de
+quienes tienen dato valido, no solo la tasa de cobertura agregada.
+
+**Variables sin problemas de comparabilidad en este bloque** (verificado
+por edad, cobertura similar en ola1/ola2, min/max de edad consistentes):
+`ev_enfe/acci/odon/ciru` (eventos de salud recientes) y `hospitalizado`
+-> `tuvo_evento_salud_jefe`, `n_eventos_salud_hogar`,
+`tuvo_hospitalizacion_hogar`; `afiliacion`/`prepagada` ->
+`tasa_afiliacion_salud_hogar`, `tiene_prepagada_hogar` (esta ultima es
+marcador de MAYOR bienestar, no de vulnerabilidad -- medicina prepagada
+privada adicional a la afiliacion basica).
+
+Output: `data/processed/salud_discapacidad_hogar_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Cuarto bloque de features del benchmark: ahorro y
+capital social (build_ahorro_capital_social_hogar.py)
+
+Cuarto bloque de Personas (los anteriores: composicion del hogar,
+educacion/ocupacion, salud/discapacidad). A diferencia del bloque de
+salud, se verifico primero la distribucion de edad de cobertura antes de
+construir nada (leccion del hallazgo de discapacidad) -- `ahorra` y las
+10 `org_*` tienen cobertura consistente entre olas (~39%, edades 13-94 en
+ola 1 / 15-97 en ola 2), sin el problema de poblacion distinta por ola.
+
+**`ahorra` tiene mas categorias que Sí/No**: ademas de "Sí"/"Si" (sin
+tilde) y "No", incluye "No, no recibe ingresos" y "No recibe ingresos"
+(variantes de redaccion del mismo motivo entre olas). Ambas variantes de
+"no recibe ingresos" se tratan como "No" para el indicador binario -- el
+hogar no esta ahorrando, independientemente del motivo.
+
+**8 sub-variables de motivo de ahorro EXCLUIDAS por decision de alcance**:
+`ahorro_futuro/educ/casa/carro/otros_act/recre/montar/otro` tienen solo
+5.7% de cobertura (son sub-preguntas filtradas solo para quienes ya
+respondieron "Sí" a `ahorra`, un subconjunto ya pequeño) -- demasiado
+dispersas para aportar señal util a nivel de hogar, la mayoria de hogares
+quedaria en NaN. Documentado como decision, no un descarte accidental.
+
+**Organizaciones sociales**: 10 tipos de participacion comparables en
+ambas olas (`org_jac/caridad/comunitaria/religiosa/iestado/etnica/culdep/
+educ/mamb/otra`). `org_ninguna` (solo ola 1) y `org_sindicato`/
+`org_agremia` (solo ola 2) se excluyen por no existir en ambas olas del
+benchmark (Eje 1 de comparabilidad); `org_otra_cual` es texto libre, no se
+usa.
+
+**Variables construidas**: `ahorra_jefe`, `participa_organizacion_jefe`,
+`n_tipos_organizacion_jefe` (0-10, intensidad de participacion civica) a
+nivel de jefe; `tasa_ahorro_hogar`, `pct_hogar_participa_organizacion`
+agregadas sobre adultos 15+ del hogar.
+
+**Validacion**: nulos minimos (24-25 de 19.114 filas ola1+2, ~0.13%) y
+valores consistentes entre olas sin anomalias (`ahorra_jefe`: 15.5%/17.3%/
+20.6% en olas 1/2/3; `pct_hogar_participa_organizacion`: 18.7%/24.8%/
+19.6%) -- a diferencia del hallazgo de ocupacion en ola 3 (seccion
+anterior), aqui no hubo caidas espurias que investigar.
+
+Output: `data/processed/ahorro_capital_social_hogar_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Decision confirmada: variables de ingreso
+individual excluidas del benchmark
+
+Se pregunto explicitamente si incluir `vr_salario`, `vr_ganancia`,
+`vr_rec_pension`, `vr_rec_arriendos`, `cr_arriendos`, `cr_dividendos`
+(ingreso/activos financieros a nivel de PERSONA). Decision: **excluidas**.
+Miden esencialmente lo mismo que `ingreso_hogar` (construido desde el
+modulo Hogar, ya incluido como covariable principal via la brecha a la
+LP -- ver metodologia del benchmark) pero a nivel de persona -- incluirlas
+arriesgaria doble conteo/colinealidad severa con la variable de ingreso
+que ya es, por diseño, el predictor mas informativo del modelo (enfoque
+Chaudhuri et al. 2002). No se construye ningun script para estas 6
+columnas.
+
+### 2026-08-09 (cont.) — Regla de alcance para el resto de Personas:
+cobertura minima 10% por ola
+
+A partir de este punto, cualquier candidata de las 139 con cobertura POR
+OLA menor al 10% (verificada consistente entre ola 1 y ola 2, no una
+caida espuria como la de ocupacion en ola 3) se EXCLUYE del benchmark sin
+construir un script para ella -- mismo criterio ya aplicado de facto a las
+8 sub-variables de motivo de ahorro (5.7% de cobertura,
+build_ahorro_capital_social_hogar.py). Un hogar con >90% de NaN en una
+columna no aporta señal util a un modelo de prediccion y agrega
+complejidad sin beneficio. Se aplica bloque por bloque; el inventario
+completo de columnas descartadas por esta regla se documenta al cerrar
+cada bloque.
+
+### 2026-08-09 (cont.) — Quinto bloque de features del benchmark:
+educacion y ocupacion, extension (build_educacion_ocupacion_hogar_ext.py)
+-- 2 bugs encontrados y corregidos en la validacion
+
+Extension de `build_educacion_ocupacion_hogar.py` con variables de menor
+cobertura pero alto valor tematico.
+
+**Hallazgo: `poc`/`pin`/`pds` son la clasificacion OIT que faltaba.** Se
+habia documentado en el bloque 2 que `actividad_ppal` no permite separar
+desocupado de inactivo con confianza. Al revisar el diccionario de la
+encuesta se encontro que `poc`/`pin`/`pds` (que parecian 3 preguntas de
+baja cobertura, 1.4%-22.7% cada una por separado) son en realidad 3
+CATEGORIAS MUTUAMENTE EXCLUYENTES de una clasificacion laboral ya
+construida por el equipo ELCA para "personas de seguimiento" (miembros
+originales del panel): Ocupada/Inactiva/Desocupada. Combinadas, cobertura
+real 20.3% (ola 1) / 40.4% (ola 2). Se construye
+`categoria_laboral_oit_jefe`, complementaria (no sustituta) de
+`ocupado_jefe` del bloque 2.
+
+**`razon_noestudia`** (38.1%/58.0% cobertura, buena): la categoria mas
+frecuente es "Falta de dinero" (12.715 casos) -- señal directa de
+vulnerabilidad. Se construye `pct_ninos_no_estudia_razon_economica`
+(niños 6-17 que no estudian por "Falta de dinero" o "Necesita trabajar",
+sobre el total de niños 6-17 que no estudian con razon informada). Typo
+menor corregido: "Por enfermdad" (sin la segunda "e") vs. "Por
+enfermedad", tratadas como la misma categoria.
+
+**Bug 1 encontrado en validacion: `registro_mercantil` NO es Sí/No
+simple.** La primera version del script aplico `normalizar_si_no()` (la
+misma funcion generica usada en otros bloques) a esta columna, dejando el
+**100% de las filas en NaN** -- se detecto en la revision de nulos por
+columna (rutina ya establecida en este proyecto: nunca asumir que un
+resultado esta bien sin revisar la tabla de nulos). La columna en
+realidad tiene 4 categorias reales: "No lo necesita", "Lo necesita pero
+no lo tiene", "Sí lo tiene y lo renovó este año", "Sí lo tiene pero no lo
+renovó este año" (con duplicacion "Si"/"Sí" adicional). Se corrigio con
+un mapeo propio (`REGISTRO_MERCANTIL_MAPA`) que colapsa a 4 categorias
+limpias. Tras corregir, cobertura en jefes = 19.0%, consistente con lo
+esperado.
+
+**Bug 2 (en realidad un problema de diseño real, no un bug de codigo):
+`n_empleados` cambia de formato entre olas.** Ola 1 pide el numero EXACTO
+de empleados (valores "2.0" a "99.0", el minimo observado es 2, no hay
+"1"); ola 2 pide directamente el TRAMO ("Trabaja solo", "De 2 a 5
+personas", ..., "50 personas y más"). Sin armonizar, un modelo entrenado
+en ola 1 (numeros) no generalizaria a ola 2 (categorias) o viceversa. Se
+arma ola 1 a los mismos tramos de ola 2 (`TRAMOS_N_EMPLEADOS`), mismo
+patron que `ARMONIZACION_ARTICULOS` en gasto. Nota de cautela sin
+resolver: tras armonizar, la categoria "50 personas y más" tiene sole 2
+casos en ola 1 vs. 933 en ola 2 -- una diferencia demasiado grande para
+explicarse solo por azar muestral. Posible causa (no confirmada): la
+pregunta podria referirse al tamaño de la empresa donde trabaja el jefe
+(aplicable a asalariados tambien) en una ola, y solo al negocio propio
+(aplicable solo a empleadores) en la otra -- requeriria leer el
+cuestionario exacto de cada ola para confirmar. Se deja documentado como
+limitacion; la variable se conserva porque la mayoria de las categorias
+(2-49 personas) son consistentes en magnitud entre olas.
+
+**Variables construidas**: `categoria_laboral_oit_jefe`,
+`grado_educ_jefe`, `medio_consiguio_jefe` (con la misma correccion de
+doble espacio ya aplicada a `actividad_ppal`), `registro_mercantil_jefe`,
+`n_empleados_jefe` (a nivel de jefe, cobertura del hogar completo
+demasiado baja para agregar con confianza); `pct_ninos_no_estudia_razon_
+economica` a nivel de hogar.
+
+**Excluidas de este bloque por cobertura <10% en al menos una ola**
+(regla de alcance de la seccion anterior): `actividad_principal`,
+`ocupacion2`, `meses_trabaja`, `meses_ganancia`, `anos_trabaja`,
+`anos_superior`, `disponibilidad`, `ofertas_empleo`, `t_busco_trab`,
+`t_bustrab_a`, `t_bustrab_m`, `razon_dejo_trab`, `razon_dejo_bus`,
+`razon_tiene_negocio`, `grado_educ_cursa`, `nivel_educ_cursa`,
+`tipo_estab`, `consulta_libros`, `prestamo_libros`, `edad_dejoestudio`.
+`diligencias4`/`diligencias12` se excluyen ademas por un salto de
+cobertura entre olas (6.1%->28.0%, 4.8%->25.3%) que no se investigo a
+fondo -- mismo tipo de señal de alerta que la discapacidad y la ocupacion
+en ola 3, pendiente de verificar si se necesita esta variable en el
+futuro.
+
+Output: `data/processed/educacion_ocupacion_hogar_ext_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Sexto bloque de features del benchmark: becas y
+subsidios escolares (build_becas_subsidios_hogar.py)
+
+Antes de construir se verifico la distribucion de edad de cobertura
+(disciplina ya establecida tras el hallazgo de discapacidad): mediana 8-9
+años consistente entre ola 1 y ola 2 en las 9 columnas de este bloque, con
+una cola de casos hasta 66-68 años (educacion de adultos, minoritaria) --
+se restringe el calculo a edad 4-20 para no diluir el indicador con ese
+grupo pequeño y de tamaño no necesariamente comparable entre olas.
+
+**Regla de cobertura >=10%** (ver seccion anterior) descarta 11 de las 20
+candidatas originales del tema: las 7 `beca_*` (1.9% en ola 1),
+`finan_educ_pago`, `rec_alimentos_pago`, `rec_vivienda_pago` (7.5% en ola
+2), `rec_otros_pago` (7.3%/7.5%).
+
+**`recibio_beca` tiene mas categorias que Sí/No**: distingue "Sí,
+subsidio", "Sí, beca" y "Sí, beca y subsidio" (esta ultima encontrada solo
+en ola 3, no afecta el benchmark) ademas de "No recibió ninguno". Se
+construye un indicador binario (cualquier "Sí").
+
+**Mismo hallazgo de ola 3 que en bloques anteriores, no bloquea el
+benchmark**: `pct_ninos_recibio_beca_subsidio` salio inicialmente en
+100.0% para ola 3 -- investigado, causa exactamente la ya documentada
+("No recibi??? ninguno", la variante con "???" literal exclusiva de ola 3)
+sin match en el set de valores "No" del script. Agregada la variante
+corrupta al conjunto `RECIBIO_BECA_NO`; ola 3 baja a 27.9%, consistente
+con las otras olas (16.5%/20.0%).
+
+**Variables construidas** (nivel hogar, restringido a edad 4-20):
+`pct_ninos_recibio_beca_subsidio`, `pct_ninos_credito_estudiar`,
+`pct_ninos_apoyo_alimentario_escolar` (almuerzo/beca alimentaria/
+desayuno/refrigerio combinados con OR), `pct_ninos_apoyo_material_escolar`
+(fotocopias/transporte/uniformes combinados con OR).
+
+**Validacion**: apoyo alimentario escolar 55-73% (programas de
+alimentacion escolar son ampliamente extendidos en Colombia, magnitud
+plausible); credito_estudiar practicamente inexistente para esta
+poblacion (0.09%-0.35%, esperable -- creditos educativos son raros para
+niños); nulos ~57% de las filas ola1+2 (hogares sin niños en el rango de
+edad, esperado por diseño).
+
+Output: `data/processed/becas_subsidios_hogar_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Septimo bloque de features del benchmark: salud
+preventiva y afiliacion infantil (build_salud_discapacidad_hogar_ext.py)
+
+Extension del bloque de salud. Regla de cobertura >=10% descarta
+`hospital_veces`/`ultima_hosp`/`ult_hosp_dias` (3.6%-5.6%),
+`dias_noasistio` (7.8% en ola 1), `beneficiario_orden` (7.8% en ola 2).
+Pasan: `prev_med/odo/opto/malter` (59.3%/65.5%, todas las edades),
+`prev_pediatra` y `beneficiario_sss` (20.1%/26.0%, restringidas a niños
+0-14 por diseño de la pregunta -- verificado antes de construir, mismo
+principio que discapacidad), `prev_planif` (39.2%/52.7%, restringida a
+13+ años).
+
+**Variables construidas**: `tasa_control_preventivo_hogar` (control
+medico/odontologico/optico/nutricional, cualquier miembro del hogar),
+`pct_ninos_control_pediatrico` (0-14 años), `tasa_planificacion_familiar`
+(13+ años), `pct_ninos_beneficiario_sss` (0-14 años).
+
+**Validacion**: control preventivo 66-80% (crecimiento consistente con
+expansion del sistema de salud colombiano entre 2010-2016), beneficiario
+SSS en niños 91-97% (coincide con cobertura casi universal del regimen
+subsidiado de salud para menores en Colombia), planificacion familiar
+7-10% (magnitud razonable). Sin anomalias que investigar.
+
+### 2026-08-09 (cont.) — Octavo bloque de features del benchmark: demografia
+y estructura familiar extendida (build_personas_hogar_ext.py)
+
+Extension del bloque de composicion del hogar (Bloque 1). Cubre
+`estado_civil`, `etnia`, `padre_vive`, `madre_vive`, `vive_conyuge`,
+`mes_unionm`/`ano_unionm`/`edad_unionm`, `tareas`, `id_dpto_nac`/
+`id_mpio_nac`.
+
+**`estado_civil`: cobertura 100% en ola 2 es enganosa.** Salta de 39.2%
+(ola 1, edad minima 13) a 100.0% (ola 2, edad minima 0) -- investigado
+antes de construir, misma disciplina que en el hallazgo de discapacidad
+(Bloque 3): en ola 2 los menores de 10 años quedan codificados como
+"Soltero(a)" por defecto (7,272 casos verificados), una respuesta
+administrativa, no una evaluacion real. Se construye `estado_civil_jefe`
+directamente sobre el jefe de hogar (siempre adulto por definicion), lo
+que evita el problema sin necesidad de restringir edad explicitamente.
+
+**`padre_vive`/`madre_vive`: dos formas de decir "no" segun la ola.**
+Ademas de "Sí"/"No" existen las variantes "Falleció"/"Ya falleció"
+(`padre_vive` value_counts: No=30,078, Ya falleció=18,758, Si=14,635,
+Sí=13,195, Falleció=5,874) -- se normalizan como equivalentes ("No"
+y las variantes de fallecimiento => padre/madre no vive).
+
+**`tareas`: "del hogar" vs. "de otro hogar" son conceptos distintos.**
+Categorias: "Sí, del hogar" (quehaceres domesticos normales, 9,961
+casos), "No" (1,505), "Sí, de otro hogar" (964) -- la ultima es trabajo
+domestico pagado en la vivienda de OTRA familia, una señal de
+vulnerabilidad mucho mas fuerte que hacer quehaceres en el propio hogar.
+Se construye la variable especificamente sobre esa categoria
+(`pct_ninos_trabaja_otro_hogar`), no sobre "cualquier tarea", para no
+mezclar dos fenomenos de gravedad muy distinta.
+
+**Regla de cobertura >=10%** excluye `mes_unionm`/`ano_unionm` (6.9% en
+ola 1). Se descarta `vive_conyuge` (33.2%/38.4%, pasa la regla) por
+redundancia con `tiene_conyuge_jefe` ya construido en el Bloque 1. Se
+descartan `id_dpto_nac`/`id_mpio_nac` (19.9%->100% entre olas) por el
+mismo riesgo de identificador falso ya documentado para `id_dpto`/
+`id_mpio` a nivel de hogar (ver seccion "por que la LP se queda en 2
+dominios") -- no se verifico si el identificador de lugar de NACIMIENTO
+tiene el mismo problema, y no se construye sobre una base no verificada.
+
+**Variables construidas**: nivel jefe (directo, sin riesgo de mezclar
+poblacion infantil) — `estado_civil_jefe`, `etnia_jefe`,
+`edad_union_jefe`; nivel hogar (restringido a niños 0-17) —
+`pct_ninos_padre_vivo`, `pct_ninos_madre_viva`; nivel hogar (restringido
+a niños 0-14, cobertura real observada de `tareas`) —
+`pct_ninos_trabaja_otro_hogar`.
+
+**Validacion**: `estado_civil_jefe` con 100% cobertura en las 3 olas
+(consistente con la restriccion a jefe adulto); distribucion ola 1
+plausible (unión libre 34%, casado 27%, separado 10%, soltero 8%, viudo
+4%). `pct_ninos_trabaja_otro_hogar` sube de 4.9% (ola 1) a 9.1%-11.2%
+(olas 2-3), tendencia consistente con mayor reporte de trabajo domestico
+infantil pagado en periodos posteriores. `edad_union_jefe` sube de 21.3
+a 27.2-27.3 años entre olas -- no se investigo a fondo (posible cambio de
+composicion de jefes de hogar entre olas o cambio de pareja), se deja
+como caveat sin resolver, igual que el caso de "50 personas y mas" en
+`n_empleados` (Bloque 5).
+
+### 2026-08-09 (cont.) — Noveno bloque de features del benchmark:
+participacion civica y politica (build_participacion_civica_hogar.py)
+
+Ultimo bloque de features de Personas. Cubre `mov_parpol`, `junta_edif`,
+`asoc_vigil` -- las unicas 3 de las 7 candidatas de este tema presentes
+en el listado de 139 CANDIDATO_BENCHMARK (`jov_org_social`, `participa`,
+`porcentaje_participacion`, `beca_accionsocial` ya estaban excluidas por
+no estar en ola 1 o por cobertura casi vacia, verificado contra
+`personas_hogar_construccion.csv`).
+
+`asoc_vigil`/`mov_parpol` tienen cobertura pareja (39.2%/39.5%/39.1%,
+edad minima 13 en las 3 olas). `junta_edif` cae de 39.2% (ola 1) a
+20.3%-20.6% (olas 2-3) con el mismo rango de edad -- no se identifico la
+causa exacta (posible cambio de filtro de pregunta entre rondas); se
+deja como observacion sin resolver, sin bloquear la construccion porque
+20.3% aun supera el umbral minimo de 10%.
+
+Las 3 variables tienen prevalencia de "Sí" muy baja (0.1%-0.4% de quienes
+responden) -- se combinan con OR en un unico indicador de participacion
+civica, mismo criterio que `apoyo_alimentario_escolar`/
+`apoyo_material_escolar` (Bloque 6), para evitar 3 indicadores
+individualmente casi degenerados.
+
+**Variable construida**: `tasa_participacion_civica_hogar` (nivel hogar,
+restringido a miembros de 13+ años) -- proporcion de adultos del hogar
+que participan en junta de edificio, asociacion de vigilancia barrial o
+movimiento politico.
+
+**Validacion**: tasa 1.3%-1.7% entre olas, consistente con la baja
+prevalencia observada a nivel individual. Sin anomalias.
+
+Con este bloque se completan los 9 bloques de features de Personas.
+
+### 2026-08-09 (cont.) — Verificacion final: las 139 candidatas quedan
+todas contabilizadas
+
+Se cruzaron programaticamente las 139 columnas `CANDIDATO_BENCHMARK` de
+`personas_hogar_construccion.csv` contra las columnas efectivamente
+usadas en los 9 scripts de `src/04_features/` y contra las menciones
+explicitas en este documento. 122 de 139 ya estaban cubiertas (usadas
+para construir una variable, o mencionadas por nombre o por familia
+`prefijo_*` al documentar una exclusion por cobertura <10%). Las 17
+restantes no tenian mencion individual -- se verifico su cobertura y se
+documentan aqui para cerrar la auditoria sin dejar nada implicito:
+
+- `beca_cajacom`, `beca_emp_pri`, `beca_emp_pub`, `beca_misma_ins`,
+  `beca_otro`, `beca_prg_gob`: forman parte de la familia "7 `beca_*`"
+  ya excluida en el Bloque 6 (1.9% cobertura en ola 1, junto con
+  `beca_accionsocial`) -- confirmado, sin cambios.
+- `edad_tenia` (18.4%/2.0%/2.1%) y `lugar_ahorra`/`vr_ahorro`
+  (5.3%-7.5%, misma familia de las 8 sub-razones de `ahorro_*` ya
+  excluidas en el Bloque 4): **EXCLUIDAS**, cobertura <10% en al menos
+  una ola.
+- `edad_meses` (100% cobertura): **EXCLUIDA** por redundancia -- es la
+  misma informacion que `edad` (años) en otra unidad, ya usada de forma
+  transversal en los 9 bloques para restringir poblaciones.
+- `nac_ano`, `nac_dia`, `nac_mes` (100% cobertura, fecha de nacimiento
+  exacta): **EXCLUIDAS** -- redundantes con `edad`, y una fecha de
+  nacimiento exacta es un cuasi-identificador que no aporta señal
+  adicional relevante para el benchmark de pobreza.
+- `orden_conyuge`, `orden_madre`, `orden_padre`, `orden_tareas`
+  (9.5%-49.6% cobertura): **EXCLUIDAS** -- son punteros al numero de
+  orden dentro del hogar de otra persona (conyuge/madre/padre/quien
+  asigna tareas), no contenido sustantivo de la encuesta; ya se usa la
+  informacion sustantiva relacionada (`tareas`, `padre_vive`,
+  `madre_vive`, `vive_conyuge`) directamente en los Bloques 1 y 8.
+
+Con esto, las 139 candidatas quedan 100% contabilizadas: construidas en
+alguno de los 9 bloques o excluidas con razon documentada (cobertura
+<10%, redundancia, o ser un puntero/identificador y no contenido
+sustantivo). Con esta verificacion se completa el modulo de Personas.
+
+### 2026-08-09 (cont.) — El usuario pregunta: "¿como estar seguro de que
+las 139 son las unicas que se pueden usar y no se esta perdiendo
+informacion relevante?" — dos columnas rescatadas, renombradas entre
+olas
+
+Pregunta legitima: las 139 vienen de una clasificacion automatica
+temprana (ver "Auditoria completa de personas_elca_longitudinal", regla
+de "presente" = >1% no-nulo por ola). Se hicieron 3 verificaciones
+independientes de esa clasificacion antes de responder:
+
+1. **¿Hay algo excluido por `EXCLUIDA_CASI_VACIA` que en realidad tenga
+   señal util?** Se reviso la distribucion completa de cobertura maxima
+   (entre las 3 olas) de las 427 columnas de esta categoria: el maximo
+   observado es 0.9%, muy por debajo del umbral de 1% -- ninguna esta
+   "al borde" del corte. Los 7 `EXCLUIDA_OTRO_PATRON` tambien se
+   revisaron uno por uno: todas con cobertura <=1% en las 3 olas, sin
+   contenido oculto.
+2. **¿Alguna columna de `EXCLUIDA_NO_EN_OLA1` (369) es en realidad la
+   MISMA pregunta que una de `EXCLUIDA_NO_EN_OLA2` (310), solo
+   renombrada entre olas** (mismo patron ya visto en `n_empleados`,
+   Bloque 5)**?** Se cruzaron los 369 nombres contra los 310 por
+   similitud de texto (`difflib`, cutoff 0.75): 92 pares candidatos. La
+   gran mayoria son falsos positivos (numeros de sub-item de un mismo
+   checklist, ej. `cr_activ1_ma`..`cr_activ6_ma` vs `cr_actv_ma6`, o
+   preguntas de contenido distinto con nombre parecido, ej. `asma_m`/
+   `asma_p` = asma de la madre/el padre en ola 1, vs `asma` = asma
+   propia en ola 2/3 -- verificado por cobertura: 23.5%+20.4% en ola 1
+   vs. 39.5% en ola 2, consistente con dos preguntas distintas
+   consolidadas en un solo referente, no un renombrado). Pero 2 pares
+   resultaron ser la MISMA pregunta, confirmado por cobertura y
+   estructura de categorias identicas entre olas:
+   - `sindicato` (ola 1, cobertura 39.2%) = `org_sindicato` (ola 2/3,
+     39.5%/39.1%) -- afiliacion sindical, mismo rango de edad (13+),
+     mismas categorias Sí/No/No informa.
+   - `fue_jornalero` (ola 1, cobertura 18.3%) = `jornalero` (ola 2/3,
+     19.0%/18.3%) -- ejercicio de trabajo como jornalero en el periodo
+     de referencia, misma estructura.
+3. **Al revisar `sindicato` para armonizarla, aparecio un segundo
+   problema mas subtil**: la columna TODAVIA tenia 175 valores "S�" sin
+   corregir (U+FFFD) en la base limpia. No es una falla del pipeline de
+   correccion -- SI estaba correctamente registrada en
+   `personas_corrupcion_residual.csv` desde el principio -- sino que
+   nunca se prioriza porque `sindicato` habia quedado fuera del pool de
+   139 candidatas (la correccion automatica no pudo resolverla sola
+   porque en ola 1 el 100% de las respuestas "Sí" quedaron corruptas,
+   sin ningun "Sí" limpio en la misma columna contra el cual hacer
+   match). Como el vocabulario de la pregunta es cerrado (Sí/No/No
+   informa), "S�" solo puede ser "Sí" -- se agrego a
+   `CORRECCIONES_MANUALES_PRIORITARIAS` en
+   `02_limpieza_base_personas.py` y se re-corrio la limpieza completa
+   (89 valores en 38 columnas, antes 88/37).
+
+**Correccion aplicada**: se agrego `sindicato_armonizada` como undecimo
+tipo de organizacion en `build_ahorro_capital_social_hogar.py` (Bloque
+4) y `jornalero_armonizado` -> `jornalero_jefe`/
+`pct_adultos_fue_jornalero` en `build_educacion_ocupacion_hogar.py`
+(Bloque 2). Los 9 scripts de features se re-corrieron sobre la base
+limpia regenerada; sin cambios de magnitud en las demas variables
+(`sindicato` solo afecta esas 2 columnas). `docs/variable_audit/
+personas_hogar_construccion.csv` se actualizo marcando las 4 columnas
+(`sindicato`, `org_sindicato`, `fue_jornalero`, `jornalero`) como
+rescatadas.
+
+**Respuesta honesta a la pregunta del usuario**: no, las 139 originales
+NO eran perfectas -- la clasificacion automatica por presencia/ausencia
+de nombre de columna no detecta renombrados entre olas, y eso costo 2
+columnas reales (de 139, un 1.4% del pool). El metodo que las encontro
+(similitud de nombre + verificacion de cobertura/estructura) es
+generalizable pero no se habia aplicado sistematicamente hasta ahora;
+las demas categorias de exclusion (`CASI_VACIA`, `OTRO_PATRON`) si se
+verificaron a fondo y no mostraron mas casos ocultos. No hay garantia
+matematica de que sea imposible que quede algo mas -- el riesgo
+remanente mas probable es el mismo patron (renombrado silencioso) en
+alguna de las 369+310 columnas restantes con nombres menos similares
+entre si (por ejemplo, un cambio de nombre mas drastico que `difflib`
+con cutoff 0.75 no detecta), no en las categorias `CASI_VACIA`/
+`SOLO_OLA3`/`IDENTIFICADOR` que ya se revisaron con mas detalle.
+
+Siguiente paso (segun instruccion del usuario de terminar todo Personas
+antes de consolidar): pasar a los modulos de Niños, Comunidades y
+Choques, y solo despues consolidar todos los parquets de features en un
+solo dataset para el benchmark.
+
+Output: `data/processed/salud_discapacidad_hogar_ext_elca_longitudinal.parquet`.
+
+### 2026-08-09 (cont.) — Segunda vuelta de busqueda de renombrados: umbral
+relajado, un hallazgo adicional (`cotiza_fp`/`cotizando`)
+
+El usuario pidio explicitamente relajar el umbral y volver a revisar,
+tras la correccion de `sindicato`/`jornalero` (ver seccion anterior). Se
+bajo el cutoff de similitud de nombre (`difflib`) de 0.75 a 0.55 contra
+las 367+308 columnas restantes de `EXCLUIDA_NO_EN_OLA1`/
+`EXCLUIDA_NO_EN_OLA2` (ya sin las 4 columnas rescatadas en la ronda
+anterior): 506 pares candidatos, filtrados a 115 con cobertura similar
+entre olas (diferencia <5 puntos porcentuales, cobertura >3%).
+
+**Hallazgo metodologico importante**: la mayoria de estos 115 son falsos
+positivos por una razon especifica -- MUCHAS preguntas no relacionadas
+comparten la misma poblacion filtrada (~39% de las personas, el mismo
+"informante idoneo" al que se le hacen `ahorra`/`org_*`/`cotiza_fp` en
+ola 1, o el mismo filtro de edad 13+/15+ en ola 2/3), asi que tienen
+cobertura casi identica por coincidir en el filtro, no en el contenido.
+Verificado caso por caso con `value_counts()` en los 12 pares con menor
+diferencia de cobertura: `califica_salud`/`afilia_cual`,
+`informante`/`enf_corazon`, `desempleado`/`seg_medico`,
+`act_cotidiana`/`ataq_corazon`, `fundo_negocio`/`vr_negocio` vs
+`edad_negocio` -- todos confirmados como preguntas DISTINTAS con
+coincidencia de cobertura espuria, no renombres. `t_dejo_trabajar`/
+`tiempo_trab` tienen categorias parecidas pero conceptualmente distintas
+(tiempo desde que dejo de trabajar vs. antigüedad en el trabajo actual),
+ambiguo, no se fuerza el merge (de cualquier forma cae bajo el umbral de
+10% de cobertura). `noson_hogar`/`noson_hogar1` SI son la misma pregunta
+(categorias identicas, ej. "Por insuficiencia de ingresos" con conteos
+casi iguales) pero quedan excluidas de todas formas por cobertura
+<10% (3.5%/3.0%/2.7%), sin efecto practico. `fpers`/`fexpers` vs
+`fpers_2013`/`fexpers_2013` son factores de expansion muestral (ya
+identificados en la ronda anterior), no contenido sustantivo -- no son
+features, son metadatos de diseño muestral.
+
+**Un hallazgo real y de valor**: `cotiza_fp` (ola 1, cobertura 39.2%) es
+la misma pregunta que `cotizando` (ola 2/3, cobertura 39.5%/39.1%) --
+cotizacion activa a fondo de pensiones, un indicador fuerte de
+formalidad laboral. El nombre y la cobertura por si solos no lo dejaban
+ver claro porque `cotiza_fp` en ola 1 es una pregunta COMBINADA de 9
+categorias (estado + motivo si no cotiza, ej. "No cotiza porque no tiene
+dinero", "Si está cotizando, pero todavía no es pensionado"), mientras
+ola 2/3 la separan en `cotizando` (Sí/No limpio) + `cotiza_cual` (texto
+libre, casi vacio, no relacionado). Se colapso `cotiza_fp` a binario
+("Sí" = categorias que empiezan con "Si est...", "No" = el resto,
+incluye "ya está pensionado" por no ser cotizacion activa): da 15.7% de
+"Sí" en ola 1 vs. 16.4% en `cotizando` de ola 2 -- magnitud consistente,
+confirma el renombrado. `cotiza_fp` tambien tenia una categoria con
+corrupcion U+FFFD sin resolver ("Si est�cotizando y recibe pensi�n", 52
+casos) por el mismo motivo que `sindicato` (sin candidato limpio en la
+misma columna); se agrego a `CORRECCIONES_MANUALES_PRIORITARIAS` (ahora
+90 valores en 39 columnas, antes 89/38).
+
+**Correccion aplicada**: se agrego `cotiza_pension_jefe` y
+`tasa_cotizacion_pension_hogar` a `build_ahorro_capital_social_hogar.py`
+(Bloque 4) -- misma poblacion filtrada que `ahorra`/`org_*`, mismo rango
+de edad. Tasa de cotizacion a nivel hogar: 15.9%/16.4%/18.1% entre olas,
+tendencia suave y consistente, sin anomalias. Los 9 scripts de features
+se re-corrieron sobre la base limpia regenerada.
+
+**Total de columnas rescatadas por renombrado en las dos rondas: 3**
+(`sindicato`, `fue_jornalero`, `cotiza_fp`, mapeadas respectivamente a
+`org_sindicato`, `jornalero`, `cotizando` en ola 2/3) sobre 139
+candidatas originales -- 2.2% del pool. Con umbral 0.55 y verificacion
+manual de los 12 pares mas prometedores no aparecio nada mas. Bajar mas
+el umbral (por debajo de 0.5) empieza a generar demasiado ruido para
+verificar caso por caso de forma confiable; el riesgo residual de un
+renombrado con nombre muy distinto (ej. un cambio de codigo completo,
+no solo de prefijo/sufijo) sigue sin poder descartarse por este metodo
+y requeriria comparacion directa contra los diccionarios PDF de cada
+ola, pregunta por pregunta -- no se hizo por ser demasiado costoso para
+el beneficio esperado dado lo bajo de la tasa de hallazgo real (3 en 2
+rondas).
+
+### 2026-08-09 (cont.) — Tercera vuelta: comparacion directa contra los
+diccionarios PDF (texto de la pregunta, no solo nombre/cobertura), 2
+hallazgos mas
+
+El usuario pidio intentar el metodo mas costoso planteado al cierre de la
+ronda anterior: en vez de comparar nombres de columna o cobertura
+numerica, comparar el TEXTO DE LA PREGUNTA de cada columna contra los
+diccionarios oficiales de la encuesta.
+
+**Metodo**: se extrajeron con `pdftotext -layout` los 4 diccionarios de
+Personas de las olas con nombres de columna potencialmente distintos
+(`elca_2010/{U,R}Personas.pdf`, `elca_2013/{U,R}Personas.pdf`) y se
+parsearon con un script ad-hoc (tabla de columnas ID/Variable/Capítulo o
+Módulo/Descripción/Tipo/Formato/Valores, reconstruyendo cada descripcion
+a partir de las lineas de continuacion usando la posicion horizontal del
+texto para separar la columna Descripción de la columna Valores que
+comparten renglon en el layout de texto plano). Cobertura del parseo:
+231/307 columnas de `EXCLUIDA_NO_EN_OLA2` y 260/366 de
+`EXCLUIDA_NO_EN_OLA1` quedaron con descripcion recuperada (el resto no se
+pudo extraer de forma confiable, mismo riesgo residual que ya se tenia
+documentado, no empeora nada). Se calculo similitud de Jaccard sobre las
+palabras de la descripcion (normalizadas: sin tildes, sin stopwords, >=3
+caracteres) entre los dos conjuntos: 35 pares con Jaccard>=0.3.
+
+**Verificacion caso por caso de los pares con mayor similitud** (cruzando
+tambien cobertura y edad, mismo criterio que en las rondas anteriores):
+la mayoria de los 35 son preguntas RELACIONADAS pero no identicas (ej.
+`medio_busco`/`medio_bus_trabajo`, ambas maneras de preguntar por medios
+de busqueda de empleo pero con categorias distintas, y de cualquier forma
+<10% de cobertura, sin efecto practico). Dos pares SI son la misma
+pregunta bajo nombre distinto, confirmado por texto de pregunta
+practicamente identico + cobertura y rango de edad consistentes:
+
+  - `estaba_sss` (ola 1, cobertura 14.9%, edad 13-71) = `segsoc_salud`
+    (ola 2/3, 14.4%/14.8%, edad 17-88) -- afiliacion a seguridad social
+    en SALUD por vinculo LABORAL. Distinta de `afiliacion` (Bloque 3,
+    39%, todas las edades, afiliacion general sin filtro de tipo de
+    vinculo) -- verificado que no son redundantes.
+  - `estaba_fp` (ola 1, cobertura 14.9%) = `afiliacion_fp` (ola 2/3,
+    14.4%/14.8%) -- afiliacion (no necesariamente cotizacion activa) a
+    fondo de PENSIONES. Distinta de `cotiza_pension` (cotizacion activa,
+    ya rescatada en la ronda anterior) -- se puede estar afiliado sin
+    cotizar activamente, son conceptos relacionados pero no iguales.
+
+Ambas tenian el mismo patron de corrupcion U+FFFD sin resolver que
+`sindicato`/`cotiza_fp` (categoria "Sí" 100% corrupta como "S�" en su
+columna, sin candidato limpio local para el match automatico) --
+agregadas a `CORRECCIONES_MANUALES_PRIORITARIAS` (ahora 92 valores en 41
+columnas).
+
+**Correccion aplicada**: se agregaron `afiliado_pension_jefe`/
+`tasa_afiliacion_pension_hogar` y `afiliado_salud_laboral_jefe`/
+`tasa_afiliacion_salud_laboral_hogar` a
+`build_ahorro_capital_social_hogar.py` (Bloque 4). Validacion: afiliacion
+a pension 34.2%-42.1% entre olas, afiliacion a salud laboral 34.6%-46.2%
+-- ambas mayores que la tasa de cotizacion ACTIVA (15.9%-18.1%), lo cual
+es coherente (estar afiliado sin cotizar activamente es comun en mercados
+laborales informales). Los 9 scripts de features se re-corrieron sobre la
+base regenerada.
+
+**Total de columnas rescatadas en las 3 rondas: 5** (`sindicato`,
+`fue_jornalero`, `cotiza_fp`, `estaba_sss`, `estaba_fp`, mapeadas a
+`org_sindicato`, `jornalero`, `cotizando`, `segsoc_salud`,
+`afiliacion_fp` respectivamente) sobre 139 candidatas originales -- 3.6%
+del pool. El metodo de diccionario (mas costoso, basado en texto de
+pregunta real) encontro 2 casos que el metodo de similitud de nombre con
+umbral relajado NO habia detectado (`estaba_sss`/`estaba_fp` no tienen
+nombres parecidos a `segsoc_salud`/`afiliacion_fp`) -- confirma que el
+riesgo remanente identificado en la ronda anterior (renombrados con
+nombre muy distinto) era real y no solo teorico. Con este metodo se
+alcanza la cobertura mas alta posible dado lo que se pudo extraer de los
+diccionarios (231/307 y 260/366 descripciones recuperadas); las columnas
+sin descripcion recuperable en el parseo (76+106) quedan como el unico
+riesgo residual no verificable con los recursos actuales -- requeriria
+revisar el PDF visualmente pagina por pagina, desproporcionado frente a
+la tasa de hallazgo observada (5 en 3 rondas, con retornos decrecientes:
+2 en la primera ronda de nombre estricto habian dado 0, la segunda con
+nombre relajado dio 3, la tercera con texto de pregunta dio 2 mas).
+
+### 2026-08-09 (cont.) — Choques: se resuelve el HALLAZGO CRITICO (cobertura
+35%/70%/76% -> 100%)
+
+Con Personas cerrado, se retomo el bloqueo pendiente de Choques (ver
+"HALLAZGO CRITICO" en la auditoria de modulos, mas arriba). Se volvio a
+los `.tab` crudos (`data/interim/raw/elca_{2010,2013,2016}/{U,R}Choques*.tab`)
+para responder la pregunta que quedo pendiente: ¿que significa la ausencia
+de una fila para un hogar dado?
+
+**Verificacion contra los crudos**: 2010 usa formato ANCHO -- un archivo
+`UChoques-csv.tab`/`RChoques-csv.tab` sin encabezado con exactamente una
+fila por hogar (5.275+4.579=9.854 filas, cuadra con los 9.853 hogares del
+panel); los hogares sin ningun choque tienen las columnas de choque en
+blanco, PERO SI aparecen en el archivo. 2013/2016 usan formato LARGO --
+una fila por (hogar, tipo de choque) incluyendo las filas con
+`tuvo_choque=='No'`, por lo que cada hogar aparece ~16-23 veces
+independientemente de si tuvo o no cada choque especifico. Confirmado:
+el archivo fuente de ELCA SI tiene cobertura completa del panel en las 3
+olas -- el problema nunca fue el dato, sino el script de consolidacion.
+
+**Causa raiz encontrada en `01_consolidacion_bases_choques.py`**: las
+funciones `procesar_2013`/`procesar_2016` ejecutaban
+`df = df[df["tuvo_choque"] == "SI"].copy()` ANTES de pivotear, eliminando
+todas las filas de hogares sin ningun choque (su bloque completo de 'No'
+desaparecia); `procesar_2010`/`raw_2010_a_long` hacia `if pd.isna(choque):
+continue`, saltandose los bloques vacios de los hogares sin choques. El
+resultado: el pivote de conteo (`pivot_table(index=key_col, ...)`) nunca
+recibia esos hogares en su indice, asi que quedaban fuera del panel final
+en vez de aparecer con `choque_*=0`.
+
+**Correccion aplicada**: se capturo el universo completo de hogares
+(`hogares_universo`) de cada archivo crudo ANTES del filtro
+`tuvo_choque=='SI'`/`pd.isna`, y se reindexo el pivote de conteo contra
+ese universo con `fill_value=0` (`choque_*`, `total_choques`).
+`imp_econ_*`/`resp_*` se dejan en NaN para los hogares sin choque -- es
+correcto, no aplica reportar impacto economico o respuesta de
+afrontamiento cuando no hubo ningun evento. Tambien se corrigio la ruta
+hardcodeada del script (`DATA_ROOT`/`OUTPUT_PATH` apuntaban a
+`.../Documentos/tesis_vulnerabilidad/...`, sin el prefijo `Tesis_MECA/`
+del proyecto actual -- ni siquiera podia ejecutarse antes de este fix) a
+`Path(__file__).resolve().parents[3]`, siguiendo la misma convencion
+`PROJECT_ROOT` usada en el resto del proyecto.
+
+**Resultado tras re-ejecutar la consolidacion**: 27.932 filas (antes
+16.401), exactamente el mismo tamaño de panel hogar-ola que usa el resto
+del proyecto (ej. `personas_hogar_elca_longitudinal.parquet`). Hogares
+por ola: 9.853 (ola 1, 100% de cobertura, antes 35%) / 9.261 (ola 2) /
+8.818 (ola 3). Proporcion de hogares con `total_choques==0`: 65.4% (ola
+1) / 31.1% (ola 2) / 25.0% (ola 3) -- magnitud plausible para una
+pregunta de recall de choques en un periodo de referencia de ~12 meses
+(o mas largo en la primera ola). El maximo de `total_choques` (95 en ola
+1, 89 en ola 3) es alto pero no es un artefacto de este fix -- ya existia
+en la logica de conteo original (`clip(lower=1)` sobre columnas
+`mes_*`/`veces_*`), queda como observacion para revisar al construir el
+bloque de features de Choques, no bloquea el uso del modulo.
+
+Con esto, Choques queda desbloqueado y listo para construir su bloque de
+features del benchmark.
+
+### 2026-08-09 (cont.) — Modulo de Comunidades: auditoria completa (mismo
+rigor que Personas) + bloque de features (build_comunidades_hogar.py)
+
+Con Personas y Choques resueltos, se inicia el modulo de Comunidades. El
+usuario pidio explicitamente el mismo nivel de auditoria que Personas, no
+un estandar mas liviano -- se rehizo el trabajo con las 4 etapas completas.
+
+A diferencia de Personas, la unidad de analisis original YA es la
+comunidad (entrevista a lideres comunitarios) -- cada hogar hereda las
+variables de su comunidad via `consecutivo_c` (identificador de comunidad
+= `consecutivo` del hogar sin el ultimo digito, confirmado exacto contra
+`UHogar-csv.tab`: hogares 111001/111002/111003 -> consecutivo_c 11001).
+
+**1. Limpieza de corrupcion U+FFFD** (`03_limpieza_base_comunidades.py`,
+nuevo, mismo patron que `02_limpieza_base_personas.py`): de 558 columnas,
+26 tienen "�" (mucho mas acotado que las 542 de Personas) -- 22 de
+vocabulario cerrado (<=25 categorias) y 4 de texto libre
+(`proy_prioritario1/2/3`, `otros_problemas_cual`, sin tocar). La
+correccion automatica (match unico dentro de la misma columna) resuelve
+28 valores sin ambiguedad; queda 1 residual, `region` (3 valores: Bogotá/
+Atlántica/Pacífica corruptas, sin candidato limpio local porque esas 3
+categorias SIEMPRE aparecen corruptas en el archivo -- mismo patron que
+`sindicato`/`cotiza_fp`/`estaba_sss`/`estaba_fp` en Personas), corregida a
+mano por ser inequivoca (son los 3 nombres de region del diseño muestral
+de ELCA). Validado con assert: 0 residual tras la correccion manual.
+Output: `comunidades_elca_longitudinal_clean.parquet`.
+
+**2. Clasificacion completa de las 558 columnas**
+(`docs/variable_audit/comunidades_construccion.csv`, mismo criterio >1%
+de cobertura por ola que Personas): 212 `CANDIDATO_BENCHMARK` (presente
+ola1 Y ola2), 207 `EXCLUIDA_NO_EN_OLA1`, 40 `EXCLUIDA_NO_EN_OLA2`, 52
+`EXCLUIDA_SOLO_OLA3`, 39 `EXCLUIDA_CASI_VACIA`, 5 `IDENTIFICADOR`, 3
+`EXCLUIDA_OTRO_PATRON` (`cod_conf_5`/`n_hogares_5`/`anos_resolver_5`,
+verificados triviales, <2% cobertura). Suma verificada: 558.
+
+**3. Busqueda de renombrados entre olas** (nombre relajado cutoff 0.55 +
+comparacion contra diccionarios PDF de
+`elca_{2010,2013}/{U,R}Comunidades.pdf`, mismo metodo de 2 pasadas usado
+en Personas): **sin hallazgos nuevos**. Los pares con mayor similitud
+resultaron ser:
+  - Bloques de items numerados con distinto N por ola (`sexo_lider5/6`,
+    `cargo_lider5/6` sin equivalente porque ola 2 solo pregunta hasta el
+    lider 4; `cod_conf_1..4` vs `cod_conf_7..12`, mismo patron para
+    conflictos) -- NO son renombrados, son preguntas repetidas con
+    distinto limite de repeticion por ola.
+  - `grarmados_2001..2010` vs `grarmados_2011..2013` -- diseño de VENTANA
+    MOVIL de años (cada ola pregunta por los grupos armados presentes en
+    años especificos, sin solapamiento entre olas) -- tampoco es un
+    renombrado, es un cambio de referencia temporal por diseño del
+    cuestionario.
+  - Verificado caso por caso (`camp_prev_embarazo`/`camp_emb_adoles`,
+    `venden_mas10`/`ven_vias`, `pasa_tierra_ido`/`pasa_tierra_cual`):
+    coincidencias de nombre espurias, contenido distinto en los 3 casos.
+  A diferencia de Personas (donde este metodo rescato 5 columnas reales),
+  aqui el modulo de Comunidades no tiene el mismo patron de renombrado
+  silencioso entre olas.
+
+**4. Aplicacion del umbral >=10% por tema** sobre las 212 candidatas para
+decidir que construir. Se verifico estructura de categorias, escalas y
+poblacion de cada variable ANTES de construirla (misma disciplina de
+Personas):
+  - `homicidios` usa escalas DISTINTAS entre zona urbana (Sí/No) y rural
+    (Nunca/Algunas veces/Frecuentemente) -- verificado cruzando con
+    `zona` antes de construir (mismo principio de comparabilidad
+    poblacional de Personas). Armonizado a binario.
+  - `seguridad` es ordinal de 4 niveles con variantes de genero (Muy
+    seguro/segura, etc.) -- normalizado y mapeado 1-4 hacia percepcion de
+    INSEGURIDAD.
+  - `solidaridad` es ordinal de 3 niveles (No se ayudan/Se ayudan poco/Se
+    ayudan mucho) -- mapeado a 0-2.
+  - `desalojos`/`secuestros`/`amenazas_gra` mezclan Sí/No CON Nunca/
+    Algunas veces/Frecuentemente/Todo el tiempo dentro de la MISMA
+    columna (mismo patron que `homicidios`) -- armonizados a binario
+    antes de combinarlos en el indice de conflicto armado.
+  - `acude_solucion` tenia una categoria con corrupcion "???" literal
+    ("Otro.  ???Cu???l?", mismo patron ya documentado para Personas ola
+    3, aqui aparece en Comunidades) -- consolidada con "Otro".
+  - `inf_salud`/`inf_educacion`/etc. se verificaron contra el diccionario
+    PDF: NO son "tiene puesto de salud" (eso ya lo mide `puesto_salud`)
+    sino "hubo obra de infraestructura de salud en los ultimos 2 años" --
+    variable de INVERSION RECIENTE, complementaria y no redundante con
+    presencia actual (confirmado con `pd.crosstab`: 308 comunidades
+    difieren entre ambas).
+  - **Anomalia de IDs en el archivo crudo de Comunidades**: 25 comunidades
+    urbanas de 2016 (`UComunidades-csv.tab`) tienen `consecutivo_c` de
+    8-10 digitos (ej. 8110011099) en vez del rango normal de 5-6 digitos
+    -- confirmado que es un problema del archivo CRUDO de ELCA, no de
+    esta consolidacion (sin efecto practico, ola 3 nunca es fuente de
+    features).
+  - **Cobertura del join hogar->comunidad**: el `consecutivo_c` del
+    HOGAR (no solo el de Comunidades) tambien trae el mismo tipo de
+    codigo malformado en ola 2/3, mas un sentinela "8888888" (4.468
+    filas, codigo estandar de "sin dato"). Filtrando esos IDs invalidos,
+    queda un segundo problema independiente: en ola 1, 80 de ~792
+    comunidades referenciadas por hogares simplemente no aparecen en el
+    archivo de Comunidades (8.1% de los hogares sin comunidad
+    emparejada; 2.9%/3.6% en ola 2/3) -- cobertura real del cuestionario
+    de Comunidades, no un error de calculo del ID. Se deja NaN, sin
+    imputar.
+
+**Temas EXCLUIDOS deliberadamente, con razon documentada** (no solo "no
+alcanzo el tiempo" -- ver docstring completo en
+`build_comunidades_hogar.py` para el detalle variable por variable):
+demografia de lideres comunitarios (metadato del informante, no
+caracteristica de la comunidad); `hecho_seguridad`/`razon_seguridad`
+(sub-pregunta filtrada de baja cobertura); cluster de acceso a mercado
+agricola rural (~25 columnas, cobertura 26%-31% que coincide con la
+fraccion rural de la muestra -- submodulo rural fuera de alcance);
+cluster de tipos de trabajo rural y calendario climatico mensual (mismo
+submodulo rural); cluster de proveedores de salud alternativos
+(medico/odontologo/enfermera "nopuesto", rural-only); cluster de
+campañas de salud/agricolas (salta de 26% a 100% entre olas, mismo
+patron de posible problema de comparabilidad poblacional que
+discapacidad en Personas, sin investigar a fondo); extension del
+problema ambiental (cobertura mas baja y redundante con
+`problema_contaminacion_comunidad` ya construido); sub-preguntas de
+seguimiento de baja cobertura sobre temas ya cubiertos.
+
+**Variables construidas** (nivel hogar, heredadas de la comunidad):
+`percepcion_inseguridad_comunidad` (escala 1-4), `problema_homicidios_comunidad`,
+`n_problemas_convivencia_comunidad` (conteo 0-7), `problema_contaminacion_comunidad`,
+`riesgo_inundacion_comunidad`, `acceso_agua_comunidad`,
+`hay_desplazados_comunidad`/`n_desplazados_comunidad`,
+`n_organizaciones_comunidad` (conteo 0-14), `tiene_puesto_salud_comunidad`,
+`tiene_escuela_primaria_comunidad`, `tiene_colegio_secundaria_comunidad`,
+`tiene_transporte_publico_comunidad`, `barrio_legal_comunidad`,
+`solidaridad_comunidad` (escala 0-2), `acude_justicia_formal_comunidad`,
+`cortes_agua_comunidad`, `n_obras_infraestructura_reciente_comunidad`
+(conteo 0-6), `n_servicios_primera_infancia_comunidad` (conteo 0-4),
+`n_espacios_publicos_comunidad` (conteo 0-4),
+`n_acciones_conflicto_armado_comunidad` (conteo 0-11).
+
+**Validacion**: percepcion de inseguridad ~2.0 (escala 1-4, centrada),
+homicidios reportados 18%-32% (declinante entre olas, consistente con la
+tendencia de reduccion de violencia en Colombia 2010-2016), contaminacion
+69%-77%, desplazados reportados 46%-53% de comunidades (alto pero
+plausible dado que ELCA sobre-muestrea poblacion vulnerable/afectada por
+conflicto), `n_acciones_conflicto_armado_comunidad` cae de 1.35 (ola 1) a
+~0.49-0.50 (olas 2/3) -- mismo patron declinante que homicidios,
+consistente. Dos caveats sin resolver documentados en el docstring del
+script: `n_organizaciones_comunidad` cae de 4.25 a 2.10 entre olas
+(cobertura estable, no es artefacto) y `n_desplazados_comunidad` cae de
+una media de 195 a ~70 personas (posible cambio de periodo de referencia
+de la pregunta, no verificado contra diccionario).
+
+Output: `data/processed/comunidades_hogar_elca_longitudinal.parquet`
+(27.932 filas, mismo panel hogar-ola que el resto del proyecto).
+
+### 2026-08-09 (cont.) — Modulo de Niños: auditoria completa + bloque de
+features (build_ninos_hogar.py)
+
+Mismo nivel de auditoria que Personas y Comunidades, 4 etapas completas.
+
+**1. Limpieza de corrupcion** (`04_limpieza_base_ninos.py`, nuevo): de 433
+columnas, 80 tienen U+FFFD ("�") -- 79 cerradas + 1 texto libre
+(`descrip_oficio`). Correccion automatica: 131 valores. **Hallazgo
+adicional al validar `quien_cuida`**: la misma columna tenia TAMBIEN
+corrupcion "???" literal (patron ya visto en Personas, pero ahi exclusivo
+de ola 3 -- aqui aparece en las 3 olas, afecta 12 columnas). Se
+generalizo el script para manejar ambos marcadores. Residual final: 6
+valores rescatados via diccionario PDF de 2013 (`{U,R}Ninos0a13.pdf`), 3
+via la regla Sí/No de Personas (candidato ambiguo pero inequivoco por
+diseño), resto corregido a mano por reconstrucciones de acento sin
+ambiguedad; 2 columnas (`dejo_lactar_cual`, `observ_antrop`) resultaron
+ser texto libre "accidentalmente cerrado" por tamaño de muestra chico --
+se re-clasificaron y se dejan sin forzar correccion.
+
+**2. Clasificacion completa de las 433 columnas**
+(`docs/variable_audit/ninos_construccion.csv`): 83 `CANDIDATO_BENCHMARK`,
+256 `EXCLUIDA_NO_EN_OLA1` (el modulo crecio mucho de 2010->2013: nuevo
+tramo de edad 0-13 y nuevas baterias de estimulacion/cuidado), 56
+`EXCLUIDA_SOLO_OLA3`, 22 `EXCLUIDA_NO_EN_OLA2`, 11 `IDENTIFICADOR`, 4
+`EXCLUIDA_CASI_VACIA` (verificadas triviales), 1 `EXCLUIDA_OTRO_PATRON`
+(`ano_nac_m`, trivial). Suma verificada: 433.
+
+**3. Busqueda de renombrados entre olas** (nombre relajado + diccionarios
+PDF de `elca_{2010,2013}/{U,R}Ninos*.pdf`): **5 renombrados reales
+encontrados**, todos del bloque de "estimulacion en el hogar" -- en ola 1
+la pregunta era una unica variable de frecuencia; en ola 2 se dividio en
+"quien" (quien lo hace) y "freq_*" (frecuencia). Se rescata la parte de
+frecuencia:
+  - `conversa` = `freq_conversa`, `ensena` = `freq_ensena`,
+    `juega_fueradecasa` = `freq_juegafuera`, `lee_libros` = `freq_lee`
+    (encontrados por nombre relajado).
+  - `juega_encasa` = `freq_juegadentro` -- encontrado SOLO por el
+    diccionario PDF ("encasa" vs "dentro" no tienen similitud textual
+    suficiente para el metodo de nombre). Confirma otra vez el valor de
+    hacer las 2 pasadas (nombre + diccionario), no solo una.
+  Mismas 4 categorias de frecuencia en ambas olas, verificado antes de
+  armonizar.
+
+**4. Verificacion de poblacion/edad antes de construir**: `edad_ames`
+esta codificada como años*100+meses (ej. 207 = 2 años 7 meses) --
+decodificada primero. El bloque de salud/vacunacion/estimulacion se
+concentra en niños 0-7 en ambas olas (mediana 2.6-4.8 años); el bloque de
+oficios/trabajo domestico en niños 5-11 en ambas olas (mediana 5.1-8.2
+años) -- ambos comparables entre ola 1 y ola 2 (las 2 fuentes de
+features del benchmark; ola 3 solo aporta el resultado observado).
+
+**Bug encontrado en validacion (el mismo tipo de error que motivo esta
+auditoria completa desde el principio)**: `fiebrea` se iba a llamar
+`pct_ninos_fiebre_reciente_hogar` asumiendo que media "tuvo fiebre" --
+al ver una tasa de 93.8%/89.9% (implausible para un sintoma reciente) se
+verifico contra el diccionario PDF 2013 y resulto ser **"¿Recibió la
+vacuna contra la fiebre amarilla?"** -- una vacuna mas de la bateria, no
+un sintoma. Renombrada a `tasa_vacuna_fiebreamarilla_hogar`. Segundo
+hallazgo en la misma validacion: `pct_ninos_cuidado_terceros_hogar` daba
+93% por un bug de matching (`PADRES_TOKENS` no incluia "Su madre"/"Su
+padre", solo "La madre"/"El padre" -- la columna `quien_cuida` usa
+ambas formas segun la fila) -- corregido. Tercer hallazgo: el indicador
+binario `pct_ninos_oficios_hogar` (¿hace algun oficio?) se satura en
+93%-99.7% porque `limpieza` sola ya tiene ~87% de "Sí" (barra baja
+segun el diccionario: "de los siguientes oficios, ¿cuáles hizo la
+semana pasada?", cualquier ayuda de aseo cuenta) -- se agrego
+`n_oficios_promedio_nino_hogar` (conteo 0-8) para preservar varianza
+como covariable de intensidad.
+
+**Redundancia deliberadamente NO construida**: `padre_vive`,
+`madre_vive`, `educ_padre`, `educ_madre`, `trabajo_padre`,
+`trabajo_madre`, `orden_padre`, `orden_madre`, `ano_nac_p` -- ya existen
+en Personas (via el informante) con variables equivalentes construidas
+(`pct_ninos_padre_vivo`/`pct_ninos_madre_viva`, Bloque 8;
+`nivel_educ_max_hogar`, Bloque 2). Duplicar desde Niños no aporta señal
+adicional.
+
+**Test cognitivo TVIP**: `puntoinicio`/`itemtope`/`menoserrores`/
+`puntuaciondirecta` corresponden al Test de Vocabulario en Imágenes
+Peabody (confirmado contra el diccionario PDF: "variable: es igual a la
+puntuación... prueba TVIP"). Se usa `puntuaciondirecta` (puntaje bruto),
+sin ajustar por edad -- misma limitacion que talla/peso.
+
+**Variables construidas** (nivel hogar, agregadas sobre niños con dato
+valido): `tasa_vacunacion_basica_hogar` (antituberculosa+triple viral+
+hepatitis B recien nacido), `tasa_control_crecimiento_hogar`,
+`tasa_vacuna_fiebreamarilla_hogar`, `talla_promedio_nino_hogar`/
+`peso_promedio_nino_hogar` (sin ajustar por edad/sexo, covariable cruda),
+`tasa_asistencia_escolar_nino_hogar`, `pct_ninos_oficios_hogar`/
+`n_oficios_promedio_nino_hogar`, `horas_oficio_promedio_nino_hogar`,
+`pct_ninos_trabajo_remunerado_hogar`, `indice_estimulacion_hogar_nino`
+(promedio 0-4 de 5 items de estimulacion, ver renombrados rescatados),
+`tvip_puntaje_directo_hogar`, `pct_ninos_cuidado_terceros_hogar`.
+
+**Validacion**: vacunacion basica 93.4%/82.3%, control de crecimiento
+84.3%/88.1%, vacuna fiebre amarilla 93.8%/89.9% (magnitud consistente
+con las otras vacunas, confirma la reinterpretacion), asistencia escolar
+30.4%/52.4% (coherente con la edad 0-7 del subgrupo, incluye bebes no
+escolarizables), oficios domesticos n_oficios_promedio 1.48/2.13 (de 8
+posibles), trabajo remunerado infantil 2.8%/2.9% (bajo, plausible dado
+el rango de edad 5-11), indice de estimulacion 2.57/3.30 (escala 0-4),
+TVIP 46.3/50.5 (talla/peso/TVIP muestran valores mas altos en ola 3 por
+ser una poblacion de niños mayores 6-16, no comparable en crudo con
+ola 1/2 -- pero ola 3 nunca es fuente de features, no bloquea el uso).
+
+Output: `data/processed/ninos_hogar_elca_longitudinal.parquet` (15.473
+filas -- solo hogares con al menos un niño en el rango de edad relevante,
+menor que el panel completo de 27.932 por diseño).
+
+Con esto se completan los 4 modulos con auditoria completa (Personas,
+Comunidades, Niños, mas la correccion de Choques). Pendiente: construir
+el bloque de features de Choques (ya desbloqueado) y, solo despues,
+consolidar todos los parquets de features en un dataset unico para el
+benchmark, segun la instruccion original del usuario.
+
+### 2026-08-09 (cont.) — Bloque de features de Choques
+(build_choques_hogar.py)
+
+A diferencia de Personas/Comunidades/Niños, `choques_elca_longitudinal.parquet`
+ya esta a nivel de hogar (generada por `01_consolidacion_bases_choques.py`,
+ver correccion del HALLAZGO CRITICO mas arriba) -- no requiere agregacion
+desde individuos, solo join directo por llave de hogar (verificado 1:1
+exacto contra `hogar_elca_longitudinal_clean.parquet` en las 3 olas).
+
+**Verificacion pedida por el usuario: ¿por que 0% de choques de desastre
+natural en ola 1 (2010), si coincidio con la Ola Invernal de Colombia?**
+Se extrajo el diccionario PDF oficial de 2010 (`UChoques.pdf`) y se
+confirmo que el cuestionario de esa ola enumera EXPLICITAMENTE las 18
+categorias de choque posibles (todas listadas en el diccionario, items
+1-18: enfermedad, accidente, muerte, abandono, separacion, perdida de
+empleo, perdida de tierra/vivienda/animales/cosechas, robo, violencia) y
+NINGUNA es un desastre natural -- la categoria (inundaciones/avalanchas/
+sequias/temblores) se agrego recien en el cuestionario de 2013. Es una
+limitacion real y verificada del instrumento de ELCA (posiblemente
+porque el cuestionario ya estaba diseñado/en campo antes de que la Ola
+Invernal 2010-2011 se agravara), no un artefacto de la consolidacion.
+
+**Otros hallazgos de la auditoria de cobertura**:
+  - 2 categorias de "abandono" (`abandono_del_hogar_por_parte_de_un_menor_
+    de_18_anos`, `abandono_del_que_era_jefe_del_hogar_o_del_conyuge`)
+    desaparecen despues de ola 1 (0% ola2/3) -- preguntas eliminadas del
+    cuestionario. Excluidas de los composites (fallan Eje 1).
+  - `imp_econ_*` (severidad Alta/Media/Baja) confirmado 0% en ola 1 (ya
+    documentado antes) -- no se usa en el benchmark simetrico train/test.
+  - `resp_*` (estrategias de afrontamiento) tienen cobertura MENOR
+    (34.6%/54.0%/60.9%) que la proporcion de hogares con
+    `total_choques>0` (34.6%/68.9%/75.0%). Investigado contra el crudo de
+    2013: de 12.439 choques con `tuvo_choque=='SI'`, 3.903 (31.4%) tienen
+    la respuesta principal (`hizo_princ`) en blanco -- no-respuesta real
+    de ELCA a esa pregunta de seguimiento, no un error de esta
+    consolidacion. Se deja NaN, sin imputar.
+  - `hipotecaron_algun_activo`/`arrendaron_algun_activo` (2 respuestas
+    separadas en ola 1) se fusionaron en `hipotecaron_o_arrendaron_algun_
+    activo` (ola 2/3) -- armonizado con OR antes de incluir en el
+    composite erosivo.
+  - `choque_perdida_o_muerte_de_animales`/`choque_plagas_o_perdida_de_
+    cosechas` se preguntan EXCLUSIVAMENTE a hogares rurales (100%
+    cobertura rural, 0% urbana, por diseño) -- el ~54% de NaN del
+    composite agropecuario a nivel nacional es la fraccion urbana del
+    panel, no un error.
+
+**Variables construidas**: incidencia -- `total_choques_hogar`,
+`tuvo_algun_choque_hogar`, `n_tipos_choque_hogar` (diversidad, no solo
+frecuencia), `tuvo_choque_salud_hogar`, `tuvo_choque_economico_hogar`,
+`tuvo_choque_patrimonial_hogar`, `tuvo_choque_agropecuario_hogar`,
+`tuvo_choque_familiar_hogar`, `tuvo_choque_severo_hogar` (muerte del
+jefe/conyuge, perdida de vivienda o fincas -- subgrupo irreversible).
+Afrontamiento -- `afrontamiento_erosivo_hogar` (vendieron bienes,
+retiraron hijos del colegio, hipotecaron/arrendaron activo, sacrificaron
+animales, redujeron alimentos, migracion internacional -- compromete
+capital futuro) vs. `afrontamiento_protector_hogar` (usaron ahorros,
+seguro, ayuda de familiares/instituciones -- no compromete capital),
+`intensifico_trabajo_hogar` (categoria propia, respuesta de oferta
+laboral), mas 5 variables individuales de interes especifico:
+`retiro_hijos_colegio_choque_hogar`, `redujo_alimentos_choque_hogar`,
+`se_endeudo_formal_choque_hogar` vs. `se_endeudo_informal_choque_hogar`
+(formal/informal, proxy de exclusion financiera), `no_ajusto_choque_hogar`
+(señal inversa).
+
+**Validacion**: total_choques promedio 0.62/1.42/2.44 (creciente entre
+olas, consistente con la ampliacion del cuestionario), n_tipos_choque
+(diversidad) maximo 6/8/9 de los ~17-23 tipos posibles -- plausible.
+tuvo_choque_severo muy bajo (0.9%-3.0%), consistente con ser un subgrupo
+de eventos raros e irreversibles. afrontamiento_erosivo 11.3%-25.6%,
+afrontamiento_protector 28.8%-34.3% -- ambos crecen con `total_choques`,
+sin anomalias. `no_ajusto_choque_hogar` cae de 41.7% (ola 1) a ~18% (ola
+2/3) -- no investigado a fondo, podria reflejar que los choques
+disponibles en ola 1 (sin el cluster de desastres/clima, ver arriba) son
+en promedio menos severos y requieren menos ajuste; queda como
+observacion.
+
+Output: `data/processed/choques_hogar_elca_longitudinal.parquet` (27.932
+filas, mismo panel que el resto del proyecto).
+
+Con esto se completan los 4 modulos (Personas, Comunidades, Niños,
+Choques) con features construidas y auditadas. Siguiente paso, segun la
+instruccion original del usuario: consolidar todos los parquets de
+features en un dataset unico hogar-ola para el benchmark.
+
+### 2026-08-09 (cont.) — Consolidacion final: dataset unico hogar-ola
+(build_benchmark_consolidado.py)
+
+Une los 12 parquets de features (Personas x9 bloques, Comunidades, Niños,
+Choques) mas las variables monetarias (ingreso/gasto/pobreza) en un solo
+dataset ancho, join por `llave_compuesta` (mismo esquema de identidad
+`consecutivo`/`llave`/`llave_n16` segun ola usado en todo el proyecto) +
+`ola`. Este script SOLO consolida (join ancho) -- NO construye todavia la
+matriz de entrenamiento train/test (desplazar el outcome de pobreza a la
+ola siguiente por hogar y filtrar a poblacion no-pobre en la ola base,
+ver metodologia del benchmark puntos 1-2), eso queda como paso siguiente
+deliberadamente separado.
+
+**Variables monetarias -- nominal para el label, real para la
+covariable de nivel**: `pobreza_monetaria_elca_longitudinal.parquet` trae
+ingreso/gasto NOMINAL (correcto para determinar pobreza, comparado contra
+LP/LI nominal del mismo año). Para una covariable de NIVEL comparable
+entre olas se usa la version REAL con el deflactor "ingresos bajos"
+(`_real_ipcbajos` de `ingreso_hogar_elca_longitudinal.parquet`/
+`gasto_hogar_elca_longitudinal.parquet`) en vez de IPC total -- mismo
+criterio que usa el DANE para actualizar la LP oficial. Se agrega tambien
+`brecha_lp_ingreso`/`brecha_lp_gasto` (ingreso o gasto nominal / LP
+nominal del mismo año) -- ratio escala-invariante que no necesita
+deflactar, siguiendo a Chaudhuri, Jalan y Suryahadi (2002) ya citado en
+la metodologia del benchmark.
+
+**Validaciones aplicadas**: `llave_compuesta+ola` unico en la base ancla
+(assert); cada merge usa `validate="one_to_one"` y se verifica que el
+numero de filas no cambie; se verifica que ningun par de archivos de
+features aporte una columna con el MISMO nombre (deteccion de colision
+silenciosa). Las 827 columnas RAW de `hogar_elca_longitudinal_clean.parquet`
+NO se incorporan al consolidado (nunca fueron auditadas en esta sesion;
+solo se usan sus columnas de identidad como ancla del panel).
+
+**Resultado**: 27.932 filas x 128 columnas (6 identidad + 13 monetarias +
+109 de features). Sin colisiones de nombre, sin cambio de filas en
+ningun merge. Tasa de pobreza por ingreso 60.7%/52.4%/42.4% (declinante,
+consistente con la tendencia de reduccion de pobreza en Colombia
+2010-2016), `brecha_lp_ingreso` promedio subiendo de 1.24 a 1.75 (hogares
+en promedio mas por encima de la LP con el tiempo, consistente). Cobertura
+de columnas por archivo de origen entre 21.8% (Niños, esperado -- solo
+hogares con niños) y 99.8% (Personas Bloque 1, composicion del hogar).
+
+Output: `data/processed/benchmark_consolidado_elca_longitudinal.parquet`.
+
+Con esto se completa la fase de construccion de features del benchmark.
+Pendiente (fuera del alcance de esta sesion): construir la matriz de
+entrenamiento train/test desplazando el outcome de pobreza por hogar
+entre olas y filtrando a la poblacion no-pobre en la ola base, luego
+entrenar y comparar los Modelos A/B (con/sin ingreso) segun la
+metodologia ya documentada.

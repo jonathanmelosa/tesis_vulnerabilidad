@@ -22,8 +22,24 @@ Lógica general
 4. Las seis bases procesadas se concatenan en un único dataset hogar–ola cuyas
    columnas son la unión de todas las variables; las celdas vacías quedan como NaN.
 
-Unidad de análisis final: hogar–ola (una fila por cada hogar que registró al menos
-un choque en cada ola en que participó).
+Unidad de análisis final: hogar–ola (una fila por cada hogar que participó en esa
+ola, haya reportado o no algún choque).
+
+CORRECCIÓN (2026-08-09): antes de este fix, las tres funciones `procesar_*`
+descartaban las filas/bloques sin choque reportado ANTES de pivotear, de modo
+que un hogar sin ningún choque desaparecía del panel en vez de quedar con una
+fila de choque_*=0. Esto reducía la cobertura real (9.854/9.854 hogares en
+2010, ~4.653 sub-hogares en 2013, ~4.804 en 2016 según los .tab crudos) a solo
+los hogares con al menos un choque (35% en 2010, 70% en 2013, 76% en 2016 --
+ver docs/decisions.md, "HALLAZGO CRITICO" de choques). Se verificó contra los
+.tab crudos que SÍ traen una fila (2010, formato ancho con celdas vacías) o un
+bloque completo de filas con tuvo_choque='No' (2013/2016, formato largo) por
+cada hogar, incluidos los que no tuvieron ningún choque -- el archivo fuente
+nunca fue el problema. El fix reindexa cada pivote contra el universo completo
+de hogares del archivo crudo (antes del filtro `tuvo_choque=='SI'`/`pd.isna`) y
+rellena `choque_*`/`total_choques` con 0 para los hogares sin eventos;
+`imp_econ_*`/`resp_*` se dejan en NaN para esos hogares porque no aplica
+(no hubo choque del que reportar impacto o respuesta de afrontamiento).
 
 Identificadores incluidos
 -------------------------
@@ -41,16 +57,15 @@ Columnas de variables
 import os
 import re
 import unicodedata
+from pathlib import Path
 
 import pandas as pd
 
 # ─── Rutas ───────────────────────────────────────────────────────────────────
 
-DATA_ROOT = "/Users/macbook/Documents/Documentos/tesis_vulnerabilidad/data/interim/raw"
-OUTPUT_PATH = (
-    "/Users/macbook/Documents/Documentos/tesis_vulnerabilidad"
-    "/data/processed/choques_elca_longitudinal.parquet"
-)
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DATA_ROOT = str(PROJECT_ROOT / "data" / "interim" / "raw")
+OUTPUT_PATH = str(PROJECT_ROOT / "data" / "processed" / "choques_elca_longitudinal.parquet")
 
 # ─── Estructura de bloques 2010 (índices de columna, base 0) ─────────────────
 
@@ -240,13 +255,19 @@ def raw_2010_a_long(df_raw: pd.DataFrame, bloques: list) -> pd.DataFrame:
     return pd.DataFrame(registros)
 
 
-def long_a_wide_2010(df_long: pd.DataFrame, ola: int, zona: str) -> pd.DataFrame:
+def long_a_wide_2010(
+    df_long: pd.DataFrame, ola: int, zona: str, hogares_universo: pd.Series
+) -> pd.DataFrame:
     """
     Pivotea el formato largo de 2010 a hogar × variables.
 
     - choque_{nombre} : suma de conteos por hogar y tipo de choque.
     - resp_{nombre}   : cantidad de choques en que se usó cada respuesta.
     - imp_econ no existe en 2010; la columna se añade con NaN al concatenar.
+
+    `hogares_universo` es la lista de TODOS los hogares del archivo crudo
+    (incluidos los sin ningún choque) contra la cual se reindexa el pivote de
+    conteo, para que esos hogares queden con choque_*=0 en vez de desaparecer.
     """
     df_conteo = (
         df_long
@@ -258,6 +279,7 @@ def long_a_wide_2010(df_long: pd.DataFrame, ola: int, zona: str) -> pd.DataFrame
             aggfunc="sum",
             fill_value=0,
         )
+        .reindex(hogares_universo, fill_value=0)
         .reset_index()
     )
     df_conteo.columns.name = None
@@ -293,13 +315,17 @@ def long_a_wide_post2010(
     zona: str,
     key_col: str,
     id_extra: list,
+    hogares_universo: pd.Series,
+    df_ids_universo: pd.DataFrame,
 ) -> pd.DataFrame:
     """
     Pivotea el formato largo de 2013/2016 a sub-hogar × variables.
 
     Parámetros
     ----------
-    df       : DataFrame largo con una fila por (sub-hogar, choque).
+    df       : DataFrame largo con una fila por (sub-hogar, choque), YA
+               filtrado a tuvo_choque=='SI' (solo eventos efectivamente
+               ocurridos: es la base correcta para conteo/imp_econ/resp).
     ola      : número de ola (2 = 2013, 3 = 2016).
     zona     : 'Urbano' o 'Rural'.
     key_col  : columna que identifica unívocamente cada sub-hogar en esta ola.
@@ -307,6 +333,12 @@ def long_a_wide_post2010(
                Cada valor único genera una fila en el panel.
     id_extra : columnas de enlace hacia olas anteriores (ej. consecutivo, hogar).
                Se conservan como atributos pero no determinan la unicidad de la fila.
+    hogares_universo : TODOS los valores de key_col del archivo crudo (antes del
+               filtro tuvo_choque=='SI'), para reindexar el conteo y no perder
+               los hogares sin ningún choque.
+    df_ids_universo  : id_extra por key_col calculado sobre el archivo SIN
+               filtrar, para que los hogares sin choque tambien conserven sus
+               columnas de enlace (consecutivo, hogar, etc.).
 
     Columnas generadas
     ------------------
@@ -316,7 +348,8 @@ def long_a_wide_post2010(
     """
     df = df.assign(choque_norm=lambda d: d["choque"].apply(normalizar_nombre))
 
-    # Conteo de choques por sub-hogar
+    # Conteo de choques por sub-hogar, reindexado contra el universo completo
+    # (incluye hogares sin ningun choque, que quedan en 0 en vez de desaparecer)
     df_conteo = (
         df.pivot_table(
             index=key_col,
@@ -325,6 +358,7 @@ def long_a_wide_post2010(
             aggfunc="sum",
             fill_value=0,
         )
+        .reindex(hogares_universo, fill_value=0)
         .reset_index()
     )
     df_conteo.columns.name = None
@@ -364,17 +398,9 @@ def long_a_wide_post2010(
         [f"resp_{normalizar_nombre(c)}" for c in df_resp.columns[1:]]
     )
 
-    # Columnas de enlace hacia olas anteriores (un valor por sub-hogar)
-    cols_disponibles = [c for c in id_extra if c in df.columns]
-    df_ids = (
-        df[[key_col] + cols_disponibles]
-        .groupby(key_col, as_index=False)
-        .first()
-    )
-
     wide = (
         df_conteo
-        .merge(df_ids,  on=key_col, how="left")
+        .merge(df_ids_universo, on=key_col, how="left")
         .merge(df_imp,  on=key_col, how="left")
         .merge(df_resp, on=key_col, how="left")
     )
@@ -400,6 +426,8 @@ def procesar_2010(tipo: str) -> pd.DataFrame:
     path = os.path.join(DATA_ROOT, "elca_2010", f"{tipo}Choques-csv.tab")
 
     df_raw = pd.read_csv(path, sep="\t", header=None)
+    hogares_universo = df_raw.iloc[:, 1].drop_duplicates()
+
     df_long = raw_2010_a_long(df_raw, BLOQUES_2010[tipo])
 
     df_long["choque"] = df_long["choque"].replace(CORRECCIONES_CHOQUES)
@@ -409,7 +437,7 @@ def procesar_2010(tipo: str) -> pd.DataFrame:
     # Fusionar Enfermedad/Accidente al nombre canónico unificado
     df_long["choque"] = df_long["choque"].replace(ARMONIZACION_CHOQUES)
 
-    return long_a_wide_2010(df_long, ola=1, zona=zona)
+    return long_a_wide_2010(df_long, ola=1, zona=zona, hogares_universo=hogares_universo)
 
 
 def procesar_2013(tipo: str) -> pd.DataFrame:
@@ -431,12 +459,20 @@ def procesar_2013(tipo: str) -> pd.DataFrame:
     df["choque"]     = df["choque"].replace(CORRECCIONES_CHOQUES).replace(ARMONIZACION_CHOQUES)
     df["hizo_princ"] = df["hizo_princ"].replace(CORRECCIONES_RESPUESTAS)
 
+    key_col, id_extra = "llave", ["consecutivo", "hogar"]
+    hogares_universo = df[key_col].drop_duplicates()
+    cols_disponibles = [c for c in id_extra if c in df.columns]
+    df_ids_universo = df[[key_col] + cols_disponibles].groupby(key_col, as_index=False).first()
+
     df = df[df["tuvo_choque"] == "SI"].copy()
 
     mes_cols = [c for c in df.columns if c.startswith("mes_")]
     df["conteo"] = df[mes_cols].notna().sum(axis=1).clip(lower=1)
 
-    return long_a_wide_post2010(df, ola=2, zona=zona, key_col="llave", id_extra=["consecutivo", "hogar"])
+    return long_a_wide_post2010(
+        df, ola=2, zona=zona, key_col=key_col, id_extra=id_extra,
+        hogares_universo=hogares_universo, df_ids_universo=df_ids_universo,
+    )
 
 
 def procesar_2016(tipo: str) -> pd.DataFrame:
@@ -460,6 +496,11 @@ def procesar_2016(tipo: str) -> pd.DataFrame:
     df["hizo_princ"]  = df["hizo_princ"].replace(CORRECCIONES_RESPUESTAS)
     df["tuvo_choque"] = df["tuvo_choque"].replace(CORRECCIONES_TUVO_CHOQUE_2016U)
 
+    key_col, id_extra = "llave_n16", ["consecutivo", "llave", "hogar_n16"]
+    hogares_universo = df[key_col].drop_duplicates()
+    cols_disponibles = [c for c in id_extra if c in df.columns]
+    df_ids_universo = df[[key_col] + cols_disponibles].groupby(key_col, as_index=False).first()
+
     df = df[df["tuvo_choque"] == "SI"].copy()
 
     veces_cols = [c for c in df.columns if c.startswith("veces_")]
@@ -467,7 +508,10 @@ def procesar_2016(tipo: str) -> pd.DataFrame:
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
     df["conteo"] = df[veces_cols].sum(axis=1).clip(lower=1)
 
-    return long_a_wide_post2010(df, ola=3, zona=zona, key_col="llave_n16", id_extra=["consecutivo", "llave", "hogar_n16"])
+    return long_a_wide_post2010(
+        df, ola=3, zona=zona, key_col=key_col, id_extra=id_extra,
+        hogares_universo=hogares_universo, df_ids_universo=df_ids_universo,
+    )
 
 
 # ─── Pipeline principal ───────────────────────────────────────────────────────
