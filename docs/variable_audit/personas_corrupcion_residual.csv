@@ -1,0 +1,295 @@
+columna,tipo,n_valores_residuales,ejemplo
+descripcion_ciiu,texto_libre_no_tocado,6505,
+cod_rama1,texto_libre_no_tocado,6238,
+des_rama1_ta,texto_libre_no_tocado,4876,
+descripcion_ciiu_2digitos,texto_libre_no_tocado,4574,
+descrip_activ1,texto_libre_no_tocado,4318,
+des_oficio2_ta,texto_libre_no_tocado,3292,
+cod_oficio2,texto_libre_no_tocado,3047,
+descripcion_cno_2digitos,texto_libre_no_tocado,2945,
+descrip_oficio1,texto_libre_no_tocado,2597,
+descripcion_cno,texto_libre_no_tocado,2198,
+vr_enfe,texto_libre_no_tocado,1856,
+vr_ult_hosp,texto_libre_no_tocado,1321,
+descrip_activ2,texto_libre_no_tocado,716,
+vr_ganancia1,texto_libre_no_tocado,615,
+descrip_oficio,texto_libre_no_tocado,613,
+descrip_oficio2,texto_libre_no_tocado,452,
+descrip_rama,texto_libre_no_tocado,323,
+oficio_trabajaba,texto_libre_no_tocado,279,
+vr_odon,texto_libre_no_tocado,269,
+vr_ganancia2,texto_libre_no_tocado,204,
+vr_acci,texto_libre_no_tocado,180,
+activ_especfq1,texto_libre_no_tocado,172,
+nombre_empresa,texto_libre_no_tocado,166,
+des_rama_trabajaba,texto_libre_no_tocado,164,
+noestudia_cual,texto_libre_no_tocado,132,
+descrip_rama_cual,texto_libre_no_tocado,99,
+simpatiza_parpol,texto_libre_no_tocado,59,
+descrip_oficio3,texto_libre_no_tocado,57,
+vr_ciru,texto_libre_no_tocado,56,
+rzn_negocio_cual1,texto_libre_no_tocado,55,
+activ_especfq2,texto_libre_no_tocado,42,
+ahorro_otro_cual,texto_libre_no_tocado,29,
+vr_ganancia3,texto_libre_no_tocado,27,
+noprof_serv_cual,texto_libre_no_tocado,21,
+vr_empleo2,texto_libre_no_tocado,21,
+rzn_dejoest_cual,texto_libre_no_tocado,13,
+razon_noacepto_cual,texto_libre_no_tocado,10,
+nivel_educ_2010,vocabulario_cerrado_sin_match,10,T�cnico sin t�tulo
+razon_dt_cual,texto_libre_no_tocado,9,
+tratar_acci,vocabulario_cerrado_sin_match,7,"Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud"
+cod_programa_2,vocabulario_cerrado_sin_match,7,"Apoyo a los estudiantes de colegiovas oficiales (transporte, �tiles, subsidios por asistencia,etc.)"
+cod_programa_1,vocabulario_cerrado_sin_match,7,Alimentaci�n escolar
+razon_retiro_in,vocabulario_cerrado_sin_match,7,Cierre o reestructuraci�n de la empresa
+tratar_odon,vocabulario_cerrado_sin_match,7,"Acudi� a un m�dico general, especialista particular u odont�logo"
+tratar_enfe,vocabulario_cerrado_sin_match,7,Se auto recet�
+razon_retiro_pt,vocabulario_cerrado_sin_match,7,Decidi� no trabajar m�s
+razon_db_cual,texto_libre_no_tocado,6,
+cr_actv_no1,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ta2,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ta5,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_ta3,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_ta4,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_ta6,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ta1,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ma4,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ma7,vocabulario_cerrado_sin_match,5,"Cuidado de ni�os y personas en el hogar: Cuidar los ni�os, cuidar ancianos, pers"
+cr_activ4_ta,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+cr_activ3_ma,vocabulario_cerrado_sin_match,5,Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud
+cr_activ5_ma,vocabulario_cerrado_sin_match,5,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda"
+cr_activ6_ma,vocabulario_cerrado_sin_match,5,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda"
+cr_activ1_ta,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+cr_activ2_ta,vocabulario_cerrado_sin_match,5,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda"
+cr_activ3_ta,vocabulario_cerrado_sin_match,5,Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud
+cr_activ2_no,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+cr_actv_ma5,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_activ3_no,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+ocupacion_cual1,vocabulario_cerrado_sin_match,5,10. Trabajador familiar sin remuneraci�n
+cr_actv_ma1,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ma2,vocabulario_cerrado_sin_match,5,"Cuidado de ni�os y personas en el hogar: Cuidar los ni�os, cuidar ancianos, pers"
+cr_actv_ma3,vocabulario_cerrado_sin_match,5,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+educ_madre,vocabulario_cerrado_sin_match,5,Algunos a�os de primaria
+educ_padre,vocabulario_cerrado_sin_match,5,Algunos a�os de primaria
+cr_actv_ta7,vocabulario_cerrado_sin_match,5,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_activ2_ma,vocabulario_cerrado_sin_match,5,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda"
+org_otra_cual,texto_libre_no_tocado,5,
+noprof_enfe,vocabulario_cerrado_sin_match,5,No tiene EPS o seguro m�dico
+ocupacion_tenia,vocabulario_cerrado_sin_match,5,Empleado dom�stico
+ocupacion_pt,vocabulario_cerrado_sin_match,5,Empleado dom�stico
+noprof_odon,vocabulario_cerrado_sin_match,5,Consult� antes y no le resolvieron el problema
+razon_tn_cual,texto_libre_no_tocado,5,
+cod_programa_3,vocabulario_cerrado_sin_match,5,Jardines infantiles de la Secretar�a de Integraci�n Social
+cr_activ1_no,vocabulario_cerrado_sin_match,4,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda"
+t_dejo_trabajar,vocabulario_cerrado_sin_match,4,Menos de 1 a�o
+noprof_acci,vocabulario_cerrado_sin_match,4,No tiene EPS o seguro m�dico
+cr_actv_ma6,vocabulario_cerrado_sin_match,4,"Cuidado de ni�os y personas en el hogar: Cuidar los ni�os, cuidar ancianos, pers"
+descrip_oficio4,vocabulario_cerrado_sin_match,4,"1. Labores agricolas (siembra, limpieza, fetilizaci�n, recolecci�n de cultivos"
+descrip_activ4,vocabulario_cerrado_sin_match,4,"Agricultura, ganader�a, caza, silvicultura y pesca"
+cr_activ5_no,vocabulario_cerrado_sin_match,4,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+cr_activ4_no,vocabulario_cerrado_sin_match,4,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+cotiza_fp,vocabulario_cerrado_sin_match,4,"Si est� cotizando, pero todav�a no es pensionado"
+cr_actv_no3,vocabulario_cerrado_sin_match,4,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+otro_mig_cual_1,texto_libre_no_tocado,4,
+cr_activ6_ta,vocabulario_cerrado_sin_match,4,"Cuidado del hogar como lavar, planchar,arreglar y ordenar ropa y calzado; hacer limpieza de la vivienda; cocinar; realizar compras, pagar servicios y facturas; cuidado del jard�n y animales dom�sticos; recoger agua; recoger le�a; reparar y hacer mantenimiento a veh�culos y motocicletas del hogar; reparaciones el�ctricas o locativas de la vivienda"
+cr_activ5_ta,vocabulario_cerrado_sin_match,4,Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud
+cr_actv_no2,vocabulario_cerrado_sin_match,4,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+razon_novivia,vocabulario_cerrado_sin_match,4,Otra raz�n
+cr_activ1_ma,vocabulario_cerrado_sin_match,4,Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud
+cr_activ4_ma,vocabulario_cerrado_sin_match,4,Cuidados personales como comer; dormir;ba�arse y vestirse;tratamientos de salud
+cr_actv_no4,vocabulario_cerrado_sin_match,4,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+jov_org_social,vocabulario_cerrado_sin_match,3,"S�, has hecho esto en los �ltimos 12 meses"
+jov_org_religiosa,vocabulario_cerrado_sin_match,3,"S�, has hecho esto en los �ltimos 12 meses"
+jov_org_cultural,vocabulario_cerrado_sin_match,3,"S�, has hecho esto en los �ltimos 12 meses"
+jov_org_depor,vocabulario_cerrado_sin_match,3,"S�, has hecho esto pero hace m�s de un a�o"
+pariente,vocabulario_cerrado_sin_match,3,C�nyuge o compa�era(o)
+descrip_oficio5,vocabulario_cerrado_sin_match,3,"3. Labores agropecuarias ( cultivar, cuidar animales,�)"
+fundo_negocio,vocabulario_cerrado_sin_match,3,�l(Ella) s�lo(a)
+angustia,vocabulario_cerrado_sin_match,3,No est� angustiado(a) ni deprimido(a)
+ocupacion_cual,texto_libre_no_tocado,3,
+irte_casa,vocabulario_cerrado_sin_match,3,SUCEDER�
+descrip_activ3,vocabulario_cerrado_sin_match,3,"Agricultura, ganader�a, caza, silvicultura y pesca"
+razon_noacepto,vocabulario_cerrado_sin_match,3,Salario no inclu�a prestaciones
+trabajo_estable,vocabulario_cerrado_sin_match,3,SUCEDER�
+crear_negocio,vocabulario_cerrado_sin_match,3,NUNCA SUCEDER�
+jov_org_comunid,vocabulario_cerrado_sin_match,3,"S�, has hecho esto pero hace m�s de un a�o"
+jov_org_etnica,vocabulario_cerrado_sin_match,3,"S�, has hecho esto pero hace m�s de un a�o"
+pais_nac,vocabulario_cerrado_sin_match,3,Espa�a
+jov_org_parpol,vocabulario_cerrado_sin_match,3,"S�, has hecho esto en los �ltimos 12 meses"
+tiempo_ncotiza,vocabulario_cerrado_sin_match,3,M�s de dos (2) a�os
+vivia_con,vocabulario_cerrado_sin_match,3,S�lo con la madre
+cr_actv_no7,vocabulario_cerrado_sin_match,3,"Cuidado de ni�os y personas en el hogar: Cuidar los ni�os, cuidar ancianos, pers"
+cr_actv_no6,vocabulario_cerrado_sin_match,3,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_no5,vocabulario_cerrado_sin_match,3,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+rzn_dejoestudiar,vocabulario_cerrado_sin_match,3,"Otra, �cu�l? __________________________"
+cr_actv_ta8,vocabulario_cerrado_sin_match,3,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cod_programa_4,vocabulario_cerrado_sin_match,3,Capacitaci�n y generaci�n de oportunidades de ingresos para mujeres madres en situaci�n de pobreza extrema
+pais_vivia,vocabulario_cerrado_sin_match,3,Per�
+jov_org_dhumanos,vocabulario_cerrado_sin_match,3,"S�, has hecho esto pero hace m�s de un a�o"
+recibia_pt,vocabulario_cerrado_sin_match,3,El salario m�nimo
+razon_nsfinan,vocabulario_cerrado_sin_match,3,Hay que hacer muchos tr�mites
+jov_org_ambiental,vocabulario_cerrado_sin_match,3,"S�, has hecho esto en los �ltimos 12 meses"
+tratar_problema,vocabulario_cerrado_sin_match,3,"Acudi� a un m�dico general, especialista particular u odont�logo"
+cr_actv_ma8,vocabulario_cerrado_sin_match,3,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_ganaba_in,vocabulario_cerrado_sin_match,3,M�s del salario m�nimo
+tratar_ciru,vocabulario_cerrado_sin_match,3,"Acudi� a un hospital, cl�nica, centro de salud u otra instituci�n de salud"
+ocupacion1,vocabulario_cerrado_sin_match,2,"Trabajador de su propia finca (propia, en arriendo o aparcer�a, etc. Independien"
+activ_especfq3,texto_libre_no_tocado,2,
+razon_nv_cual,texto_libre_no_tocado,2,
+ocupacion_tenia_cual,texto_libre_no_tocado,2,
+descrip_oficio6,vocabulario_cerrado_sin_match,2,"3. Labores agropecuarias ( cultivar, cuidar animales,�)"
+simpat_pol_cual,texto_libre_no_tocado,2,
+descrip_activ5,vocabulario_cerrado_sin_match,2,Comercio al por mayor y al por menor; reparaci�n de veh�culos automotores y moto
+cr_actv_ta11,vocabulario_cerrado_sin_match,2,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_activ6_no,vocabulario_cerrado_sin_match,2,"Ocio y recreaci�n como ver televisi�n de manera exclusiva; escuchar radio de manera exclusiva; hacer ejercicio, deporte o jugar; compartir con familiares o amigos; asistir a espect�culos culturales, teatro, cine, etc.; orar, meditar, participar en cultos religiosos; hacer otras cosas que le gusta; conexi�n a internet para diversi�n o esparcimiento"
+cr_actv_ta10,vocabulario_cerrado_sin_match,2,"Cuidado de ni�os y personas en el hogar: Cuidar los ni�os, cuidar ancianos, pers"
+cr_actv_ta9,vocabulario_cerrado_sin_match,2,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_ma9,vocabulario_cerrado_sin_match,2,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+ocupacion3,vocabulario_cerrado_sin_match,2,"Trabajador de su propia finca (propia, en arriendo o aparcer�a, etc. Independien"
+cr_actv_ma10,vocabulario_cerrado_sin_match,2,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_ma13,vocabulario_cerrado_sin_match,2,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+ocupacion5,vocabulario_cerrado_sin_match,2,Otro. Cu�l?
+bustrab_fh,vocabulario_cerrado_sin_match,2,"S�, en todos los meses"
+cargo_cr,vocabulario_cerrado_sin_match,2,"S�, en algunos meses"
+comprar_casa,vocabulario_cerrado_sin_match,2,SUCEDER�
+sss_porque,vocabulario_cerrado_sin_match,2,"Trabaja(�) como asalariado, independiente o es pensionado"
+cuidado_personal,vocabulario_cerrado_sin_match,2,Tiene algunos problemas para ba�arse y vestirse
+cred_cual,vocabulario_cerrado_sin_match,2,i. Pr�stamo de familiares
+afilia_cual,vocabulario_cerrado_sin_match,2,Est� afiliado a la cooperativa del distrito
+curso_otro_cual,vocabulario_cerrado_sin_match,2,Estamos juntos peque�in
+quien_cuida,vocabulario_cerrado_sin_match,2,Un  t�o(a)
+tiempo_trab,vocabulario_cerrado_sin_match,2,Entre un (1) a�o y dos
+razon_jornalero,vocabulario_cerrado_sin_match,2,Mejores pagos o m�s rentabilidad
+casarte,vocabulario_cerrado_sin_match,2,SUCEDER�
+tener_hijo,vocabulario_cerrado_sin_match,2,SUCEDER�
+termin_bachiller,vocabulario_cerrado_sin_match,2,SUCEDER�
+estudiar_carrera,vocabulario_cerrado_sin_match,2,SUCEDER�
+terminar_carrera,vocabulario_cerrado_sin_match,2,SUCEDER�
+tiempo_desemp,vocabulario_cerrado_sin_match,2,Entre un (1) a�o y dos
+comprar_carro,vocabulario_cerrado_sin_match,2,SUCEDER�
+noson_hogar,vocabulario_cerrado_sin_match,2,Por independencia econ�mica
+fuente_radio,vocabulario_cerrado_sin_match,2,No us�
+fuente_revistas,vocabulario_cerrado_sin_match,2,No us�
+fuente_diarios,vocabulario_cerrado_sin_match,2,No us�
+fuente_tv,vocabulario_cerrado_sin_match,2,Us�
+fuente_libros,vocabulario_cerrado_sin_match,2,No us�
+fuente_amigos,vocabulario_cerrado_sin_match,2,Us�
+fuente_internet,vocabulario_cerrado_sin_match,2,No us�
+ev_ning,vocabulario_cerrado_sin_match,1,No tuvo ning�n problema de salud
+fumo_ultimavez,vocabulario_cerrado_sin_match,1,Entre 7 meses y menos de  1 a�o
+razon_noahorra,vocabulario_cerrado_sin_match,1,Est� pagando una deuda
+ahorro_event,vocabulario_cerrado_sin_match,1,S�
+sindicato,vocabulario_cerrado_sin_match,1,S�
+org_ninguna,vocabulario_cerrado_sin_match,1,S�
+cod_programa_5,vocabulario_cerrado_sin_match,1,"Apoyo a los estudiantes de colegiovas oficiales (transporte, �tiles, subsidios por asistencia,etc.)"
+embarazada,vocabulario_cerrado_sin_match,1,S�
+parent_inform,vocabulario_cerrado_sin_match,1,"Servicio dom�stico, cuidandero y sus parientes"
+ult_hosp_cual,texto_libre_no_tocado,1,
+afilia_porque,vocabulario_cerrado_sin_match,1,"Est� afiliado a un r�gimen especial (Fuerzas Armadas, Polic�a Nacional, Ecopetrol, Magisterio, Universidades P�blicas)"
+razon_llego,vocabulario_cerrado_sin_match,1,Regres� al hogar
+noprof_problema,vocabulario_cerrado_sin_match,1,No sab�a que ten�a derecho
+adq_eps,vocabulario_cerrado_sin_match,1,S�
+tamano_tenia,vocabulario_cerrado_sin_match,1,50 personas y m�s
+adq_prg_gob,vocabulario_cerrado_sin_match,1,S�
+adq_icbf,vocabulario_cerrado_sin_match,1,S�
+adq_ong,vocabulario_cerrado_sin_match,1,S�
+pais_vivia5,vocabulario_cerrado_sin_match,1,Espa�a
+adq_cpropia,vocabulario_cerrado_sin_match,1,S�
+lugar_vivia5,vocabulario_cerrado_sin_match,1,En otro pa�s
+lugar_vivia,vocabulario_cerrado_sin_match,1,En otro pa�s
+dejoestudio,vocabulario_cerrado_sin_match,1,a�os
+lugar_nacimiento,vocabulario_cerrado_sin_match,1,En otro pa�s
+cr_actv_ta12,vocabulario_cerrado_sin_match,1,"Cuidado de ni�os y personas en el hogar: Cuidar los ni�os, cuidar ancianos, pers"
+pcuida_niveledu,vocabulario_cerrado_sin_match,1,Uno o m�s a�os de t�cnica o tecnol�gica
+tamano_pt,vocabulario_cerrado_sin_match,1,50 personas y m�s
+estaba_fp,vocabulario_cerrado_sin_match,1,S�
+informante,vocabulario_cerrado_sin_match,1,Encuestado id�neo
+razon_rpt_cual,texto_libre_no_tocado,1,
+regimen,vocabulario_cerrado_sin_match,1,"Especial (Fuerzas Armadas, Polic�a Nacional, Ecopetrol, Universidades P�blicas, Magisterio)"
+rec_nada,vocabulario_cerrado_sin_match,1,S�
+inc_libros,vocabulario_cerrado_sin_match,1,S�
+inc_salidasp,vocabulario_cerrado_sin_match,1,S�
+inc_otros,vocabulario_cerrado_sin_match,1,S�
+inc_solom,vocabulario_cerrado_sin_match,1,"S�, s�lo matr�cula"
+pinc_transp,vocabulario_cerrado_sin_match,1,S�
+pinc_aliment,vocabulario_cerrado_sin_match,1,S�
+pinc_otros,vocabulario_cerrado_sin_match,1,S�
+pinc_solop,vocabulario_cerrado_sin_match,1,S�
+lugar_ahorra_cual,texto_libre_no_tocado,1,
+beca_cual,vocabulario_cerrado_sin_match,1,10. Comit� de Cafeteros
+estaba_sss,vocabulario_cerrado_sin_match,1,S�
+cred_icetex,vocabulario_cerrado_sin_match,1,S�
+cred_cajacom,vocabulario_cerrado_sin_match,1,S�
+cred_banco,vocabulario_cerrado_sin_match,1,S�
+cred_emp_pub,vocabulario_cerrado_sin_match,1,S�
+cred_emp_pri,vocabulario_cerrado_sin_match,1,S�
+cred_fondo,vocabulario_cerrado_sin_match,1,S�
+cred_misma_ins,vocabulario_cerrado_sin_match,1,S�
+cred_otro,vocabulario_cerrado_sin_match,1,S�
+salario_insf,vocabulario_cerrado_sin_match,1,S�
+tam_empresa,vocabulario_cerrado_sin_match,1,50 personas y m�s
+medio_cons_cual,texto_libre_no_tocado,1,
+recibio_ganancia,vocabulario_cerrado_sin_match,1,No recibi�
+horario_nosirve,vocabulario_cerrado_sin_match,1,S�
+salario_nopresta,vocabulario_cerrado_sin_match,1,S�
+rzn_negocio_cual2,vocabulario_cerrado_sin_match,1,13. Es lo �nico que consigui�
+saben_amigos,vocabulario_cerrado_sin_match,1,S�
+saben_colegio,vocabulario_cerrado_sin_match,1,S�
+razon_negocio3,vocabulario_cerrado_sin_match,1,Por tradici�n familiar
+rec_ninguno3,vocabulario_cerrado_sin_match,1,S�
+rec_otros_pago3,vocabulario_cerrado_sin_match,1,S�
+rec_vivienda_pago3,vocabulario_cerrado_sin_match,1,S�
+rec_alimentos_pago3,vocabulario_cerrado_sin_match,1,S�
+ocupacion_cual3,vocabulario_cerrado_sin_match,1,10. Trabajador familiar sin remuneraci�n
+diria_que_partido,vocabulario_cerrado_sin_match,1,Vota por el mismo partido en la mayor�a de las elecciones
+afiliacion_fp3,vocabulario_cerrado_sin_match,1,S�
+segsoc_salud3,vocabulario_cerrado_sin_match,1,S�
+tipo_contrato3,vocabulario_cerrado_sin_match,1,Contrato escrito a t�rmino fijo
+diria_que_eleccion,vocabulario_cerrado_sin_match,1,Vota en la mayor�a de las elecciones
+razon_negocio2,vocabulario_cerrado_sin_match,1,Por tradici�n familiar
+crees_vivir,vocabulario_cerrado_sin_match,1,A�os
+rec_ninguno2,vocabulario_cerrado_sin_match,1,S�
+finan_educ_pago2,vocabulario_cerrado_sin_match,1,S�
+rec_vivienda_pago2,vocabulario_cerrado_sin_match,1,S�
+rec_alimentos_pago2,vocabulario_cerrado_sin_match,1,S�
+noson_hogar2,vocabulario_cerrado_sin_match,1,Por independencia econ�mica
+ocupacion_cual2,vocabulario_cerrado_sin_match,1,10. Trabajador familiar sin remuneraci�n
+razon_negocio1,vocabulario_cerrado_sin_match,1,Por tradici�n familiar
+rec_ninguno1,vocabulario_cerrado_sin_match,1,S�
+rec_otros_pago1,vocabulario_cerrado_sin_match,1,S�
+finan_educ_pago1,vocabulario_cerrado_sin_match,1,S�
+rec_vivienda_pago1,vocabulario_cerrado_sin_match,1,S�
+rec_alimentos_pago1,vocabulario_cerrado_sin_match,1,S�
+quisiera_vivir,vocabulario_cerrado_sin_match,1,A�os
+ocupacion4,vocabulario_cerrado_sin_match,1,"Trabajador de su propia finca (propia, en arriendo o aparcer�a, etc. Independien"
+vr_ganancia4,vocabulario_cerrado_sin_match,1,No recibi�
+razon_negocio4,vocabulario_cerrado_sin_match,1,Por tradici�n familiar
+saben_destas,vocabulario_cerrado_sin_match,1,S�
+ubica_inadecuada,vocabulario_cerrado_sin_match,1,S�
+noapto_trabajo,vocabulario_cerrado_sin_match,1,S�
+razon_personal,vocabulario_cerrado_sin_match,1,S�
+otra_rzn_nacepto,vocabulario_cerrado_sin_match,1,S�
+pobinactiva_cual,vocabulario_cerrado_sin_match,1,"10. Estudiar, aunque en el momento est� esperando cupo"
+cr_actv_ma14,vocabulario_cerrado_sin_match,1,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+cr_actv_ma12,vocabulario_cerrado_sin_match,1,"Cuidados personales como: Comer, dormir, ba�arse y vestirse, tratamientos de sal"
+cr_actv_ma11,vocabulario_cerrado_sin_match,1,"Ocio y recreaci�n como: Ver televisi�n de manera exclusiva, escuchar radio de ma"
+rzn_nosist_finan,vocabulario_cerrado_sin_match,1,El banco no siempre est� abierto cuando se necesita
+ahorro_mejoras,vocabulario_cerrado_sin_match,1,S�
+ahorro_deudas,vocabulario_cerrado_sin_match,1,S�
+ahorro_salud,vocabulario_cerrado_sin_match,1,S�
+ahorro_emerg,vocabulario_cerrado_sin_match,1,S�
+celular_vecinos,vocabulario_cerrado_sin_match,1,La mayor�a
+prestamo_vecino,vocabulario_cerrado_sin_match,1,La mayor�a
+motivo_mig_1,vocabulario_cerrado_sin_match,1,Regres� al hogar
+motivo_mig_2,vocabulario_cerrado_sin_match,1,Regres� al hogar
+cabec_migra_3,vocabulario_cerrado_sin_match,1,S�
+vr_ganancia6,vocabulario_cerrado_sin_match,1,No recibi�
+ocupacion6,vocabulario_cerrado_sin_match,1,"Trabajador de su propia finca (propia, en arriendo o aparcer�a, etc. Independien"
+motivo_mig_3,vocabulario_cerrado_sin_match,1,Regres� al hogar
+descrip_activ6,vocabulario_cerrado_sin_match,1,"Agricultura, ganader�a, caza, silvicultura y pesca"
+vr_ganancia5,vocabulario_cerrado_sin_match,1,No recibi�
+ocupacion_cual5,vocabulario_cerrado_sin_match,1,"TRABAJA EN BIENESTAR, GANA POR NI�O"
+color_piel,vocabulario_cerrado_sin_match,1,Ni�o no visto
+tipo_contrato5,vocabulario_cerrado_sin_match,1,Contrato escrito a t�rmino indefinido
+bebe_freq,vocabulario_cerrado_sin_match,1,No consumiste alcohol los �ltimos 12 meses
+es_bisnieto,vocabulario_cerrado_sin_match,1,S�

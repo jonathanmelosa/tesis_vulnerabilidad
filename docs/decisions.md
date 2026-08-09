@@ -1235,3 +1235,418 @@ vulnerables tienden a perderse mas). Tabla: `atricion_panel.csv`.
     arriba) es sistematicamente mas alta que la pobreza por ingreso -- vale
     la pena decirlo explicitamente en la tesis en vez de dejar que se lea
     como evidencia exclusiva de subreporte de ingreso.
+
+### 2026-08-08 (cont.) — Metodologia del modelo benchmark (pre-GSV):
+particion temporal, especificaciones de ingreso, y criterio de agregacion
+de covariables
+
+Definicion conjunta (discusion iterativa) de la metodologia del modelo
+predictivo benchmark -- el que se comparara despues contra la version que
+suma variables derivadas de fotos de Google Street View. Estas son
+decisiones de diseno tomadas HOY, no documentacion retroactiva de codigo
+ya escrito; el pipeline de construccion de features todavia no se ha
+implementado.
+
+**1. Poblacion de analisis: modelo de "entrada" condicional, no
+pobreza incondicional en t+1.** "Caer en pobreza" solo esta definido
+para hogares que NO eran pobres en el periodo base -- un hogar que ya era
+pobre en t no puede "entrar" en t+1, esa es la categoria "siempre pobre",
+no "entra en pobreza" (ver matrices de transicion, seccion de
+`build_pobreza_desagregaciones.py` mas arriba). El modelo se entrena y
+evalua exclusivamente sobre el subconjunto de hogares NO pobres en la ola
+base, con:
+
+    Y_{i,t+1} = 1[hogar i es pobre en t+1 | no pobre en t]
+
+Esto es exactamente la columna "entra en pobreza" vs. "nunca pobre" de
+las matrices de transicion ya construidas.
+
+**2. Particion entre las 3 olas.** Especificacion PRINCIPAL: entrenar con
+la transicion 2010->2013 (covariables de 2010, outcome observado en 2013)
+y evaluar out-of-sample con la transicion 2013->2016 (covariables de
+2013, outcome observado en 2016) -- holdout temporal hacia adelante, que
+replica el caso de uso real (solo existe la ola base al momento de
+predecir) y coincide con el `Strategy` ya declarado al inicio de este
+documento. Validacion interna (ajuste de hiperparametros) debe hacerse
+DENTRO del periodo de entrenamiento (2010->2013), sin tocar 2013->2016
+hasta la evaluacion final.
+
+Como ROBUSTEZ (mismo patron que los ejercicios de robustez de pobreza ya
+documentados), se agregan dos especificaciones secundarias, NO como
+resultado principal:
+  - **Reversa**: entrenar en 2013->2016, evaluar en 2010->2013. Un
+    backtest/placebo, no el escenario de despliegue real; informa si el
+    poder predictivo es simetrico.
+  - **Pooled con k-fold agrupado por hogar**: combinar ambas transiciones
+    (con dummy de periodo) y usar k-fold ALEATORIO PERO AGRUPADO POR
+    `consecutivo` (nunca por fila), para no filtrar informacion del mismo
+    hogar entre folds de entrenamiento y prueba. Da una estimacion de
+    desempeño con mas datos pero sacrifica validez temporal genuina (no
+    detecta *drift* macro entre periodos).
+
+Justificacion (discutida como panel economista de pobreza /
+econometrista / ML): el holdout temporal hacia adelante es el unico que
+prueba generalizacion real ante drift macro (regimenes economicos
+distintos 2010-2013 vs. 2013-2016); es standard en literatura de alerta
+temprana / credit scoring por la misma razon. El riesgo de un unico split
+es que da un solo punto de desempeño sin banda de incertidumbre sobre la
+generalizacion misma -- de ahi el valor complementario del pooled
+agrupado como robustez, no como reemplazo.
+
+**3. Ingreso/brecha a la LP como covariable: se corren AMBAS
+especificaciones y se comparan.** Modelo A incluye el nivel de
+ingreso/consumo per capita del periodo base (o la brecha a la LP) como
+predictor -- enfoque estandar de vulnerabilidad a la pobreza (Chaudhuri,
+Jalan y Suryahadi, 2002, ya citado en `paper/referencias.bib`): que tan
+cerca esta un hogar del umbral es el predictor mas informativo de
+cruzarlo. Modelo B excluye ingreso/gasto por completo (solo covariables
+no monetarias). Se comparan AUC-ROC/recall/F1 e importancia de variables
+(SHAP o permutation importance) entre A y B. Motivo adicional para hacer
+esta comparacion: establece el marco de referencia para la pregunta que
+vendra despues con las variables de GSV -- si el Modelo A domina casi
+por completo al B, la pregunta relevante para las variables geoespaciales
+pasa a ser "¿ayudan donde la brecha a la LP ya no distingue bien (hogares
+cerca del umbral)?" mas que "¿ayudan en general?".
+
+**4. Alcance de covariables: se busca incluir Personas, Niños,
+Comunidades y Choques ademas de Hogar/Ingreso/Gasto ya integrados.**
+Ninguno de estos 4 modulos esta hoy conectado a `04_features/`; hace
+falta construir scripts de features nuevos (patron
+`build_ingreso_hogar.py`) para cada uno.
+
+**5. Criterio para decidir que variables de estos modulos entran al
+benchmark, dado que ELCA sigue a la MISMA poblacion en el tiempo pero
+2010 no tiene una ola anterior dentro del panel.** Dos ejes distintos:
+
+  - **Eje 1 -- comparabilidad del CONSTRUCTO, no de la columna**: la
+    regla de construccion debe producir el mismo concepto medible en cada
+    ola base, aunque la pregunta/columna fuente difiera entre olas (igual
+    que ya se hizo para ingreso y gasto). No exige que exista la misma
+    columna en las 3 olas, exige que el RESULTADO sea equivalente.
+  - **Eje 2 -- disponibilidad en el momento del despliegue**: una
+    variable DINAMICA (cambio, tendencia, choque acumulado entre olas)
+    necesita una ola anterior para calcularse. 2010 es la primera ola del
+    panel -- no existe una ola previa contra la cual calcular un cambio
+    para la muestra de entrenamiento. Por construccion, NINGUNA variable
+    dinamica puede entrar al benchmark principal (estaria vacia para el
+    100% de la muestra de entrenamiento 2010->2013); esto no es una
+    preferencia, es una imposibilidad matematica dada la particion del
+    punto 2.
+
+  De estos dos ejes se deriva la regla de tres partes:
+    (a) **Nivel en t** (estado del hogar/persona/niño en la ola base) →
+        entra al benchmark si pasa el Eje 1.
+    (b) **Cambio o acumulado entre t-1 y t** → nunca entra al benchmark
+        principal (Eje 2); solo es calculable para la transicion
+        2013->2016 (2010 SI existe como "pasado" respecto a 2013).
+    (c) La riqueza longitudinal del panel no se pierde, se traslada a una
+        especificacion **"modelo dinamico"** aparte, entrenada y evaluada
+        UNICAMENTE dentro de la transicion 2013->2016 (la unica con una
+        ola previa real dentro del panel), reportada como comparacion
+        adicional, no como sustituto del benchmark principal. Mismo
+        patron que los ejercicios de robustez de pobreza ya documentados:
+        especificacion base + variantes, nunca se mezclan en un solo
+        resultado.
+
+**6. Reglas de agregacion Personas/Niños -> Hogar** (Comunidades no
+requiere agregacion, es un join/difusion por `consecutivo_c`+`ola`;
+Choques ya esta a nivel de hogar, solo requiere merge una vez resuelto el
+hallazgo de cobertura del punto 8):
+
+  - **Variables de conteo/composicion** (edad, sexo, parentesco): conteos
+    y proporciones directas (numero de niños <12, razon de dependencia
+    demografica), sin funcion de agregacion que elegir.
+  - **`any()`** ("al menos un miembro cumple X") cuando un solo caso ya
+    cambia la vulnerabilidad del hogar completo (ej. algun miembro con
+    discapacidad, algun desempleado) -- mecanismo economico de
+    contagio/arrastre, no se diluye.
+  - **Proporcion/tasa** cuando importa la intensidad, no la mera
+    presencia (ej. % de adultos con primaria incompleta o menos, tasa de
+    ocupacion del hogar).
+  - **Maximo** para capital humano disponible en el hogar (ej. nivel
+    educativo mas alto entre todos los miembros) -- el promedio diluye,
+    el maximo capta si existe el recurso.
+  - **Valor del jefe de hogar, SIN agregar** para las variables donde la
+    literatura de pobreza usa al jefe como proxy estandar (ya se hace
+    asi en `build_pobreza_desagregaciones.py` para sexo/edad/educacion
+    del jefe). Esto no sustituye las versiones agregadas de todo el
+    hogar, las complementa.
+  - **Restriccion del denominador ANTES de agregar**: las tasas de
+    mercado laboral (ocupacion, cotizacion) se calculan solo sobre
+    personas en **edad de trabajar, definida como 15+ años** (estandar
+    DANE/GEIH para Colombia, decidido explicitamente sobre las
+    alternativas de 12+ y 18+ para poder comparar magnitudes con
+    estadisticas oficiales de mercado laboral si hiciera falta). Incluir
+    niños en el denominador diluiria artificialmente la tasa.
+  - **Missing a nivel persona ≠ "no cumple la condicion"**: si una
+    persona tiene NaN en una variable (por filtro de edad en la pregunta
+    original, ej. `estado_civil` al 39% en ola 1), debe EXCLUIRSE del
+    denominador al agregar, no contarse como si no cumpliera. Riesgo
+    tecnico concreto: `Serie.any()`/`Serie.mean()` de pandas tratan NaN
+    de forma que puede introducir este error silenciosamente si no se
+    filtra explicitamente antes de agregar.
+
+**7. Inventario preliminar de candidatas por modulo** (primera pasada,
+sujeta a decision variable por variable):
+
+  - **Personas** -- candidatas limpias (**N**, nivel comparable ya):
+    `parentesco`, `sexo`, `edad` (100% cobertura las 3 olas),
+    `estado_civil` (39%/100%/100%, la brecha de ola 1 es filtro de edad
+    esperado, no problema de calidad), `ahorra` (39% identico en las 3
+    olas). Candidatas con **anomalia de cobertura sin explicar todavia**
+    (**⚠**, requieren investigacion antes de decidir): `nivel_educ`
+    (38%/58%/20%, cae en 2016), `etnia` (59%/66%/14%, cae fuerte en 2016),
+    `actividad_ppal` (20%/78%/80%, salto grande 2010->2013),
+    `ocupacion` (18%/30%/32%). Candidatas que **no existen en ola 1**
+    (**X**, excluidas del benchmark, candidatas solo a la especificacion
+    dinamica): `cotizando` (pension, 0% en 2010), `migra_ult3` (0% en
+    2010). Caso especial: `desempleado` existe SOLO en 2010 (14%, 0% en
+    2013/2016) -- lo opuesto del patron usual; si se quiere "desempleo"
+    como concepto comparable en las 3 olas hay que reconstruirlo desde
+    `actividad_ppal` (Eje 1: mismo constructo, columna fuente distinta
+    por ola), no usar la columna `desempleado` directamente.
+  - **Niños** (rango 6-9 años, unico comparable en las 3 olas) --
+    candidatas identificadas sin verificar aun cobertura especifica
+    dentro del subrango: `talla_cm`/`pesonino` (antropometria ->
+    desnutricion cronica/aguda), `come_frutas`/`come_verduras`/
+    `come_carnes` (calidad de dieta), `trabajo`/`trabajo_horas` (trabajo
+    infantil), `carne_vacunas` (esquema de vacunacion).
+  - **Comunidades** -- candidatas con cobertura verificada: `homicidios`
+    (91%/100%/100%), `seguridad` -percepcion- (91%/100%/100%),
+    `hay_desplazados`/`n_desplazados` (65%/70%/69%). Candidatas sin
+    verificar: `puesto_salud`, `obra_prioritaria*` (probablemente Eje 1,
+    categorias abiertas). Modulo de desastres (`inu_*`/`ava_*`/`desb_*`)
+    es **X** para 2010 si no tiene equivalente esa ola (agregado desde
+    2013, ver auditoria de comunidades mas arriba).
+  - **Choques -- HALLAZGO CRITICO, bloquea decision hasta resolver**: la
+    base consolidada de choques NO tiene una fila por cada hogar del
+    panel. De 9.853 hogares en 2010 solo 3.406 aparecen en la tabla de
+    choques (35%); en 2013, 6.067 de 8.729 (70%); en 2016, 6.160 de 8.086
+    (76%). Esto sugiere que el archivo solo incluye hogares que
+    reportaron AL MENOS UN choque, no todos los hogares con un vector de
+    ceros para "no tuvo ningun choque". Si se hiciera `merge` +
+    `fillna(0)` sin verificar esto, se asumiria silenciosamente que
+    ausencia de fila = "no tuvo choques", cuando podria significar un
+    filtro distinto o un problema de consolidacion. ANTES de usar
+    `choque_*` como feature hay que volver a los `.tab` crudos y
+    confirmar que significa la ausencia de fila para un hogar dado.
+    `imp_econ_*` sigue siendo **X** puro (no existe en 2010, ya
+    documentado). `resp_*` tiene cobertura en las 3 olas pero decreciente
+    (73%->52%->50%), candidata **A** con revision.
+
+**Proximos pasos acordados**: decidir variable por variable dentro de
+Personas primero (el modulo con mas candidatas **N** limpias y mas
+directamente ligado a vulnerabilidad -- composicion, educacion,
+ocupacion), dejando la verificacion de choques como tarea aparte antes de
+decidir si ese modulo entra al benchmark.
+
+### 2026-08-08 (cont.) — HALLAZGO CRITICO: corrupcion U+FFFD en
+personas_elca_longitudinal (mucho mas extendida de lo documentado) +
+03_clean/02_limpieza_base_personas.py
+
+Al construir la primera variable de composicion del hogar (conteo de
+niños/adultos mayores, sexo del jefe) se encontro que `parentesco` mezcla
+categorias corruptas y limpias como si fueran distintas (ej. "Jefe(a)"
+18.079 filas vs. "Jefe de hogar" 9.853 filas todo referido al mismo
+concepto entre olas, y "C�nyuge o compa�era(o)" 13.599 filas vs.
+"Cónyuge o compañera(o)" 6.037 -- el mismo concepto, corrupto en una ola y
+limpio en otra). Investigando el alcance real:
+
+**El problema es mucho mas grande de lo que documentaba
+`06_consolidacion_bases_personas.py`.** Ese script (y la auditoria
+retroactiva del 2026-08-08 anterior en este mismo documento) describian la
+corrupcion de 2013 como acotada a "texto libre y un par de etiquetas de
+opcion abierta". Con datos en mano: el caracter de reemplazo Unicode "�"
+(U+FFFD) aparece en **542 columnas** de `personas_elca_longitudinal.parquet`
+-- 180 en ola 1 (2010) y 435 en ola 2 (2013), ninguna en ola 3 (2016) --
+afectando 333.732 celdas en ola 1 y 680.756 en ola 2. Esto incluye
+columnas categoricas analiticamente importantes que se habian dado por
+limpias: `parentesco`, `etnia`, `afiliacion`, y muchas mas.
+
+**Causa raiz verificada contra los bytes crudos**: no es un problema de
+como se lee el archivo (una codificacion mal elegida se puede corregir
+re-leyendo). Se confirmo con `data/interim/raw/elca_2013/UPersonas-csv.tab`
+que la secuencia de bytes UTF-8 del caracter de reemplazo (EF BF BD) YA
+esta en el archivo que distribuye la ELCA -- es una perdida de informacion
+irreversible a nivel de caracter ocurrida antes de que este pipeline
+tuviera acceso al dato. La unica forma de recuperar el valor es por
+contexto (la misma categoria aparece limpia en otra fila/ola, o en el
+diccionario de la encuesta).
+
+**Alcance de la correccion aplicada, deliberadamente acotado**: de las 542
+columnas afectadas, 484 tienen vocabulario cerrado (<=25 categorias) y 58
+son de alta cardinalidad (texto libre: descripciones de oficio, nombres de
+programas sociales, etc. -- estas NO se tocan, mismo criterio que
+`ARMONIZACION_ARTICULOS`/`CORRECCIONES_2013` en otros modulos: no vale un
+diccionario de miles de palabras para campos que no se usan como
+categoria). Dentro del vocabulario cerrado:
+
+  1. **Correccion automatica y reproducible** (no una lista escrita a
+     mano): para cada valor corrupto de una columna, se construye un
+     patron donde cada "�" es un comodin de 1 caracter, y se busca si hay
+     EXACTAMENTE UN valor limpio de esa misma columna (en cualquier ola)
+     que calce. Si hay 0 o mas de 1 candidato, no se corrige --
+     deliberadamente conservador. Resultado: 322 de 956 valores corruptos
+     (34%) resueltos asi, en 241 columnas.
+  2. **Regla Si/Sí**: cuando el unico comodin resuelve a {"Si","Sí"}, se
+     usa "Sí" (grafia que la ELCA usa consistentemente en el resto del
+     cuestionario, igual que `SI_TOKENS` en `build_ingreso_hogar.py`).
+     Incluida en el conteo anterior.
+  3. **Correccion manual verificada** de las 5 variables priorizadas para
+     el modelo benchmark que la correccion automatica no pudo resolver:
+     `parentesco` (5 valores; cardinalidad 26, nunca entra al barrido
+     automatico), `ocupacion` (11 valores; cardinalidad 31, mismo caso),
+     `etnia` (1 valor residual), `nivel_educ` (1 valor residual),
+     `actividad_ppal` (6 valores residuales, uno de ellos truncado en la
+     fuente original -- se conserva el truncamiento, solo se corrige el
+     caracter). 24 valores en total, verificados contra ortografia
+     estandar del español. Se valida con `assert` que estas 5 columnas
+     queden en 0 valores "�" al terminar el script.
+
+**Lo que queda sin resolver, documentado (no oculto)**: 634 valores
+corruptos en 273 columnas de vocabulario cerrado que HOY no son
+candidatas para el benchmark no tienen ningun valor limpio equivalente en
+ningun lado del dataset para inferir la correccion -- resolverlos
+requeriria consultar los diccionarios PDF especificos de cada ola, columna
+por columna (un esfuerzo de dias, no justificado hoy para columnas que no
+se van a usar). Se guarda el inventario completo (334 columnas: 273
+vocabulario cerrado sin match + 58 texto libre no tocado) en
+`docs/variable_audit/personas_corrupcion_residual.csv`, para no tener que
+redescubrir el problema si alguna de esas columnas se necesita mas
+adelante.
+
+**Nota aparte, no U+FFFD**: `sexo` no tiene corrupcion de codificacion,
+pero SI tiene un problema de capitalizacion inconsistente entre olas
+("Mujer"/"Hombre" en unas filas, "MUJER"/"HOMBRE" en mayuscula en otras --
+se cuentan como 4 categorias en vez de 2 si no se normaliza). No se
+corrige en este script (es un problema de formato, no de perdida de
+informacion); se normaliza en el script de construccion de features de
+personas con `.str.title()`, mismo patron que ya usa
+`build_pobreza_desagregaciones.py` para `sexo_jefe`.
+
+**Script**: `src/03_clean/02_limpieza_base_personas.py`. Sigue el patron
+"vivo" de `01_limpieza_base_hogar.py` (una funcion por problema, documentado
+con el mismo nivel de detalle del porque). Input:
+`personas_elca_longitudinal.parquet`. Output:
+`personas_elca_longitudinal_clean.parquet` (mismas dimensiones,
+118.824 filas x 1.359 columnas -- esta limpieza no elimina filas ni
+columnas, solo corrige valores). A partir de ahora, cualquier script de
+`04_features/` que use el modulo de personas debe leer desde el archivo
+`_clean`, no desde el original.
+
+### 2026-08-08 (cont.) — Verificacion: ¿se esta perdiendo informacion
+valiosa en las 273 columnas sin resolver?
+
+Pregunta razonable dado que la correccion automatica es deliberadamente
+conservadora. Verificado con datos, no solo argumentado:
+
+  - **Magnitud real en celdas, no solo en columnas**: de las 1.014.488
+    celdas corruptas originales, la correccion (automatica + manual) ya
+    resolvio 526.817 (51.9%). Las ~487.671 restantes estan concentradas en
+    las 58 columnas de texto libre (descripciones de oficio, codigos CIIU,
+    razones de retiro escolar, costos de hospitalizacion) -- variables que
+    de todas formas iban a requerir un tratamiento aparte (categorizacion,
+    NLP) antes de poder usarse como predictor, independientemente de la
+    corrupcion. La perdida de informacion relevante para variables
+    CATEGORICAS de vocabulario cerrado es mucho menor a lo que sugiere el
+    conteo de columnas.
+  - **Chequeo cruzado contra las candidatas ya identificadas**: se cruzo
+    `personas_corrupcion_residual.csv` contra la lista de variables
+    candidatas para el benchmark identificada en la seccion anterior de
+    metodologia. Resultado: **3 SI aparecian** en el backlog
+    (`trabajo_padre`, `trabajo_madre`, `nivel_educ_cursa`) -- exactamente
+    el tipo de perdida silenciosa que la pregunta buscaba prevenir. Se
+    resolvieron de inmediato (13 valores mas, verificados contra
+    ortografia estandar, agregados a
+    `CORRECCIONES_MANUALES_PRIORITARIAS`), quedando en 0 valores "�". El
+    resto de candidatas ya identificadas (`etnia`, `nivel_educ`,
+    `actividad_ppal`, `cotizando`, `ahorra`, `desempleado`,
+    `migra_ult3`, `estado_civil`) NO aparecen en el backlog -- ya estaban
+    limpias o cubiertas.
+  - **Proceso hacia adelante, no solo una revision de una sola vez**: el
+    backlog CSV se trata como una LISTA DE VERIFICACION activa, no un
+    archivo que se escribe y se olvida. Regla operativa: antes de activar
+    cualquier variable nueva (de Personas o de cualquier otro modulo con
+    el mismo problema) como candidata del benchmark, se cruza contra el
+    reporte de corrupcion residual correspondiente; si aparece, se
+    resuelve en ese momento (mismo patron que los 8 casos ya resueltos),
+    nunca se usa una columna sin verificar primero. Esto acota el riesgo a
+    "columnas que nunca se llegan a usar" -- por definicion, esas no
+    afectan al modelo.
+
+### 2026-08-08 (cont.) — Auditoria completa de personas_elca_longitudinal
+(las 1.359 columnas, no solo las candidatas ya identificadas)
+
+El usuario pidio estar seguro al 100% de no perder informacion valiosa del
+modulo Personas -- mismo estandar de rigor que ya se aplico a
+`build_ingreso_hogar.py` (69 columnas auditadas) y `build_gasto_hogar.py`
+(88 articulos). Se genero el inventario completo, no solo de las
+candidatas identificadas hasta ahora.
+
+**Hallazgo metodologico previo, mas importante que el inventario mismo**:
+el criterio correcto de "¿esta columna puede ser feature del benchmark?"
+NO es "¿existe en las 3 olas?" sino **"¿existe en ola 1 Y ola 2?"** -- por
+el diseño ya acordado (ver seccion de metodologia del benchmark mas
+arriba), ola 1 y ola 2 son las UNICAS fuentes de features (bases de
+entrenamiento 2010->2013 y prueba 2013->2016); ola 3 solo aporta el
+resultado observado, nunca es fuente de predictores. Este criterio reduce
+el universo a auditar de 1.359 a 139 columnas reales, sin perder nada:
+el resto queda excluido por una razon estructural verificable, no por
+omision.
+
+**Clasificacion completa** (umbral de "presente" = >1% no-nulo en la ola),
+guardada en `docs/variable_audit/personas_hogar_construccion.csv`:
+
+  - `CANDIDATO_BENCHMARK` (139): presente en ola1 Y ola2.
+  - `EXCLUIDA_NO_EN_OLA1` (369): presente en ola2 (y quiza ola3) pero NO en
+    ola1 -- no se puede calcular para el hogar en la ola de entrenamiento.
+    Preguntas agregadas al cuestionario despues de 2010.
+  - `EXCLUIDA_NO_EN_OLA2` (310): presente en ola1 pero NO en ola2 -- no se
+    puede calcular para el hogar en la ola de prueba. Preguntas eliminadas
+    del cuestionario despues de 2010.
+  - `EXCLUIDA_CASI_VACIA` (427): menos de 1% de cobertura en las 3 olas;
+    193 de estas son 0% exacto en las 3 olas (columnas del esquema nunca
+    pobladas). Las otras 234 son preguntas con filtro muy restrictivo
+    (ej. "si recibio beca, de que tipo") -- casi ningun hogar cae en el
+    universo aplicable.
+  - `EXCLUIDA_SOLO_OLA3` (96): nueva en 2016, irrelevante para el
+    benchmark porque ola 3 nunca es fuente de features.
+  - `IDENTIFICADOR` (11): llaves ya usadas para el merge (`llave`,
+    `consecutivo`, `ola`, etc.), no son variables de contenido.
+  - `EXCLUIDA_OTRO_PATRON` (7): presentes en ola1 y ola3 pero no en ola2
+    (ej. `pareja_embarazo`, `primer_busca`) -- mismo motivo que
+    `EXCLUIDA_NO_EN_OLA2`.
+
+Suma verificada: 139+369+310+427+96+11+7 = 1.359, coincide exactamente con
+el total de columnas del archivo -- ninguna columna quedo sin clasificar.
+
+**Verificacion cruzada contra el backlog de corrupcion U+FFFD**: de las
+139 candidatas reales, 32 todavia aparecian en
+`personas_corrupcion_residual.csv` en el primer cruce -- es decir, el
+riesgo que el usuario señalaba (perder informacion sin darse cuenta) SI
+se habia materializado parcialmente hasta este punto. Se investigaron y
+corrigieron las 32 (24 de vocabulario cerrado con match unico verificado a
+mano, 5 mas de `razon_noestudia`, 9 de `razon_dejo_trab`, y 3 casos donde
+la "corrupcion" en realidad era un token categorico dentro de una columna
+mayormente numerica -- `vr_ganancia`/`vr_salario`="No recibió",
+`n_empleados`="50 personas y más", mismo patron que `ZERO_TOKENS` en
+`build_ingreso_hogar.py`). Total agregado a
+`CORRECCIONES_MANUALES_PRIORITARIAS`: 88 valores en 37 columnas.
+
+**Resultado final, verificado con una segunda pasada del cruce**: de las
+139 candidatas, **136 quedan 100% libres de corrupcion**. Las 3 restantes
+(`descripcion_ciiu`, `cod_oficio2`, `descrip_oficio`) se dejan
+deliberadamente sin resolver -- son texto libre de alta cardinalidad
+(208-531 valores distintos corruptos) que necesitarian categorizacion
+aparte para ser utilizables como predictor, independientemente de la
+corrupcion; no es una perdida de informacion analitica, es una decision de
+alcance ya tomada (mismo criterio que excluye las 58 columnas de texto
+libre del resto del modulo).
+
+**Conclusion para la pregunta de "¿estoy seguro al 100%?"**: si, en el
+sentido verificable -- cada una de las 1.359 columnas tiene un estado
+documentado (candidata limpia, candidata excluida por estructura de olas,
+o candidata con corrupcion residual explicada), no hay ninguna columna
+que se haya ignorado sin razon. Lo que queda pendiente (los ~600 valores
+residuales en las ~270 columnas fuera del pool de 139, mas las 3 de texto
+libre) esta acotado y documentado, no oculto.
