@@ -96,33 +96,38 @@
 Los sistemas de focalización de programas sociales en Colombia, como el
 SISBEN, identifican pobreza como un estado observado y no anticipan qué
 hogares no pobres tienen mayor riesgo de caer en esa condición. Este
-trabajo evalúa si variables geoespaciales públicas (iluminación nocturna
-satelital, OpenStreetMap, Google Street View) mejoran la predicción de la
+trabajo evalúa si información pública, particularmente, características del 
+entorno físico y económico local derivadas de imágenes provenientes
+de Google Street View, mejoran la predicción de la
 transición hacia la pobreza monetaria de hogares colombianos, frente a un
 modelo basado exclusivamente en la Encuesta Longitudinal Colombiana
-(ELCA). Usando las tres olas del panel (2010, 2013, 2016), se construye la
-variable de resultado como la caída en pobreza de hogares inicialmente no
-pobres y se estiman cinco algoritmos de aprendizaje supervisado
-(regresión logística regularizada, Random Forest, XGBoost, LightGBM y
-HistGradientBoosting) bajo un \emph{holdout} temporal hacia adelante
-(entrenamiento 2010$\to$2013, prueba 2013$\to$2016), con y sin variables
-monetarias del hogar. El modelo base --sin fuentes geoespaciales, que es
-lo que se reporta en esta versión del documento-- alcanza un AUC-ROC entre
-0.727 y 0.764 según el algoritmo, con una brecha de apenas 0.008--0.031
-entre la especificación que incluye ingreso/gasto del hogar y la que no lo
-hace, lo que sugiere que las covariables no monetarias capturan una
-fracción sustancial del poder predictivo típicamente atribuido al ingreso.
-La incorporación de las variables geoespaciales, contribución central de
-esta tesis, está en construcción. De confirmarse un aporte incremental,
-los resultados podrían fortalecer instrumentos de focalización con
-información de mayor frecuencia y menor costo de actualización que las
-encuestas de hogares tradicionales.
+(ELCA). Usando tres olas del panel (2010, 2013, 2016), se construye la 
+variable de resultado como la entrada en pobreza de hogares inicialmente 
+no pobres y se estiman distintos algoritmos de aprendizaje supervisado 
+(regresión logística regularizada, Random Forest, XGBoost, LightGBM y 
+GradientBoosting), evaluando su capacidad predictiva en un período 
+posterior al utilizado para su estimación: los modelos se entrenan con 
+las transiciones observadas entre 2010 y 2013 y se evalúan con las 
+transiciones entre 2013 y 2016. Este esquema permite evaluar el desempeño 
+de los modelos en datos temporalmente posteriores a aquellos utilizados 
+para su entrenamiento, aproximándose a su capacidad para anticipar 
+transiciones futuras hacia la pobreza. Los modelos se estiman con y sin 
+variables monetarias del hogar. El modelo base, que es lo que se reporta 
+en esta versión del documento, alcanza un AUC-ROC entre 0.727 y 0.764 
+según el algoritmo, con una brecha de apenas 0.008–0.031 entre la 
+especificación que incluye ingreso/gasto del hogar y la que no lo hace, 
+lo que sugiere que las covariables no monetarias capturan una fracción 
+sustancial del poder predictivo típicamente atribuido al ingreso. La 
+incorporación de las variables geoespaciales, contribución central de esta 
+tesis, está en construcción. De confirmarse un aporte incremental, los 
+resultados podrían fortalecer instrumentos de focalización con información 
+de mayor frecuencia y menor costo de actualización que las encuestas de 
+hogares tradicionales.
 
 \textbf{Palabras clave:} vulnerabilidad a la pobreza,
 aprendizaje de máquinas, datos geoespaciales, ELCA,
 focalización, Colombia.
 
-\noindent\textbf{Clasificación JEL:} I32, C55, O18, R12.
 \end{abstract}
 
 \newpage
@@ -153,12 +158,12 @@ ha desarrollado como un concepto clave para superar el carácter estático
 de algunos diagnósticos tradicionales \parencite{fujii2016}. En
 particular, \textcite{lopezCalva2011} muestran que entre los hogares que
 superan la línea de pobreza existe una población significativa que
-enfrenta una alta probabilidad de caer en ella ante perturbaciones
+enfrenta una alta probabilidad de caer en ella ante afectaciones
 moderadas, lo que hace necesario distinguir analítica y operativamente
 entre pobres, vulnerables y hogares con seguridad económica consolidada.
 
-Identificar qué hogares son vulnerables a caer en pobreza --antes de que
-ocurra la caída-- requiere información dinámica y actualizada sobre su
+Identificar qué hogares son vulnerables a caer en pobreza, antes de que
+ocurra la caída, requiere información dinámica y actualizada sobre su
 situación, algo que los sistemas tradicionales de focalización no están
 diseñados para proveer. En Colombia, el Sistema de Identificación de
 Beneficiarios de Programas Sociales (SISBEN) opera a través de una
@@ -175,26 +180,26 @@ de datos longitudinales reales sobre los hogares
 \parencite{gaitan2023,castaneda2012}.
 
 Esta tesis explota la disponibilidad de la Encuesta Longitudinal
-Colombiana (ELCA/ELCO), con tres olas de seguimiento a los mismos
+Colombiana (ELCA), con tres olas de seguimiento a los mismos
 hogares (2010, 2013 y 2016), para construir y comparar modelos
-predictivos de \emph{transición} hacia la pobreza monetaria --distinta
-de la pobreza contemporánea que predice la mayoría de la literatura de
-aprendizaje de máquinas aplicada a este problema
-\parencite{muneton2022,ferdausi2025}--. La pregunta de investigación que
-guía el trabajo es: ¿en qué medida la incorporación de variables del
-entorno físico y económico local derivadas de fuentes geoespaciales
-públicas (imágenes satelitales de iluminación nocturna, OpenStreetMap y
-Google Street View) mejora la predicción de caída en pobreza monetaria de
+predictivos de \emph{transición} hacia la pobreza monetaria. Este
+abordaje es distinto al de la literatura de la pobreza contemporánea 
+que predice la mayoría de la literatura de aprendizaje de máquinas 
+aplicada a este problema\parencite{muneton2022,ferdausi2025}--. 
+La pregunta de investigación que guía el trabajo es: 
+¿En qué medida la incorporación de variables del
+entorno físico y económico local derivadas de imágenes de 
+Google Street View mejora la predicción de caída en pobreza monetaria de
 hogares no pobres, frente a modelos basados exclusivamente en
-características socioeconómicas del hogar reportadas en la encuesta?
+características socioeconómicas del hogar reportadas en encuestas?
 
 El estado actual de este documento cubre la primera mitad de esa
 pregunta: la construcción rigurosa de la variable de resultado, la
 auditoría exhaustiva de las covariables socioeconómicas disponibles en
 la ELCA (más de 4.000 columnas originales revisadas variable por
 variable a través de cinco módulos), y la estimación y comparación de
-cinco algoritmos de aprendizaje supervisado --regresión logística
-regularizada, Random Forest, XGBoost, LightGBM y HistGradientBoosting--
+cinco algoritmos de aprendizaje supervisado: regresión logística
+regularizada, Random Forest, XGBoost, LightGBM y GradientBoosting--
 sobre el modelo \emph{base} (sin variables geoespaciales). La
 incorporación de las fuentes geoespaciales y la comparación frente al
 modelo extendido, que es la contribución central de la pregunta de
@@ -207,12 +212,11 @@ trabajo define explícitamente la variable de resultado en términos
 prospectivos (transición, no estado), usa una partición temporal hacia
 adelante fiel al caso de uso real de un sistema de focalización (entrenar
 con el pasado, evaluar en el futuro), y documenta de forma sistemática y
-verificable --no muestral-- la calidad y cobertura de cada covariable
+verificable la calidad y cobertura de cada covariable
 utilizada. Segundo, empírica: genera evidencia novedosa para Colombia
-sobre el desempeño relativo de distintos algoritmos de aprendizaje de
-máquinas en la predicción de transiciones a la pobreza, un problema no
-abordado directamente por la literatura existente aplicada al país
-\parencite{muneton2022}.
+sobre el aporte relativo de información geoespacial pública en la 
+predicción de transiciones a la pobreza, un problema no
+abordado directamente por la literatura existente aplicada al país.
 
 El resto del documento se organiza así. La Sección~\ref{sec:literatura}
 revisa el marco conceptual de vulnerabilidad a la pobreza y la literatura
@@ -246,7 +250,7 @@ paneles de hogares rurales en China, \textcite{jalan2000} muestran que la
 pobreza persistente se relaciona principalmente con limitaciones
 estructurales (bajos niveles de activos productivos o capital humano),
 mientras que la pobreza transitoria suele originarse en fluctuaciones del
-ingreso asociadas con choques económicos o eventos adversos. Esta
+ingreso asociadas con afectaciones (ej.choques económicos) o eventos adversos. Esta
 distinción tiene implicaciones directas para el diseño de política: los
 hogares crónicamente pobres requieren intervenciones orientadas a la
 acumulación de activos y el acceso a servicios, mientras que los hogares
@@ -258,23 +262,25 @@ severidad del choque sino de la capacidad del hogar para absorberlo.
 \textcite{dercon2000} documentan que los hogares en contextos rurales de
 bajos ingresos enfrentan variaciones sustanciales en bienestar ante
 choques idiosincráticos (enfermedad, pérdida de empleo, muerte de un
-activo productivo) y covariados (eventos climáticos extremos, caídas en
-precios agrícolas, crisis macroeconómicas). Esa capacidad de resiliencia
-está determinada por los activos físicos, humanos y sociales del hogar y
+activo productivo del hogar) y covariados (eventos climáticos extremos, 
+caídas en precios agrícolas, crisis macroeconómicas compartidos por todos). 
+Esa capacidad de resiliencia está determinada por los activos físicos, 
+humanos y sociales del hogar y
 por el entorno institucional en que opera. \textcite{christiaensen2005}
 refuerzan este punto al mostrar que en muchos países en desarrollo existe
 una población significativa de hogares no pobres pero altamente
 expuestos: su situación actual los ubica por encima de la línea de
 pobreza, pero su fragilidad patrimonial los hace vulnerables a caer ante
-perturbaciones moderadas. Esta población es precisamente la que los
+afectaciones moderadas. Esta población es precisamente la que los
 sistemas tradicionales de focalización tienen mayor dificultad para
 identificar, dado que no son pobres bajo el criterio estático.
 
 A partir de estos hallazgos se ha desarrollado la literatura sobre
 vulnerabilidad a la pobreza, que la conceptualiza como la probabilidad
 \emph{ex ante} de que un hogar experimente pobreza en el futuro. El
-enfoque seminal de \textcite{chaudhuri2002} propone estimar esa
-probabilidad a partir de la media y la varianza esperadas del consumo o
+enfoque seminal de \textcite{chaudhuri2002} y del que parte este trabajo, 
+propone estimar esa probabilidad a partir de la media y la varianza 
+esperadas del consumo o
 ingreso del hogar, definiendo la vulnerabilidad como la probabilidad de
 que el bienestar futuro caiga por debajo de la línea de pobreza.
 Desarrollos posteriores han refinado esta definición incorporando la
