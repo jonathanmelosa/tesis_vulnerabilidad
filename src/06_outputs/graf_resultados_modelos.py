@@ -80,7 +80,8 @@ def _guardar(fig: plt.Figure, nombre: str) -> None:
 
 
 def graf_auc_por_algoritmo(registro: pd.DataFrame) -> None:
-    """AUC-ROC de cada algoritmo, agrupado por especificacion (A/B)."""
+    """AUC-ROC medio (5 semillas) de cada algoritmo, agrupado por
+    especificacion (A/B), con barras de error del IC95."""
     fig, ax = plt.subplots(figsize=(7.5, 4.5))
     x = np.arange(len(ORDEN_ALGORITMOS))
     ancho = 0.35
@@ -90,35 +91,42 @@ def graf_auc_por_algoritmo(registro: pd.DataFrame) -> None:
     for i, espec in enumerate(["A", "B"]):
         sub = registro[registro["especificacion"] == espec].set_index("algoritmo").reindex(ORDEN_ALGORITMOS)
         offset = (i - 0.5) * ancho
-        barras = ax.bar(x + offset, sub["auc_roc"], width=ancho, color=colores[espec], label=etiquetas[espec])
-        for rect, valor in zip(barras, sub["auc_roc"]):
+        err = [sub["auc_roc_media"] - sub["auc_roc_ci95_low"], sub["auc_roc_ci95_high"] - sub["auc_roc_media"]]
+        barras = ax.bar(x + offset, sub["auc_roc_media"], width=ancho, color=colores[espec], label=etiquetas[espec],
+                         yerr=err, capsize=3, error_kw={"linewidth": 1, "ecolor": INK_SECUNDARIO})
+        for rect, valor in zip(barras, sub["auc_roc_media"]):
             ax.annotate(f"{valor:.3f}", (rect.get_x() + rect.get_width() / 2, valor),
-                        textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8, color=INK_SECUNDARIO)
+                        textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, color=INK_SECUNDARIO)
 
     ax.set_xticks(x)
     ax.set_xticklabels([NOMBRES_CORTOS[a] for a in ORDEN_ALGORITMOS], fontsize=9)
     ax.set_ylim(0.6, 0.82)
-    ax.set_ylabel("AUC-ROC (test, 2013→2016)")
-    ax.set_title("Desempeño de los 5 algoritmos por especificación")
+    ax.set_ylabel("AUC-ROC medio, 5 semillas (test, 2013→2016)")
+    ax.set_title("Desempeño de los 5 algoritmos por especificación\n(barras: IC95% sobre 5 semillas del ajuste final)")
     ax.legend(frameon=False, loc="upper right", fontsize=8.5)
     _guardar(fig, "01_auc_roc_por_algoritmo.png")
 
 
 def graf_metricas_umbral(registro: pd.DataFrame) -> None:
-    """Recall y precision (al umbral elegido por CV) por algoritmo, especificacion A."""
+    """Recall y precision medios (al umbral elegido por CV, 5 semillas) por
+    algoritmo, especificacion A."""
     sub = registro[registro["especificacion"] == "A"].set_index("algoritmo").reindex(ORDEN_ALGORITMOS)
     fig, ax = plt.subplots(figsize=(7.5, 4.5))
     x = np.arange(len(ORDEN_ALGORITMOS))
     ancho = 0.35
-    ax.bar(x - ancho / 2, sub["recall"], width=ancho, color=PALETA["aguamarina"], label="Recall")
-    ax.bar(x + ancho / 2, sub["precision"], width=ancho, color=PALETA["violeta"], label="Precision")
-    for i, (r, p) in enumerate(zip(sub["recall"], sub["precision"])):
-        ax.annotate(f"{r:.2f}", (x[i] - ancho / 2, r), textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8, color=INK_SECUNDARIO)
-        ax.annotate(f"{p:.2f}", (x[i] + ancho / 2, p), textcoords="offset points", xytext=(0, 4), ha="center", fontsize=8, color=INK_SECUNDARIO)
+    err_r = [sub["recall_media"] - sub["recall_ci95_low"], sub["recall_ci95_high"] - sub["recall_media"]]
+    err_p = [sub["precision_media"] - sub["precision_ci95_low"], sub["precision_ci95_high"] - sub["precision_media"]]
+    ax.bar(x - ancho / 2, sub["recall_media"], width=ancho, color=PALETA["aguamarina"], label="Recall",
+           yerr=err_r, capsize=3, error_kw={"linewidth": 1, "ecolor": INK_SECUNDARIO})
+    ax.bar(x + ancho / 2, sub["precision_media"], width=ancho, color=PALETA["violeta"], label="Precision",
+           yerr=err_p, capsize=3, error_kw={"linewidth": 1, "ecolor": INK_SECUNDARIO})
+    for i, (r, p) in enumerate(zip(sub["recall_media"], sub["precision_media"])):
+        ax.annotate(f"{r:.2f}", (x[i] - ancho / 2, r), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, color=INK_SECUNDARIO)
+        ax.annotate(f"{p:.2f}", (x[i] + ancho / 2, p), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, color=INK_SECUNDARIO)
     ax.set_xticks(x)
     ax.set_xticklabels([NOMBRES_CORTOS[a] for a in ORDEN_ALGORITMOS], fontsize=9)
-    ax.set_ylim(0, 0.85)
-    ax.set_ylabel("Proporción")
+    ax.set_ylim(0, 0.9)
+    ax.set_ylabel("Proporción (media, 5 semillas)")
     ax.set_title("Recall y precision al umbral elegido por validación cruzada (Modelo A)")
     ax.legend(frameon=False, loc="upper right", fontsize=8.5)
     _guardar(fig, "02_recall_precision_umbral.png")

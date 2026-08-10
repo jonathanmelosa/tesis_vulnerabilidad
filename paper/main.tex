@@ -108,7 +108,7 @@ HistGradientBoosting) bajo un \emph{holdout} temporal hacia adelante
 (entrenamiento 2010$\to$2013, prueba 2013$\to$2016), con y sin variables
 monetarias del hogar. El modelo base --sin fuentes geoespaciales, que es
 lo que se reporta en esta versión del documento-- alcanza un AUC-ROC entre
-0.727 y 0.764 según el algoritmo, con una brecha de apenas 0.017--0.030
+0.727 y 0.764 según el algoritmo, con una brecha de apenas 0.008--0.031
 entre la especificación que incluye ingreso/gasto del hogar y la que no lo
 hace, lo que sugiere que las covariables no monetarias capturan una
 fracción sustancial del poder predictivo típicamente atribuido al ingreso.
@@ -1150,38 +1150,50 @@ y \ref{subsec:desbalance}).
 \begin{table}[H]
   \centering
   \caption{Desempeño de los cinco algoritmos, holdout temporal
-  (train 2010$\to$2013, test 2013$\to$2016)}
+  (train 2010$\to$2013, test 2013$\to$2016). Media $\pm$ intervalo de
+  confianza al 95\% sobre 5 semillas del ajuste final}
   \label{tab:desempeno_modelos}
-  \begin{tabular}{llccccc}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llcccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{Recall} & \textbf{F1} \\
+    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Recall} & \textbf{F1} \\
     \midrule
-    Random Forest              & A & balanced  & 0.52 & 0.764 & 0.665 & 0.470 \\
-    XGBoost                    & A & ninguno   & 0.28 & 0.762 & 0.671 & 0.475 \\
-    HistGradientBoosting       & A & ninguno   & 0.23 & 0.759 & 0.745 & 0.461 \\
-    LightGBM                   & A & balanced  & 0.55 & 0.757 & 0.625 & 0.467 \\
-    Logística regularizada     & A & balanced  & 0.52 & 0.747 & 0.665 & 0.445 \\
+    Random Forest              & A & balanced  & 0.48 & 0.764 & [0.763, 0.764] & 0.732 & 0.473 \\
+    XGBoost                    & A & ninguno   & 0.26 & 0.763 & [0.761, 0.764] & 0.710 & 0.467 \\
+    HistGradientBoosting       & A & ninguno   & 0.23 & 0.759 & [0.759, 0.759] & 0.741 & 0.462 \\
+    LightGBM                   & A & balanced  & 0.53 & 0.758 & [0.758, 0.758] & 0.681 & 0.466 \\
+    Logística regularizada     & A & balanced  & 0.46 & 0.747 & [0.747, 0.747] & 0.752 & 0.438 \\
     \addlinespace
-    HistGradientBoosting       & B & balanced  & 0.44 & 0.740 & 0.715 & 0.444 \\
-    Logística regularizada     & B & balanced  & 0.48 & 0.739 & 0.704 & 0.433 \\
-    Random Forest              & B & balanced  & 0.49 & 0.739 & 0.674 & 0.447 \\
-    XGBoost                    & B & ninguno   & 0.27 & 0.735 & 0.658 & 0.444 \\
-    LightGBM                   & B & ninguno   & 0.23 & 0.727 & 0.742 & 0.435 \\
+    HistGradientBoosting       & B & balanced  & 0.47 & 0.740 & [0.740, 0.740] & 0.674 & 0.445 \\
+    Logística regularizada     & B & balanced  & 0.48 & 0.739 & [0.739, 0.739] & 0.697 & 0.435 \\
+    Random Forest              & B & balanced  & 0.48 & 0.739 & [0.738, 0.740] & 0.675 & 0.442 \\
+    XGBoost                    & B & ninguno   & 0.27 & 0.734 & [0.732, 0.735] & 0.665 & 0.442 \\
+    LightGBM                   & B & ninguno   & 0.25 & 0.727 & [0.727, 0.727] & 0.692 & 0.436 \\
     \bottomrule
   \end{tabular}
   \begin{minipage}{0.95\textwidth}
     \vspace{4pt}
     \footnotesize \textit{Nota:} umbral elegido por validación cruzada
-    maximizando F1 (Sección~\ref{subsec:desbalance}), no fijo en 0.5.
-    Fuente: cálculos propios, \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv}.
+    maximizando F1 en cada semilla (Sección~\ref{subsec:desbalance}), no
+    fijo en 0.5; se reporta el promedio de las 5 semillas. El IC95\% de
+    AUC-ROC captura únicamente la aleatoriedad propia del procedimiento de
+    ajuste (remuestreo interno del algoritmo) sobre el mismo conjunto de
+    prueba, con balanceo e hiperparámetros ya fijados
+    (Sección~\ref{subsec:desempeno}) -- es nulo o casi nulo para
+    HistGradientBoosting, LightGBM y la regresión logística porque, con
+    los hiperparámetros elegidos, su ajuste es determinístico dado el
+    conjunto de entrenamiento. Fuente: cálculos propios,
+    \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv}.
   \end{minipage}
 \end{table}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/01_auc_roc_por_algoritmo.png}
-  \caption{AUC-ROC de los cinco algoritmos por especificación, conjunto de
-  prueba 2013$\to$2016.}
+  \caption{AUC-ROC medio (5 semillas) de los cinco algoritmos por
+  especificación, conjunto de prueba 2013$\to$2016. Barras de error:
+  IC95\%.}
   \label{fig:auc_algoritmos}
 \end{figure}
 
@@ -1189,41 +1201,55 @@ Tres patrones se destacan. Primero, los cinco algoritmos quedan en un
 rango relativamente estrecho de AUC-ROC (0.727--0.764 en total, apenas
 0.747--0.764 dentro del Modelo A), con los tres \emph{gradient boosting} y
 Random Forest apenas por encima de la regresión logística regularizada
-(Figura~\ref{fig:auc_algoritmos}). La diferencia entre el algoritmo de
-mayor AUC-ROC (Random Forest, 0.764) y el tercero (HistGradientBoosting,
-0.759) es de apenas 0.005 --del orden de la variabilidad que ya se observó
-por puro azar en la comparación de estrategias de balanceo
-(Sección~\ref{subsec:desbalance})--, por lo que estos resultados no
-permiten afirmar que un algoritmo domine claramente a los demás; esa
-pregunta requiere repetir el ajuste final con múltiples semillas
-aleatorias e intervalos de confianza, ejercicio en curso al momento de
-escribir este documento (Sección~\ref{subsec:limitaciones}). Segundo, el
-ranking cambia según la métrica: HistGradientBoosting tiene el mayor
-recall en ambas especificaciones (0.745 en A, 0.715 en B) a costa de más
-falsos positivos, mientras que XGBoost tiene el mayor F1 en A. Esto
-sugiere que, más que declarar un ``mejor'' algoritmo único, la elección
-final debería depender de las preferencias de la institución que use el
-modelo para focalización --priorizar recall implica aceptar más errores
-de inclusión a cambio de menos errores de exclusión--.
+(Figura~\ref{fig:auc_algoritmos}). Reentrenar el modelo final de cada
+algoritmo con 5 semillas aleatorias (Sección~\ref{subsec:desbalance})
+--manteniendo fijos el balanceo y los hiperparámetros ya elegidos-- muestra
+que HistGradientBoosting, LightGBM y la regresión logística son
+prácticamente determinísticos bajo los hiperparámetros elegidos (desviación
+estándar del AUC-ROC $\approx$0 entre semillas), mientras que Random
+Forest y XGBoost sí tienen una variabilidad pequeña pero no nula
+(desviación estándar de 0.0005 y 0.0011, respectivamente), heredada del
+remuestreo \emph{bootstrap} y del submuestreo de observaciones/columnas
+que sus hiperparámetros óptimos activan. Con esa variabilidad, la ventaja
+de Random Forest (AUC-ROC 0.764) sobre XGBoost (0.763) en el Modelo A es
+marginal y sus intervalos de confianza casi se traslapan; la de ambos
+sobre HistGradientBoosting (0.759) es algo más clara. Es importante notar
+que este intervalo de confianza mide únicamente la aleatoriedad del propio
+procedimiento de ajuste sobre el mismo conjunto de prueba, no la
+incertidumbre muestral de la estimación del AUC-ROC en sí --una
+comparación formal entre algoritmos requeriría una prueba pareada (por
+ejemplo, de DeLong) sobre las predicciones del mismo conjunto de prueba,
+no realizada en este documento--. Con esa salvedad, la evidencia sigue sin
+señalar un algoritmo que domine de forma inequívoca a los demás. Segundo,
+el ranking cambia según la métrica: la regresión logística tiene el mayor
+recall del Modelo A (0.752), seguida de cerca por HistGradientBoosting
+(0.741), ambos a costa de más falsos positivos, mientras que Random
+Forest tiene el mayor F1 en ambas especificaciones (0.473 en A, 0.442 en
+B). Esto sugiere que, más que declarar un ``mejor'' algoritmo único, la
+elección final debería depender de las preferencias de la institución que
+use el modelo para focalización --priorizar recall implica aceptar más
+errores de inclusión a cambio de menos errores de exclusión--.
 
 Tercero, y más relevante para la pregunta de investigación de esta tesis:
 la brecha de AUC-ROC entre el Modelo A (con ingreso/gasto) y el Modelo B
-(sin ellos) es de apenas 0.017--0.030 según el algoritmo, mucho menor de
-lo que predeciría un enfoque de vulnerabilidad puramente monetario
+(sin ellos) es de 0.008 a 0.031 según el algoritmo (mínima en la
+regresión logística, máxima en LightGBM), mucho menor de lo que
+predeciría un enfoque de vulnerabilidad puramente monetario
 \parencite{chaudhuri2002}. Esto indica que las covariables no monetarias
 --educación, activos del hogar, vivienda, choques, características de la
 comunidad-- capturan una fracción sustancial del poder predictivo que
 aporta la brecha al umbral de pobreza, no son redundantes con ella. La
-Figura~\ref{fig:recall_precision} muestra recall y precision al umbral
-elegido para el Modelo A: el patrón de mayor recall en HistGradientBoosting
-frente a mayor precision en Random Forest y XGBoost se mantiene incluso
-tras corregir por el umbral de clasificación.
+Figura~\ref{fig:recall_precision} muestra recall y precision (media, 5
+semillas) al umbral elegido para el Modelo A: el patrón de mayor recall en
+la regresión logística y HistGradientBoosting frente a mayor precision en
+Random Forest y XGBoost se mantiene incluso tras corregir por el umbral de
+clasificación.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/02_recall_precision_umbral.png}
   \caption{Recall y precision al umbral de clasificación elegido por
-  validación cruzada, Modelo A.}
+  validación cruzada, Modelo A (media e IC95\%, 5 semillas).}
   \label{fig:recall_precision}
 \end{figure}
 
@@ -1344,13 +1370,18 @@ entrada a la pobreza --la variable de interés de esta tesis-- de 23.4\%
 entre 2010--2013 y de 19.9\% entre 2013--2016, con una tasa de salida que
 casi duplica a la de entrada en ambos periodos. Segundo, los cinco
 algoritmos evaluados alcanzan un desempeño similar entre sí (AUC-ROC entre
-0.727 y 0.764), sin que ninguno domine claramente a los demás dada la
-magnitud de las diferencias observadas, aunque los tres \emph{gradient
-boosting} y Random Forest superan de forma consistente a la regresión
-logística regularizada. Tercero, y más importante para el diseño de la
-etapa siguiente de esta tesis, la brecha de desempeño entre el modelo que
-incluye ingreso/gasto del hogar y el que no los incluye es sorprendentemente
-pequeña (0.017--0.030 en AUC-ROC): las covariables no monetarias
+0.727 y 0.764, con intervalos de confianza sobre 5 semillas del ajuste
+final que en la mayoría de los casos son nulos o casi nulos, ver
+Sección~\ref{subsec:desempeno}), sin que ninguno domine claramente a los
+demás. El patrón ni siquiera es consistente entre especificaciones: en el
+Modelo A los tres \emph{gradient boosting} y Random Forest superan a la
+regresión logística regularizada, pero en el Modelo B XGBoost y LightGBM
+caen por debajo de ella, y solo HistGradientBoosting y Random Forest se
+mantienen al mismo nivel o por encima. Tercero, y más importante para el
+diseño de la etapa siguiente de esta tesis, la brecha de desempeño entre
+el modelo que incluye ingreso/gasto del hogar y el que no los incluye es
+sorprendentemente pequeña (0.008--0.031 en AUC-ROC según el algoritmo):
+las covariables no monetarias
 --educación, activos, vivienda, choques, características de la
 comunidad-- explican una fracción sustancial del poder predictivo que, bajo
 el enfoque clásico de vulnerabilidad \parencite{chaudhuri2002}, se atribuiría
@@ -1401,15 +1432,13 @@ completar esta tesis, en orden de prioridad:
   la construcción de las variables de iluminación nocturna satelital y de
   OpenStreetMap contempladas en la propuesta original de este trabajo, que
   a la fecha no tienen ningún avance de implementación.
-  \item \textbf{Cuantificación de la incertidumbre del desempeño de los
-  modelos.} Las diferencias de AUC-ROC entre los algoritmos de la
-  Sección~\ref{subsec:desempeno} son pequeñas frente a la variabilidad
-  observada por azar en otros ejercicios de esta tesis (por ejemplo, en la
-  comparación de estrategias de balanceo de clases,
-  Sección~\ref{subsec:desbalance}). Está en curso un ejercicio que
-  reentrena cada modelo final con múltiples semillas aleatorias para
-  reportar intervalos de confianza sobre el AUC-ROC, indispensable antes
-  de afirmar que un algoritmo supera a otro.
+  \item \textbf{Prueba formal de diferencias entre algoritmos.} El
+  ejercicio de múltiples semillas de la Sección~\ref{subsec:desempeno}
+  cuantifica la variabilidad propia del procedimiento de ajuste de cada
+  algoritmo, pero no constituye una prueba estadística formal de que un
+  algoritmo supere a otro sobre el mismo conjunto de prueba (por ejemplo,
+  una prueba pareada de DeLong sobre las curvas ROC). Queda pendiente
+  implementarla antes de recomendar un algoritmo específico sobre otro.
   \item \textbf{Ejercicios de robustez de la especificación temporal.}
   Como se anticipó en la Sección~\ref{subsec:validacion}, quedan
   pendientes una especificación \emph{backtest} (entrenar en

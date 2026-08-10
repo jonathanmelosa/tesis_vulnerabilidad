@@ -3533,3 +3533,55 @@ Output: `src/05_model/modelo_utils.py` (logica compartida),
 lightgbm,histgradientboosting}.py`, `data/processed/benchmark_resultados/
 <algoritmo>/` (coeficientes o importancia de variables por modelo+especificacion),
 `data/processed/benchmark_resultados/registro_modelos.{csv,xlsx}`.
+
+## 2026-08-10: Re-corrida de la suite con multiples semillas + intervalos de confianza; paper actualizado
+
+Re-corrida de los 5 modelos con `evaluar_multiples_semillas` (5 semillas,
+balanceo/hiperparametros ya fijados por la corrida anterior, ver docstring
+de `modelo_utils.py`). Hallazgo relevante: HistGradientBoosting, LightGBM
+y la logistica regularizada resultan practicamente DETERMINISTICOS bajo
+los hiperparametros elegidos (desviacion estandar del AUC-ROC entre
+semillas ~0.0000) -- no usan submuestreo de filas/columnas en su
+configuracion optima, asi que el `random_state` no tiene ningun efecto.
+Random Forest y XGBoost si tienen variabilidad pequeña pero no nula (std
+0.0005 y 0.0011 respectivamente), heredada del bootstrap/subsample que si
+esta activo en sus hiperparametros ganadores.
+
+**Resultado actualizado** (media, 5 semillas; ver tabla completa en
+`registro_modelos.csv`):
+
+| Algoritmo | Espec. | Balanceo | Umbral (media) | AUC-ROC (media) | IC95% |
+|---|---|---|---|---|---|
+| Random Forest | A | balanced | 0.48 | 0.764 | [0.763, 0.764] |
+| XGBoost | A | ninguno | 0.26 | 0.763 | [0.761, 0.764] |
+| HistGradientBoosting | A | ninguno | 0.23 | 0.759 | [0.759, 0.759] |
+| LightGBM | A | balanced | 0.53 | 0.758 | [0.758, 0.758] |
+| Logistica regularizada | A | balanced | 0.46 | 0.747 | [0.747, 0.747] |
+| HistGradientBoosting | B | balanced | 0.47 | 0.740 | [0.740, 0.740] |
+| Logistica regularizada | B | balanced | 0.48 | 0.739 | [0.739, 0.739] |
+| Random Forest | B | balanced | 0.48 | 0.739 | [0.738, 0.740] |
+| XGBoost | B | ninguno | 0.27 | 0.734 | [0.732, 0.735] |
+| LightGBM | B | ninguno | 0.25 | 0.727 | [0.727, 0.727] |
+
+Los numeros de AUC-ROC media casi no cambian frente a la corrida de
+semilla unica (2026-08-09) -- confirma que esa corrida no era un
+artefacto de una semilla particular. Hallazgo nuevo: en la especificacion
+B el patron "gradient boosting/RF superan a la logistica" NO se sostiene
+-- XGBoost-B (0.734) y LightGBM-B (0.727) quedan POR DEBAJO de la
+logistica regularizada-B (0.739), solo HistGradientBoosting-B (0.740) y
+Random Forest-B (empatado, 0.739) igualan o superan. El IC95% reportado
+mide solo la aleatoriedad del propio procedimiento de ajuste sobre el
+mismo test set (no la incertidumbre muestral del AUC-ROC en si) -- no
+sustituye una prueba pareada formal (ej. DeLong) para comparar
+algoritmos, que queda pendiente.
+
+**Paper actualizado** (`paper/main.tex`): Tabla de desempeño (columna
+IC95% agregada), Figuras 01/02 de `graf_resultados_modelos.py`
+regeneradas con barras de error, parrafo de analisis en
+Seccion~5.2 corregido (ya no afirma que gradient boosting supera
+"consistentemente" a la logistica -- eso solo es cierto en Modelo A),
+brecha A-vs-B actualizada a 0.008-0.031 (antes 0.017-0.030), item de
+Limitaciones sobre "cuantificar incertidumbre" marcado como resuelto y
+reemplazado por "prueba formal de diferencias entre algoritmos"
+(pendiente). PDF compila limpio, 38 paginas, sin overfull ni referencias
+indefinidas.
