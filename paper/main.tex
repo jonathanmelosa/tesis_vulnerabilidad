@@ -849,11 +849,11 @@ distingue bien (hogares cerca del umbral) que en general.
 \label{subsec:validacion}
 
 La estimación usa las dos primeras olas de la ELCA como base de
-entrenamiento (transición 2010$\to$2013: covariables de 2010, resultado
+entrenamiento (transición 2010 a2013: covariables de 2010, resultado
 observado en 2013) y la tercera ola como conjunto de prueba, completamente
 independiente, para evaluar el desempeño predictivo fuera de muestra
-(transición 2013$\to$2016: covariables de 2013, resultado observado en
-2016). Este \emph{holdout} temporal hacia adelante replica el caso de uso
+(transición 2013 a 2016: covariables de 2013, resultado observado en
+2016). Este recurso temporal hacia adelante replica el caso de uso
 real de un sistema de focalización --solo existe la ola base al momento de
 predecir-- y es, siguiendo a \textcite{mcbride2018}, la validación más
 exigente para un modelo de este tipo porque prueba generalización ante un
@@ -861,15 +861,15 @@ régimen económico distinto al de entrenamiento. El ajuste de
 hiperparámetros de cada algoritmo (mediante \texttt{RandomizedSearchCV},
 15 combinaciones aleatorias, validación cruzada estratificada de 3
 particiones, optimizando AUC-ROC) se realiza estrictamente dentro del
-periodo de entrenamiento (2010$\to$2013); el conjunto de prueba
-(2013$\to$2016) no se toca hasta la evaluación final reportada en la
+periodo de entrenamiento (2010 a2013); el conjunto de prueba
+(2013 a 2016) no se toca hasta la evaluación final reportada en la
 Sección~\ref{subsec:desempeno}. Como ejercicios de robustez adicionales,
 planeados pero aún no ejecutados, se contempla invertir los roles de
 entrenamiento y prueba (\emph{backtest}) y agrupar ambas transiciones con
 validación cruzada agrupada por hogar (Sección~\ref{subsec:limitaciones}).
 
-El desempeño se reporta mediante AUC-ROC como métrica principal --no
-depende de un umbral de clasificación arbitrario-- y recall, precision y
+El desempeño se reporta mediante AUC-ROC como métrica principal, principalmente porque no
+depende de un umbral de clasificación arbitrario, además, recall, precision y
 F1 como métricas de referencia al umbral de clasificación elegido
 (Sección~\ref{subsec:desbalance}), junto con la matriz de confusión
 completa. El foco del análisis está en comparar el desempeño relativo
