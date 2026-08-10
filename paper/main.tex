@@ -179,7 +179,7 @@ la relevancia del problema como las restricciones que impone la ausencia
 de datos longitudinales reales sobre los hogares
 \parencite{gaitan2023,castaneda2012}.
 
-Esta tesis explota la disponibilidad de la Encuesta Longitudinal
+Esta tesis aprovecha la disponibilidad de la Encuesta Longitudinal
 Colombiana (ELCA), con tres olas de seguimiento a los mismos
 hogares (2010, 2013 y 2016), para construir y comparar modelos
 predictivos de \emph{transición} hacia la pobreza monetaria. Este
@@ -250,7 +250,8 @@ paneles de hogares rurales en China, \textcite{jalan2000} muestran que la
 pobreza persistente se relaciona principalmente con limitaciones
 estructurales (bajos niveles de activos productivos o capital humano),
 mientras que la pobreza transitoria suele originarse en fluctuaciones del
-ingreso asociadas con afectaciones (ej.choques económicos) o eventos adversos. Esta
+ingreso asociadas con choques económicos (ej. pérdida de empleo, caídas en precios) 
+o eventos adversos (ej. desastres naturales, conflictos). Esta
 distinción tiene implicaciones directas para el diseño de política: los
 hogares crónicamente pobres requieren intervenciones orientadas a la
 acumulación de activos y el acceso a servicios, mientras que los hogares
@@ -304,8 +305,8 @@ En el contexto colombiano, la aplicación de estos enfoques ha enfrentado
 restricciones de datos que han limitado su alcance. \textcite{castaneda2012}
 estudió las trampas de pobreza mediante la construcción de un
 pseudo-panel, y \textcite{gaitan2023} analizó la vulnerabilidad monetaria
-a nivel de localidades en Bogotá con el mismo enfoque, ante la ausencia de
-un panel de hogares con representatividad y cobertura suficiente; sus
+a nivel de localidades en Bogotá con el mismo enfoque, como una manera para 
+superar la ausencia de un panel de hogares con representatividad y cobertura suficiente; sus
 resultados --cerca del 23\% de la población bogotana en situación de
 vulnerabilidad en 2021-- confirman la relevancia del problema, pero
 también evidencian las restricciones que impone el uso de cortes
@@ -350,10 +351,14 @@ muestra, mediante validación cruzada y algoritmos como Random Forest y
 Quantile Regression Forest, puede mejorar sustancialmente la precisión de
 las herramientas de focalización, reduciendo la tasa de exclusión de
 hogares pobres y mejorando la precisión balanceada en hasta 17 puntos
-porcentuales frente a los métodos tradicionales --un resultado que motiva
-directamente el énfasis de esta tesis en la validación fuera de muestra
-mediante un holdout temporal hacia adelante (Sección~\ref{subsec:validacion})--.
-Este resultado debe matizarse con la advertencia de
+porcentuales frente a los métodos tradicionales. Siguiendo esta
+perspectiva, esta tesis evalúa el desempeño de los modelos fuera de la
+muestra mediante un \emph{holdout} temporal hacia adelante: los modelos se
+entrenan con información de períodos anteriores y se evalúan con
+información de un período posterior. De esta manera, la validación permite
+aproximarse mejor a la situación en la que el modelo se utilizaría en la
+práctica, es decir, para predecir la vulnerabilidad de hogares en un período
+futuro (Sección~\ref{subsec:validacion}). Este resultado debe matizarse con la advertencia de
 \textcite{usmanova2022}: los métodos de aprendizaje automático tienden a
 mejorar la predicción en contextos de alta dimensionalidad y relaciones
 no lineales entre variables, pero un modelo entrenado en un país no
@@ -363,11 +368,11 @@ sociales y culturales que no captura.
 El trabajo de \textcite{ferdausi2025} es el que más se aproxima
 conceptualmente al problema de la vulnerabilidad, al aplicar algoritmos de
 aprendizaje automático a datos de hogares en zonas costeras de Bangladesh
-para identificar predictores del estatus de ultra-pobreza, logrando una
+para identificar predictores de pobreza extrema, logrando una
 precisión del 96\% con un conjunto reducido de siete variables. Sus
 resultados revelan heterogeneidad significativa en los factores de
 vulnerabilidad entre grupos demográficos, pero el trabajo predice también
-un estado observado --ser ultra-pobre-- y no la probabilidad de transición
+un estado observado --ser pobre extremo-- y no la probabilidad de transición
 hacia la pobreza en un periodo futuro, lo que lo mantiene dentro de la
 misma limitación conceptual que caracteriza al resto de la literatura. En
 Colombia, \textcite{muneton2022} han aplicado aprendizaje de máquinas a la
@@ -413,8 +418,7 @@ aportan como en su mayor granularidad espacial y frecuencia de
 actualización, lo que las hace especialmente valiosas para actualizar
 sistemas de focalización entre levantamientos de encuestas -- la
 motivación directa de las fuentes geoespaciales que esta tesis busca
-incorporar (imágenes satelitales de iluminación nocturna, OpenStreetMap y
-Google Street View, Sección~\ref{subsec:geo}).
+incorporar (sección~\ref{subsec:geo}).
 
 \subsection{Síntesis y vacío que llena este trabajo}
 \label{subsec:gap}
@@ -435,12 +439,14 @@ condiciones del hogar como las del entorno en el momento previo a la
 transición.
 
 Es en esta brecha donde esta investigación busca contribuir, evaluando si
-la incorporación de fuentes geoespaciales públicas a los datos
-longitudinales de la ELCA permite mejorar la identificación de hogares en
-riesgo de caer en pobreza en Colombia. Es importante señalar que, en
-contextos de política pública, la predicción puede ser valiosa incluso en
-ausencia de interpretación causal, especialmente cuando el objetivo es
-mejorar la focalización \emph{ex ante} y no evaluar intervenciones. Por
+la incorporación de variables del entorno físico y económico local derivadas 
+de imágenes de Google Street View a los datos longitudinales de la ELCA 
+permite mejorar la identificación de hogares en riesgo de caer en pobreza 
+en Colombia. Es importante señalar que, en
+contextos de política pública, la predicción es valiosa incluso en
+ausencia de interpretación causal \textcite{Kleinberg2015}, especialmente 
+porque el objetivo es
+mejorar la focalización \emph{ex ante} de la política social. Por
 esta razón, este trabajo se sitúa en un enfoque predictivo más que causal,
 donde el objetivo no es identificar efectos estructurales sino mejorar la
 capacidad de anticipar transiciones hacia la pobreza con miras a mejorar
@@ -461,25 +467,24 @@ la focalización de políticas públicas de seguridad social.
 \label{subsec:elco}
 
 La fuente primaria de datos es la Encuesta Longitudinal Colombiana de la
-Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres
+Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres 
 olas: 2010, 2013 y 2016, en zonas urbana y rural. La ELCA se organiza en
-cinco módulos temáticos --Hogar, Personas, Niños (6 a 9 años), Comunidades
-y Choques-- además de los módulos de ingreso y gasto usados para construir
-la pobreza monetaria oficial (Sección~\ref{subsec:outcome}). El
+en módulos temáticos: hogar, personas, niños, comunidades
+y choques, además de los módulos de activos y gasto. El
 identificador de hogar cambia de nombre entre olas
-(\texttt{consecutivo}$\to$\texttt{llave}$\to$\texttt{llave\_n16}); todos
-los emparejamientos de esta tesis usan exclusivamente coincidencias uno a
+(\texttt{consecutivo}$\to$\texttt{llave}$\to$\texttt{llave\_n16}). Para los
+análisis realizados en esta tesis, se usan exclusivamente coincidencias uno a
 uno de este identificador entre olas consecutivas, excluyendo los hogares
-que se dividieron en dos o más sub-hogares (511 casos en 2010--2013 y
-1{,}190 en 2013--2016, ver Tabla~\ref{tab:matriz_transicion}), para no
-inventar un mapeo arbitrario entre sub-hogares.
+que se dividieron en dos o más sub-hogares (511 casos entre 2010--2013 y
+1{,}190 entre 2013--2016, ver Tabla~\ref{tab:matriz_transicion}), para no
+hacer supuestos de un mapeo arbitrario entre sub-hogares.
 
 Antes de construir cualquier covariable se realizó una auditoría
-sistemática, no muestral, de los cinco módulos (más de 4.000 columnas
+sistemática de los módulos de la encuesta (más de 4.000 columnas
 originales en total). La auditoría tuvo cuatro capas, replicadas de forma
-idéntica en cada módulo: (i) detección y corrección de corrupción de
-codificación de caracteres (el carácter Unicode de reemplazo U+FFFD y el
-literal \texttt{???}
+idéntica en cada módulo: (i) detección y corrección de signos y símbolos de
+codificación de caracteres (por ej. el carácter Unicode de reemplazo U+FFFD y el
+literal \texttt{"???"}
 en lugar de vocales acentuadas y la letra ñ, reconstruidos por coincidencia
 de patrón dentro de un vocabulario cerrado por columna, con rescate
 adicional contra los diccionarios en PDF de la encuesta para los casos
@@ -495,17 +500,17 @@ exclusión de cada variable derivadas de ella, están documentadas
 íntegramente en el repositorio del proyecto (\texttt{docs/decisions.md} y
 \texttt{docs/variable\_audit/}).
 
-El resultado es un panel hogar--ola consolidado de 27{,}932 observaciones
+El resultado es un panel hogar x ola consolidado de 27{,}932 observaciones
 (9{,}853 en 2010, 9{,}261 en 2013 y 8{,}818 en 2016) y 184 columnas, que
-combina las covariables construidas a partir de los cinco módulos con las
+combinan las covariables construidas a partir de los módulos con las
 variables monetarias (ingreso y gasto per cápita del hogar, nominal y real,
-brecha frente a la línea de pobreza). Para las variables agregadas de
-Personas y Niños al nivel de hogar se siguieron reglas explícitas y
+y brecha frente a la línea de pobreza). Para las variables de
+personas y niños agregadas al nivel de hogar se siguieron reglas explícitas y
 documentadas según el tipo de variable: conteos/proporciones para
-composición demográfica, \texttt{any()} cuando la presencia de un solo
+composición demográfica, conteo de "al menos uno" cuando la presencia de un solo
 miembro con una característica ya cambia la vulnerabilidad del hogar
 (por ejemplo, algún miembro con discapacidad), máximo para capital humano
-disponible (nivel educativo más alto del hogar), y el valor del jefe de
+disponible (ej.nivel educativo más alto del hogar), y el valor del jefe de
 hogar sin agregar cuando la literatura lo usa como proxy estándar. Las
 tasas de mercado laboral se calculan restringiendo el denominador a
 personas en edad de trabajar (15 años o más, siguiendo el estándar
@@ -515,40 +520,40 @@ denominador en vez de contarse como si no cumplieran la condición.
 \subsection{Fuentes geoespaciales}
 \label{subsec:geo}
 
-La propuesta de este trabajo contempla tres fuentes geoespaciales
-públicas complementarias a la ELCA: imágenes satelitales de iluminación
-nocturna (proxy de actividad económica local), datos de OpenStreetMap
-(densidad de infraestructura, accesibilidad a servicios y uso del suelo) e
-imágenes de Google Street View procesadas con técnicas de visión
-computacional (indicadores del entorno construido y calidad del barrio).
-Al momento de escribir este documento, únicamente el pipeline de Google
-Street View tiene avance de implementación; las fuentes de luminosidad
-nocturna y OpenStreetMap están en la etapa de diseño y no se han
-implementado aún (ver limitaciones, Sección~\ref{subsec:limitaciones}).
+Este trabajo utiliza imágenes de Google Street View disponibles públicamente. 
+Para esto, se usan las coordenadas de los hogares de la ELCA, que se encuentran 
+para consulta de manera estrictamente controlada y restringida por parte de la 
+Universidad de los Andes. 
+Estas imágenes son procesadas con técnicas de visión computacional, 
+a partir de las cuales se extraen variables usando \emph{transfer learning}, 
+metodología que se explica a continuación. 
+Las variables que se extraen de estas imágenes corresponden a indicadores 
+proxy del entorno construido y de calidad del barrio donde viven estos hogares.
+Al momento de escribir este documento, el pipeline de Google
+Street View tiene un avance casi total de implementación sobre las tres olas 
+de la ELCA, pero está en proceso de revisión de la anomización por parte de la 
+universidad.
 
-El pipeline de Google Street View (\texttt{src/01\_download/02\_scr\_GoogleStreetView/})
-es, deliberadamente, un linaje de datos independiente del usado para la
-pobreza monetaria: parte directamente de los archivos crudos de hogar, no
-de los parquets ya limpiados, porque su unidad de análisis es la
-coordenada geográfica del hogar, no sus respuestas de encuesta. Hasta
-ahora se ha construido: (i) un panel de coordenadas por hogar-ola, con
-fuente de coordenadas y validación de calidad distintas por ola (2010 y
+El pipeline de Google Street View es, deliberadamente, un grupo de variables independientes del usado para la
+estimación de pobreza monetaria y vulnerabilidad. Su unidad de análisis es la
+coordenada geográfica del hogar, independiente de las respuestas de estos en la encuesta. Hasta
+ahora se ha construido: (i) un panel de coordenadas por hogar-ola, con validación de calidad dada por ola (2010 y
 2013 traen coordenadas decimales directas y una variable de revisión
 manual; 2016 requiere reconstruir la coordenada desde componentes
 grados-minutos-segundos y solo se valida contra un \emph{bounding box} del
 territorio colombiano, una validación más débil); (ii) un análisis de
 cobertura de panoramas de la Metadata API de Google Street View en cuatro
-radios (50, 100, 200 y 400 metros), que documenta una limitación
+radios (50, 100, 200 y 500 metros), que documenta una limitación
 estructural de la API (retorna solo el panorama más cercano, no un listado
 completo, por lo que las variables de cobertura son indicadores de
 presencia y no conteos reales); (iii) la descarga reproducible de
-fotografías canónicas (640$\times$640 px) para el panel de hogares con
+fotografías formato de (640$\times$640 px) para el panel de hogares con
 coordenada válida presentes en las tres olas; y (iv) la extracción de
 \emph{embeddings} de imagen con tres modelos preentrenados sin
 \emph{fine-tuning} (VGG-19 y ResNet-50 sobre ImageNet, y ResNet-50 sobre
-Places365, este último especialmente relevante para escenas urbanas), más
-un esqueleto de extracción de \emph{embeddings} CLIP y de segmentación
-semántica con SAM~3. La agregación de estas variables de nivel imagen a
+Places365, este último especialmente relevante para escenas urbanas), 
+extracción de \emph{embeddings} CLIP y de segmentación
+semántica con SAM~3. La agregación de estas variables de cada imagen a
 nivel hogar$\times$ola, y su integración al dataset consolidado de la
 Sección~\ref{subsec:elco}, es la tarea inmediatamente siguiente en la
 agenda de este proyecto y no está reflejada en los resultados de la
@@ -557,31 +562,34 @@ Sección~\ref{sec:resultados}.
 \subsubsection{Transfer learning y modelos de extracción de variables visuales}
 \label{subsubsec:transfer_learning}
 
-Esta subsección explica, en términos no técnicos, qué es el \emph{transfer
+Esta subsección explica, qué es el \emph{transfer
 learning} y qué hace cada uno de los modelos usados para convertir una
 fotografía de Google Street View en información numérica utilizable en un
-modelo estadístico.
+modelo estadístico. 
 
-\paragraph{¿Qué es el \emph{transfer learning}?} Una red neuronal
-convolucional --el tipo de modelo usado para procesar imágenes-- aprende a
-reconocer patrones visuales (bordes, texturas, formas, objetos completos)
+{¿Qué es el \emph{transfer learning}?} Una red neuronal
+convolucional, que es el tipo de modelo usado para procesar imágenes, aprende a
+reconocer patrones visuales (bordes, texturas, formas, objetos completos) 
+a partir de la estimación de una probabilidad de dichos patrones de pertenecer 
+a una clase específica, a una etiqueta. En la práctica, esto significa
 mostrándole millones de fotografías ya etiquetadas y ajustando
 internamente millones de parámetros numéricos hasta que aprende a
-distinguir, por ejemplo, un perro de un carro. Entrenar una red así desde
+distinguir, por ejemplo, un árbol de un carro. Entrenar una red así desde
 cero para esta tesis --con fotografías de fachadas de vivienda en
 Colombia-- sería inviable: requeriría millones de fotos etiquetadas
 manualmente y semanas de cómputo especializado, recursos que no están
-disponibles para una investigación de este tipo. El \emph{transfer
-learning} (``aprendizaje por transferencia'') resuelve este problema
+disponibles para una investigación de este tipo. 
+
+El \emph{transfer learning} (``aprendizaje por transferencia'') resuelve este problema
 reutilizando una red que \emph{ya} fue entrenada por otros investigadores
-sobre un problema distinto pero relacionado --por ejemplo, reconocer 1.000
-categorías de objetos cotidianos en millones de fotos de internet-- y
+sobre un problema distinto pero relacionado, por ejemplo, reconocer 1.000
+categorías de objetos cotidianos en millones de fotos de internet, y
 aprovechando lo que esa red ya ``sabe ver'' sin volver a entrenarla. En
 concreto, se le muestra a la red ya entrenada cada fotografía de la ELCA y
-se le pide, no la clasificación final (``esto es un perro''), sino la
+se le pide, no la clasificación final (``esto es un árbol''), sino la
 representación numérica interna que la red construyó justo antes de tomar
-esa decisión --un vector de unos pocos miles de números, llamado
-\emph{embedding}--. Ese vector no es interpretable número por número, pero
+esa decisión, un vector de unos pocos miles de números, llamado
+\emph{embedding}. Ese vector no es interpretable número por número, pero
 funciona como una huella digital compacta de lo que hay en la imagen: dos
 fotos que se \emph{parecen} visualmente (misma textura de fachada, mismo
 tipo de calle, vegetación similar) van a tener \emph{embeddings} numéricamente
@@ -589,13 +597,18 @@ parecidos, aunque nunca se le haya enseñado a la red el concepto de
 ``pobreza'' o ``calidad del barrio''. Es esa propiedad --similitud visual
 se traduce en similitud numérica-- la que permite usar el \emph{embedding}
 como insumo (covariable) de los modelos predictivos de la
-Sección~\ref{subsec:modelos}, en vez de la imagen cruda. Los tres modelos
+Sección~\ref{subsec:modelos}, en vez de la imagen cruda. 
+
+Los tres modelos
 usados en esta tesis se dejan ``congelados'' --sin reentrenarlos ni
 ajustarlos con fotos colombianas (\emph{sin fine-tuning})--, lo cual es
-más barato computacionalmente, pero tiene una limitación importante que se
+menos demandante computacionalmente, pero tiene una limitación importante que se
 discute más abajo: la red ve las fotos de la ELCA con los mismos
 ``ojos'' con que fue entrenada originalmente, que no necesariamente están
-calibrados para el contexto colombiano.
+calibrados para el contexto colombiano. En otras palabras, la red puede no 
+reconocer bien patrones visuales que son relevantes para la pobreza en Colombia, 
+como asentamientos informales o tipologías constructivas propias de zonas rurales, 
+porque nunca los vio en su entrenamiento original.
 
 \paragraph{VGG-19 (entrenada sobre ImageNet).} ImageNet es una base de
 datos de referencia en visión computacional con más de un millón de fotos
@@ -606,11 +619,11 @@ cada una aplicando filtros simples y uniformes (ventanas de 3$\times$3
 píxeles) que, en conjunto, van desde detectar bordes y texturas simples en
 las primeras capas hasta reconocer objetos completos en las últimas. El
 \emph{embedding} usado es la salida de la penúltima capa, con 4.096
-números por imagen. \textbf{Ventaja}: arquitectura simple y ampliamente
+números por imagen. Tiene como ventaja que es una arquitectura simple y ampliamente
 validada en la literatura, lo que facilita comparar resultados con otros
-estudios. \textbf{Limitaciones}: es una arquitectura relativamente
+estudios. Su principal desventaja es que es una arquitectura relativamente
 pesada (más de 140 millones de parámetros) y antigua (2014) frente a las
-alternativas siguientes; al estar entrenada para reconocer \emph{objetos}
+alternativas siguientes. Adicionalmente, al estar entrenada para reconocer \emph{objetos}
 discretos (un perro, una silla), su noción de ``similitud visual'' está
 sesgada hacia la presencia de objetos reconocibles y no hacia el paisaje
 urbano como un todo (una calle pavimentada frente a una sin pavimentar no
@@ -630,57 +643,55 @@ saltarse capas cuando no aportan nada nuevo-- lo que permite entrenar
 redes de 50 capas (de ahí el nombre) de forma estable y con mejor
 precisión que VGG-19, usando además muchos menos parámetros (25 millones
 frente a 140 millones). El \emph{embedding} usado tiene 2.048 números por
-imagen. \textbf{Ventaja} frente a VGG-19: más preciso, más liviano
-computacionalmente, y un \emph{embedding} de menor dimensión (más
-manejable estadísticamente). \textbf{Limitación}: comparte con VGG-19 el
+imagen. Su princpal ventja frente a VGG-19 es que es más preciso, más liviano
+computacionalmente, y un \emph{embedding} de menor dimensión, por lo que es más
+manejable estadísticamente. \textbf{Limitación}: comparte con VGG-19 el
 mismo sesgo hacia el reconocimiento de objetos discretos en vez de
 escenas completas, por estar entrenada sobre la misma base de datos.
 
 \paragraph{ResNet-50 (entrenada sobre Places365).} Misma arquitectura que
-la anterior, pero entrenada sobre una base de datos distinta: Places365,
-con 1,8 millones de fotos etiquetadas en 365 categorías de \emph{escenas}
---no objetos individuales-- como ``calle residencial'', ``zona
+la anterior, pero entrenada sobre una base de datos distinta, Places365,
+con 1,8 millones de fotos etiquetadas en 365 categorías de \emph{escenas}, 
+no objetos individuales, como ``calle residencial'', ``zona
 industrial'', ``mercado al aire libre'' o ``autopista''. Esta diferencia
 es la más relevante de las tres para esta tesis: una fotografía de fachada
 de vivienda es, ante todo, una escena urbana completa, no un objeto
 aislado, por lo que un modelo entrenado para distinguir \emph{tipos de
 lugar} está más alineado conceptualmente con lo que se busca medir
---calidad y características del entorno construido-- que uno entrenado
-para distinguir razas de perro. \textbf{Ventaja}: mayor pertinencia
-semántica para el problema de esta tesis, sin costo computacional
+--calidad y características del entorno construido, que uno entrenado
+para distinguir, por ejemplo, perros de gatos. Su mayor ventaja es la
+pertinencia semántica para el problema de esta tesis, sin costo computacional
 adicional frente a la versión ImageNet (misma arquitectura, mismo tamaño
-de \emph{embedding}). \textbf{Limitación}: las 365 categorías de Places365
-fueron definidas y etiquetadas mayoritariamente sobre fotografías de
-Estados Unidos y Europa; es una base de datos de dominio distinto al
-colombiano, y no es evidente que sus categorías (o los patrones visuales
-que la red aprendió a asociar con ellas) capturen bien fenómenos
+de \emph{embedding}). Por su lado, su principal desventaja es que las 
+365 categorías de Places365 fueron definidas y etiquetadas mayoritariamente 
+sobre fotografías de Estados Unidos y Europa; es una base de datos de dominio distinto al
+colombiano, y no es evidente que sus categorías o los patrones visuales
+que la red aprendió a asociar con ellas capturen bien fenómenos
 específicos del contexto local, como asentamientos informales o
-tipologías constructivas propias de zonas rurales colombianas --el mismo
+tipologías propias de zonas rurales colombianas, este es el mismo
 riesgo de generalización entre contextos documentado por
 \textcite{usmanova2022} para modelos de aprendizaje automático en general
 (Sección~\ref{subsec:ml_pobreza})--.
 
-\paragraph{Trabajo en esqueleto, aún no implementado: CLIP y SAM~3.} Dos
-modelos adicionales están contemplados en el diseño del pipeline pero no
-tienen código funcional todavía (Sección~\ref{subsec:limitaciones}). CLIP
-(\emph{Contrastive Language-Image Pretraining}) es un modelo entrenado no
-para clasificar imágenes en una lista fija de categorías, sino para
-relacionar imágenes con descripciones de texto libre --aprendió, a partir
-de cientos de millones de pares foto-descripción tomados de internet, a
-ubicar imágenes y frases en un mismo espacio numérico compartido--. Esto
+\paragraph{CLIP y SAM~3.} CLIP (\emph{Contrastive Language-Image Pretraining}) 
+es un modelo entrenado no para clasificar imágenes en una lista fija de categorías, sino para
+relacionar imágenes con descripciones de texto libre. Esta red "aprendió" a partir
+de cientos de millones de pares: fotos y su descripción, tomados de internet. Es decir, a partir
+ubicar imágenes y frases en un mismo espacio numérico compartido. Esto
 permitiría, por ejemplo, buscar directamente qué tan bien una fotografía
 coincide con una descripción como ``una calle sin pavimentar con
 viviendas de materiales precarios'', sin depender de una lista cerrada de
-categorías como las de ImageNet o Places365 --una flexibilidad relevante
+categorías como las de ImageNet o Places365. Esta flexibilidad es relevante
 para capturar nociones de vulnerabilidad del entorno que no encajan
-naturalmente en ninguna categoría predefinida--. SAM~3 (\emph{Segment
+naturalmente en ninguna categoría predefinida. SAM~3 (\emph{Segment
 Anything Model}) resuelve un problema distinto: en vez de resumir toda la
 imagen en un único vector de números, identifica y delinea los objetos y
 regiones individuales dentro de ella (la acera, un vehículo, la fachada,
 la vegetación), lo que permitiría construir variables directamente
-interpretables --como el porcentaje del área de la imagen cubierta por
-pavimento o por zonas verdes-- en lugar de depender de un \emph{embedding}
-opaco. Ninguno de los dos aporta todavía resultados a esta tesis.
+interpretables, como el porcentaje del área de la imagen cubierta por
+pavimento o por zonas verdes, en lugar de depender de un \emph{embedding}
+opaco. Ninguno de los dos aporta todavía resultados a esta tesis y es 
+la única parte que no ha sido implementada aún.
 
 \subsection{Estadísticas descriptivas}
 \label{subsec:desc}
@@ -724,7 +735,7 @@ Sección~\ref{subsec:desbalance}).
 Las matrices de transición de pobreza (Tabla~\ref{tab:matriz_transicion},
 Sección~\ref{subsec:transiciones}) constituyen la estadística descriptiva
 central de la variable de resultado y se presentan en la Sección de
-Resultados junto con su interpretación, para no duplicar contenido.
+Resultados junto con su interpretación.
 
 % ============================================================
 % SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
@@ -748,10 +759,10 @@ de un hogar en la ola inicial $t$ (filas) contra su estado en la ola
 siguiente $t+1$ (columnas), usando el ingreso per cápita del hogar contra
 la línea de pobreza (LP) oficial del DANE, específica por año y zona
 (urbana/rural). El análisis empírico se restringe a la submuestra de
-hogares que se encuentran por encima de la LP en el periodo inicial $t$
---un hogar que ya es pobre no puede ``caer'' en pobreza, esa es la
-categoría \emph{siempre pobre}, no \emph{entra en pobreza}--. Sobre esta
-población se define la variable dependiente binaria
+hogares que se encuentran por encima de la LP en el periodo inicial $t$. 
+En otras palabras,un hogar que ya es pobre no puede ``caer'' en pobreza, 
+esa corresponde a la categoría \emph{siempre pobre}, no \emph{entra en pobreza}. 
+Sobre esta población se define la variable dependiente binaria
 
 \begin{equation}
   \text{CaidaPobreza}_{i,t+1} =
@@ -768,7 +779,7 @@ pobreza en el periodo siguiente dada la información observada en $t$
 usa exclusivamente coincidencias uno a uno del identificador de hogar
 (Sección~\ref{subsec:elco}); los hogares que se dividieron entre olas se
 excluyen de la construcción de la variable de resultado por no tener un
-estado inicial y final inequívoco. Las matrices de transición resultantes,
+estado inicial y final únicos. Las matrices de transición resultantes,
 su interpretación, y los cinco ejercicios de robustez realizados sobre
 esta construcción (ponderación muestral, especificación del ingreso,
 sensibilidad al umbral de pobreza, atrición del panel) se presentan en la
@@ -798,9 +809,8 @@ las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
   (\emph{elastic net}), cuya fuerza ($C$) y mezcla ($l_1\_ratio$) se
   eligen por validación cruzada en vez de fijarse \emph{a priori} como
   Lasso o Ridge puro. Es el algoritmo designado como referencia por ser
-  el estándar de facto en la literatura de vulnerabilidad a la pobreza
-  --interpretable, con coeficientes de signo económicamente
-  interpretable-- y por servir de punto de comparación obligado antes de
+  interpretable, con coeficientes de signo económicamente interpretable, 
+  y por servir de punto de comparación antes de
   justificar el uso de un modelo más complejo.
   \item \textbf{Random Forest.} Promedio de árboles de decisión
   entrenados sobre muestras \emph{bootstrap} independientes del conjunto
@@ -808,11 +818,10 @@ las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
   covariables sin necesidad de especificarlas manualmente, con menor
   varianza que un árbol individual.
   \item \textbf{XGBoost, LightGBM y HistGradientBoosting.} Tres
-  implementaciones de \emph{gradient boosting} de árboles --el algoritmo
-  explícitamente recomendado por la propuesta de este trabajo por su
-  balance entre desempeño e interpretabilidad, y uno de los más usados en
-  la literatura de focalización de pobreza \parencite{mcbride2018}--, que
-  difieren en el algoritmo de construcción del histograma de particiones
+  implementaciones de \emph{gradient boosting} de árboles. Este algoritmo
+  es sobresaliente por su balance entre desempeño e interpretabilidad, 
+  y uno de los más usados en la literatura de focalización de pobreza 
+  \parencite{mcbride2018}--, que difieren en el algoritmo de construcción del histograma de particiones
   (\emph{level-wise} en XGBoost y HistGradientBoosting,
   \emph{leaf-wise} en LightGBM) y en el mecanismo de regularización. Las
   tres manejan de forma nativa tanto los datos faltantes como las
@@ -823,14 +832,15 @@ las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
 Para evaluar el aporte relativo del nivel de ingreso/gasto del hogar
 --el predictor más informativo bajo el enfoque de vulnerabilidad de
 \textcite{chaudhuri2002}, que compara qué tan cerca está un hogar del
-umbral de pobreza-- se estima cada uno de los cinco algoritmos bajo dos
+umbral de pobreza, se estima cada uno de los cinco algoritmos bajo dos
 especificaciones de covariables: el \textbf{Modelo A} incluye el ingreso y
 gasto per cápita real del hogar en el periodo base y la brecha frente a la
-LP (escala-invariante, no requiere deflactar); el \textbf{Modelo B}
+Línea de Pobreza (LP), de escala-invariante por lo que se mantiene constante
+a lo largo del tiempo; el \textbf{Modelo B}
 excluye estas cuatro columnas y usa exclusivamente covariables no
-monetarias (demografía, educación, activos, vivienda, choques,
-comunidad). Este ejercicio --diez modelos en total, cinco algoritmos por
-dos especificaciones-- establece además el marco de referencia frente al
+monetarias (ej. demografía, educación, activos, vivienda, choques,
+comunidad). Este ejercicio, diez modelos en total (cinco algoritmos por
+dos especificaciones) establece además el marco de referencia frente al
 cual se evaluará, en una etapa posterior de este proyecto, si las
 variables geoespaciales aportan más donde la brecha a la LP ya no
 distingue bien (hogares cerca del umbral) que en general.
