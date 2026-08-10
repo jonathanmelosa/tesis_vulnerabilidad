@@ -76,6 +76,26 @@ balanceo. `N_ITER_BUSQUEDA=15` iteraciones aleatorias, `CV_FOLDS=3`
 (StratifiedKFold) -- valores elegidos por costo computacional (no se
 consultaron con el usuario explicitamente; documentados aqui para que
 pueda pedir ajustarlos si el tiempo de computo lo permite).
+
+Umbral de clasificacion -- CONFIRMADO CON EL USUARIO (hallazgo de la
+primera corrida)
+--------------------------------------------------------------------------
+En la primera corrida de la suite, XGBoost y LightGBM-B ganaron la
+comparacion de balanceo con la estrategia "ninguno" por una diferencia de
+AUC-CV insignificante (~0.001, ruido) frente a "balanced" -- pero el
+modelo resultante, sin reponderar clases ~23%/77%, produce probabilidades
+tan comprimidas hacia 0 que casi ninguna fila cruza el umbral fijo de 0.5
+(recall ~0.03-0.04 en XGBoost, precision >0.6). El umbral 0.5 es arbitrario
+cuando la clase positiva es ~23% de la muestra, y distintas estrategias de
+balanceo calibran las probabilidades de forma distinta -- comparar
+recall/precision/F1 a 0.5 entre ellas no es una comparacion justa.
+
+Solucion: el umbral de clasificacion NO se fija en 0.5 -- se elige por CV
+(`elegir_umbral_por_cv`, sobre probabilidades out-of-fold via
+`cross_val_predict`, maximizando F1) para cada modelo ya elegido (balanceo
++ hiperparametros). AUC-ROC (umbral-independiente) sigue mandando esa
+seleccion previa -- esto solo corrige COMO se reportan recall/precision/F1,
+no cambia que gana la comparacion de balanceo/hiperparametros.
 """
 
 import json
@@ -89,7 +109,7 @@ from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
-from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, cross_val_predict
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -111,7 +131,7 @@ COLUMNAS_REGISTRO = [
     "n_train", "n_test", "n_covariables_originales", "n_covariables_modelo",
     "tasa_entrada_train", "tasa_entrada_test",
     "balanceo_elegido", "auc_cv_balanced", "auc_cv_ninguno", "auc_cv_oversampling",
-    "auc_roc", "recall", "precision", "f1",
+    "umbral_clasificacion", "auc_roc", "recall", "precision", "f1",
     "tn", "fp", "fn", "tp",
     "estrategia_imputacion", "hiperparametros", "observaciones",
 ]
@@ -237,6 +257,23 @@ def comparar_balanceo_y_tunear(
     }
 
 
+def elegir_umbral_por_cv(estimador, x_train: pd.DataFrame, y_train: pd.Series) -> float:
+    """Probabilidades out-of-fold (cross_val_predict, mismos folds que la
+    busqueda de hiperparametros) -- se escanea una grilla de umbrales y se
+    elige la que maximiza F1. Evita fijar 0.5 quando la calibracion de las
+    probabilidades depende de la estrategia de balanceo elegida (ver
+    docstring del modulo)."""
+    cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+    proba_oof = cross_val_predict(estimador, x_train, y_train, cv=cv, method="predict_proba", n_jobs=-1)[:, 1]
+
+    mejor_umbral, mejor_f1 = 0.5, -1.0
+    for umbral in np.linspace(0.02, 0.98, 97):
+        f1 = f1_score(y_train, (proba_oof >= umbral).astype(int), zero_division=0)
+        if f1 > mejor_f1:
+            mejor_umbral, mejor_f1 = float(umbral), f1
+    return mejor_umbral
+
+
 def calcular_metricas(y_test, proba_test, umbral: float = 0.5) -> dict:
     pred_test = (proba_test >= umbral).astype(int)
     metrics = {
@@ -263,6 +300,7 @@ def registrar_resultado(
     balanceo_info: dict,
     hiperparametros: dict,
     observaciones: str,
+    umbral_clasificacion: float = 0.5,
 ) -> None:
     """Upsert de una fila en registro_modelos.csv (clave: algoritmo +
     especificacion) y regeneracion completa de registro_modelos.xlsx."""
@@ -283,6 +321,7 @@ def registrar_resultado(
         "auc_cv_balanced": auc_cv.get("balanced", ""),
         "auc_cv_ninguno": auc_cv.get("ninguno", ""),
         "auc_cv_oversampling": auc_cv.get("oversampling", ""),
+        "umbral_clasificacion": round(float(umbral_clasificacion), 4),
         "auc_roc": round(float(metricas["auc_roc"]), 4),
         "recall": round(float(metricas["recall"]), 4),
         "precision": round(float(metricas["precision"]), 4),

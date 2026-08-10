@@ -74,8 +74,9 @@ def main() -> None:
             x_train=x_train, y_train=y_train,
         )
         pipe = resultado["estimador"]
+        umbral = mu.elegir_umbral_por_cv(pipe, x_train, y_train)
         proba_test = pipe.predict_proba(x_test)[:, 1]
-        metricas = mu.calcular_metricas(y_test, proba_test)
+        metricas = mu.calcular_metricas(y_test, proba_test, umbral=umbral)
 
         modelo_final = pipe.named_steps["modelo"]
         imp = permutation_importance(modelo_final, x_test, y_test, scoring="roc_auc", n_repeats=10, random_state=mu.RANDOM_STATE, n_jobs=-1)
@@ -88,6 +89,7 @@ def main() -> None:
 
         print(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-CV por balanceo: {resultado['auc_cv_por_balanceo']})")
         print(f"  Hiperparametros: {resultado['mejores_params']}")
+        print(f"  Umbral elegido por CV: {umbral:.2f}")
         print(f"  AUC-ROC test: {metricas['auc_roc']:.3f}  Recall: {metricas['recall']:.3f}  F1: {metricas['f1']:.3f}")
         print(f"  Top 10 variables mas importantes:")
         print(importancias.head(10).to_string(index=False))
@@ -103,7 +105,8 @@ def main() -> None:
             estrategia_imputacion="Ninguna -- soporte nativo de NaN y categoricas (categorical_features='from_dtype')",
             balanceo_info=resultado,
             hiperparametros=hiperparametros,
-            observaciones="Reemplaza a entrenar_benchmark.py. Ahora con comparacion de balanceo y RandomizedSearchCV (antes hiperparametros fijos). Importancia por permutation importance (AUC, 10 repeticiones).",
+            observaciones="Reemplaza a entrenar_benchmark.py. Ahora con comparacion de balanceo y RandomizedSearchCV (antes hiperparametros fijos). Importancia por permutation importance (AUC, 10 repeticiones). Umbral de clasificacion elegido por CV maximizando F1 (no fijo en 0.5).",
+            umbral_clasificacion=umbral,
         )
 
     print(f"\nGuardado en: {OUTPUT_DIR}")

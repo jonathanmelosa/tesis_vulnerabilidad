@@ -74,8 +74,9 @@ def main() -> None:
             x_train=x_train, y_train=y_train,
         )
         pipe = resultado["estimador"]
+        umbral = mu.elegir_umbral_por_cv(pipe, x_train, y_train)
         proba_test = pipe.predict_proba(x_test)[:, 1]
-        metricas = mu.calcular_metricas(y_test, proba_test)
+        metricas = mu.calcular_metricas(y_test, proba_test, umbral=umbral)
 
         modelo_final = pipe.named_steps["modelo"]
         importancias = pd.DataFrame({
@@ -86,6 +87,7 @@ def main() -> None:
 
         print(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-CV por balanceo: {resultado['auc_cv_por_balanceo']})")
         print(f"  Hiperparametros: {resultado['mejores_params']}")
+        print(f"  Umbral elegido por CV: {umbral:.2f}")
         print(f"  AUC-ROC test: {metricas['auc_roc']:.3f}  Recall: {metricas['recall']:.3f}  F1: {metricas['f1']:.3f}")
         print(f"  Top 10 variables mas importantes:")
         print(importancias.head(10).to_string(index=False))
@@ -101,7 +103,8 @@ def main() -> None:
             estrategia_imputacion="Ninguna -- soporte nativo de NaN y categoricas (enable_categorical)",
             balanceo_info=resultado,
             hiperparametros=hiperparametros,
-            observaciones="Hiperparametros tuneados por RandomizedSearchCV (AUC-ROC, CV).",
+            observaciones="Hiperparametros tuneados por RandomizedSearchCV (AUC-ROC, CV). Umbral de clasificacion elegido por CV maximizando F1 (no fijo en 0.5) -- ver docstring de modelo_utils.py, hallazgo de la primera corrida (recall casi nulo a 0.5 sin ajuste de balance).",
+            umbral_clasificacion=umbral,
         )
 
     print(f"\nGuardado en: {OUTPUT_DIR}")
