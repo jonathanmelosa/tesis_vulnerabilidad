@@ -93,13 +93,33 @@
 % TARGET: 200–250 palabras (no cuenta en el límite de páginas)
 \begin{abstract}
 \noindent
-% Estructura sugerida del abstract (borrar este comentario):
-% (1) Problema y pregunta — 2 oraciones
-% (2) Qué hace este paper: datos, método — 2 oraciones
-% (3) Resultado principal — 1–2 oraciones
-% (4) Implicación de política — 1 oración
+Los sistemas de focalización de programas sociales en Colombia, como el
+SISBEN, identifican pobreza como un estado observado y no anticipan qué
+hogares no pobres tienen mayor riesgo de caer en esa condición. Este
+trabajo evalúa si variables geoespaciales públicas (iluminación nocturna
+satelital, OpenStreetMap, Google Street View) mejoran la predicción de la
+transición hacia la pobreza monetaria de hogares colombianos, frente a un
+modelo basado exclusivamente en la Encuesta Longitudinal Colombiana
+(ELCA). Usando las tres olas del panel (2010, 2013, 2016), se construye la
+variable de resultado como la caída en pobreza de hogares inicialmente no
+pobres y se estiman cinco algoritmos de aprendizaje supervisado
+(regresión logística regularizada, Random Forest, XGBoost, LightGBM y
+HistGradientBoosting) bajo un \emph{holdout} temporal hacia adelante
+(entrenamiento 2010$\to$2013, prueba 2013$\to$2016), con y sin variables
+monetarias del hogar. El modelo base --sin fuentes geoespaciales, que es
+lo que se reporta en esta versión del documento-- alcanza un AUC-ROC entre
+0.727 y 0.764 según el algoritmo, con una brecha de apenas 0.017--0.030
+entre la especificación que incluye ingreso/gasto del hogar y la que no lo
+hace, lo que sugiere que las covariables no monetarias capturan una
+fracción sustancial del poder predictivo típicamente atribuido al ingreso.
+La incorporación de las variables geoespaciales, contribución central de
+esta tesis, está en construcción. De confirmarse un aporte incremental,
+los resultados podrían fortalecer instrumentos de focalización con
+información de mayor frecuencia y menor costo de actualización que las
+encuestas de hogares tradicionales.
+
 \textbf{Palabras clave:} vulnerabilidad a la pobreza,
-aprendizaje de máquinas, datos geoespaciales, ELCO,
+aprendizaje de máquinas, datos geoespaciales, ELCA,
 focalización, Colombia.
 
 \noindent\textbf{Clasificación JEL:} I32, C55, O18, R12.
@@ -122,7 +142,88 @@ focalización, Colombia.
 \section{Introducción}
 \label{sec:intro}
 
-% [TEXTO AQUÍ]
+La literatura sobre pobreza ha enfatizado tradicionalmente su medición
+como un estado observado en la situación de un hogar en un momento
+determinado. Sin embargo, diversos trabajos han argumentado que la
+pobreza y el riesgo de caer en pobreza son fenómenos conceptualmente
+distintos que deben analizarse de manera diferenciada
+\parencite{chaudhuri2002}. En esta literatura, la vulnerabilidad,
+entendida como la probabilidad de experimentar pobreza en el futuro, se
+ha desarrollado como un concepto clave para superar el carácter estático
+de algunos diagnósticos tradicionales \parencite{fujii2016}. En
+particular, \textcite{lopezCalva2011} muestran que entre los hogares que
+superan la línea de pobreza existe una población significativa que
+enfrenta una alta probabilidad de caer en ella ante perturbaciones
+moderadas, lo que hace necesario distinguir analítica y operativamente
+entre pobres, vulnerables y hogares con seguridad económica consolidada.
+
+Identificar qué hogares son vulnerables a caer en pobreza --antes de que
+ocurra la caída-- requiere información dinámica y actualizada sobre su
+situación, algo que los sistemas tradicionales de focalización no están
+diseñados para proveer. En Colombia, el Sistema de Identificación de
+Beneficiarios de Programas Sociales (SISBEN) opera a través de una
+encuesta cuya aplicación depende de la solicitud de los hogares y de los
+recursos de la entidad territorial responsable, lo que genera rezagos en
+la actualización de la información y dificulta contar con datos
+recientes sobre el efecto de choques \parencite{conpes2016}. La pandemia
+de COVID-19 puso en evidencia las limitaciones de información sobre
+focalización de política pública con las que cuenta el país
+\parencite{castaneda2021}, y ejercicios recientes de aproximación a la
+vulnerabilidad monetaria en Bogotá mediante pseudo-panel confirman tanto
+la relevancia del problema como las restricciones que impone la ausencia
+de datos longitudinales reales sobre los hogares
+\parencite{gaitan2023,castaneda2012}.
+
+Esta tesis explota la disponibilidad de la Encuesta Longitudinal
+Colombiana (ELCA/ELCO), con tres olas de seguimiento a los mismos
+hogares (2010, 2013 y 2016), para construir y comparar modelos
+predictivos de \emph{transición} hacia la pobreza monetaria --distinta
+de la pobreza contemporánea que predice la mayoría de la literatura de
+aprendizaje de máquinas aplicada a este problema
+\parencite{muneton2022,ferdausi2025}--. La pregunta de investigación que
+guía el trabajo es: ¿en qué medida la incorporación de variables del
+entorno físico y económico local derivadas de fuentes geoespaciales
+públicas (imágenes satelitales de iluminación nocturna, OpenStreetMap y
+Google Street View) mejora la predicción de caída en pobreza monetaria de
+hogares no pobres, frente a modelos basados exclusivamente en
+características socioeconómicas del hogar reportadas en la encuesta?
+
+El estado actual de este documento cubre la primera mitad de esa
+pregunta: la construcción rigurosa de la variable de resultado, la
+auditoría exhaustiva de las covariables socioeconómicas disponibles en
+la ELCA (más de 4.000 columnas originales revisadas variable por
+variable a través de cinco módulos), y la estimación y comparación de
+cinco algoritmos de aprendizaje supervisado --regresión logística
+regularizada, Random Forest, XGBoost, LightGBM y HistGradientBoosting--
+sobre el modelo \emph{base} (sin variables geoespaciales). La
+incorporación de las fuentes geoespaciales y la comparación frente al
+modelo extendido, que es la contribución central de la pregunta de
+investigación, está en construcción y se documenta como trabajo en curso
+en la Sección~\ref{subsec:limitaciones}.
+
+La contribución de este trabajo es doble. Primero, metodológica: a
+diferencia de la literatura de predicción de pobreza contemporánea, este
+trabajo define explícitamente la variable de resultado en términos
+prospectivos (transición, no estado), usa una partición temporal hacia
+adelante fiel al caso de uso real de un sistema de focalización (entrenar
+con el pasado, evaluar en el futuro), y documenta de forma sistemática y
+verificable --no muestral-- la calidad y cobertura de cada covariable
+utilizada. Segundo, empírica: genera evidencia novedosa para Colombia
+sobre el desempeño relativo de distintos algoritmos de aprendizaje de
+máquinas en la predicción de transiciones a la pobreza, un problema no
+abordado directamente por la literatura existente aplicada al país
+\parencite{muneton2022}.
+
+El resto del documento se organiza así. La Sección~\ref{sec:literatura}
+revisa el marco conceptual de vulnerabilidad a la pobreza y la literatura
+de aprendizaje de máquinas aplicada a su predicción. La
+Sección~\ref{sec:datos} describe la ELCA y las fuentes geoespaciales. La
+Sección~\ref{sec:estrategia} detalla la estrategia empírica: construcción
+del outcome, especificación de los modelos, validación fuera de muestra y
+tratamiento del desbalance de clases. La Sección~\ref{sec:resultados}
+presenta los resultados obtenidos hasta el momento. La
+Sección~\ref{sec:conclusiones} cierra con una síntesis, implicaciones de
+política y la agenda de trabajo pendiente.
 
 % ============================================================
 % SECCIÓN 2 — MARCO CONCEPTUAL Y LITERATURA   TARGET: 6–7 pp.
@@ -139,22 +240,205 @@ focalización, Colombia.
 \subsection{Vulnerabilidad a la pobreza: fundamentos conceptuales}
 \label{subsec:vulnerabilidad}
 
-% [TEXTO AQUÍ]
+Uno de los aportes fundacionales de la literatura de pobreza es la
+distinción entre pobreza crónica y pobreza transitoria. Utilizando
+paneles de hogares rurales en China, \textcite{jalan2000} muestran que la
+pobreza persistente se relaciona principalmente con limitaciones
+estructurales (bajos niveles de activos productivos o capital humano),
+mientras que la pobreza transitoria suele originarse en fluctuaciones del
+ingreso asociadas con choques económicos o eventos adversos. Esta
+distinción tiene implicaciones directas para el diseño de política: los
+hogares crónicamente pobres requieren intervenciones orientadas a la
+acumulación de activos y el acceso a servicios, mientras que los hogares
+transitoriamente pobres requieren mecanismos de protección ante choques y
+de recuperación rápida del ingreso.
+
+La magnitud y persistencia de esas fluctuaciones depende no solo de la
+severidad del choque sino de la capacidad del hogar para absorberlo.
+\textcite{dercon2000} documentan que los hogares en contextos rurales de
+bajos ingresos enfrentan variaciones sustanciales en bienestar ante
+choques idiosincráticos (enfermedad, pérdida de empleo, muerte de un
+activo productivo) y covariados (eventos climáticos extremos, caídas en
+precios agrícolas, crisis macroeconómicas). Esa capacidad de resiliencia
+está determinada por los activos físicos, humanos y sociales del hogar y
+por el entorno institucional en que opera. \textcite{christiaensen2005}
+refuerzan este punto al mostrar que en muchos países en desarrollo existe
+una población significativa de hogares no pobres pero altamente
+expuestos: su situación actual los ubica por encima de la línea de
+pobreza, pero su fragilidad patrimonial los hace vulnerables a caer ante
+perturbaciones moderadas. Esta población es precisamente la que los
+sistemas tradicionales de focalización tienen mayor dificultad para
+identificar, dado que no son pobres bajo el criterio estático.
+
+A partir de estos hallazgos se ha desarrollado la literatura sobre
+vulnerabilidad a la pobreza, que la conceptualiza como la probabilidad
+\emph{ex ante} de que un hogar experimente pobreza en el futuro. El
+enfoque seminal de \textcite{chaudhuri2002} propone estimar esa
+probabilidad a partir de la media y la varianza esperadas del consumo o
+ingreso del hogar, definiendo la vulnerabilidad como la probabilidad de
+que el bienestar futuro caiga por debajo de la línea de pobreza.
+Desarrollos posteriores han refinado esta definición incorporando la
+distinción entre vulnerabilidad ante choques idiosincráticos y covariados
+\parencite{dercon2002}, y aplicaciones específicas para contextos
+latinoamericanos \parencite{bergolo2010,costella2023}.
+
+Un aporte particularmente relevante para este trabajo es el de
+\textcite{lopezCalva2011,lopezCalva2014}, quienes operacionalizan el
+concepto de vulnerabilidad en América Latina explotando datos
+longitudinales de Chile, México y Perú para estimar empíricamente el
+umbral de ingreso asociado a una probabilidad del 10\% de caer en
+pobreza, y proponen la clasificación en cuatro trayectorias --nunca
+pobre, siempre pobre, sale de la pobreza, entra en pobreza-- que se
+adopta en la Sección~\ref{subsec:transiciones} de esta tesis. Sus
+resultados muestran que la población vulnerable, cuantitativamente
+significativa en los tres países, no puede identificarse adecuadamente
+con métodos de focalización basados en el estado observado de pobreza.
+
+En el contexto colombiano, la aplicación de estos enfoques ha enfrentado
+restricciones de datos que han limitado su alcance. \textcite{castaneda2012}
+estudió las trampas de pobreza mediante la construcción de un
+pseudo-panel, y \textcite{gaitan2023} analizó la vulnerabilidad monetaria
+a nivel de localidades en Bogotá con el mismo enfoque, ante la ausencia de
+un panel de hogares con representatividad y cobertura suficiente; sus
+resultados --cerca del 23\% de la población bogotana en situación de
+vulnerabilidad en 2021-- confirman la relevancia del problema, pero
+también evidencian las restricciones que impone el uso de cortes
+transversales repetidos en lugar de datos longitudinales reales. La
+disponibilidad de la ELCA, con tres olas de seguimiento a los mismos
+hogares, ofrece una oportunidad inédita para superar esta limitación en
+el contexto colombiano. Incluso con datos longitudinales, sin embargo,
+esta literatura enfrenta una restricción operativa adicional: los
+métodos desarrollados dependen, casi sin excepción, de encuestas de
+hogares con información detallada sobre ingresos, activos y consumo,
+costosas, de levantamiento infrecuente y con rezagos significativos entre
+la recolección y la disponibilidad de los datos. Esta restricción
+informacional es la que motiva la exploración de fuentes alternativas de
+datos que puedan aproximar la vulnerabilidad con mayor frecuencia de
+actualización y menor costo de recolección (Sección~\ref{subsec:geoespacial}).
 
 \subsection{Aprendizaje de máquinas en la predicción de pobreza}
 \label{subsec:ml_pobreza}
 
-% [TEXTO AQUÍ]
+La literatura sobre predicción de pobreza mediante algoritmos de
+aprendizaje automático ha avanzado de manera importante en los últimos
+años, pero es necesario señalar una distinción conceptual central: la
+mayoría de estos trabajos predice el estado \emph{contemporáneo} de
+pobreza --si un hogar es pobre en un momento dado-- y no la vulnerabilidad
+a la pobreza en el sentido de la Sección~\ref{subsec:vulnerabilidad}, es
+decir, la probabilidad \emph{ex ante} de que un hogar no pobre caiga en
+esa situación en el futuro. Esta distinción no es menor: requiere datos
+longitudinales, un horizonte temporal prospectivo y una variable de
+resultado distinta a la pobreza observada. La literatura que se revisa a
+continuación constituye el antecedente metodológico más próximo
+disponible, pero no resuelve directamente el problema que aborda esta
+investigación.
+
+Los modelos de prueba indirecta de medios (\emph{proxy means tests}, PMT)
+han sido durante décadas el instrumento estándar para la focalización de
+programas sociales en países en desarrollo. Su desarrollo ha privilegiado
+históricamente la minimización del error \emph{dentro} de la muestra de
+entrenamiento, lo cual no garantiza un buen desempeño cuando el modelo se
+aplica a poblaciones nuevas. \textcite{mcbride2018} documentan este
+problema en detalle y muestran que priorizar la validación fuera de
+muestra, mediante validación cruzada y algoritmos como Random Forest y
+Quantile Regression Forest, puede mejorar sustancialmente la precisión de
+las herramientas de focalización, reduciendo la tasa de exclusión de
+hogares pobres y mejorando la precisión balanceada en hasta 17 puntos
+porcentuales frente a los métodos tradicionales --un resultado que motiva
+directamente el énfasis de esta tesis en la validación fuera de muestra
+mediante un holdout temporal hacia adelante (Sección~\ref{subsec:validacion})--.
+Este resultado debe matizarse con la advertencia de
+\textcite{usmanova2022}: los métodos de aprendizaje automático tienden a
+mejorar la predicción en contextos de alta dimensionalidad y relaciones
+no lineales entre variables, pero un modelo entrenado en un país no
+necesariamente funciona bien en otro, debido a diferencias económicas,
+sociales y culturales que no captura.
+
+El trabajo de \textcite{ferdausi2025} es el que más se aproxima
+conceptualmente al problema de la vulnerabilidad, al aplicar algoritmos de
+aprendizaje automático a datos de hogares en zonas costeras de Bangladesh
+para identificar predictores del estatus de ultra-pobreza, logrando una
+precisión del 96\% con un conjunto reducido de siete variables. Sus
+resultados revelan heterogeneidad significativa en los factores de
+vulnerabilidad entre grupos demográficos, pero el trabajo predice también
+un estado observado --ser ultra-pobre-- y no la probabilidad de transición
+hacia la pobreza en un periodo futuro, lo que lo mantiene dentro de la
+misma limitación conceptual que caracteriza al resto de la literatura. En
+Colombia, \textcite{muneton2022} han aplicado aprendizaje de máquinas a la
+clasificación de pobres, pero su aplicación en un contexto de datos
+longitudinales y para el análisis de la vulnerabilidad ha sido explorada
+de manera limitada.
 
 \subsection{Variables geoespaciales como fuente complementaria}
 \label{subsec:geoespacial}
 
-% [TEXTO AQUÍ]
+Existe una literatura creciente que usa fuentes de datos no convencionales
+para aproximarse a perfiles de población en ausencia de datos confiables y
+pertinentes. \textcite{blumenstock2015} demuestran que los metadatos de
+telefonía móvil permiten predecir el nivel de bienestar económico de los
+hogares en Ruanda con precisión considerable. \textcite{jean2016}
+extendieron esta lógica al dominio satelital, mostrando que la
+combinación de imágenes satelitales con datos de encuesta permite explicar
+hasta el 75\% de la variación en consumo o riqueza en contextos africanos,
+superando lo que cualquiera de las dos fuentes logra de manera aislada.
+\textcite{li2019} muestran que a partir de imágenes de luminosidad
+nocturna es posible clasificar la pobreza a nivel de condados con
+precisiones superiores al 82\%, aunque advierten que su capacidad
+discriminatoria se reduce en contextos de pobreza muy extendida, donde la
+variabilidad espacial de las imágenes es insuficiente para distinguir
+entre hogares con distintos niveles de privación.
+
+Trabajos más recientes han avanzado hacia la evaluación sistemática del
+valor incremental de las fuentes geoespaciales, incluyendo aplicaciones en
+contextos latinoamericanos. \textcite{newhouse2025} muestran para México
+que combinar imágenes satelitales con encuestas de hogares mejora la
+precisión de las estimaciones de pobreza monetaria a nivel municipal, un
+nivel de desagregación en el que la encuesta sola no es representativa.
+\textcite{aiken2022} muestran que la combinación de datos satelitales y de
+telefonía móvil reduce los errores de exclusión en programas sociales
+entre 4\% y 21\% frente a los métodos tradicionales. \textcite{hall2023},
+en una revisión sistemática, documentan que la combinación de múltiples
+fuentes incrementa el poder predictivo hasta en 15 puntos porcentuales,
+pero identifican que los datos geoespaciales predicen mejor activos
+físicos que variables de flujo como ingreso o consumo, y que su desempeño
+depende críticamente del contexto geográfico. \textcite{hofer2025} añaden
+que la ventaja de estas fuentes reside tanto en la información nueva que
+aportan como en su mayor granularidad espacial y frecuencia de
+actualización, lo que las hace especialmente valiosas para actualizar
+sistemas de focalización entre levantamientos de encuestas -- la
+motivación directa de las fuentes geoespaciales que esta tesis busca
+incorporar (imágenes satelitales de iluminación nocturna, OpenStreetMap y
+Google Street View, Sección~\ref{subsec:geo}).
 
 \subsection{Síntesis y vacío que llena este trabajo}
 \label{subsec:gap}
 
-% [TEXTO AQUÍ]
+La evidencia revisada muestra que los modelos que combinan variables
+geoespaciales con información socioeconómica de encuestas superan a los
+basados exclusivamente en cualquiera de las dos fuentes, con ventajas más
+pronunciadas cuando la validación se realiza fuera de muestra. Sin
+embargo, ninguno de los trabajos revisados aborda directamente el
+problema de predecir la probabilidad de caída en pobreza de hogares
+actualmente no pobres, y mucho menos en un contexto de datos
+longitudinales de hogar como el que ofrece la ELCA. Predecir transiciones
+hacia la pobreza es un problema conceptualmente distinto al de estimar
+pobreza contemporánea: requiere una variable de resultado definida en
+términos prospectivos, un horizonte temporal explícito entre olas de
+panel, y un conjunto de variables predictoras que capture tanto las
+condiciones del hogar como las del entorno en el momento previo a la
+transición.
+
+Es en esta brecha donde esta investigación busca contribuir, evaluando si
+la incorporación de fuentes geoespaciales públicas a los datos
+longitudinales de la ELCA permite mejorar la identificación de hogares en
+riesgo de caer en pobreza en Colombia. Es importante señalar que, en
+contextos de política pública, la predicción puede ser valiosa incluso en
+ausencia de interpretación causal, especialmente cuando el objetivo es
+mejorar la focalización \emph{ex ante} y no evaluar intervenciones. Por
+esta razón, este trabajo se sitúa en un enfoque predictivo más que causal,
+donde el objetivo no es identificar efectos estructurales sino mejorar la
+capacidad de anticipar transiciones hacia la pobreza con miras a mejorar
+la focalización de políticas públicas de seguridad social.
 
 % ============================================================
 % SECCIÓN 3 — DATOS                 TARGET: 5–6 páginas
@@ -167,24 +451,146 @@ focalización, Colombia.
 \section{Datos}
 \label{sec:datos}
 
-\subsection{Encuesta Longitudinal Colombiana (ELCO)}
+\subsection{Encuesta Longitudinal Colombiana (ELCA)}
 \label{subsec:elco}
 
-% [TEXTO AQUÍ — incluir Tabla 1: resumen de olas,
-%  N hogares, tasa de atrición, variables clave]
+La fuente primaria de datos es la Encuesta Longitudinal Colombiana de la
+Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres
+olas: 2010, 2013 y 2016, en zonas urbana y rural. La ELCA se organiza en
+cinco módulos temáticos --Hogar, Personas, Niños (6 a 9 años), Comunidades
+y Choques-- además de los módulos de ingreso y gasto usados para construir
+la pobreza monetaria oficial (Sección~\ref{subsec:outcome}). El
+identificador de hogar cambia de nombre entre olas
+(\texttt{consecutivo}$\to$\texttt{llave}$\to$\texttt{llave\_n16}); todos
+los emparejamientos de esta tesis usan exclusivamente coincidencias uno a
+uno de este identificador entre olas consecutivas, excluyendo los hogares
+que se dividieron en dos o más sub-hogares (511 casos en 2010--2013 y
+1{,}190 en 2013--2016, ver Tabla~\ref{tab:matriz_transicion}), para no
+inventar un mapeo arbitrario entre sub-hogares.
+
+Antes de construir cualquier covariable se realizó una auditoría
+sistemática, no muestral, de los cinco módulos (más de 4.000 columnas
+originales en total). La auditoría tuvo cuatro capas, replicadas de forma
+idéntica en cada módulo: (i) detección y corrección de corrupción de
+codificación de caracteres (el carácter Unicode de reemplazo U+FFFD y el
+literal \texttt{???}
+en lugar de vocales acentuadas y la letra ñ, reconstruidos por coincidencia
+de patrón dentro de un vocabulario cerrado por columna, con rescate
+adicional contra los diccionarios en PDF de la encuesta para los casos
+ambiguos); (ii) clasificación exhaustiva de cada columna según su
+cobertura en las tres olas (candidata al modelo, casi vacía, ausente en
+alguna ola, o identificador); (iii) búsqueda de columnas renombradas entre
+olas que la clasificación automática por nombre pudiera haber pasado por
+alto; y (iv) verificación explícita, para toda columna con cobertura menor
+al 10\%, de si esa baja cobertura refleja una pregunta filtro genuina (por
+ejemplo, solo se pregunta a hogares con niños) y no una pérdida de
+información evitable. Esta auditoría, y las decisiones de inclusión o
+exclusión de cada variable derivadas de ella, están documentadas
+íntegramente en el repositorio del proyecto (\texttt{docs/decisions.md} y
+\texttt{docs/variable\_audit/}).
+
+El resultado es un panel hogar--ola consolidado de 27{,}932 observaciones
+(9{,}853 en 2010, 9{,}261 en 2013 y 8{,}818 en 2016) y 184 columnas, que
+combina las covariables construidas a partir de los cinco módulos con las
+variables monetarias (ingreso y gasto per cápita del hogar, nominal y real,
+brecha frente a la línea de pobreza). Para las variables agregadas de
+Personas y Niños al nivel de hogar se siguieron reglas explícitas y
+documentadas según el tipo de variable: conteos/proporciones para
+composición demográfica, \texttt{any()} cuando la presencia de un solo
+miembro con una característica ya cambia la vulnerabilidad del hogar
+(por ejemplo, algún miembro con discapacidad), máximo para capital humano
+disponible (nivel educativo más alto del hogar), y el valor del jefe de
+hogar sin agregar cuando la literatura lo usa como proxy estándar. Las
+tasas de mercado laboral se calculan restringiendo el denominador a
+personas en edad de trabajar (15 años o más, siguiendo el estándar
+DANE/GEIH) antes de agregar, y los missings a nivel persona se excluyen del
+denominador en vez de contarse como si no cumplieran la condición.
 
 \subsection{Fuentes geoespaciales}
 \label{subsec:geo}
 
-% [TEXTO AQUÍ — satélite (luminosidad nocturna),
-%  OpenStreetMap, Google Street View.
-%  Describir buffers espaciales y nivel de agregación]
+La propuesta de este trabajo contempla tres fuentes geoespaciales
+públicas complementarias a la ELCA: imágenes satelitales de iluminación
+nocturna (proxy de actividad económica local), datos de OpenStreetMap
+(densidad de infraestructura, accesibilidad a servicios y uso del suelo) e
+imágenes de Google Street View procesadas con técnicas de visión
+computacional (indicadores del entorno construido y calidad del barrio).
+Al momento de escribir este documento, únicamente el pipeline de Google
+Street View tiene avance de implementación; las fuentes de luminosidad
+nocturna y OpenStreetMap están en la etapa de diseño y no se han
+implementado aún (ver limitaciones, Sección~\ref{subsec:limitaciones}).
+
+El pipeline de Google Street View (\texttt{src/01\_download/02\_scr\_GoogleStreetView/})
+es, deliberadamente, un linaje de datos independiente del usado para la
+pobreza monetaria: parte directamente de los archivos crudos de hogar, no
+de los parquets ya limpiados, porque su unidad de análisis es la
+coordenada geográfica del hogar, no sus respuestas de encuesta. Hasta
+ahora se ha construido: (i) un panel de coordenadas por hogar-ola, con
+fuente de coordenadas y validación de calidad distintas por ola (2010 y
+2013 traen coordenadas decimales directas y una variable de revisión
+manual; 2016 requiere reconstruir la coordenada desde componentes
+grados-minutos-segundos y solo se valida contra un \emph{bounding box} del
+territorio colombiano, una validación más débil); (ii) un análisis de
+cobertura de panoramas de la Metadata API de Google Street View en cuatro
+radios (50, 100, 200 y 400 metros), que documenta una limitación
+estructural de la API (retorna solo el panorama más cercano, no un listado
+completo, por lo que las variables de cobertura son indicadores de
+presencia y no conteos reales); (iii) la descarga reproducible de
+fotografías canónicas (640$\times$640 px) para el panel de hogares con
+coordenada válida presentes en las tres olas; y (iv) la extracción de
+\emph{embeddings} de imagen con tres modelos preentrenados sin
+\emph{fine-tuning} (VGG-19 y ResNet-50 sobre ImageNet, y ResNet-50 sobre
+Places365, este último especialmente relevante para escenas urbanas), más
+un esqueleto de extracción de \emph{embeddings} CLIP y de segmentación
+semántica con SAM~3. La agregación de estas variables de nivel imagen a
+nivel hogar$\times$ola, y su integración al dataset consolidado de la
+Sección~\ref{subsec:elco}, es la tarea inmediatamente siguiente en la
+agenda de este proyecto y no está reflejada en los resultados de la
+Sección~\ref{sec:resultados}.
 
 \subsection{Estadísticas descriptivas}
 \label{subsec:desc}
 
-% [TEXTO AQUÍ — incluir Tabla 2: estadísticas por
-%  cuadrante de transición]
+La Tabla~\ref{tab:cobertura_modulos} resume la cobertura de covariables
+por módulo en el dataset consolidado. Los módulos de Hogar, Personas,
+Comunidades y Choques cubren la totalidad del panel (27{,}932
+observaciones); el módulo de Niños, por construcción, solo aplica a
+hogares con al menos un niño de 6 a 9 años en el periodo, y por eso su
+cobertura efectiva es menor sin que ello represente un problema de
+calidad del dato (ver discusión de \emph{missingness} estructural en la
+Sección~\ref{subsec:desbalance}).
+
+\begin{table}[H]
+  \centering
+  \caption{Cobertura de covariables por módulo en el dataset consolidado}
+  \label{tab:cobertura_modulos}
+  \small
+  \begin{tabular}{lp{2.6cm}p{2.4cm}p{3.2cm}}
+    \toprule
+    \textbf{Módulo} & \textbf{Candidatas auditadas} & \textbf{Usadas en el modelo} & \textbf{Cobertura (\% del panel)} \\
+    \midrule
+    Hogar        & 155 & 103 & 100\% \\
+    Personas (9 bloques) & 139 & 57  & 100\% \\
+    Comunidades  & 212 & 22  & 91.9--96.4\% \\
+    Niños (6--9 años) & 83 & 13 & 55.4\% (15{,}473 / 27{,}932) \\
+    Choques      & --  & 17  & 100\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.9\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} ``Candidatas auditadas'' es el número de
+    columnas del módulo que superaron los cuatro filtros de calidad de la
+    auditoría (Sección~\ref{subsec:elco}); ``usadas en el modelo'' es el
+    subconjunto final tras la construcción de \emph{features}, documentado
+    columna por columna en \texttt{docs/decisions.md}. Fuente: cálculos
+    propios con base en ELCA 2010, 2013, 2016.
+  \end{minipage}
+\end{table}
+
+Las matrices de transición de pobreza (Tabla~\ref{tab:matriz_transicion},
+Sección~\ref{subsec:transiciones}) constituyen la estadística descriptiva
+central de la variable de resultado y se presentan en la Sección de
+Resultados junto con su interpretación, para no duplicar contenido.
 
 % ============================================================
 % SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
@@ -202,27 +608,40 @@ focalización, Colombia.
 \subsection{Construcción de la variable de resultado}
 \label{subsec:outcome}
 
-% [TEXTO AQUÍ — matrices de transición, definición
-%  formal de CaidaPobreza_{i,t+1}, línea DANE]
-%
-% Incluir Tabla 3: matriz de transición descriptiva
-% (proporción de hogares en cada cuadrante)
+Siguiendo a \textcite{lopezCalva2011,lopezCalva2014}, se construyen
+matrices de transición de pobreza monetaria cruzando el estado de pobreza
+de un hogar en la ola inicial $t$ (filas) contra su estado en la ola
+siguiente $t+1$ (columnas), usando el ingreso per cápita del hogar contra
+la línea de pobreza (LP) oficial del DANE, específica por año y zona
+(urbana/rural). El análisis empírico se restringe a la submuestra de
+hogares que se encuentran por encima de la LP en el periodo inicial $t$
+--un hogar que ya es pobre no puede ``caer'' en pobreza, esa es la
+categoría \emph{siempre pobre}, no \emph{entra en pobreza}--. Sobre esta
+población se define la variable dependiente binaria
+
+\begin{equation}
+  \text{CaidaPobreza}_{i,t+1} =
+  \begin{cases}
+    1 & \text{si el hogar } i \text{ es pobre en } t+1 \\
+    0 & \text{en cualquier otro caso}
+  \end{cases}
+  \label{eq:outcome}
+\end{equation}
+
+\noindent y el objetivo es estimar la probabilidad condicional de caer en
+pobreza en el periodo siguiente dada la información observada en $t$
+(Ecuación~\ref{eq:modelo_base}). El emparejamiento de hogares entre olas
+usa exclusivamente coincidencias uno a uno del identificador de hogar
+(Sección~\ref{subsec:elco}); los hogares que se dividieron entre olas se
+excluyen de la construcción de la variable de resultado por no tener un
+estado inicial y final inequívoco. Las matrices de transición resultantes,
+su interpretación, y los cinco ejercicios de robustez realizados sobre
+esta construcción (ponderación muestral, especificación del ingreso,
+sensibilidad al umbral de pobreza, atrición del panel) se presentan en la
+Sección~\ref{subsec:transiciones}.
 
 \subsection{Especificación de modelos}
 \label{subsec:modelos}
-
-% [TEXTO AQUÍ]
-%
-% Modelo base:
-%   - Regresión logística
-%   - LASSO / Ridge
-%
-% Modelo extendido:
-%   - Random Forest
-%   - Gradient Boosting (XGBoost)
-%   - [Opcional] Red neuronal
-%
-% Justificar cada elección con referencia a la literatura
 
 % Ecuación del modelo base
 \begin{equation}
@@ -231,29 +650,170 @@ focalización, Colombia.
   \label{eq:modelo_base}
 \end{equation}
 
-\noindent donde $F(\cdot)$ es la función logística en el modelo
-base y una aproximación no paramétrica en los modelos de ML,
-y $X_{it}$ es el vector de características del hogar $i$
-observadas en el periodo $t$.
+\noindent donde $X_{it}$ es el vector de características del hogar $i$
+observadas en el periodo $t$ (Sección~\ref{subsec:elco}) y $F(\cdot)$ es
+la función que relaciona esas características con la probabilidad de
+transición, aproximada de manera distinta según el algoritmo. Se estiman
+y comparan cinco algoritmos, agrupados en dos familias según cómo tratan
+las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
+
+\begin{itemize}
+  \item \textbf{Regresión logística regularizada (benchmark).} $F(\cdot)$
+  es la función logística; los coeficientes $\beta$ se estiman
+  penalizando su magnitud con una combinación de regularización L1 y L2
+  (\emph{elastic net}), cuya fuerza ($C$) y mezcla ($l_1\_ratio$) se
+  eligen por validación cruzada en vez de fijarse \emph{a priori} como
+  Lasso o Ridge puro. Es el algoritmo designado como referencia por ser
+  el estándar de facto en la literatura de vulnerabilidad a la pobreza
+  --interpretable, con coeficientes de signo económicamente
+  interpretable-- y por servir de punto de comparación obligado antes de
+  justificar el uso de un modelo más complejo.
+  \item \textbf{Random Forest.} Promedio de árboles de decisión
+  entrenados sobre muestras \emph{bootstrap} independientes del conjunto
+  de entrenamiento; captura no linealidades e interacciones entre
+  covariables sin necesidad de especificarlas manualmente, con menor
+  varianza que un árbol individual.
+  \item \textbf{XGBoost, LightGBM y HistGradientBoosting.} Tres
+  implementaciones de \emph{gradient boosting} de árboles --el algoritmo
+  explícitamente recomendado por la propuesta de este trabajo por su
+  balance entre desempeño e interpretabilidad, y uno de los más usados en
+  la literatura de focalización de pobreza \parencite{mcbride2018}--, que
+  difieren en el algoritmo de construcción del histograma de particiones
+  (\emph{level-wise} en XGBoost y HistGradientBoosting,
+  \emph{leaf-wise} en LightGBM) y en el mecanismo de regularización. Las
+  tres manejan de forma nativa tanto los datos faltantes como las
+  variables categóricas, sin necesidad de imputación ni de
+  \emph{one-hot encoding} (Sección~\ref{subsec:desbalance}).
+\end{itemize}
+
+Para evaluar el aporte relativo del nivel de ingreso/gasto del hogar
+--el predictor más informativo bajo el enfoque de vulnerabilidad de
+\textcite{chaudhuri2002}, que compara qué tan cerca está un hogar del
+umbral de pobreza-- se estima cada uno de los cinco algoritmos bajo dos
+especificaciones de covariables: el \textbf{Modelo A} incluye el ingreso y
+gasto per cápita real del hogar en el periodo base y la brecha frente a la
+LP (escala-invariante, no requiere deflactar); el \textbf{Modelo B}
+excluye estas cuatro columnas y usa exclusivamente covariables no
+monetarias (demografía, educación, activos, vivienda, choques,
+comunidad). Este ejercicio --diez modelos en total, cinco algoritmos por
+dos especificaciones-- establece además el marco de referencia frente al
+cual se evaluará, en una etapa posterior de este proyecto, si las
+variables geoespaciales aportan más donde la brecha a la LP ya no
+distingue bien (hogares cerca del umbral) que en general.
 
 \subsection{Validación fuera de muestra y métricas}
 \label{subsec:validacion}
 
-% [TEXTO AQUÍ — partición train/test por ola,
-%  AUC-ROC, precision, recall, F1, errores de
-%  inclusión y exclusión como métricas de targeting]
+La estimación usa las dos primeras olas de la ELCA como base de
+entrenamiento (transición 2010$\to$2013: covariables de 2010, resultado
+observado en 2013) y la tercera ola como conjunto de prueba, completamente
+independiente, para evaluar el desempeño predictivo fuera de muestra
+(transición 2013$\to$2016: covariables de 2013, resultado observado en
+2016). Este \emph{holdout} temporal hacia adelante replica el caso de uso
+real de un sistema de focalización --solo existe la ola base al momento de
+predecir-- y es, siguiendo a \textcite{mcbride2018}, la validación más
+exigente para un modelo de este tipo porque prueba generalización ante un
+régimen económico distinto al de entrenamiento. El ajuste de
+hiperparámetros de cada algoritmo (mediante \texttt{RandomizedSearchCV},
+15 combinaciones aleatorias, validación cruzada estratificada de 3
+particiones, optimizando AUC-ROC) se realiza estrictamente dentro del
+periodo de entrenamiento (2010$\to$2013); el conjunto de prueba
+(2013$\to$2016) no se toca hasta la evaluación final reportada en la
+Sección~\ref{subsec:desempeno}. Como ejercicios de robustez adicionales,
+planeados pero aún no ejecutados, se contempla invertir los roles de
+entrenamiento y prueba (\emph{backtest}) y agrupar ambas transiciones con
+validación cruzada agrupada por hogar (Sección~\ref{subsec:limitaciones}).
+
+El desempeño se reporta mediante AUC-ROC como métrica principal --no
+depende de un umbral de clasificación arbitrario-- y recall, precision y
+F1 como métricas de referencia al umbral de clasificación elegido
+(Sección~\ref{subsec:desbalance}), junto con la matriz de confusión
+completa. El foco del análisis está en comparar el desempeño relativo
+entre los cinco algoritmos y entre las especificaciones A y B, más que en
+declarar un único ``mejor'' modelo a partir de diferencias de AUC-ROC que,
+como se documenta en la Sección~\ref{subsec:desempeno}, resultan pequeñas
+frente a la variabilidad esperable por aleatoriedad del ajuste.
 
 \subsection{Tratamiento del desbalance de clases}
 \label{subsec:desbalance}
 
-% [TEXTO AQUÍ — pesos de clase, SMOTE,
-%  optimización por recall; justificar elección]
+La tasa de entrada a la pobreza en la muestra de entrenamiento es de
+23.4\% (Tabla~\ref{tab:matriz_transicion}), un desbalance moderado que
+puede sesgar a los algoritmos hacia la clase mayoritaria. Se comparan tres
+estrategias de tratamiento del desbalance para cada algoritmo:
+reponderación de clases (\texttt{class\_weight="balanced"} o su
+equivalente \texttt{scale\_pos\_weight} en XGBoost), ausencia de ajuste
+(línea base), y sobremuestreo aleatorio de la clase minoritaria
+(\texttt{RandomOverSampler}, aplicado únicamente dentro de cada partición
+de entrenamiento de la validación cruzada, nunca contaminando la partición
+de validación). No se usó SMOTE --que interpola sintéticamente entre
+observaciones vecinas-- porque no está bien definido cuando coexisten
+variables categóricas y datos faltantes estructurales, a diferencia del
+sobremuestreo aleatorio, que solo duplica filas existentes. La estrategia
+que gana para cada algoritmo y especificación es la que maximiza el
+AUC-ROC promedio en validación cruzada, no un criterio fijado \emph{a
+priori}.
+
+Un hallazgo metodológico relevante de este ejercicio: en XGBoost y en
+LightGBM (Modelo B), la estrategia ``sin ajuste'' ganó la comparación por
+una diferencia de AUC-ROC frente a la reponderación de apenas 0.001
+--estadísticamente indistinguible de ruido--, pero el modelo resultante,
+sin corregir el desbalance de clases, produjo probabilidades tan
+comprimidas hacia valores bajos que casi ninguna observación cruzaba el
+umbral convencional de 0.5 (recall de 3\%--4\% en XGBoost, con precision
+superior a 60\%: el modelo ordenaba razonablemente bien los hogares por
+riesgo, pero era inútil en la práctica al umbral estándar). Esto ilustra
+que el umbral 0.5 es arbitrario cuando la clase positiva no es 50\% de la
+muestra, y que distintas estrategias de balanceo calibran las
+probabilidades de forma distinta, por lo que comparar recall/precision/F1
+a un umbral fijo entre estrategias no es una comparación válida. La
+solución adoptada fue elegir el umbral de clasificación de cada modelo por
+validación cruzada (maximizando F1 sobre las probabilidades
+\emph{out-of-fold}) en lugar de fijarlo en 0.5 --el AUC-ROC, que no
+depende de umbral, sigue siendo el criterio que decide la estrategia de
+balanceo y los hiperparámetros; el umbral solo determina cómo se reportan
+las métricas restantes.
+
+Para los algoritmos sin soporte nativo de datos faltantes (regresión
+logística y Random Forest), la imputación de valores faltantes --que en
+este dataset son mayoritariamente de naturaleza estructural, causados por
+preguntas filtro del cuestionario (por ejemplo, el monto de una ayuda
+recibida no se pregunta a quien respondió que no recibió ninguna)-- usa
+sistemáticamente el valor 0 (nunca la mediana) combinado con una columna
+indicadora binaria de faltante por variable. Esta elección evita que la
+mediana --calculada únicamente sobre quienes pasaron el filtro y
+respondieron-- le asigne a los hogares excluidos por el filtro un valor
+``típico'' que en realidad no tienen, y tiene además la propiedad de que,
+en un modelo lineal, el relleno no aporta ninguna contribución a la
+predicción más allá de la que capture el propio indicador de faltante. Las
+variables categóricas se imputan con una categoría explícita ``Sin dato''
+en vez de la moda, para no disfrazar la ausencia estructural como el valor
+más común. XGBoost, LightGBM y HistGradientBoosting no requieren esta
+imputación: manejan los datos faltantes de forma nativa en la partición de
+los árboles, lo que convierte el propio patrón de \emph{missingness} en
+una señal explotable por el modelo (por ejemplo, la ausencia de datos de
+vacunación infantil ya codifica indirectamente que el hogar no tiene
+hijos pequeños) en vez de forzar un supuesto de imputación potencialmente
+sesgado.
 
 \subsection{Importancia de variables e interpretabilidad}
 \label{subsec:interpretabilidad}
 
-% [TEXTO AQUÍ — SHAP values, permutation importance,
-%  contribución marginal geoespacial vs. ELCO]
+Para cada modelo se reporta una medida de importancia de variables acorde
+a su naturaleza: los coeficientes estandarizados (con signo) de la
+regresión logística; la importancia por reducción de impureza
+(\texttt{feature\_importances\_}) de Random Forest, XGBoost y LightGBM; y
+la importancia por permutación (\emph{permutation importance}, AUC-ROC
+sobre el conjunto de prueba, 10 repeticiones) de HistGradientBoosting, más
+costosa computacionalmente pero más robusta a la correlación entre
+covariables que la importancia basada en impureza. La comparación de estas
+listas de variables más importantes entre el Modelo A y el Modelo B
+(Sección~\ref{subsec:desempeno}) es la primera aproximación a la pregunta
+de qué información no monetaria es más predictiva de la transición a la
+pobreza, antes de la incorporación de las variables geoespaciales
+(Sección~\ref{subsec:limitaciones}). El uso de valores SHAP para una
+descomposición más fina y comparable entre algoritmos, contemplado en la
+propuesta original de este trabajo, queda como tarea pendiente.
 
 % ============================================================
 % SECCIÓN 5 — RESULTADOS            TARGET: 9–10 páginas
@@ -579,21 +1139,174 @@ predictivos de esta tesis.
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
 
-% [TEXTO AQUÍ — Tabla 4: AUC-ROC, F1, recall,
-%  errores de exclusión por modelo y especificación]
+La Tabla~\ref{tab:desempeno_modelos} presenta el desempeño de los cinco
+algoritmos bajo las dos especificaciones de covariables (Modelo A, con
+ingreso/gasto; Modelo B, sin ellos), evaluado sobre el conjunto de prueba
+completamente fuera de muestra (2013$\to$2016), con la estrategia de
+balanceo de clases y el umbral de clasificación ya elegidos por validación
+cruzada dentro del periodo de entrenamiento (Secciones~\ref{subsec:validacion}
+y \ref{subsec:desbalance}).
+
+\begin{table}[H]
+  \centering
+  \caption{Desempeño de los cinco algoritmos, holdout temporal
+  (train 2010$\to$2013, test 2013$\to$2016)}
+  \label{tab:desempeno_modelos}
+  \begin{tabular}{llccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{Recall} & \textbf{F1} \\
+    \midrule
+    Random Forest              & A & balanced  & 0.52 & 0.764 & 0.665 & 0.470 \\
+    XGBoost                    & A & ninguno   & 0.28 & 0.762 & 0.671 & 0.475 \\
+    HistGradientBoosting       & A & ninguno   & 0.23 & 0.759 & 0.745 & 0.461 \\
+    LightGBM                   & A & balanced  & 0.55 & 0.757 & 0.625 & 0.467 \\
+    Logística regularizada     & A & balanced  & 0.52 & 0.747 & 0.665 & 0.445 \\
+    \addlinespace
+    HistGradientBoosting       & B & balanced  & 0.44 & 0.740 & 0.715 & 0.444 \\
+    Logística regularizada     & B & balanced  & 0.48 & 0.739 & 0.704 & 0.433 \\
+    Random Forest              & B & balanced  & 0.49 & 0.739 & 0.674 & 0.447 \\
+    XGBoost                    & B & ninguno   & 0.27 & 0.735 & 0.658 & 0.444 \\
+    LightGBM                   & B & ninguno   & 0.23 & 0.727 & 0.742 & 0.435 \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} umbral elegido por validación cruzada
+    maximizando F1 (Sección~\ref{subsec:desbalance}), no fijo en 0.5.
+    Fuente: cálculos propios, \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv}.
+  \end{minipage}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/01_auc_roc_por_algoritmo.png}
+  \caption{AUC-ROC de los cinco algoritmos por especificación, conjunto de
+  prueba 2013$\to$2016.}
+  \label{fig:auc_algoritmos}
+\end{figure}
+
+Tres patrones se destacan. Primero, los cinco algoritmos quedan en un
+rango relativamente estrecho de AUC-ROC (0.727--0.764 en total, apenas
+0.747--0.764 dentro del Modelo A), con los tres \emph{gradient boosting} y
+Random Forest apenas por encima de la regresión logística regularizada
+(Figura~\ref{fig:auc_algoritmos}). La diferencia entre el algoritmo de
+mayor AUC-ROC (Random Forest, 0.764) y el tercero (HistGradientBoosting,
+0.759) es de apenas 0.005 --del orden de la variabilidad que ya se observó
+por puro azar en la comparación de estrategias de balanceo
+(Sección~\ref{subsec:desbalance})--, por lo que estos resultados no
+permiten afirmar que un algoritmo domine claramente a los demás; esa
+pregunta requiere repetir el ajuste final con múltiples semillas
+aleatorias e intervalos de confianza, ejercicio en curso al momento de
+escribir este documento (Sección~\ref{subsec:limitaciones}). Segundo, el
+ranking cambia según la métrica: HistGradientBoosting tiene el mayor
+recall en ambas especificaciones (0.745 en A, 0.715 en B) a costa de más
+falsos positivos, mientras que XGBoost tiene el mayor F1 en A. Esto
+sugiere que, más que declarar un ``mejor'' algoritmo único, la elección
+final debería depender de las preferencias de la institución que use el
+modelo para focalización --priorizar recall implica aceptar más errores
+de inclusión a cambio de menos errores de exclusión--.
+
+Tercero, y más relevante para la pregunta de investigación de esta tesis:
+la brecha de AUC-ROC entre el Modelo A (con ingreso/gasto) y el Modelo B
+(sin ellos) es de apenas 0.017--0.030 según el algoritmo, mucho menor de
+lo que predeciría un enfoque de vulnerabilidad puramente monetario
+\parencite{chaudhuri2002}. Esto indica que las covariables no monetarias
+--educación, activos del hogar, vivienda, choques, características de la
+comunidad-- capturan una fracción sustancial del poder predictivo que
+aporta la brecha al umbral de pobreza, no son redundantes con ella. La
+Figura~\ref{fig:recall_precision} muestra recall y precision al umbral
+elegido para el Modelo A: el patrón de mayor recall en HistGradientBoosting
+frente a mayor precision en Random Forest y XGBoost se mantiene incluso
+tras corregir por el umbral de clasificación.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/02_recall_precision_umbral.png}
+  \caption{Recall y precision al umbral de clasificación elegido por
+  validación cruzada, Modelo A.}
+  \label{fig:recall_precision}
+\end{figure}
+
+Las Figuras~\ref{fig:importancia_rf} y~\ref{fig:coef_logistica} muestran
+las variables más importantes de Random Forest y los mayores coeficientes
+--en valor absoluto, en unidades estandarizadas-- de la regresión
+logística, ambos para el Modelo A. En Random Forest, el ingreso per cápita
+real y la brecha a la LP dominan claramente (consistente con
+\textcite{chaudhuri2002}), seguidos por el índice de riqueza precalculado
+de la ELCA (\texttt{riqueza\_pca\_hogar}) y el número de bienes durables
+del hogar. En la regresión logística, en cambio, el nivel educativo máximo
+del hogar tiene el mayor coeficiente en valor absoluto, por encima incluso
+de la brecha a la LP y el ingreso real --con signo negativo, consistente
+con que más educación reduce la probabilidad de caer en pobreza--, seguido
+por el número de bienes durables y de servicios públicos del hogar. Esta
+diferencia entre algoritmos --qué variable ``domina'' según se mida por
+reducción de impureza o por magnitud de coeficiente estandarizado-- es en
+sí misma evidencia de que la importancia de variables no es una propiedad
+única del problema sino que depende parcialmente de cómo cada algoritmo
+particiona la información, un matiz relevante para la interpretación de
+resultados de esta naturaleza.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{../outputs/figures/modelos/03_importancia_random_forest_A.png}
+  \caption{Variables más importantes, Random Forest, Modelo A (reducción de impureza).}
+  \label{fig:importancia_rf}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{../outputs/figures/modelos/04_coeficientes_logistica_A.png}
+  \caption{Mayores coeficientes en valor absoluto, regresión logística
+  regularizada, Modelo A (unidades estandarizadas).}
+  \label{fig:coef_logistica}
+\end{figure}
+
+En el Modelo B (sin ingreso/gasto), tanto Random Forest como la regresión
+logística ubican el índice de riqueza precalculado y el nivel educativo
+máximo del hogar entre las dos variables más importantes, seguidos por el
+número de bienes durables, de servicios públicos y --solo en la regresión
+logística-- la tasa de cotización a pensión del hogar, un proxy de
+formalidad laboral. Estas variables son consistentes con los determinantes
+de pobreza documentados en la literatura y no sugieren que el modelo esté
+capturando relaciones espurias.
 
 \subsection{Contribución marginal de las variables geoespaciales}
 \label{subsec:marginal}
 
-% [TEXTO AQUÍ — Figura 2: SHAP summary plot o
-%  permutation importance; Tabla 5: ganancia en AUC
-%  al agregar cada fuente geoespacial]
+Esta subsección --el corazón de la pregunta de investigación de la
+tesis-- está pendiente de completarse. Como se documenta en la
+Sección~\ref{subsec:geo}, la integración de las variables derivadas de
+Google Street View al dataset consolidado (Sección~\ref{subsec:elco}), y
+la construcción de las fuentes de iluminación nocturna y OpenStreetMap
+aún no implementadas, son la tarea inmediatamente siguiente de este
+proyecto. El diseño ya definido para esta comparación --detallado en la
+Sección~\ref{subsec:modelos}-- es reestimar los cinco algoritmos con un
+tercer conjunto de covariables (Modelo A o B, el que resulte más
+apropiado como base, más las variables geoespaciales) y comparar el
+cambio en AUC-ROC, recall y las listas de importancia de variables de la
+Sección~\ref{subsec:desempeno} frente a esta línea base. Dado que la
+brecha entre el Modelo A y el Modelo B ya resultó menor de lo esperado
+(Sección~\ref{subsec:desempeno}), una pregunta específica que este
+ejercicio permitirá responder es si las variables geoespaciales aportan
+más en el subconjunto de hogares cerca del umbral de pobreza, donde la
+brecha a la LP por sí sola distingue peor.
 
 \subsection{Heterogeneidad territorial}
 \label{subsec:heterogeneidad}
 
-% [TEXTO AQUÍ — Tabla 6 o Figura 3: desempeño
-%  por región / municipio urbano vs. rural]
+Esta subsección también está pendiente. El diseño contempla reestimar el
+desempeño de los modelos de la Sección~\ref{subsec:desempeno} por
+separado para zona urbana y rural, y --si el tamaño de muestra por región
+lo permite tras la partición temporal ya exigente en observaciones
+(3{,}089 hogares no pobres en la base de entrenamiento,
+Tabla~\ref{tab:matriz_transicion})-- por región geográfica. Es
+particularmente relevante para las variables geoespaciales de la
+Sección~\ref{subsec:marginal}: la cobertura de Google Street View no es
+homogénea entre zona urbana y rural ni estable en el tiempo (documentado
+en la Sección~\ref{subsec:geo}), por lo que su contribución marginal
+podría concentrarse en los municipios con mejor cobertura, un patrón que
+la literatura ya ha documentado en otros contextos
+\parencite{hall2023}.
 
 
 % ============================================================
@@ -610,18 +1323,121 @@ predictivos de esta tesis.
 \subsection{Síntesis de hallazgos}
 \label{subsec:sintesis}
 
-Prueba de texto XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Este documento reporta el avance de una tesis que busca evaluar si las
+variables geoespaciales públicas mejoran la predicción de la transición
+hacia la pobreza monetaria de hogares colombianos no pobres, frente a un
+modelo basado exclusivamente en la Encuesta Longitudinal Colombiana
+(ELCA). Hasta el momento se ha completado la mitad ``base'' de esa
+comparación: la auditoría sistemática y no muestral de los cinco módulos
+de la ELCA (más de 4.000 columnas originales), la construcción rigurosa de
+la variable de resultado --transición a la pobreza entre olas, siguiendo
+el enfoque de \textcite{lopezCalva2011,lopezCalva2014}, con cinco
+ejercicios de robustez sobre su construcción--, y la estimación y
+comparación de cinco algoritmos de aprendizaje supervisado (regresión
+logística regularizada, Random Forest, XGBoost, LightGBM y
+HistGradientBoosting) bajo dos especificaciones de covariables.
+
+Tres hallazgos se destacan de este avance. Primero, la dinámica de la
+pobreza en el panel ELCA 2010--2016 muestra una reducción sostenida de la
+incidencia (de 60.7\% a 42.4\% por ingreso) acompañada de una tasa de
+entrada a la pobreza --la variable de interés de esta tesis-- de 23.4\%
+entre 2010--2013 y de 19.9\% entre 2013--2016, con una tasa de salida que
+casi duplica a la de entrada en ambos periodos. Segundo, los cinco
+algoritmos evaluados alcanzan un desempeño similar entre sí (AUC-ROC entre
+0.727 y 0.764), sin que ninguno domine claramente a los demás dada la
+magnitud de las diferencias observadas, aunque los tres \emph{gradient
+boosting} y Random Forest superan de forma consistente a la regresión
+logística regularizada. Tercero, y más importante para el diseño de la
+etapa siguiente de esta tesis, la brecha de desempeño entre el modelo que
+incluye ingreso/gasto del hogar y el que no los incluye es sorprendentemente
+pequeña (0.017--0.030 en AUC-ROC): las covariables no monetarias
+--educación, activos, vivienda, choques, características de la
+comunidad-- explican una fracción sustancial del poder predictivo que, bajo
+el enfoque clásico de vulnerabilidad \parencite{chaudhuri2002}, se atribuiría
+casi exclusivamente al ingreso. Esto sugiere que existe margen real para
+que fuentes de información adicionales --geoespaciales o de otro tipo--
+aporten poder predictivo incremental, la pregunta central que este trabajo
+busca responder en su etapa final.
 
 \subsection{Implicaciones para la política pública}
 \label{subsec:politica}
 
-% [TEXTO AQUÍ — SISBÉN, sistemas de alerta temprana,
-%  actualización entre encuestas, DNP]
+Aunque los resultados presentados en este documento son intermedios, ya
+insinúan implicaciones relevantes para el diseño de sistemas de
+focalización como el SISBEN. Primero, la evidencia de que las covariables
+no monetarias tienen un poder predictivo casi comparable al del ingreso
+sugiere que un sistema de alerta temprana no necesita esperar a observar
+directamente el ingreso de un hogar --la variable más costosa y menos
+frecuente de actualizar-- para identificar candidatos a la vulnerabilidad;
+características más fáciles de observar o de actualizar administrativamente
+(educación, activos del hogar, formalidad laboral) ya capturan buena parte
+de esa señal. Segundo, la comparación entre algoritmos
+(Sección~\ref{subsec:desempeno}) muestra que la elección del algoritmo
+correcto depende de la función de pérdida que le importa al hacedor de
+política: HistGradientBoosting maximiza el recall --relevante si el costo
+de no detectar un hogar que va a caer en pobreza (error de exclusión) es
+mucho mayor que el de incluir por error a uno que no cae (error de
+inclusión)--, mientras que XGBoost y Random Forest ofrecen mejor precision
+al mismo nivel de AUC-ROC. Un sistema real debería fijar explícitamente esa
+preferencia antes de elegir el modelo, en vez de optimizar únicamente por
+AUC-ROC. Estas implicaciones se profundizarán, y se contrastarán contra el
+aporte específico de las fuentes geoespaciales, una vez completada la
+Sección~\ref{subsec:marginal}.
 
 \subsection{Limitaciones y agenda de investigación}
 \label{subsec:limitaciones}
 
-% [TEXTO AQUÍ]
+Además de las limitaciones de la variable de resultado ya discutidas en la
+Sección~\ref{subsubsec:limitaciones_transiciones} (error de medición cerca
+del umbral de pobreza, ausencia de arriendo imputado, atrición no
+caracterizada, entre otras), quedan pendientes las siguientes tareas para
+completar esta tesis, en orden de prioridad:
+
+\begin{itemize}
+  \item \textbf{Incorporación de variables geoespaciales.} Es la tarea
+  central pendiente (Secciones~\ref{subsec:geo} y~\ref{subsec:marginal}).
+  Requiere completar la agregación de \emph{embeddings} de imagen de
+  Google Street View a nivel hogar$\times$ola, e iniciar --desde cero--
+  la construcción de las variables de iluminación nocturna satelital y de
+  OpenStreetMap contempladas en la propuesta original de este trabajo, que
+  a la fecha no tienen ningún avance de implementación.
+  \item \textbf{Cuantificación de la incertidumbre del desempeño de los
+  modelos.} Las diferencias de AUC-ROC entre los algoritmos de la
+  Sección~\ref{subsec:desempeno} son pequeñas frente a la variabilidad
+  observada por azar en otros ejercicios de esta tesis (por ejemplo, en la
+  comparación de estrategias de balanceo de clases,
+  Sección~\ref{subsec:desbalance}). Está en curso un ejercicio que
+  reentrena cada modelo final con múltiples semillas aleatorias para
+  reportar intervalos de confianza sobre el AUC-ROC, indispensable antes
+  de afirmar que un algoritmo supera a otro.
+  \item \textbf{Ejercicios de robustez de la especificación temporal.}
+  Como se anticipó en la Sección~\ref{subsec:validacion}, quedan
+  pendientes una especificación \emph{backtest} (entrenar en
+  2013$\to$2016, evaluar en 2010$\to$2013) y una especificación agrupada
+  con ambas transiciones y validación cruzada agrupada por hogar, así como
+  una especificación ``dinámica'' que incorpore variables de cambio entre
+  olas --por diseño, no disponible para la transición 2010$\to$2013, la
+  primera del panel--.
+  \item \textbf{Heterogeneidad territorial.} Pendiente evaluar si el
+  desempeño de los modelos --y, sobre todo, el aporte marginal de las
+  variables geoespaciales-- es homogéneo entre zona urbana y rural y entre
+  regiones (Sección~\ref{subsec:heterogeneidad}), una pregunta
+  especialmente relevante dado que la cobertura de Google Street View no
+  es homogénea en el territorio colombiano.
+  \item \textbf{Interpretabilidad más fina.} El uso de valores SHAP,
+  contemplado en la propuesta original para descomponer de forma
+  comparable la contribución marginal de cada fuente de información entre
+  algoritmos, no se ha implementado todavía; las medidas de importancia
+  usadas hasta ahora (Sección~\ref{subsec:interpretabilidad}) no son
+  directamente comparables entre sí.
+\end{itemize}
+
+Ninguna de estas tareas pendientes cambia la validez de los resultados ya
+reportados sobre el modelo base --construidos con el mismo estándar de
+rigor documentado exhaustivamente en \texttt{docs/decisions.md}--, pero sí
+determinan que la pregunta de investigación central de esta tesis, el
+aporte de las fuentes geoespaciales, quede todavía sin responder al cierre
+de este documento.
 
 % ============================================================
 % REFERENCIAS
