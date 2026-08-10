@@ -548,6 +548,134 @@ Sección~\ref{subsec:elco}, es la tarea inmediatamente siguiente en la
 agenda de este proyecto y no está reflejada en los resultados de la
 Sección~\ref{sec:resultados}.
 
+\subsubsection{Transfer learning y modelos de extracción de variables visuales}
+\label{subsubsec:transfer_learning}
+
+Esta subsección explica, en términos no técnicos, qué es el \emph{transfer
+learning} y qué hace cada uno de los modelos usados para convertir una
+fotografía de Google Street View en información numérica utilizable en un
+modelo estadístico.
+
+\paragraph{¿Qué es el \emph{transfer learning}?} Una red neuronal
+convolucional --el tipo de modelo usado para procesar imágenes-- aprende a
+reconocer patrones visuales (bordes, texturas, formas, objetos completos)
+mostrándole millones de fotografías ya etiquetadas y ajustando
+internamente millones de parámetros numéricos hasta que aprende a
+distinguir, por ejemplo, un perro de un carro. Entrenar una red así desde
+cero para esta tesis --con fotografías de fachadas de vivienda en
+Colombia-- sería inviable: requeriría millones de fotos etiquetadas
+manualmente y semanas de cómputo especializado, recursos que no están
+disponibles para una investigación de este tipo. El \emph{transfer
+learning} (``aprendizaje por transferencia'') resuelve este problema
+reutilizando una red que \emph{ya} fue entrenada por otros investigadores
+sobre un problema distinto pero relacionado --por ejemplo, reconocer 1.000
+categorías de objetos cotidianos en millones de fotos de internet-- y
+aprovechando lo que esa red ya ``sabe ver'' sin volver a entrenarla. En
+concreto, se le muestra a la red ya entrenada cada fotografía de la ELCA y
+se le pide, no la clasificación final (``esto es un perro''), sino la
+representación numérica interna que la red construyó justo antes de tomar
+esa decisión --un vector de unos pocos miles de números, llamado
+\emph{embedding}--. Ese vector no es interpretable número por número, pero
+funciona como una huella digital compacta de lo que hay en la imagen: dos
+fotos que se \emph{parecen} visualmente (misma textura de fachada, mismo
+tipo de calle, vegetación similar) van a tener \emph{embeddings} numéricamente
+parecidos, aunque nunca se le haya enseñado a la red el concepto de
+``pobreza'' o ``calidad del barrio''. Es esa propiedad --similitud visual
+se traduce en similitud numérica-- la que permite usar el \emph{embedding}
+como insumo (covariable) de los modelos predictivos de la
+Sección~\ref{subsec:modelos}, en vez de la imagen cruda. Los tres modelos
+usados en esta tesis se dejan ``congelados'' --sin reentrenarlos ni
+ajustarlos con fotos colombianas (\emph{sin fine-tuning})--, lo cual es
+más barato computacionalmente, pero tiene una limitación importante que se
+discute más abajo: la red ve las fotos de la ELCA con los mismos
+``ojos'' con que fue entrenada originalmente, que no necesariamente están
+calibrados para el contexto colombiano.
+
+\paragraph{VGG-19 (entrenada sobre ImageNet).} ImageNet es una base de
+datos de referencia en visión computacional con más de un millón de fotos
+etiquetadas en 1.000 categorías de objetos (animales, vehículos,
+muebles, utensilios, etc.). VGG-19 es una de las arquitecturas más
+influyentes entrenadas sobre esa base: apila 19 capas de procesamiento,
+cada una aplicando filtros simples y uniformes (ventanas de 3$\times$3
+píxeles) que, en conjunto, van desde detectar bordes y texturas simples en
+las primeras capas hasta reconocer objetos completos en las últimas. El
+\emph{embedding} usado es la salida de la penúltima capa, con 4.096
+números por imagen. \textbf{Ventaja}: arquitectura simple y ampliamente
+validada en la literatura, lo que facilita comparar resultados con otros
+estudios. \textbf{Limitaciones}: es una arquitectura relativamente
+pesada (más de 140 millones de parámetros) y antigua (2014) frente a las
+alternativas siguientes; al estar entrenada para reconocer \emph{objetos}
+discretos (un perro, una silla), su noción de ``similitud visual'' está
+sesgada hacia la presencia de objetos reconocibles y no hacia el paisaje
+urbano como un todo (una calle pavimentada frente a una sin pavimentar no
+es una distinción que ImageNet le enseñó a valorar); y su
+\emph{embedding} de 4.096 números es grande frente al tamaño de la
+muestra de hogares de esta tesis ($n\approx$3.000), lo que puede
+dificultar su uso estadístico directo sin alguna reducción de
+dimensionalidad.
+
+\paragraph{ResNet-50 (entrenada sobre ImageNet).} Misma base de datos de
+entrenamiento que VGG-19 (ImageNet), pero con una arquitectura más
+moderna (2015) que resuelve un problema técnico real de las redes muy
+profundas: a medida que se apilan más capas, la señal de aprendizaje se
+``diluye'' y la red deja de mejorar o incluso empeora. ResNet introduce
+``conexiones residuales'' --atajos que le permiten a la información
+saltarse capas cuando no aportan nada nuevo-- lo que permite entrenar
+redes de 50 capas (de ahí el nombre) de forma estable y con mejor
+precisión que VGG-19, usando además muchos menos parámetros (25 millones
+frente a 140 millones). El \emph{embedding} usado tiene 2.048 números por
+imagen. \textbf{Ventaja} frente a VGG-19: más preciso, más liviano
+computacionalmente, y un \emph{embedding} de menor dimensión (más
+manejable estadísticamente). \textbf{Limitación}: comparte con VGG-19 el
+mismo sesgo hacia el reconocimiento de objetos discretos en vez de
+escenas completas, por estar entrenada sobre la misma base de datos.
+
+\paragraph{ResNet-50 (entrenada sobre Places365).} Misma arquitectura que
+la anterior, pero entrenada sobre una base de datos distinta: Places365,
+con 1,8 millones de fotos etiquetadas en 365 categorías de \emph{escenas}
+--no objetos individuales-- como ``calle residencial'', ``zona
+industrial'', ``mercado al aire libre'' o ``autopista''. Esta diferencia
+es la más relevante de las tres para esta tesis: una fotografía de fachada
+de vivienda es, ante todo, una escena urbana completa, no un objeto
+aislado, por lo que un modelo entrenado para distinguir \emph{tipos de
+lugar} está más alineado conceptualmente con lo que se busca medir
+--calidad y características del entorno construido-- que uno entrenado
+para distinguir razas de perro. \textbf{Ventaja}: mayor pertinencia
+semántica para el problema de esta tesis, sin costo computacional
+adicional frente a la versión ImageNet (misma arquitectura, mismo tamaño
+de \emph{embedding}). \textbf{Limitación}: las 365 categorías de Places365
+fueron definidas y etiquetadas mayoritariamente sobre fotografías de
+Estados Unidos y Europa; es una base de datos de dominio distinto al
+colombiano, y no es evidente que sus categorías (o los patrones visuales
+que la red aprendió a asociar con ellas) capturen bien fenómenos
+específicos del contexto local, como asentamientos informales o
+tipologías constructivas propias de zonas rurales colombianas --el mismo
+riesgo de generalización entre contextos documentado por
+\textcite{usmanova2022} para modelos de aprendizaje automático en general
+(Sección~\ref{subsec:ml_pobreza})--.
+
+\paragraph{Trabajo en esqueleto, aún no implementado: CLIP y SAM~3.} Dos
+modelos adicionales están contemplados en el diseño del pipeline pero no
+tienen código funcional todavía (Sección~\ref{subsec:limitaciones}). CLIP
+(\emph{Contrastive Language-Image Pretraining}) es un modelo entrenado no
+para clasificar imágenes en una lista fija de categorías, sino para
+relacionar imágenes con descripciones de texto libre --aprendió, a partir
+de cientos de millones de pares foto-descripción tomados de internet, a
+ubicar imágenes y frases en un mismo espacio numérico compartido--. Esto
+permitiría, por ejemplo, buscar directamente qué tan bien una fotografía
+coincide con una descripción como ``una calle sin pavimentar con
+viviendas de materiales precarios'', sin depender de una lista cerrada de
+categorías como las de ImageNet o Places365 --una flexibilidad relevante
+para capturar nociones de vulnerabilidad del entorno que no encajan
+naturalmente en ninguna categoría predefinida--. SAM~3 (\emph{Segment
+Anything Model}) resuelve un problema distinto: en vez de resumir toda la
+imagen en un único vector de números, identifica y delinea los objetos y
+regiones individuales dentro de ella (la acera, un vehículo, la fachada,
+la vegetación), lo que permitiría construir variables directamente
+interpretables --como el porcentaje del área de la imagen cubierta por
+pavimento o por zonas verdes-- en lugar de depender de un \emph{embedding}
+opaco. Ninguno de los dos aporta todavía resultados a esta tesis.
+
 \subsection{Estadísticas descriptivas}
 \label{subsec:desc}
 
