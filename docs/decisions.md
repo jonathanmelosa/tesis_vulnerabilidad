@@ -3425,3 +3425,111 @@ agrupado por hogar), ajuste de hiperparametros dentro del periodo de
 entrenamiento (sin tocar el test hasta la evaluacion final, ya
 establecido en la metodologia pero no ejecutado aun), y la comparacion
 final contra el modelo enriquecido con variables de Google Street View.
+
+## 2026-08-09: Suite de comparacion de algoritmos -- logistica regularizada (benchmark), Random Forest, XGBoost, LightGBM, HistGradientBoosting
+
+Reemplaza el entrenamiento unico de `entrenar_benchmark.py` (eliminado) por
+una suite de 5 algoritmos, cada uno en su propio script (`src/05_model/
+modelo_<algoritmo>.py`), resultados en carpeta propia
+(`data/processed/benchmark_resultados/<algoritmo>/`), y un registro
+transversal `registro_modelos.xlsx` (regenerado desde `registro_modelos.csv`,
+fuente de verdad, upsert por algoritmo+especificacion) con metricas,
+hiperparametros y observaciones de cada corrida. Logica compartida en
+`src/05_model/modelo_utils.py`.
+
+**El usuario designo la regresion logistica con regularizacion como
+benchmark**, a comparar contra XGBoost, LightGBM (pedidos explicitamente) y
+Random Forest (propuesto como "otro algoritmo recomendado", punto medio
+entre la logistica lineal y los 3 gradient boosting).
+
+**Decisiones metodologicas -- todas CONFIRMADAS explicitamente con el
+usuario antes de implementar** (el usuario detuvo una primera corrida por
+asumir demasiado sin consultar; ver mas abajo):
+
+1. **Imputacion de missings** (solo Logistica y Random Forest -- los unicos
+   sin soporte nativo de NaN; XGBoost/LightGBM/HistGB no imputan, ver
+   entrada anterior): **0 + indicador de faltante, siempre, para toda
+   variable numerica** (nunca la mediana). Razon (objecion del usuario que
+   cambio la recomendacion inicial): gran parte del missingness esta
+   CAUSADO por una pregunta filtro -- la mediana de una columna asi se
+   calcula solo sobre quienes pasaron el filtro y respondieron, y
+   asignarsela a los excluidos por el filtro les inventa un valor "tipico"
+   que no tienen, contradiciendo la logica del filtro. 0 es mas seguro
+   porque en un modelo lineal `0 x coeficiente = 0` siempre -- el relleno
+   no aporta ninguna contribucion mas alla de lo que capture el indicador,
+   que es quien absorbe el efecto de "esto no aplica"; con la mediana, el
+   mismo coeficiente que debe ajustar la pendiente real sobre quienes SI
+   respondieron queda contaminado por tener que explicar el valor
+   inventado del grupo filtrado. Evita ademas clasificar ~165 covariables
+   una por una segun si su missingness admite un "cero real". Categoricas:
+   categoria explicita "Sin dato" (no moda). One-hot con `drop="first"`
+   para Logistica/RF; estandarizacion solo para Logistica (regularizacion
+   penaliza magnitud, dependiente de escala).
+
+2. **Comparacion de estrategias de balanceo de clases** (CONFIRMADO): se
+   comparan 3 estrategias por AUC-ROC en CV -- `balanced` (reweighting,
+   `class_weight`/`scale_pos_weight`), `ninguno` (baseline sin ajuste),
+   `oversampling` (`RandomOverSampler` de imbalanced-learn, dentro de cada
+   fold via `imblearn.pipeline.Pipeline` para no filtrar informacion del
+   fold de validacion). SMOTE se descarto (el usuario no lo selecciono):
+   interpola vecinos, mal definido con NaN/categoricas mezcladas;
+   RandomOverSampler solo duplica filas, compatible con cualquier tipo.
+
+3. **Metrica de seleccion** (CONFIRMADO): AUC-ROC -- no depende de un
+   umbral de clasificacion, y el oversampling distorsiona la calibracion
+   de las probabilidades (comparar F1/recall a umbral fijo entre
+   estrategias de balanceo distintas no seria comparacion justa).
+   Recall/precision/F1 se reportan en paralelo, sin decidir la seleccion.
+
+4. **Busqueda de hiperparametros** (CONFIRMADO): `RandomizedSearchCV`,
+   `n_iter=15`, `cv=3` (StratifiedKFold) -- valores de costo computacional,
+   no consultados explicitamente, documentados para poder ajustarse.
+
+**Hallazgo de la primera corrida y correccion de umbral** (CONFIRMADO
+con el usuario tras mostrarle el problema): XGBoost (A y B) y LightGBM-B
+ganaron la comparacion de balanceo con "ninguno" por una diferencia de
+AUC-CV insignificante (~0.001, ruido estadistico) frente a "balanced" --
+pero sin reponderar clases (~23% tasa positiva), las probabilidades
+salen tan comprimidas hacia 0 que casi ninguna fila cruzaba el umbral
+fijo de 0.5 (recall 0.03-0.04 en XGBoost, con precision >0.6 -- el modelo
+ordenaba bien pero era inservible al umbral estandar). Se agrego
+`elegir_umbral_por_cv` (`modelo_utils.py`): probabilidades out-of-fold
+via `cross_val_predict` sobre el estimador ya elegido (balanceo +
+hiperparametros), se escanea una grilla y se elige el umbral que
+maximiza F1 -- AUC-ROC sigue mandando la seleccion previa de
+balanceo/hiperparametros, esto solo corrige como se reportan
+recall/precision/F1. Tras la correccion, XGBoost-A paso de recall 0.038
+a 0.671 (umbral 0.28) sin cambiar el modelo elegido.
+
+**Resultado final** (holdout temporal principal, train 2010->2013, test
+2013->2016; umbral de clasificacion elegido por CV, no fijo en 0.5):
+
+| Algoritmo | Espec. | Balanceo | Umbral | AUC-ROC | Recall | Precision | F1 |
+|---|---|---|---|---|---|---|---|
+| Random Forest | A | balanced | 0.52 | 0.764 | 0.665 | 0.364 | 0.470 |
+| XGBoost | A | ninguno | 0.28 | 0.762 | 0.671 | 0.367 | 0.475 |
+| HistGradientBoosting | A | ninguno | 0.23 | 0.759 | 0.745 | 0.334 | 0.461 |
+| LightGBM | A | balanced | 0.55 | 0.757 | 0.625 | 0.372 | 0.467 |
+| Logistica regularizada (benchmark) | A | balanced | 0.52 | 0.747 | 0.665 | 0.334 | 0.445 |
+| HistGradientBoosting | B | balanced | 0.44 | 0.740 | 0.715 | 0.322 | 0.444 |
+| Logistica regularizada (benchmark) | B | balanced | 0.48 | 0.739 | 0.704 | 0.313 | 0.433 |
+| Random Forest | B | balanced | 0.49 | 0.739 | 0.674 | 0.335 | 0.447 |
+| XGBoost | B | ninguno | 0.27 | 0.735 | 0.658 | 0.335 | 0.444 |
+| LightGBM | B | ninguno | 0.23 | 0.727 | 0.742 | 0.308 | 0.435 |
+
+Los 5 algoritmos quedan en un rango estrecho de AUC-ROC (0.727-0.764) --
+los gradient boosting (RF/XGBoost/HistGB) superan marginalmente a la
+logistica regularizada, pero la brecha es pequeña (~0.01-0.02 en Modelo
+A), consistente con que la señal predictiva principal esta en variables
+con relacion mayormente monotona/aditiva con el outcome (ingreso,
+educacion, activos) que la logistica captura razonablemente bien incluso
+sin interacciones. **Pendiente, explicitamente diferido por el usuario**:
+decidir cual algoritmo (y cual especificacion A/B) es "el" benchmark
+final para la comparacion contra el modelo enriquecido con Google Street
+View.
+
+Output: `src/05_model/modelo_utils.py` (logica compartida),
+`src/05_model/modelo_{logistica_regularizada,random_forest,xgboost,
+lightgbm,histgradientboosting}.py`, `data/processed/benchmark_resultados/
+<algoritmo>/` (coeficientes o importancia de variables por modelo+especificacion),
+`data/processed/benchmark_resultados/registro_modelos.{csv,xlsx}`.

@@ -96,6 +96,28 @@ Solucion: el umbral de clasificacion NO se fija en 0.5 -- se elige por CV
 + hiperparametros). AUC-ROC (umbral-independiente) sigue mandando esa
 seleccion previa -- esto solo corrige COMO se reportan recall/precision/F1,
 no cambia que gana la comparacion de balanceo/hiperparametros.
+
+Multiples semillas e intervalos de confianza -- CONFIRMADO CON EL USUARIO
+--------------------------------------------------------------------------
+Pregunta del usuario ("¿el mejor modelo fue Random Forest?") expuso que
+las diferencias de AUC-ROC entre los 3-4 algoritmos mejor rankeados
+(~0.002-0.005) son del orden de la variabilidad que ya se habia observado
+por puro azar en la comparacion de balanceo -- sin una nocion de
+incertidumbre, "el mejor" no es una afirmacion defendible.
+
+Se re-entrena el modelo FINAL (balanceo y mejores_params YA elegidos por
+`comparar_balanceo_y_tunear` -- eso NO se repite por semilla, seria
+excesivo en tiempo de computo) con `SEMILLAS = [42, 1, 2, 3, 4]` (5
+semillas, CONFIRMADO): cada semilla cambia el random_state del modelo (y
+del remuestreo si el balanceo elegido es "oversampling") y del particionado
+usado para re-elegir el umbral por CV -- mide la variabilidad debida a la
+aleatoriedad propia del algoritmo (bootstrap de arboles, orden de
+convergencia, etc.), NO la sensibilidad a la busqueda de
+balanceo/hiperparametros (mantenida fija, ver `evaluar_multiples_semillas`).
+Se reporta media, desviacion estandar e intervalo de confianza al 95%
+(t de Student, 4 grados de libertad dado n=5) para AUC-ROC/recall/
+precision/F1 -- estos, no un unico valor de una sola semilla, son los que
+deben compararse entre algoritmos.
 """
 
 import json
@@ -111,6 +133,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, cross_val_predict
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from scipy import stats as scipy_stats
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data" / "processed" / "benchmark_train_test"
@@ -125,14 +148,21 @@ N_ITER_BUSQUEDA = 15
 CV_FOLDS = 3
 SCORING = "roc_auc"
 RANDOM_STATE = 42
+SEMILLAS = [42, 1, 2, 3, 4]
+
+METRICAS_RESUMEN = ["auc_roc", "recall", "precision", "f1"]
 
 COLUMNAS_REGISTRO = [
     "algoritmo", "especificacion", "fecha_entrenamiento",
     "n_train", "n_test", "n_covariables_originales", "n_covariables_modelo",
     "tasa_entrada_train", "tasa_entrada_test",
     "balanceo_elegido", "auc_cv_balanced", "auc_cv_ninguno", "auc_cv_oversampling",
-    "umbral_clasificacion", "auc_roc", "recall", "precision", "f1",
-    "tn", "fp", "fn", "tp",
+    "n_semillas", "umbral_clasificacion_media",
+    "auc_roc_media", "auc_roc_std", "auc_roc_ci95_low", "auc_roc_ci95_high",
+    "recall_media", "recall_std", "recall_ci95_low", "recall_ci95_high",
+    "precision_media", "precision_std", "precision_ci95_low", "precision_ci95_high",
+    "f1_media", "f1_std", "f1_ci95_low", "f1_ci95_high",
+    "tn_semilla42", "fp_semilla42", "fn_semilla42", "tp_semilla42",
     "estrategia_imputacion", "hiperparametros", "observaciones",
 ]
 
@@ -257,13 +287,13 @@ def comparar_balanceo_y_tunear(
     }
 
 
-def elegir_umbral_por_cv(estimador, x_train: pd.DataFrame, y_train: pd.Series) -> float:
+def elegir_umbral_por_cv(estimador, x_train: pd.DataFrame, y_train: pd.Series, semilla: int = RANDOM_STATE) -> float:
     """Probabilidades out-of-fold (cross_val_predict, mismos folds que la
     busqueda de hiperparametros) -- se escanea una grilla de umbrales y se
     elige la que maximiza F1. Evita fijar 0.5 quando la calibracion de las
     probabilidades depende de la estrategia de balanceo elegida (ver
     docstring del modulo)."""
-    cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+    cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=semilla)
     proba_oof = cross_val_predict(estimador, x_train, y_train, cv=cv, method="predict_proba", n_jobs=-1)[:, 1]
 
     mejor_umbral, mejor_f1 = 0.5, -1.0
@@ -272,6 +302,57 @@ def elegir_umbral_por_cv(estimador, x_train: pd.DataFrame, y_train: pd.Series) -
         if f1 > mejor_f1:
             mejor_umbral, mejor_f1 = float(umbral), f1
     return mejor_umbral
+
+
+def evaluar_multiples_semillas(
+    construir_pipeline_fn,
+    mejores_params: dict,
+    x_train: pd.DataFrame, y_train: pd.Series,
+    x_test: pd.DataFrame, y_test: pd.Series,
+    semillas: list = SEMILLAS,
+) -> dict:
+    """Re-entrena el modelo FINAL (balanceo y mejores_params ya elegidos,
+    fijos) con cada semilla en `semillas` -- `construir_pipeline_fn(semilla)`
+    debe devolver el pipeline SIN tunear (misma estructura/balanceo que el
+    elegido por `comparar_balanceo_y_tunear`, solo cambia el random_state
+    interno) -- se le aplican los `mejores_params` via `set_params` antes de
+    entrenar. Para cada semilla se re-elige tambien el umbral por CV (mismos
+    folds, misma semilla). Retorna el detalle por semilla y un resumen
+    (media, std, IC 95% via t de Student) para AUC-ROC/recall/precision/F1
+    -- ver docstring del modulo, "Multiples semillas e intervalos de
+    confianza"."""
+    filas = []
+    for semilla in semillas:
+        pipe = construir_pipeline_fn(semilla)
+        if mejores_params:
+            pipe.set_params(**mejores_params)
+        pipe.fit(x_train, y_train)
+        umbral = elegir_umbral_por_cv(pipe, x_train, y_train, semilla=semilla)
+        proba_test = pipe.predict_proba(x_test)[:, 1]
+        metricas = calcular_metricas(y_test, proba_test, umbral=umbral)
+        filas.append({"semilla": semilla, "umbral": umbral, **metricas})
+
+    detalle = pd.DataFrame(filas)
+
+    n = len(semillas)
+    t_mult = float(scipy_stats.t.ppf(0.975, df=n - 1)) if n > 1 else 0.0
+    resumen = {"umbral_media": round(float(detalle["umbral"].mean()), 4)}
+    for metrica in METRICAS_RESUMEN:
+        media = float(detalle[metrica].mean())
+        std = float(detalle[metrica].std(ddof=1)) if n > 1 else 0.0
+        margen = t_mult * std / np.sqrt(n) if n > 1 else 0.0
+        resumen[metrica] = {
+            "media": round(media, 4), "std": round(std, 4),
+            "ci95_low": round(media - margen, 4), "ci95_high": round(media + margen, 4),
+        }
+
+    fila_ref = detalle[detalle["semilla"] == RANDOM_STATE].iloc[0]
+    resumen["confusion_semilla42"] = {
+        "tn": int(fila_ref["tn"]), "fp": int(fila_ref["fp"]),
+        "fn": int(fila_ref["fn"]), "tp": int(fila_ref["tp"]),
+    }
+
+    return {"detalle": detalle, "resumen": resumen}
 
 
 def calcular_metricas(y_test, proba_test, umbral: float = 0.5) -> dict:
@@ -295,18 +376,21 @@ def registrar_resultado(
     n_covariables_originales: int,
     y_train: pd.Series,
     y_test: pd.Series,
-    metricas: dict,
+    multi_resultado: dict,
     estrategia_imputacion: str,
     balanceo_info: dict,
     hiperparametros: dict,
     observaciones: str,
-    umbral_clasificacion: float = 0.5,
 ) -> None:
     """Upsert de una fila en registro_modelos.csv (clave: algoritmo +
-    especificacion) y regeneracion completa de registro_modelos.xlsx."""
+    especificacion) y regeneracion completa de registro_modelos.xlsx.
+    `multi_resultado` es el dict retornado por `evaluar_multiples_semillas`
+    -- se registran media/std/IC95 por metrica, no un unico valor."""
     RESULTADOS_DIR.mkdir(parents=True, exist_ok=True)
 
     auc_cv = balanceo_info.get("auc_cv_por_balanceo", {})
+    resumen = multi_resultado["resumen"]
+    conf = resumen["confusion_semilla42"]
     fila = {
         "algoritmo": algoritmo,
         "especificacion": especificacion,
@@ -321,16 +405,20 @@ def registrar_resultado(
         "auc_cv_balanced": auc_cv.get("balanced", ""),
         "auc_cv_ninguno": auc_cv.get("ninguno", ""),
         "auc_cv_oversampling": auc_cv.get("oversampling", ""),
-        "umbral_clasificacion": round(float(umbral_clasificacion), 4),
-        "auc_roc": round(float(metricas["auc_roc"]), 4),
-        "recall": round(float(metricas["recall"]), 4),
-        "precision": round(float(metricas["precision"]), 4),
-        "f1": round(float(metricas["f1"]), 4),
-        "tn": metricas["tn"], "fp": metricas["fp"], "fn": metricas["fn"], "tp": metricas["tp"],
+        "n_semillas": len(SEMILLAS),
+        "umbral_clasificacion_media": resumen["umbral_media"],
+        "tn_semilla42": conf["tn"], "fp_semilla42": conf["fp"],
+        "fn_semilla42": conf["fn"], "tp_semilla42": conf["tp"],
         "estrategia_imputacion": estrategia_imputacion,
         "hiperparametros": json.dumps(hiperparametros, ensure_ascii=False, default=str),
         "observaciones": observaciones,
     }
+    for metrica in METRICAS_RESUMEN:
+        m = resumen[metrica]
+        fila[f"{metrica}_media"] = m["media"]
+        fila[f"{metrica}_std"] = m["std"]
+        fila[f"{metrica}_ci95_low"] = m["ci95_low"]
+        fila[f"{metrica}_ci95_high"] = m["ci95_high"]
 
     if REGISTRO_CSV.exists():
         registro = pd.read_csv(REGISTRO_CSV)

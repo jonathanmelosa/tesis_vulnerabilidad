@@ -44,14 +44,14 @@ PARAM_DIST = {
 }
 
 
-def construir_pipeline(balanceo: str) -> ImbPipeline:
+def construir_pipeline(balanceo: str, semilla: int = mu.RANDOM_STATE) -> ImbPipeline:
     class_weight = "balanced" if balanceo == "balanced" else None
     modelo = HistGradientBoostingClassifier(
-        categorical_features="from_dtype", class_weight=class_weight, random_state=mu.RANDOM_STATE,
+        categorical_features="from_dtype", class_weight=class_weight, random_state=semilla,
     )
     pasos = []
     if balanceo == "oversampling":
-        pasos.append(("muestreo", RandomOverSampler(random_state=mu.RANDOM_STATE)))
+        pasos.append(("muestreo", RandomOverSampler(random_state=semilla)))
     pasos.append(("modelo", modelo))
     return ImbPipeline(pasos)
 
@@ -74,9 +74,6 @@ def main() -> None:
             x_train=x_train, y_train=y_train,
         )
         pipe = resultado["estimador"]
-        umbral = mu.elegir_umbral_por_cv(pipe, x_train, y_train)
-        proba_test = pipe.predict_proba(x_test)[:, 1]
-        metricas = mu.calcular_metricas(y_test, proba_test, umbral=umbral)
 
         modelo_final = pipe.named_steps["modelo"]
         imp = permutation_importance(modelo_final, x_test, y_test, scoring="roc_auc", n_repeats=10, random_state=mu.RANDOM_STATE, n_jobs=-1)
@@ -87,10 +84,18 @@ def main() -> None:
         }).sort_values("importancia_media", ascending=False)
         importancias.to_csv(OUTPUT_DIR / f"importancia_variables_modelo_{espec}.csv", index=False)
 
+        multi = mu.evaluar_multiples_semillas(
+            construir_pipeline_fn=lambda s: construir_pipeline(resultado["balanceo_elegido"], semilla=s),
+            mejores_params=resultado["mejores_params"],
+            x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test,
+        )
+        multi["detalle"].to_csv(OUTPUT_DIR / f"metricas_multiples_semillas_modelo_{espec}.csv", index=False)
+
         print(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-CV por balanceo: {resultado['auc_cv_por_balanceo']})")
         print(f"  Hiperparametros: {resultado['mejores_params']}")
-        print(f"  Umbral elegido por CV: {umbral:.2f}")
-        print(f"  AUC-ROC test: {metricas['auc_roc']:.3f}  Recall: {metricas['recall']:.3f}  F1: {metricas['f1']:.3f}")
+        print(f"  Umbral medio (5 semillas): {multi['resumen']['umbral_media']:.2f}")
+        r = multi["resumen"]
+        print(f"  AUC-ROC: {r['auc_roc']['media']:.3f} (IC95 {r['auc_roc']['ci95_low']:.3f}-{r['auc_roc']['ci95_high']:.3f})  Recall: {r['recall']['media']:.3f}  F1: {r['f1']['media']:.3f}")
         print(f"  Top 10 variables mas importantes:")
         print(importancias.head(10).to_string(index=False))
 
@@ -101,12 +106,11 @@ def main() -> None:
             x_train_shape=x_train.shape, x_test_shape=x_test.shape,
             n_covariables_originales=x_train.shape[1],
             y_train=y_train, y_test=y_test,
-            metricas=metricas,
+            multi_resultado=multi,
             estrategia_imputacion="Ninguna -- soporte nativo de NaN y categoricas (categorical_features='from_dtype')",
             balanceo_info=resultado,
             hiperparametros=hiperparametros,
-            observaciones="Reemplaza a entrenar_benchmark.py. Ahora con comparacion de balanceo y RandomizedSearchCV (antes hiperparametros fijos). Importancia por permutation importance (AUC, 10 repeticiones). Umbral de clasificacion elegido por CV maximizando F1 (no fijo en 0.5).",
-            umbral_clasificacion=umbral,
+            observaciones="Reemplaza a entrenar_benchmark.py. Ahora con comparacion de balanceo y RandomizedSearchCV. Importancia por permutation importance (semilla 42, AUC, 10 repeticiones). Metricas = media +/- IC95 sobre 5 semillas. Umbral elegido por CV maximizando F1 en cada semilla.",
         )
 
     print(f"\nGuardado en: {OUTPUT_DIR}")
