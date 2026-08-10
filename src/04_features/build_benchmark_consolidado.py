@@ -1,6 +1,6 @@
 """
 Consolidacion final: une todos los parquets de features (Personas x9
-bloques, Comunidades, Niños, Choques) mas las variables monetarias
+bloques, Comunidades, Niños, Choques, Hogar) mas las variables monetarias
 (ingreso, gasto, pobreza) en un unico dataset hogar-ola para el modelo
 benchmark de prediccion de transicion a la pobreza (ver docs/decisions.md,
 seccion "Metodologia del modelo benchmark").
@@ -90,6 +90,7 @@ FEATURE_PARQUETS = [
     "comunidades_hogar_elca_longitudinal.parquet",
     "ninos_hogar_elca_longitudinal.parquet",
     "choques_hogar_elca_longitudinal.parquet",
+    "hogar_features_elca_longitudinal.parquet",
 ]
 
 ID_COLS = {"consecutivo", "llave", "llave_n16", "hogar", "hogar_n16", "ola", "zona", "llave_compuesta"}

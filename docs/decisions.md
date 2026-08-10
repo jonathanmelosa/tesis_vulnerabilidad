@@ -3034,3 +3034,394 @@ entrenamiento train/test desplazando el outcome de pobreza por hogar
 entre olas y filtrando a la poblacion no-pobre en la ola base, luego
 entrenar y comparar los Modelos A/B (con/sin ingreso) segun la
 metodologia ya documentada.
+
+### 2026-08-09 (cont.) — Auditoria completa del modulo Hogar (827 columnas,
+mismo rigor que Personas/Comunidades/Niños)
+
+A raiz de la matriz de control de variables (ver seccion siguiente), el
+modulo Hogar habia quedado marcado como `CANDIDATO_NO_EVALUADO` -- nunca
+paso por el mismo proceso de 4 etapas que los demas modulos. El usuario
+pidio auditarlo con el mismo rigor.
+
+**1. Limpieza de corrupcion** (`05_limpieza_corrupcion_hogar.py`, nuevo):
+`01_limpieza_base_hogar.py` corrige inconsistencias ESTRUCTURALES entre
+olas (armonizacion region/RegionLb), pero la correccion de codificacion
+('???'/U+FFFD) se habia hecho AD-HOC en `04_consolidacion_bases_hogar.py`
+(solo columnas conocidas), sin el barrido sistematico de 4 capas. Escaneo
+completo: 117 columnas con corrupcion residual (92 con U+FFFD, 68 con
+"???", con solape), 97 de vocabulario cerrado. Correccion automatica: 86
+valores. Rescate via diccionario PDF (`{U,R}Hogar.pdf` 2010/2013): 50
+valores mas con match unico. Los ~100 valores restantes se dividieron en
+dos grupos: texto libre "accidentalmente cerrado" (plantillas "Otro.
+¿Cuál?:_____" con cardinalidad chica por tamaño de muestra, ej.
+`con_quien_2/4/5/6/7`, `no_seguros`, `destino_cual_*`) documentado sin
+forzar correccion, y reconstrucciones de acento inequivocas corregidas a
+mano (`religion1/2`, `destino2013_1..10`, `no_credito_sf1..5`,
+`choquec_1/2`, `hizo1c_1/2/3`, etc.). Resultado: **0 valores residuales en
+columnas de vocabulario cerrado** tras las 3 capas (verificado). La base
+se sobre-escribio en el mismo archivo (`hogar_elca_longitudinal_clean.parquet`)
+porque es aditiva (corrige valores dentro de columnas existentes, no
+cambia estructura/filas) -- todos los scripts downstream (ingreso, gasto,
+pobreza, consolidacion) leen la version ya corregida sin cambios.
+
+**2. Clasificacion completa de las 827 columnas**
+(`docs/variable_audit/hogar_construccion.csv`, mismo criterio >1% de
+cobertura por ola): 157 `CANDIDATO_BENCHMARK`, 260 `EXCLUIDA_CASI_VACIA`,
+226 `EXCLUIDA_NO_EN_OLA1`, 147 `EXCLUIDA_NO_EN_OLA2`, 25
+`EXCLUIDA_SOLO_OLA3`, 10 `IDENTIFICADOR`, 2 `EXCLUIDA_OTRO_PATRON`
+(`t_hogar`, `jovenes_accion`: verificado que tienen 100% cobertura en ola
+1 Y ola 3 pero 0% en ola 2 -- pregunta genuinamente ausente del
+cuestionario de 2013, no un error; fallan Eje 1 igual que las demas
+exclusiones de este tipo). Suma verificada: 827.
+
+**3. Busqueda de renombrados entre olas** (nombre relajado cutoff 0.55 +
+diccionarios PDF de `elca_{2010,2013}/{U,R}Hogar.pdf`, mismo metodo de 2
+pasadas): **sin hallazgos de alto valor**. Los pares con mayor similitud
+resultaron ser:
+  - `fexhog`/`fhog` (2010) vs `fexhog_2010`/`fexhog_2013`/`fhog_2010`/
+    `fhog_2013` (2013): factores de expansion e indice de riqueza
+    (metadato de diseño muestral, confirmado por texto del diccionario
+    "factor indice longitudinal puntaje riqueza") -- mismo patron que
+    `fpers`/`fexpers` en Personas, no es contenido sustantivo.
+  - La bateria completa de `act_*` (tipos de activos: bonos, inversiones,
+    prestamos, oficina, etc.) genera decenas de coincidencias de nombre Y
+    de cobertura numerica identica entre si -- confirmado que es
+    coincidencia espuria por compartir la MISMA poblacion filtrada
+    (mismo patron ya visto en Personas/Comunidades: muchos items de una
+    misma bateria comparten cobertura exacta sin ser la misma pregunta).
+  - `ayu_emergencias`/`sub_desempleo`/`caja_subsprest` vs
+    `guardabosques`/`alianz_prod`/`oport_rural`/`leydevictimas`/etc.:
+    alta similitud de texto porque comparten el mismo enunciado base
+    ("¿Algún miembro del hogar fue beneficiario de...?") pero son
+    PROGRAMAS SOCIALES COLOMBIANOS DISTINTOS con nombre propio (Guardabosques,
+    Alianzas Productivas, Oportunidades Rurales, Ley de Víctimas) -- no
+    son renombrados, son categorias diferentes de una misma bateria.
+
+**4. Resultado -- 131 candidatas de alto valor identificadas, aun NO
+construidas.** De las 157 `CANDIDATO_BENCHMARK`, 131 pasan ademas el
+umbral >=10% de cobertura en ambas olas (mismo criterio que el resto del
+proyecto) y cubren temas centrales de vulnerabilidad AUSENTES del
+consolidado actual:
+  - **Vivienda**: `material_paredes`, `material_pisos`,
+    `tenencia_vivienda`, `tipo_vivienda`, `servicio_sanitario`,
+    `obtencion_agua`, `energia_cocinan`, `eliminan_basura`,
+    `t_cuartos_hogar`/`t_cuartos_dormir` (hacinamiento), `sp_acueducto`/
+    `alcantarillado`/`energia`/`gasnatural`/`telefono`/`recoleccion_basura`
+    (servicios publicos).
+  - **Activos/riqueza**: bateria de bienes durables (`n_neveras`,
+    `n_lavadoras`, `n_television*`, `n_computadores`, `n_internet`,
+    `automoviles`, `motocicletas`, etc.) y **`riqueza_pca`, un indice de
+    riqueza YA CALCULADO por componentes principales** (100% cobertura
+    las 3 olas) -- candidato directo a covariable de nivel socioeconomico
+    complementaria al ingreso monetario.
+  - **Programas sociales**: `familias_accion`, `red_juntos`, `sena`,
+    `icbf`, `prg_adultomayor` -- beneficiario de los principales
+    programas de proteccion social colombianos, altamente relevantes
+    para un modelo de pobreza.
+  - **Choques/desastres a nivel hogar** (distinto del modulo Choques ya
+    construido, que es auto-reportado por categoria).
+  - **Acceso a credito**: `credito_financiera`, `credito_cooperativa`,
+    `credito_fna`, `subsidios`, `recursos_propios`, `prestamo_familiar`.
+  - **Ayudas/remesas recibidas**: `ayu_alimentos`, `ayu_fam_colom`,
+    `ayu_fam_ext`, `ayu_ong`, `ayu_religiosas`, `ayu_desplazados`.
+
+Estas 131 candidatas quedan documentadas en la matriz de control
+(`data/processed/matriz_control_variables_ELCA.xlsx`, hoja "Hogar") con
+razon "candidata valida, aun no construida" -- pendiente de decision del
+usuario sobre si construir un bloque `build_hogar_features.py` para
+incorporarlas al benchmark antes de la consolidacion final, dado que
+enriquecerian sustancialmente el modelo mas alla de ingreso/gasto/pobreza
+ya integrados.
+
+### 2026-08-09 (cont.) — Verificacion de "pregunta filtro oculta" en las
+candidatas de baja cobertura + documentacion de 2 casos especiales
+(riqueza_pca, estrato/sp_estrato)
+
+**1. Verificacion sistematica de filtro oculto.** El usuario pregunto
+explicitamente como estar seguros de que las candidatas con cobertura
+<10% (excluidas) no son en realidad preguntas condicionales con
+cobertura ALTA dentro de su poblacion aplicable (mismo riesgo que ya
+habia aparecido con discapacidad en Personas). Se hicieron 2 pruebas:
+
+  - **Prueba de "variable puerta"**: para columnas de detalle/valor con
+    una pregunta condicional plausible (ej. `ayu_fe_vr` = "¿cuánto
+    recibió de ayuda de familiares en el exterior?"), se busco la
+    variable-puerta Sí/No correspondiente (`ayu_fam_ext`) y se calculo
+    que % de quienes respondieron "Sí" tambien respondieron el detalle.
+    Resultado: 100% en los 7 pares revisados (`ayu_fe_vr`/`ayu_fam_ext`,
+    `ayu_ali_vr`/`ayu_alimentos`, `ayu_ong_vr`/`ayu_ong`,
+    `act_herencias_vr`/`act_herencias`, `act_otrosing_vr`/
+    `act_otrosing_cual`/`act_otrosing`) -- confirma que la baja cobertura
+    es por baja PREVALENCIA real del evento (pocos hogares reciben
+    herencias, ayuda de ONG, etc.), no por hueco de datos. Las
+    variables-puerta correspondientes YA estan en las 131 candidatas de
+    alta cobertura.
+  - **Inspeccion de colas numeradas**: el resto de las candidatas de baja
+    cobertura son la 3ª a 16ª ocurrencia de bloques repetidos (prestamos
+    `con_quien_3..14`, acreedores `aquien_deben_5..16`, choques
+    comunitarios `choquec_4/5`) -- genuina rareza de tener multiples
+    prestamos/acreedores simultaneos, mismo patron ya documentado en
+    Comunidades (lideres #5/#6, conflictos #7-12).
+  - **Unica excepcion real encontrada**: `ing_ayudas` (9% cobertura
+    aparente ola 1 vs. 100% ola 2/3) -- YA investigado a fondo en una
+    sesion anterior (ver `build_ingreso_hogar.py`, "AUDITORÍA
+    2026-08-06"): tres fuentes cruzadas (`.tab` crudo rural, diccionario
+    `RHogar.pdf`, comparacion de letra de item con `UHogar.pdf`)
+    confirmaron que la pregunta "e. Ayudas en dinero" NUNCA se hizo a
+    hogares RURALES en 2010 -- no es dato recuperable, y ya esta tratado
+    como 0 implicito en `ingreso_total_hogar` con la limitacion
+    documentada.
+
+  Conclusion: la regla de cobertura cruda (`.notna()`) NO esta siendo
+  engañada por tokens de cero en texto (ej. "No Recibe" en `ing_ayudas`
+  SI se cuenta como respuesta valida, confirmado). El unico mecanismo que
+  si podria ocultar cobertura real (una pregunta condicional cuya puerta
+  tiene alta cobertura) fue puesto a prueba explicitamente y no aparecio
+  en ningun caso revisado.
+
+**2. Dos casos especiales, documentados SIN sacarlos de las candidatas**
+(pedido explicito del usuario: no remover variables ya calculadas, solo
+documentar bien):
+
+  - **`riqueza_pca`**: NO es una pregunta de encuesta -- es un indice YA
+    CALCULADO por ELCA ("Puntaje del índice de riqueza calculado con
+    activos del hogar", confirmado en el diccionario), via Analisis de
+    Componentes Principales sobre la MISMA bateria de activos durables
+    (`n_neveras`, `n_lavadoras`, `n_television*`, etc.) que tambien
+    aparece como columnas individuales en las 131 candidatas. Aparece en
+    el diccionario junto a `fexhog` (factor de expansion/indice de
+    riqueza, ya excluido por no existir en ola 2) y `tercil2010`/
+    `tercil2013` (version discretizada en terciles del mismo indice, ya
+    excluidas por existir cada una en una sola ola). Riesgo de
+    colinealidad si se usa junto con los activos individuales crudos --
+    decision de modelado a tomar en la etapa de seleccion de variables,
+    no en esta auditoria. Se mantiene en las candidatas.
+  - **`estrato` vs. `sp_estrato`**: dos mediciones del MISMO concepto
+    (estrato socioeconomico de la vivienda) por metodos distintos,
+    confirmado en el diccionario 2010:
+      - `estrato` (HU8): pregunta temprana, antes del modulo detallado de
+        servicios publicos, sin especificar metodo de verificacion
+        (probablemente registro rapido). Cobertura 53%/50%/49%.
+      - `sp_estrato` (HU17): dentro del modulo de servicios publicos,
+        pide verificar CONTRA EL RECIBO DE ENERGIA ELECTRICA -- metodo
+        documentado/objetivo. Cobertura 53%/100%/100%.
+    Se mantienen AMBAS (pedido explicito del usuario): no son redundantes
+    en el sentido de eliminar una, son dos mediciones con confiabilidad
+    distinta, utiles para chequeo de consistencia entre si.
+
+**3. Correccion menor: 2 identificadores que se habian colado en las
+candidatas.** `consecutivo_c` (llave de comunidad, ya usada como tal en
+`build_comunidades_hogar.py`) e `id_mpioU` (probable codigo
+administrativo de municipio, mismo tipo de cautela ya documentada para
+`id_dpto`/`id_mpio` de hogar -- posible identificador anonimizado sin
+correspondencia directa con DIVIPOLA) pasaban el filtro automatico de
+cobertura por tener datos en las 3 olas, pero no son contenido
+sustantivo. Re-clasificadas como `IDENTIFICADOR`. Total de candidatas
+reales: **155** (antes 157), de las cuales 131 pasan ademas el umbral de
+10% de cobertura.
+
+La matriz de control (`matriz_control_variables_ELCA.xlsx`) se actualizo
+con una columna nueva, "Notas metodológicas", que documenta estos casos
+sin eliminarlos del listado.
+
+### 2026-08-09 (cont.) — Bloque de features de Hogar (build_hogar_features.py)
+
+Construccion del bloque de features con las 129 candidatas de Hogar
+(131 originales menos `consecutivo_c`/`id_mpioU`, re-clasificadas como
+identificadores).
+
+**Hallazgos de calidad de dato encontrados al verificar antes de
+construir** (misma disciplina aplicada en todos los modulos anteriores):
+  - **Bateria `act_*` (15 tipos de activos financieros)**: ola 1 usa
+    CODIGOS NUMERICOS ("1"/"2") sin texto, ola 2/3 usan texto Sí/No.
+    Verificado cruzando proporciones (~99% de "2" en ola 1 vs ~99% de
+    "No" en ola 2/3): confirma 1=Sí/2=No (mismo codigo usado en el resto
+    de ELCA). Normalizado antes de construir.
+  - **`n_internet`**: mezcla CONTEOS numericos ("0") con texto Sí/No en
+    la misma columna -- colapsado a binario.
+  - **`con_quien_1`/`con_quien_2`/`con_quien_3`**: tenian corrupcion
+    U+FFFD/"???" residual NO detectada en el escaneo original porque su
+    cardinalidad (25/26/26) cae justo en el limite de
+    `CARDINALIDAD_MAXIMA_CERRADA=25` -- el barrido automatico las trata
+    como texto libre y nunca las evalua. Corregido directamente en
+    `05_limpieza_corrupcion_hogar.py` (ver su docstring, correccion
+    2026-08-09) -- leccion: el umbral de cardinalidad es heuristica, no
+    garantia, columnas cerca del limite deben revisarse a mano.
+  - **`credito_financiera`/`credito_cooperativa`/`credito_fna`/
+    `otra_financiacion`/`recursos_propios`/`prestamo_familiar`/
+    `subsidios`/`dcto_vivienda`**: el nombre sugiere credito general,
+    pero el diccionario (HU55-56, pregunta 20: "¿Cuáles de las
+    siguientes fuentes de financiación utilizaron para la COMPRA O
+    CONSTRUCCIÓN DE ESTA VIVIENDA?") confirma que es especificamente
+    financiacion de VIVIENDA -- distinto de `con_quien_1/2`
+    (endeudamiento general: bancos, amigos, prestamistas, tenderos,
+    verificado con las categorias reales de la columna).
+  - **`eay_*` vs `ayu_*`**: el diccionario (HU178-179, pregunta 36:
+    "¿algún miembro de este hogar ENVIÓ ayuda...?") confirma que `eay_*`
+    es ayuda ENVIADA por el hogar (señal de capacidad economica
+    relativa), no "ayuda esperada" como sugeriria el nombre -- distinto
+    de `ayu_*` (ayuda RECIBIDA, señal de vulnerabilidad). Se construyen
+    ambos por ser complementarios, no redundantes.
+  - **`uay_*`**: el diccionario (pregunta 35: "Las ayudas... fueron
+    utilizadas para...") confirma que es el USO de la ayuda RECIBIDA
+    (condicional a `ayu_*`), coherente con su cobertura mas baja.
+
+**Caveat de escala encontrado en validacion**: `n_activos_financieros_hogar`
+sube de 0.37 (ola 1) a 0.64 (ola 2) -- investigado: 5 de los 15 `act_*`
+se preguntaron SOLO a zona urbana en ola 1 (0% rural, verificado) y a
+ambas zonas en ola 2; a la inversa, otros 5 se preguntaron a ambas zonas
+en ola 1 pero solo urbana en ola 2. El composite se calcula
+correctamente sobre los items disponibles por hogar, pero el NUMERO de
+items "preguntables" varia por ola/zona -- el conteo no es perfectamente
+comparable en magnitud entre olas, mismo tipo de limitacion ya
+documentada para otras variables compuestas (TVIP en Niños).
+
+**Variables construidas**: 61 columnas -- vivienda (tenencia, tipo,
+materiales, servicios sanitarios/agua/energia/basura, hacinamiento vía
+personas por cuarto/dormitorio, `n_servicios_publicos_hogar`,
+`estrato_hogar`/`estrato_verificado_hogar` ambas mantenidas por pedido
+explicito), activos/riqueza (`riqueza_pca_hogar` pass-through del indice
+ya calculado por ELCA, `n_bienes_durables_hogar`, `tiene_vehiculo_hogar`,
+`tiene_internet_hogar`, `n_activos_financieros_hogar`,
+`tiene_propiedad_rural_hogar`, `tiene_transporte_carga_hogar`,
+`tiene_ingreso_agropecuario_hogar`), programas sociales
+(`beneficiario_familias_accion_hogar`, `beneficiario_red_juntos_hogar`,
+`n_programas_sociales_hogar`, `beneficiario_algun_programa_hogar`),
+desastres (`tuvo_desastre_natural_hogar`), financiacion de vivienda
+(`financio_credito_formal_vivienda_hogar`,
+`financio_recursos_propios_vivienda_hogar`,
+`financio_subsidio_vivienda_hogar`, `financio_otra_fuente_vivienda_hogar`,
+`tiene_escritura_vivienda_hogar`, `tiene_titulo_baldio_hogar`,
+`valor_arriendo_pagado_hogar`), endeudamiento general
+(`tiene_deuda_hogar`, `deuda_formal_hogar`, `deuda_informal_hogar`),
+ayudas recibidas/enviadas/uso (14 variables), y `practica_religion_hogar`.
+
+**Verificacion final de cobertura completa**: de las 129 candidatas, 103
+se usan (directas o en composites), 26 se excluyen con razon documentada
+(5 redundantes con ingreso ya construido, 2 redundantes con gasto, 12
+detalle de prestamo demasiado granular ya capturado en
+formal/informal, 2 valores condicionales cuya variable-puerta ya esta
+capturada, 3 categorias de uso de ayuda con prevalencia negligible).
+
+**Validacion**: hacinamiento declinante (1.65->1.39 personas/cuarto),
+tenencia de vehiculo creciente (26%->44%), `riqueza_pca_hogar` con
+tendencia positiva entre olas, `beneficiario_red_juntos_hogar` con perfil
+de ciclo de vida del programa (1.7%->7.9%->4.9%, consistente con el
+lanzamiento y transicion de Red Juntos a Red Unidos), uso de ayuda
+dominado por alimentos (78%-91%), religiosidad alta (91%-97%,
+consistente con Colombia) -- sin anomalias sin explicar.
+
+Output: `data/processed/hogar_features_elca_longitudinal.parquet` (27.932
+filas, mismo panel que el resto del proyecto).
+
+Con esto, el modulo Hogar queda con el mismo nivel de auditoria y
+construccion de features que Personas/Comunidades/Niños/Choques.
+
+### 2026-08-09 (cont.) — Re-consolidacion final con Hogar incluido
+
+`hogar_features_elca_longitudinal.parquet` (56 columnas de contenido) se
+agrego a `FEATURE_PARQUETS` en `build_benchmark_consolidado.py` y se
+re-corrio la consolidacion completa. Resultado: **27.932 filas x 184
+columnas** (antes 128; +56 de Hogar). Sin colisiones de nombre, sin
+cambio en el numero de filas en ningun merge (validado con
+`validate="one_to_one"` como en la corrida anterior). Cobertura promedio
+de las columnas de Hogar en el consolidado: 81.4%.
+
+Con esto, los 5 modulos (Personas, Comunidades, Niños, Choques, Hogar)
+mas ingreso/gasto/pobreza quedan unidos en `benchmark_consolidado_elca_longitudinal.parquet`,
+todos auditados al mismo nivel de rigor. Pendiente (fuera del alcance de
+esta sesion): construir la matriz de entrenamiento train/test
+desplazando el outcome de pobreza por hogar entre olas y filtrando a la
+poblacion no-pobre en la ola base, luego entrenar y comparar los Modelos
+A/B (con/sin ingreso) segun la metodologia ya documentada.
+
+### 2026-08-09 (cont.) — Matriz de entrenamiento/prueba del benchmark
+(build_benchmark_train_test.py) y primer entrenamiento Modelo A vs. B
+(entrenar_benchmark.py)
+
+**Construccion de la matriz** (`src/05_model/build_benchmark_train_test.py`):
+emparejamiento de hogares entre olas por `consecutivo`, **solo matches 1
+a 1** -- misma politica ya confirmada y usada en las matrices de
+transicion de `build_pobreza_desagregaciones.py` (hogares que se
+dividieron se excluyen, se reporta el conteo). Poblacion: no-pobres en la
+ola base (`pobre_ingreso==False`). Outcome `Y` = pobre en la ola
+siguiente.
+
+Resultados de la construccion:
+  - **2010->2013** (train principal): 8.218 hogares en panel 1 a 1 (511
+    excluidos por division), 3.089 no-pobres en 2010, tasa de entrada a
+    pobreza 23.4%.
+  - **2013->2016** (test principal): 6.911 hogares en panel 1 a 1 (1.190
+    excluidos por division -- mas division que 2010->2013, esperable con
+    mas tiempo transcurrido), 3.191 no-pobres en 2013, tasa de entrada a
+    pobreza 19.9%.
+
+Modelo A (169 covariables, incluye `ingreso_percapita_hogar_real`/
+`gasto_percapita_hogar_real`/`brecha_lp_ingreso`/`brecha_lp_gasto`) vs.
+Modelo B (165 covariables, sin esas 4). `pobre_ingreso`/`lp`/`li`/etc. de
+la ola base se excluyen de AMBOS por ser constantes dentro de la
+poblacion no-pobre (no es fuga de outcome, el outcome es la ola
+siguiente) -- no aportan varianza, no por riesgo de fuga.
+
+**Bug encontrado y corregido antes del entrenamiento**: `consecutivo_c`
+(identificador de COMUNIDAD, codigo numerico sin significado ordinal) y
+`llave_compuesta` no estaban excluidos de las covariables -- solo
+`consecutivo` (ID de hogar) lo estaba. `consecutivo_c` aparecio entre las
+10 variables mas importantes del Modelo B en una primera corrida. Se
+verifico: 663 de ~715-735 comunidades se repiten entre train y test
+(mismo panel longitudinal de ELCA) -- el modelo podia estar explotando
+un ID arbitrario como si tuviera significado ordinal en vez de capturar
+geografia de forma principiada (para eso ya estan `zona` y el bloque
+completo de variables de contenido de Comunidades). Se agrego
+`consecutivo_c`/`llave_compuesta` a las columnas excluidas y se
+re-entreno -- los resultados cambiaron minimamente (AUC-ROC de 0.758 a
+0.757 en Modelo A, de 0.739 a 0.738 en Modelo B), confirmando que el ID
+no aportaba señal real, solo ruido con apariencia de importancia.
+
+**Algoritmo**: `HistGradientBoostingClassifier` (sklearn) en vez de
+regresion logistica -- las covariables tienen missingness ESTRUCTURAL
+alta y heterogenea (~89%-99% NaN en variables de Niños para hogares sin
+niños, ~83% en variables condicionales de choques); imputar con un valor
+generico para 165-169 columnas con estructuras de missingness tan
+distintas introduciria supuestos arbitrarios por variable. Se uso un
+modelo que maneja NaN nativamente en la particion de arboles (el
+missingness se vuelve señal explotable, ej. "sin dato de vacunacion
+infantil" ya proxy-codifica "no tiene hijos pequeños", en vez de forzarse
+una imputacion). Columnas categoricas via dtype `category` +
+`categorical_features="from_dtype"` (soporte nativo, sin one-hot).
+`class_weight="balanced"` dado el desbalance moderado (~20%-23% tasa
+positiva).
+
+**Resultado principal** (holdout temporal hacia adelante, train
+2010->2013, test 2013->2016):
+
+| Modelo | Covariables | AUC-ROC | Recall | Precision | F1 |
+|---|---|---|---|---|---|
+| A (con ingreso) | 169 | 0.757 | 0.609 | 0.368 | 0.459 |
+| B (sin ingreso) | 165 | 0.738 | 0.584 | 0.354 | 0.441 |
+
+**Interpretacion (responde a la pregunta de la metodologia)**: la brecha
+de AUC-ROC entre A y B es de solo 0.019 -- el Modelo A NO domina casi
+por completo al B. Esto sugiere que las covariables NO monetarias
+(educacion, vivienda/hacinamiento, activos, formalidad laboral,
+estructura demografica) capturan una fraccion sustancial del poder
+predictivo de la brecha a la LP, no son redundantes con ella. Variables
+mas importantes en A: `ingreso_percapita_hogar_real` (dominante, como
+se espera del enfoque Chaudhuri et al. 2002), `riqueza_pca_hogar`,
+`nivel_educ_max_hogar`, `brecha_lp_ingreso`, `n_bienes_durables_hogar`.
+En B: `nivel_educ_max_hogar`, `riqueza_pca_hogar`,
+`personas_por_cuarto_hogar` (hacinamiento), `n_activos_financieros_hogar`,
+`tasa_cotizacion_pension_hogar` (formalidad laboral) --
+consistentes con la literatura de determinantes de pobreza, sin
+variables espurias entre las principales.
+
+Output: `data/processed/benchmark_train_test/` (4 parquets: Modelo A/B x
+2 transiciones) y `data/processed/benchmark_resultados/` (metricas +
+importancia de variables por modelo).
+
+**Pendiente** (fuera del alcance de esta sesion): especificaciones de
+robustez (reversa: train 2013->2016/test 2010->2013; pooled con k-fold
+agrupado por hogar), ajuste de hiperparametros dentro del periodo de
+entrenamiento (sin tocar el test hasta la evaluacion final, ya
+establecido en la metodologia pero no ejecutado aun), y la comparacion
+final contra el modelo enriquecido con variables de Google Street View.
