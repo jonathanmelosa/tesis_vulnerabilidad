@@ -854,8 +854,8 @@ observado en 2013) y la tercera ola como conjunto de prueba, completamente
 independiente, para evaluar el desempeño predictivo fuera de muestra
 (transición 2013 a 2016: covariables de 2013, resultado observado en
 2016). Este recurso temporal hacia adelante replica el caso de uso
-real de un sistema de focalización --solo existe la ola base al momento de
-predecir-- y es, siguiendo a \textcite{mcbride2018}, la validación más
+real de un sistema de focalización, solo existe la ola base al momento de
+predecir, y es, siguiendo a \textcite{mcbride2018}, la validación más
 exigente para un modelo de este tipo porque prueba generalización ante un
 régimen económico distinto al de entrenamiento. El ajuste de
 hiperparámetros de cada algoritmo (mediante \texttt{RandomizedSearchCV},
@@ -890,8 +890,8 @@ equivalente \texttt{scale\_pos\_weight} en XGBoost), ausencia de ajuste
 (línea base), y sobremuestreo aleatorio de la clase minoritaria
 (\texttt{RandomOverSampler}, aplicado únicamente dentro de cada partición
 de entrenamiento de la validación cruzada, nunca contaminando la partición
-de validación). No se usó SMOTE --que interpola sintéticamente entre
-observaciones vecinas-- porque no está bien definido cuando coexisten
+de validación). No se usó SMOTE, que interpola sintéticamente entre
+observaciones vecinas, porque no está bien definido cuando coexisten
 variables categóricas y datos faltantes estructurales, a diferencia del
 sobremuestreo aleatorio, que solo duplica filas existentes. La estrategia
 que gana para cada algoritmo y especificación es la que maximiza el
@@ -901,7 +901,7 @@ priori}.
 Un hallazgo metodológico relevante de este ejercicio: en XGBoost y en
 LightGBM (Modelo B), la estrategia ``sin ajuste'' ganó la comparación por
 una diferencia de AUC-ROC frente a la reponderación de apenas 0.001
---estadísticamente indistinguible de ruido--, pero el modelo resultante,
+(estadísticamente indistinguible), pero el modelo resultante,
 sin corregir el desbalance de clases, produjo probabilidades tan
 comprimidas hacia valores bajos que casi ninguna observación cruzaba el
 umbral convencional de 0.5 (recall de 3\%--4\% en XGBoost, con precision
@@ -918,12 +918,12 @@ depende de umbral, sigue siendo el criterio que decide la estrategia de
 balanceo y los hiperparámetros; el umbral solo determina cómo se reportan
 las métricas restantes.
 
-Para los algoritmos sin soporte nativo de datos faltantes (regresión
-logística y Random Forest), la imputación de valores faltantes --que en
-este dataset son mayoritariamente de naturaleza estructural, causados por
+Para los algoritmos sin soporte de datos faltantes (regresión
+logística y Random Forest), la imputación de valores faltantes, que en
+esta base de datos son mayoritariamente por la estructura de la encuesta, es decir, causados por
 preguntas filtro del cuestionario (por ejemplo, el monto de una ayuda
 recibida no se pregunta a quien respondió que no recibió ninguna)-- usa
-sistemáticamente el valor 0 (nunca la mediana) combinado con una columna
+sistemáticamente el valor 0 combinado con una columna
 indicadora binaria de faltante por variable. Esta elección evita que la
 mediana --calculada únicamente sobre quienes pasaron el filtro y
 respondieron-- le asigne a los hogares excluidos por el filtro un valor
@@ -1222,64 +1222,6 @@ más móvil) --una limitación que se retoma más abajo.
   \label{fig:atricion}
 \end{figure}
 
-\subsubsection{Limitaciones}
-\label{subsubsec:limitaciones_transiciones}
-
-Los ejercicios de robustez anteriores acotan, pero no eliminan, un
-conjunto de limitaciones de los datos y de la construcción de la variable
-de resultado que deben tenerse presentes al interpretar los resultados de
-esta tesis:
-
-\begin{itemize}
-  \item \textbf{Error de medición cerca del umbral.} Como muestra la
-  Figura~\ref{fig:sensibilidad_banda}, cerca de 10 puntos porcentuales de
-  la distribución de categorías de transición son sensibles a una banda de
-  apenas $\pm$10\% alrededor de la LP. Esto es consistente con el problema
-  clásico de regresión a la media en paneles de pobreza
-  \parencite{baulch2000}: una fracción de las transiciones observadas
-  puede reflejar error de medición del ingreso más que cambios reales en
-  el bienestar del hogar.
-
-  \item \textbf{Peso muestral no disponible para la ola 2016.} La
-  ola 2016 no tiene un factor de expansión transversal propio en los
-  datos consolidados de la ELCA (solo el longitudinal anclado a 2010); las
-  cifras ponderadas de esa ola usan el factor longitudinal como mejor
-  aproximación disponible, lo cual subrepresenta a cualquier hogar que
-  hubiera entrado a la muestra después de 2010.
-
-  \item \textbf{Arriendo imputado ausente.} La ELCA no permite estimar el
-  valor del arriendo que un hogar propietario ``se ahorra'' --un
-  componente que el DANE sí incluye en su concepto oficial de ingreso--,
-  por lo que la medida de ingreso de esta tesis omite ese componente de
-  forma sistemática para todos los hogares propietarios (cerca del
-  77--79\% de la muestra).
-
-  \item \textbf{Ingreso laboral bruto vs. neto en trabajo independiente.}
-  Los hogares con actividad agropecuaria o independiente reportan ingreso
-  laboral sin distinguir si es bruto o neto de costos de producción,
-  ambigüedad que es sistemáticamente más relevante en la zona rural por su
-  mayor tasa de informalidad.
-
-  \item \textbf{Sesgo de recall en la medida de gasto.} La brecha entre
-  pobreza por ingreso y por gasto documentada en la
-  Figura~\ref{fig:incidencia_ingreso_gasto} refleja, al menos en parte, el
-  sesgo de recall conocido en módulos de consumo con preguntas de
-  ventana larga (doce meses) frente a preguntas de ventana corta
-  \parencite{beegle2012}, y no debe leerse únicamente como evidencia de
-  subreporte de ingreso.
-
-  \item \textbf{Atrición no caracterizada.} La atrición del panel
-  (Figura~\ref{fig:atricion}) es consistente entre periodos (11.4\% en
-  ambos), pero no se estableció si es aleatoria o si está concentrada en
-  hogares más vulnerables --lo típico en paneles de hogares pobres--, lo
-  que de ser el caso sesgaría a la baja las tasas de entrada a la pobreza
-  reportadas en la Figura~\ref{fig:transiciones_categorias}.
-\end{itemize}
-
-Estas limitaciones se retoman en la Sección~\ref{subsec:limitaciones}
-en el contexto de las implicaciones para la interpretación de los modelos
-predictivos de esta tesis.
-
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
 
@@ -1444,22 +1386,7 @@ capturando relaciones espurias.
 \label{subsec:marginal}
 
 Esta subsección --el corazón de la pregunta de investigación de la
-tesis-- está pendiente de completarse. Como se documenta en la
-Sección~\ref{subsec:geo}, la integración de las variables derivadas de
-Google Street View al dataset consolidado (Sección~\ref{subsec:elco}), y
-la construcción de las fuentes de iluminación nocturna y OpenStreetMap
-aún no implementadas, son la tarea inmediatamente siguiente de este
-proyecto. El diseño ya definido para esta comparación --detallado en la
-Sección~\ref{subsec:modelos}-- es reestimar los cinco algoritmos con un
-tercer conjunto de covariables (Modelo A o B, el que resulte más
-apropiado como base, más las variables geoespaciales) y comparar el
-cambio en AUC-ROC, recall y las listas de importancia de variables de la
-Sección~\ref{subsec:desempeno} frente a esta línea base. Dado que la
-brecha entre el Modelo A y el Modelo B ya resultó menor de lo esperado
-(Sección~\ref{subsec:desempeno}), una pregunta específica que este
-ejercicio permitirá responder es si las variables geoespaciales aportan
-más en el subconjunto de hogares cerca del umbral de pobreza, donde la
-brecha a la LP por sí sola distingue peor.
+tesis-- está pendiente de completarse. 
 
 \subsection{Heterogeneidad territorial}
 \label{subsec:heterogeneidad}
@@ -1469,14 +1396,7 @@ desempeño de los modelos de la Sección~\ref{subsec:desempeno} por
 separado para zona urbana y rural, y --si el tamaño de muestra por región
 lo permite tras la partición temporal ya exigente en observaciones
 (3{,}089 hogares no pobres en la base de entrenamiento,
-Tabla~\ref{tab:matriz_transicion})-- por región geográfica. Es
-particularmente relevante para las variables geoespaciales de la
-Sección~\ref{subsec:marginal}: la cobertura de Google Street View no es
-homogénea entre zona urbana y rural ni estable en el tiempo (documentado
-en la Sección~\ref{subsec:geo}), por lo que su contribución marginal
-podría concentrarse en los municipios con mejor cobertura, un patrón que
-la literatura ya ha documentado en otros contextos
-\parencite{hall2023}.
+Tabla~\ref{tab:matriz_transicion})-- por región geográfica. 
 
 
 % ============================================================
@@ -1562,55 +1482,18 @@ Sección~\ref{subsec:marginal}.
 \subsection{Limitaciones y agenda de investigación}
 \label{subsec:limitaciones}
 
-Además de las limitaciones de la variable de resultado ya discutidas en la
-Sección~\ref{subsubsec:limitaciones_transiciones} (error de medición cerca
-del umbral de pobreza, ausencia de arriendo imputado, atrición no
-caracterizada, entre otras), quedan pendientes las siguientes tareas para
-completar esta tesis, en orden de prioridad:
-
-\begin{itemize}
-  \item \textbf{Incorporación de variables geoespaciales.} Es la tarea
-  central pendiente (Secciones~\ref{subsec:geo} y~\ref{subsec:marginal}).
-  Requiere completar la agregación de \emph{embeddings} de imagen de
-  Google Street View a nivel hogar$\times$ola, e iniciar --desde cero--
-  la construcción de las variables de iluminación nocturna satelital y de
-  OpenStreetMap contempladas en la propuesta original de este trabajo, que
-  a la fecha no tienen ningún avance de implementación.
-  \item \textbf{Prueba formal de diferencias entre algoritmos.} El
-  ejercicio de múltiples semillas de la Sección~\ref{subsec:desempeno}
-  cuantifica la variabilidad propia del procedimiento de ajuste de cada
-  algoritmo, pero no constituye una prueba estadística formal de que un
-  algoritmo supere a otro sobre el mismo conjunto de prueba (por ejemplo,
-  una prueba pareada de DeLong sobre las curvas ROC). Queda pendiente
-  implementarla antes de recomendar un algoritmo específico sobre otro.
-  \item \textbf{Ejercicios de robustez de la especificación temporal.}
-  Como se anticipó en la Sección~\ref{subsec:validacion}, quedan
-  pendientes una especificación \emph{backtest} (entrenar en
-  2013$\to$2016, evaluar en 2010$\to$2013) y una especificación agrupada
-  con ambas transiciones y validación cruzada agrupada por hogar, así como
-  una especificación ``dinámica'' que incorpore variables de cambio entre
-  olas --por diseño, no disponible para la transición 2010$\to$2013, la
-  primera del panel--.
-  \item \textbf{Heterogeneidad territorial.} Pendiente evaluar si el
-  desempeño de los modelos --y, sobre todo, el aporte marginal de las
-  variables geoespaciales-- es homogéneo entre zona urbana y rural y entre
-  regiones (Sección~\ref{subsec:heterogeneidad}), una pregunta
-  especialmente relevante dado que la cobertura de Google Street View no
-  es homogénea en el territorio colombiano.
-  \item \textbf{Interpretabilidad más fina.} El uso de valores SHAP,
-  contemplado en la propuesta original para descomponer de forma
-  comparable la contribución marginal de cada fuente de información entre
-  algoritmos, no se ha implementado todavía; las medidas de importancia
-  usadas hasta ahora (Sección~\ref{subsec:interpretabilidad}) no son
-  directamente comparables entre sí.
-\end{itemize}
-
-Ninguna de estas tareas pendientes cambia la validez de los resultados ya
-reportados sobre el modelo base --construidos con el mismo estándar de
-rigor documentado exhaustivamente en \texttt{docs/decisions.md}--, pero sí
-determinan que la pregunta de investigación central de esta tesis, el
-aporte de las fuentes geoespaciales, quede todavía sin responder al cierre
-de este documento.
+Por completar la Sección~\ref{subsec:marginal}, la agenda de investigación de esta tesis
+continúa con la construcción de variables geoespaciales a partir de fuentes
+públicas, la integración de esas variables al panel ELCA, y la reestimación
+de los cinco algoritmos bajo las mismas condiciones de validación y
+balanceo de clases ya descritas. La comparación de desempeño entre el
+Modelo A (con ingreso/gasto) y el Modelo B (sin ellos) frente a un
+Modelo C (con variables geoespaciales) permitirá evaluar si estas últimas
+aportan poder predictivo incremental, y si ese aporte es suficiente para
+compensar la ausencia de información monetaria directa. La agenda también
+contempla la reestimación de los modelos por zona urbana/rural y, si el
+tamaño de muestra lo permite, por región geográfica, para evaluar la
+robustez territorial de los hallazgos.
 
 % ============================================================
 % REFERENCIAS
