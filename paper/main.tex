@@ -559,6 +559,259 @@ Sección~\ref{subsec:elco}, es la tarea inmediatamente siguiente en la
 agenda de este proyecto y no está reflejada en los resultados de la
 Sección~\ref{sec:resultados}.
 
+\subsubsection{Cobertura, calidad y limitaciones de las imágenes de Google Street View}
+\label{subsubsec:cobertura_gsv}
+
+Esta subsección describe, con estadísticas obtenidas directamente de los
+archivos entregados por el pipeline de Google Street View
+(\texttt{consultas\_final.csv}, \texttt{descargas\_final.csv} y
+\texttt{embeddings\_unidos\_anonimizado.parquet}, en
+\texttt{data/processed/embeddings/}), qué información se obtuvo, cómo se
+distribuye entre hogares y olas, y qué limitaciones tiene. El análisis
+completo, reproducible desde estos tres archivos, está en el script
+\texttt{03f\allowbreak\_analisis\allowbreak\_calidad\allowbreak
+\_imagenes\allowbreak\_gsv.py}, dentro de la carpeta del pipeline de
+Google Street View en el repositorio; esta sección resume sus
+resultados. Es importante notar que los reportes de texto generados en
+corridas anteriores del pipeline (p.~ej.
+\texttt{reporte\_cobertura\_gsv.txt}) usan radios de búsqueda distintos a
+los de la corrida final y no deben tomarse como referencia; las cifras que
+siguen provienen exclusivamente de los archivos ``\_final'' vigentes.
+
+\paragraph{Embudo de consulta y descarga, por ola.} La consulta a la GSV
+Metadata API se hace a nivel de \texttt{consecutivo} (hogar base de 2010),
+no de \texttt{llave} u \texttt{llave\_n16}: cuando un hogar se divide en
+sub-hogares, todos comparten la coordenada del hogar padre en la ola
+anterior a la división (Sección~\ref{subsec:elco}), por lo que consultarlos
+por separado sería redundante. Esto hace que el universo de hogares
+consultados en Street View (9{,}853 / 8{,}729 / 8{,}086 \texttt{consecutivo}
+únicos en 2010, 2013 y 2016) sea menor que el número de observaciones del
+panel ELCA reportado en la Sección~\ref{subsec:elco} (9{,}853 / 9{,}261 /
+8{,}818), que sí cuenta cada sub-hogar por separado. La
+Tabla~\ref{tab:gsv_cobertura_ola} y la Figura~\ref{fig:gsv_embudo} resumen
+el embudo completo: de los hogares con coordenada válida, entre 72\% y 75\%
+tiene al menos un panorama de Street View dentro de alguno de los cuatro
+radios de búsqueda consultados (50, 100, 200 y 500 metros), y --dato
+relevante para el uso posterior de estas variables-- \emph{todo} hogar con
+panorama disponible terminó con una imagen efectivamente descargada: no hay
+pérdida entre ``tiene panorama'' y ``tiene imagen''.
+
+\begin{table}[H]
+  \centering
+  \caption{Cobertura de Google Street View por ola: hogares
+  (\texttt{consecutivo} únicos) consultados, con coordenada válida, con
+  panorama disponible (\texttt{status=OK} en algún radio) y con imagen
+  efectivamente descargada.}
+  \label{tab:gsv_cobertura_ola}
+  \small
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \textbf{Ola} & \textbf{Consultados} & \textbf{Coord.\ válida} & \textbf{Con pano.} & \textbf{Con imagen} & \textbf{Cobertura} \\
+    \midrule
+    2010 & 9{,}853 & 9{,}573 & 6{,}927 & 6{,}927 & 72.4\% \\
+    2013 & 8{,}729 & 8{,}429 & 6{,}237 & 6{,}237 & 74.0\% \\
+    2016 & 8{,}086 & 8{,}086 & 6{,}054 & 6{,}054 & 74.9\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.9\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} ``Cobertura'' es el porcentaje de hogares
+    con coordenada válida que terminó con imagen descargada. Fuente:
+    \texttt{consultas\_final.csv} y \texttt{descargas\_final.csv}.
+  \end{minipage}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/fig_gsv_embudo_cobertura_ola.png}
+  \caption{Embudo de cobertura de Google Street View por ola: hogares
+  consultados, con coordenada válida, con panorama disponible y con imagen
+  descargada.}
+  \label{fig:gsv_embudo}
+\end{figure}
+
+La cobertura también es marcadamente desigual entre zona urbana y rural:
+97.5\% de las observaciones hogar$\times$ola urbanas tienen panorama
+disponible, frente a solo 43.4\% de las rurales. Esto introduce un sesgo de
+selección espacial conocido y esperado dado el patrón de cobertura vial de
+Google (las variables de entorno visual estarán sistemáticamente menos
+disponibles, y por tanto pesarán menos en el modelo final, para hogares
+rurales), que debe tenerse presente al interpretar cualquier resultado que
+use estas variables como predictor.
+
+\paragraph{¿Qué hogares quedan cubiertos en las tres olas?} Restringiendo el
+análisis a los 7{,}735 hogares presentes en las tres olas dentro de
+\texttt{consultas\_final.csv}, solo el 60.5\% (4{,}678 hogares) tiene imagen
+en las \emph{tres} olas; 20.0\% (1{,}550 hogares) no tiene imagen en
+\emph{ninguna}, y el resto tiene imagen en una o dos olas únicamente
+(Tabla~\ref{tab:gsv_patron_cobertura}, Figura~\ref{fig:gsv_patron}). Se
+verificó explícitamente que esta brecha se explica por completo por
+disponibilidad real de panorama cercano (\texttt{status=OK} en algún
+radio) y no por una regla de deduplicación del pipeline que reasignara una
+misma fotografía a una sola ola: al cruzar, para cada hogar$\times$ola de
+este subconjunto, si existió algún panorama \texttt{OK} contra si se
+descargó efectivamente una imagen, la correspondencia es exacta (1 a 1, sin
+excepciones). En otras palabras, un hogar que aparece en las tres olas de
+la ELCA puede legítimamente carecer de variable de entorno visual en una o
+dos de ellas porque Google Street View, sencillamente, no tiene cobertura
+en ese punto para ese momento de la consulta.
+
+\begin{table}[H]
+  \centering
+  \caption{Patrón de cobertura fotográfica dentro del panel de 7{,}735
+  hogares presentes en las tres olas de la ELCA.}
+  \label{tab:gsv_patron_cobertura}
+  \small
+  \begin{tabular}{lrr}
+    \toprule
+    \textbf{Combinación de olas con imagen} & \textbf{Hogares} & \textbf{\%} \\
+    \midrule
+    2010 + 2013 + 2016 & 4{,}678 & 60.5\% \\
+    Ninguna ola        & 1{,}550 & 20.0\% \\
+    2013 + 2016        &   559   &  7.2\% \\
+    Solo 2016          &   277   &  3.6\% \\
+    Solo 2010          &   235   &  3.0\% \\
+    2010 + 2016        &   234   &  3.0\% \\
+    Solo 2013          &   131   &  1.7\% \\
+    2010 + 2013        &    71   &  0.9\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{figures/fig_gsv_patron_cobertura.png}
+  \caption{Patrón de cobertura fotográfica por combinación de olas, dentro
+  del panel de hogares presentes en las tres olas de la ELCA.}
+  \label{fig:gsv_patron}
+\end{figure}
+
+\paragraph{Desfase temporal entre la fecha de la foto y la ola encuestada
+--- limitación central.} La fecha de captura de los panoramas de Street
+View descargados va de 2012 a 2026, con una mediana de 2023
+(Figura~\ref{fig:gsv_desfase}); es decir, la mitad de las imágenes usadas
+para caracterizar el entorno de un hogar fueron tomadas siete años o más
+\emph{después} de la ola más reciente de la ELCA (2016), y muchas más de
+una década después de la ola que dicen representar. El pipeline
+(\texttt{01\_analisis\_cobertura\_gsv.py}) define en su código actual una
+ventana temporal de elegibilidad por ola (foto de año $\leq$2010 para la
+ola 2010, 2011--2013 para 2013, 2014--2016 para 2016), pero al contrastar
+esa regla contra las imágenes efectivamente entregadas
+(Tabla~\ref{tab:gsv_ventana_temporal}) se encuentra que 93.0\% de ellas cae
+fuera de esa ventana --para la ola 2010, prácticamente 0\%, porque la
+cobertura histórica de Street View con fecha verificable en Colombia es
+casi inexistente antes de 2012--. Esto indica que los datos finales
+entregados no se generaron aplicando ese filtro de elegibilidad temporal
+(sí está en el código del repositorio, pero no se refleja en el resultado
+final), y, de forma independiente del origen de esa discrepancia, confirma
+que la mayoría de las variables visuales de esta tesis describen el entorno
+construido \emph{actual} u observado en años recientes, no el entorno en
+el momento de la encuesta. Para un ejercicio que busca predecir
+transiciones a la pobreza a partir del entorno físico contemporáneo a la
+ola, este desfase es una limitación de validez que debe declararse
+explícitamente y tenerse en cuenta al interpretar cualquier coeficiente o
+importancia de variable asociada a estas covariables: una asociación entre
+una variable visual y pobreza en la ola $t$ puede reflejar en parte
+condiciones del entorno posteriores a $t$, no solo contemporáneas.
+
+\begin{table}[H]
+  \centering
+  \caption{Contraste entre la fecha real de captura del panorama y la
+  ventana temporal que el código del pipeline define como elegible para
+  cada ola.}
+  \label{tab:gsv_ventana_temporal}
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Ola} & \textbf{Imágenes} & \textbf{Dentro de ventana} & \textbf{\%} \\
+    \midrule
+    2010 & 7{,}488 &   0 &  0.0\% \\
+    2013 & 6{,}788 & 939 & 13.8\% \\
+    2016 & 6{,}659 & 523 &  7.9\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/fig_gsv_desfase_temporal.png}
+  \caption{Año de captura de las fotos descargadas frente al año de la ola
+  encuestada (línea roja), por ola.}
+  \label{fig:gsv_desfase}
+\end{figure}
+
+\paragraph{Duplicación de fotografías entre hogares.} De las 20{,}935
+imágenes con embedding extraído, solo 12{,}963 (61.9\%) son fotografías
+físicamente distintas (mismo panorama y mismo ángulo de cámara); el 45.4\%
+restante de las observaciones hogar$\times$ola comparte su fotografía --y
+por tanto su embedding-- con al menos otra observación, típicamente porque
+ambos hogares tienen como panorama más cercano el mismo punto de Street
+View. En el caso más extremo, una sola fotografía queda asignada a 21
+observaciones hogar$\times$ola distintas (Tabla~\ref{tab:gsv_duplicacion},
+Figura~\ref{fig:gsv_duplicacion}). Esto no es un error de construcción del
+pipeline --es la consecuencia esperable de la limitación ya documentada de
+la Metadata API, que solo devuelve el panorama más cercano-- pero sí implica
+que una fracción importante de las observaciones no aporta información
+visual independiente: dos hogares con la misma fotografía tendrán,
+necesariamente, el mismo valor en cualquier variable derivada de la imagen,
+lo que reduce la variación efectiva disponible para el modelo por debajo de
+lo que sugiere el conteo bruto de 20{,}935 imágenes.
+
+\begin{table}[H]
+  \centering
+  \caption{Duplicación de fotografías entre observaciones hogar$\times$ola.}
+  \label{tab:gsv_duplicacion}
+  \small
+  \begin{tabular}{lrr}
+    \toprule
+    \textbf{Concepto} & \textbf{N} & \textbf{\%} \\
+    \midrule
+    Observaciones hogar$\times$ola con imagen & 20{,}935 & 100.0\% \\
+    Fotografías físicamente distintas          & 12{,}963 &  61.9\% \\
+    Observaciones con foto compartida (repetida) & 9{,}509 &  45.4\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{figures/fig_gsv_duplicacion_fotos.png}
+  \caption{Número de observaciones hogar$\times$ola que comparten cada
+  fotografía física distinta (escala logarítmica en el eje vertical).}
+  \label{fig:gsv_duplicacion}
+\end{figure}
+
+Adicionalmente, dentro de un mismo \texttt{consecutivo} y ola puede haber
+más de una imagen (hasta 5) cuando el hogar se dividió en sub-hogares con
+coordenadas propias; en promedio cada hogar con al menos una imagen tiene
+2.6 imágenes contando las tres olas (mediana 3, máximo 9). La distancia
+entre la coordenada del hogar y el panorama utilizado tiene mediana de
+15.9 metros pero cola larga (percentil 90 de 256.9 metros, máximo 926.2
+metros): para ese 10\% de casos más alejados, la fotografía puede
+corresponder a un segmento de calle distinto al frente real del hogar (por
+ejemplo, una vía principal cercana en vez de la calle interna).
+
+\paragraph{Otras limitaciones e inconsistencias de datos documentadas.} La
+auditoría de estos archivos encontró además: (i) 7 filas de
+\texttt{descargas\_final.csv} —todas correspondientes a descargas
+fallidas, sin efecto sobre las imágenes usadas— con comas sin comillar en
+el mensaje de error, lo que rompe el parser por defecto de \texttt{pandas}
+y probablemente el de Stata/R si se usa ese archivo sin cuidado; (ii) el
+mismo campo de error muestra indicios de doble codificación de caracteres
+(\textit{mojibake}); (iii) 4.6\% de las observaciones de 2016 no tienen
+\texttt{llave} (identificador de panel 2013) pese a no ser hogares de la
+ola base, posiblemente sub-hogares nuevos sin contraparte directa en 2013,
+que debe verificarse antes de fusionar con el panel principal de la
+Sección~\ref{subsec:elco}; y (iv) los tres radios de búsqueda documentados
+en el código del repositorio, en el reporte de una corrida anterior, y en
+los datos finalmente entregados no coinciden entre sí, lo que confirma que
+los reportes de texto históricos de \texttt{data/processed/embeddings/} no
+deben citarse como fuente y que la única fuente autoritativa son los
+archivos ``\_final''. Ninguna de estas inconsistencias afecta las cifras
+de cobertura reportadas arriba (que se calcularon depurando explícitamente
+las filas corruptas), pero se documentan aquí porque condicionan cómo debe
+leerse y reutilizarse esta base en las siguientes etapas del proyecto.
+
 \subsubsection{Transfer learning y modelos de extracción de variables visuales}
 \label{subsubsec:transfer_learning}
 

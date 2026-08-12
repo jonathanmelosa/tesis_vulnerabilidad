@@ -1,0 +1,177 @@
+==============================================================================
+ANÁLISIS DE CALIDAD Y COBERTURA — IMÁGENES GOOGLE STREET VIEW (ELCA)
+Fuente: data/processed/embeddings/{consultas_final.csv, descargas_final.csv, embeddings_unidos_anonimizado.parquet}
+==============================================================================
+
+==============================================================================
+SECCIÓN A — RESUMEN GENERAL
+==============================================================================
+Observaciones hogar × ola en el archivo de consultas: 26,668
+Filas totales en consultas_final.csv (hogar×ola×radio): 111,728
+Radios de búsqueda consultados: [np.float64(50.0), np.float64(100.0), np.float64(200.0), np.float64(500.0)] m
+
+Distribución de 'status' de la Metadata API (a nivel hogar×ola×radio):
+  OK                       67,818  ( 60.7%)
+  ZERO_RESULTS             41,255  ( 36.9%)
+  SIN_COORD_VALIDA          2,624  (  2.3%)
+  NOT_FOUND                    20  (  0.0%)
+  UNKNOWN_ERROR                11  (  0.0%)
+
+Imágenes efectivamente descargadas (exito=True): 20,935
+Filas corruptas en descargas_final.csv (comas sin comillar en mensaje_error, todas de descargas fallidas): 7
+Imágenes con embedding extraído (las 4 arquitecturas): 20,935
+  → Coincide exactamente con las descargas exitosas: no se perdió ninguna imagen entre la descarga y la extracción de embeddings.
+
+==============================================================================
+SECCIÓN B — COBERTURA POR OLA
+==============================================================================
+Hogares (consecutivo únicos) por etapa del embudo, por ola:
+ ola  hogares_consultados  hogares_coord_valida  hogares_con_panorama_ok  hogares_con_imagen_descargada  cobertura_%_sobre_validos
+2010                 9853                  9573                     6927                           6927                       72.4
+2013                 8729                  8429                     6237                           6237                       74.0
+2016                 8086                  8086                     6054                           6054                       74.9
+
+==============================================================================
+SECCIÓN C — HOGARES CUBIERTOS Y NO CUBIERTOS (PANEL DE 3 OLAS)
+==============================================================================
+Hogares (consecutivo) presentes en las tres olas en consultas_final.csv: 7,735
+
+── Verificación: ¿'panorama OK' implica 'imagen descargada'? ─────────────────
+Cruce (hogar×ola, solo hogares presentes en las 3 olas):
+tiene_foto             False  True 
+status_ok_algun_radio              
+False                   6800      0
+True                       0  16405
+→ Correspondencia perfecta 1 a 1: la brecha de cobertura entre olas dentro del panel de 3 olas se explica enteramente por disponibilidad real de panorama (status=OK en algún radio), NO por una regla adicional de deduplicación entre olas del pipeline.
+
+── Patrón de cobertura fotográfica dentro del panel de 3 olas ────────────────
+       combinación  n_hogares    %
+2010 + 2013 + 2016       4678 60.5
+       Ninguna ola       1550 20.0
+       2013 + 2016        559  7.2
+         Solo 2016        277  3.6
+         Solo 2010        235  3.0
+       2010 + 2016        234  3.0
+         Solo 2013        131  1.7
+       2010 + 2013         71  0.9
+
+==============================================================================
+SECCIÓN D — IMÁGENES ÚNICAS Y DUPLICACIÓN ENTRE HOGARES
+==============================================================================
+Filas (hogar × ola con imagen asignada): 20,935
+Fotografías físicamente distintas (photo_id_uuid único, construido a partir de pano_id + heading antes de anonimizar): 12,963 (61.9% del total de filas)
+Filas cuya fotografía es compartida con al menos otro hogar×ola (n_repeticiones > 1): 9,509 (45.4%)
+
+Esto ocurre cuando dos o más hogares (o el mismo hogar en distintas sub-divisiones) comparten el panorama de Street View más cercano: reciben literalmente la misma fotografía y, por lo tanto, el mismo embedding — no hay dos observaciones visualmente independientes en esos casos, aunque cuenten como dos filas del panel.
+
+── Distribución de n_repeticiones (nº de hogares×ola que comparten la misma foto) 
+n_repeticiones
+1     11426
+2       394
+3       114
+4       113
+5        98
+6       117
+7       114
+8       119
+9       129
+10      140
+11       98
+12       45
+13       27
+14       15
+15        4
+16        1
+17        3
+19        3
+20        2
+21        1
+Máximo de hogares×ola distintos compartiendo una sola fotografía: 21
+
+==============================================================================
+SECCIÓN E — IMÁGENES POR HOGAR (CONSECUTIVO) Y POR OLA
+==============================================================================
+Distribución del nº de imágenes descargadas por (hogar, ola):
+1    17586
+2     1553
+3       74
+4        4
+5        1
+
+Un mismo 'consecutivo' puede tener más de una imagen en la misma ola cuando el hogar se dividió en sub-hogares (splits) con coordenadas propias: cada sub-hogar puede generar su propia consulta y, si tiene panorama distinto, su propia imagen. No es duplicación: son sub-hogares distintos comprimidos bajo el mismo 'consecutivo'.
+
+── Total de imágenes por hogar (sumando las tres olas) ───────────────────────
+count    8025.000000
+mean        2.608723
+std         1.004315
+min         1.000000
+25%         2.000000
+50%         3.000000
+75%         3.000000
+max         9.000000
+
+==============================================================================
+SECCIÓN F — FECHAS DE LAS IMÁGENES Y DESFASE TEMPORAL RESPECTO A LA OLA
+==============================================================================
+Rango de años de captura de los panoramas efectivamente descargados:
+  Mínimo: 2012   Máximo: 2026   Mediana: 2023
+
+── Año de captura del panorama, por ola de la encuesta ───────────────────────
+         min     25%     50%     75%     max
+ola                                         
+2010  2012.0  2019.0  2023.0  2025.0  2026.0
+2013  2012.0  2019.0  2024.0  2025.0  2026.0
+2016  2012.0  2018.0  2023.0  2025.0  2026.0
+
+── Contraste contra la ventana temporal 'elegible' definida en el código actual del script 01 (VENTANAS_OLA: ≤2010 / 2011–2013 / 2014–2016) 
+ ola  n_total  n_dentro_ventana  pct_dentro_ventana
+2010     7488                 0                 0.0
+2013     6788               939                13.8
+2016     6659               523                 7.9
+
+→ 93.0% de las imágenes descargadas tiene una fecha de captura FUERA de la ventana temporal que el pipeline define como 'elegible' para su propia ola. Para la ola 2010 la proporción dentro de ventana es prácticamente nula, porque la cobertura histórica de Street View en Colombia con fecha verificable es casi inexistente antes de 2012. Esto indica que los datos entregados NO se generaron aplicando ese filtro de elegibilidad temporal (está en el código actual del script 01 pero no se refleja en descargas_final.csv), y de forma independiente confirma que la mayoría de las imágenes usadas para caracterizar el entorno de un hogar en una ola dada fueron tomadas años — en muchos casos más de una década — después de esa ola.
+
+==============================================================================
+SECCIÓN G — DISTANCIA ENTRE EL HOGAR Y EL PANORAMA UTILIZADO
+==============================================================================
+count    20935.000000
+mean        72.512066
+std        117.904747
+min          0.100000
+25%          6.000000
+50%         15.900000
+75%         75.950000
+90%        256.860000
+max        926.200000
+
+Distancias grandes implican que la fotografía puede no corresponder al frente del hogar sino a un segmento de calle distinto (p. ej. una vía principal cercana en vez de la calle interna donde vive el hogar).
+
+==============================================================================
+SECCIÓN H — CONSISTENCIA DE LOS DATOS Y LIMITACIONES ADICIONALES
+==============================================================================
+
+── H.1 — Filas corruptas en descargas_final.csv ──────────────────────────────
+7 filas del archivo tienen comas sin comillar dentro de 'mensaje_error' (ej. 'Contenido inválido: 8,872 bytes, inicio=ffd8ffe0'), lo que rompe el parser por defecto de pandas/Stata/R. Las 7 filas corresponden todas a descargas fallidas (exito=False) y no afectan ninguna imagen usada en los embeddings, pero el archivo debería regenerarse con comillado CSV correcto para evitar que un análisis futuro las descarte en silencio o falle al leer el archivo.
+
+── H.2 — Mensajes de error también muestran mojibake de codificación ─────────
+El texto de mensaje_error contiene secuencias como 'invÃ¡lido' en vez de 'inválido', indicando una doble codificación UTF-8/Latin-1 en algún punto del pipeline de descarga o de guardado del CSV. No afecta variables numéricas, pero conviene corregirlo si el texto de error se usa para clasificar fallos.
+
+── H.3 — Identificador 'llave' faltante en algunas filas de ola 2016 ─────────
+304 de 6659 filas de ola 2016 (4.6%) no tienen 'llave' (identificador de panel 2013) a pesar de no ser ola 2010. Puede deberse a sub-hogares 2016 sin contraparte directa en 2013 (nuevas divisiones); se documenta para que la unión con el panel ELCA lo tenga en cuenta y no se asuma como error de construcción sin verificar antes con las tablas ELCA.
+
+── H.4 — Radios de búsqueda: código actual vs. reportes previos ──────────────
+consultas_final.csv usa los radios [50, 100, 200, 500] metros. El código actual de 01_analisis_cobertura_gsv.py (CONFIG['radios_m']) usa [50, 100, 200, 400], y el reporte de texto reporte_cobertura_gsv.txt (de una corrida anterior) documenta [50, 100, 200, 500]. Los tres no coinciden entre sí. Esto confirma que los reportes .txt existentes en data/processed/embeddings/ no reflejan ni el código actual ni los datos finales entregados, y no deberían citarse como fuente en la tesis: la fuente autoritativa es consultas_final.csv / descargas_final.csv.
+
+── H.5 — Carpeta de datos mixta con un pipeline no relacionado ───────────────
+data/processed/embeddings/ contiene, además de los archivos de Street View, reportes de un pipeline distinto basado en imágenes satelitales Sentinel-1 (reporte_coleccion_s1.txt, reporte_composiciones_temporales.txt, reporte_conexion_gee.txt, reporte_extraccion_buffer.txt, reporte_metricas_textura.txt). Quedan fuera del alcance de este análisis, que se limita a Google Street View, pero conviene separarlos en carpetas distintas para evitar confusión sobre qué reporte corresponde a qué fuente de datos.
+
+── H.6 — 'uuid.py' local sombrea la librería estándar ────────────────────────
+El script uuid.py que el estudiante dejó en esta misma carpeta (usado para generar photo_id_uuid al anonimizar) tiene el mismo nombre que el módulo estándar de Python 'uuid'. Python antepone el directorio del script en ejecución a sys.path, así que cualquier código —incluyendo matplotlib, que depende de 'uuid' internamente— que se ejecute desde esta carpeta importará ese archivo en vez de la librería estándar y fallará. Este mismo script tuvo que neutralizarlo explícitamente para poder generar las figuras. Se recomienda renombrar uuid.py (p. ej. a anonimizar_photo_id.py) antes de que rompa otro script del pipeline.
+
+── H.7 — Cobertura urbano/rural ──────────────────────────────────────────────
+                sum  count  cobertura_%
+zona_archivo                           
+rural          5435  12530    43.375898
+urbano        14057  14422    97.469144
+
+La cobertura de Street View es sistemáticamente mayor en zonas urbanas que rurales (esperable dado el patrón de cobertura vial de Google), lo que introduce un sesgo de selección espacial en qué hogares terminan teniendo variables de entorno visual disponibles.
