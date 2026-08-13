@@ -946,6 +946,592 @@ pavimento o por zonas verdes, en lugar de depender de un \emph{embedding}
 opaco. Ninguno de los dos aporta todavía resultados a esta tesis y es 
 la única parte que no ha sido implementada aún.
 
+\subsection{Rediseño de la estrategia geoespacial: de Google Street View a fuentes satelitales}
+\label{subsec:pivote_geo}
+
+Las limitaciones de Google Street View documentadas en la
+Sección~\ref{subsubsec:cobertura_gsv} —cobertura correlacionada con
+ruralidad (y por tanto con el propio riesgo de pobreza), desfase temporal
+de hasta 15 años entre la fecha de la foto y la ola que se supone debe
+representar, y duplicación de imágenes entre hogares vecinos— llevaron a
+evaluar, antes de invertir más tiempo en ese pipeline, si existen fuentes
+geoespaciales públicas alternativas con mejores propiedades de cobertura
+para el caso colombiano. La pregunta de investigación no cambia: sigue
+siendo si datos geoespaciales públicos mejoran la predicción de caída en
+pobreza sobre el panel ELCA. Lo que cambia es la fuente de esos datos.
+Esta subsección documenta esa exploración, las decisiones tomadas y su
+justificación, y dónde queda el proyecto en el momento de escribir este
+documento.
+
+Conviene adelantar la conclusión antes de entrar en el detalle, porque
+determina qué comparaciones importan en lo que sigue: como se argumenta en
+la Sección~\ref{subsec:pivote_transicion}, ninguna fuente geoespacial
+pública tiene datos confiables para la ola 2010, así que la comparación
+entre un modelo ``solo ELCA'' y uno ``ELCA + geoespacial'' solo puede
+hacerse de forma limpia sobre la transición
+2013$\to$2016 —la ola 2010 y, con ella, la transición
+2010$\to$2013, quedan fuera del alcance de esa comparación—. Por eso el
+resto de esta subsección evalúa cada fuente principalmente por su
+cobertura de la ola \textbf{2013} (el predictor de la transición retenida)
+y de la ola \textbf{2016} (el resultado), y trata la cobertura de 2010
+como información de contexto —relevante para entender por qué se descartó
+esa transición, pero no para elegir la fuente geoespacial definitiva—.
+
+\subsubsection{Fuentes alternativas consideradas}
+
+Se evaluaron cuatro fuentes satelitales/aéreas públicas además de GSV:
+radar de apertura sintética (Sentinel-1), óptico multiespectral
+(Sentinel-2), luces nocturnas de nueva generación (VIIRS DNB) y luces
+nocturnas de generación anterior (DMSP-OLS). Se consideró también
+OpenStreetMap como fuente de variables estructurales (red vial, densidad
+de puntos de interés), pero se descartó en esta etapa: no existe pipeline
+alguno construido, y reconstruir el estado histórico del mapa para
+2010/2013 requeriría herramientas de historia completa de OSM (la API
+\emph{ohsome}/OSHDB del Heidelberg Institute for Geoinformation
+Technology) sobre un mapa que, en esos años, apenas empezaba a poblarse en
+Colombia —el Humanitarian OpenStreetMap Team se fundó en 2010 y el
+mapeo del país en ese periodo fue impulsado por proyectos puntuales, no
+por cobertura sistemática—, por lo que el snapshot histórico
+probablemente estaría demasiado vacío para ser útil incluso si el
+problema técnico de extraerlo se resolviera.
+
+De las tres fuentes satelitales de imagen/radar, cada una mide un dominio
+físico distinto y hereda un tipo de sesgo de cobertura diferente, lo cual
+es relevante más allá de cuál tiene mejor cobertura bruta:
+
+\begin{itemize}
+  \item \textbf{Sentinel-1 (radar, banda C)} mide textura y densidad del
+  entorno construido vía retrodispersión de microondas. Al atravesar
+  nubes, su cobertura no depende de la nubosidad —a diferencia de las
+  otras dos— lo que es especialmente relevante para Colombia, un país con
+  alta nubosidad persistente en buena parte de su territorio rural
+  (Pacífico, Andes húmedos, Amazonía).
+  \item \textbf{Sentinel-2 (óptico)} mide reflectancia de superficie
+  (vegetación, construcción) y sí depende de cielo despejado: hereda
+  estructuralmente el mismo tipo de sesgo geográfico que GSV, solo que la
+  causa física es la nubosidad en vez de la ausencia de cobertura vial.
+  \item \textbf{VIIRS DNB / DMSP-OLS (luces nocturnas)} miden actividad
+  económica y electrificación agregada del entorno. La literatura que
+  valida este proxy (\textcite{jean2016}, entre otros) lo hace
+  principalmente a escala regional/municipal, no a nivel de un hogar
+  individual dentro de una misma manzana —una discrepancia de escala que
+  debe tenerse presente al interpretar cualquier resultado que use estas
+  variables como predictor de hogar.
+\end{itemize}
+
+\subsubsection{Cobertura temporal real de las olas 2013 y 2016, verificada contra la documentación oficial}
+
+Un hallazgo central de esta exploración es que, de las olas que sí
+importan para la comparación retenida, la ola \textbf{2016} no es un
+problema para ninguna fuente satelital (las cuatro tienen ventana real,
+ex-ante, sin proxy) pero la ola \textbf{2013} sí lo es para la mayoría: el
+problema de fondo de GSV (desfase temporal) no es exclusivo de GSV, es
+una limitación estructural del estado del arte de datos geoespaciales
+públicos para ese año específico. El tamaño de la brecha en 2013 y su
+origen varían sustancialmente entre fuentes. La
+Tabla~\ref{tab:cobertura_temporal_fuentes} resume la fecha real de inicio
+de cada fuente (verificada contra la documentación oficial de cada
+catálogo, no solo contra fuentes secundarias) y la ventana que cada
+pipeline usa para las olas 2013 y 2016; la ola 2010 se omite de la tabla
+porque quedó fuera del alcance de la comparación
+(Sección~\ref{subsec:pivote_transicion}) y se retoma solo como nota al
+pie, para que la tabla no distraiga del punto central.
+
+\begin{table}[H]
+  \centering
+  \caption{Cobertura temporal real de cada fuente geoespacial pública
+  considerada para las olas 2013 y 2016 —las dos relevantes para la
+  transición retenida—, verificada contra la documentación oficial de
+  cada catálogo (Copernicus/ESA, NOAA, Google Earth Engine Data Catalog).}
+  \label{tab:cobertura_temporal_fuentes}
+  \small
+  \begin{tabular}{lp{2.4cm}p{2.9cm}p{1.7cm}p{2.6cm}}
+    \toprule
+    \textbf{Fuente} & \textbf{Inicio real} & \textbf{Ventana ola 2013} & \textbf{Brecha ola 2013} & \textbf{Ventana ola 2016} \\
+    \midrule
+    Sentinel-1 (radar) & oct.\ 2014 & oct.2014--sep.2015 (proxy) & $\sim$1--2 a. & oct.2015--sep.2016 (real) \\
+    Sentinel-2 (óptico) & mar.\ 2017 (cobertura global L2A) & oct.2019--sep.2020 (proxy) & $\sim$6--7 a. & oct.2015--sep.2016 (real) \\
+    VIIRS DNB (luces) & abr.\ 2012 & 2013 calendario (proxy) & \textbf{0 a.} & oct.2015--sep.2016 (real) \\
+    DMSP-OLS (luces) & 1992 (hasta 2014) & 2013 real & \textbf{0 a.} & sin cobertura (fuente termina en 2014) \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} para Sentinel-2, la ventana oct.2017--sep.2018
+    se probó primero y se descartó tras confirmar, contra datos reales,
+    que 61.5\% de los hogares quedaban sin ninguna escena disponible —
+    consistente con que el propio catálogo de Google Earth Engine advierte
+    que la cobertura L2A de 2017--2018 ``no es todavía global''. Para
+    referencia, la brecha en la ola 2010 (fuera del alcance de la
+    comparación retenida) es aún mayor que en 2013 en las cuatro fuentes
+    —entre $\sim$3 y $\sim$4--5 años adicionales según la fuente, y hasta
+    $\sim$9--10 años en el caso de Sentinel-2— y es la razón original por
+    la que se inició esta exploración.
+  \end{minipage}
+\end{table}
+
+La Figura~\ref{fig:cobertura_temporal_fuentes} muestra esta misma
+información de forma visual para las siete fuentes evaluadas en algún
+momento de esta exploración, incluyendo GSV
+(Sección~\ref{subsubsec:cobertura_gsv}) y las dos fuentes históricas que
+se evaluaron y descartaron como reemplazo de Sentinel-1/Sentinel-2 para
+2010 (ALOS PALSAR y Landsat 5 TM, Sección~\ref{subsubsec:alos_landsat}):
+cada barra horizontal es la ventana real de disponibilidad de una fuente,
+y las tres franjas verticales marcan las olas de la ELCA —de las tres, la
+que importa para leer esta figura correctamente es \textbf{2013}: es la
+única donde hay diferencias reales entre fuentes que afectan la
+comparación retenida (2016 lo cubren todas con ventana real; 2010 quedó
+fuera de alcance, ver más abajo)—. El patrón con líneas diagonales indica
+que la fuente ya se corrió sobre hogares reales de la ELCA (GSV y
+Sentinel-1 únicamente); el resto de fuentes son cobertura teórica del
+catálogo, todavía sin confirmar sobre datos reales del proyecto. Para GSV
+específicamente, la intensidad del sombreado dentro de la barra es
+proporcional a la densidad real de fotos por año (Sección~\ref{subsubsec:cobertura_gsv}):
+la franja es casi transparente entre 2007 y 2012 porque prácticamente
+ninguna de las fotos usadas en este proyecto es de esos años, y se oscurece
+progresivamente hacia el extremo derecho, donde se concentra el 60.9\% de
+las fotos (2023 en adelante) — pintar esa barra de forma uniforme, como en
+una primera versión de esta figura, habría sido engañoso.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/fig_cobertura_temporal_fuentes.png}
+  \caption{Cobertura temporal real de cada fuente geoespacial evaluada,
+  frente a las tres olas de la ELCA (la ola 2013 es la relevante para
+  comparar entre fuentes; ver texto). El patrón diagonal indica corrida
+  real confirmada sobre hogares del proyecto (solo GSV y Sentinel-1 al
+  momento de escribir este documento); el resto es cobertura de catálogo,
+  pendiente de verificar. En la barra de GSV, la intensidad del color es
+  proporcional a la densidad real de fotos por año, no a su mera
+  disponibilidad técnica.}
+  \label{fig:cobertura_temporal_fuentes}
+\end{figure}
+
+Para la ola 2013 —la que en efecto importa—, DMSP-OLS y VIIRS son las
+únicas dos fuentes con brecha de cero años (Tabla~\ref{tab:cobertura_temporal_fuentes}).
+DMSP-OLS lo logra con datos genuinamente reales de ese año exacto, a
+costa de una resolución más gruesa (927.67 m, frente a los 463--500 m de
+VIIRS); VIIRS lo logra por diseño de su ventana proxy, pero —a diferencia
+de DMSP-OLS— esa ventana todavía no se ha verificado sobre ningún hogar
+real de la ELCA (Tabla~\ref{tab:estado_verificacion}, más abajo). Que
+DMSP-OLS también tenga brecha cero en 2010 es, en el estado actual de la
+tesis, una ventaja secundaria sin uso inmediato —esa ola quedó fuera del
+alcance de la comparación geoespacial— pero se documenta por si el diseño
+de validación se revisa más adelante.
+
+\subsubsection{¿Hay alguna fuente de radar/óptico con mejor cobertura real de la ola 2013?}
+\label{subsubsec:alos_landsat}
+
+La pregunta original que motivó esta comparación fue si Sentinel-1 podría
+tener alguna cobertura de Colombia anterior a su ventana proxy actual
+—relevante en su momento para la ola 2010, antes de concluir que esa ola
+queda fuera del alcance de la comparación retenida—. La respuesta es no,
+y es una imposibilidad física, no una limitación del pipeline:
+Sentinel-1A se lanzó el 3 de abril de 2014 y empezó a entregar datos
+operativos en octubre de ese año —no puede existir ninguna imagen de
+Sentinel-1 anterior a esa fecha, en ningún catálogo—. Se verificó además,
+revisando directamente el código de
+\texttt{sentinel1\_pipeline/utils/sentinel1\_utils.py}, que la
+construcción de la colección usa \texttt{ImageCollection(...)}
+\texttt{.filterDate(fecha\_inicio, fecha\_fin)} como filtro aplicado
+\emph{del lado del servidor de Google Earth Engine antes} de cualquier
+extracción, sin ningún mecanismo de repliegue que amplíe la búsqueda si
+un hogar no tiene imágenes en la ventana (a diferencia de la API de
+Metadatos de GSV, que devuelve el panorama más cercano sin importar la
+fecha). Es decir: el desfase temporal de Sentinel-1 está acotado por
+diseño, incluyendo su brecha de $\sim$1--2 años en la ola 2013
+(Tabla~\ref{tab:cobertura_temporal_fuentes}), y es imposible que se
+comporte como el de GSV.
+
+Esto llevó a evaluar dos fuentes con cobertura real anterior a 2014: ALOS
+PALSAR (radar en banda L de JAXA, mosaicos anuales gratuitos vía Google
+Earth Engine para 2007--2010, con un hueco confirmado 2011--2014 hasta
+que empieza ALOS-2/PALSAR-2 en 2015) y Landsat 5 TM (óptico, en principio
+con operación 1984--2013 según su fecha formal de decomisión). El
+resultado, ya con el foco puesto en la ola 2013 y no en 2010, es que
+\textbf{ninguna de las dos mejora lo que ya ofrece Sentinel-1 o VIIRS para
+esa ola}, aunque por razones distintas: el hueco de ALOS PALSAR cubre
+exactamente 2011--2014, es decir, \emph{no tiene ninguna cobertura de
+2013} —la descalifica de inmediato para la transición retenida, más allá
+de cualquier otra consideración—; Landsat 5, pese a que su fecha formal de
+decomisión (junio de 2013) sugeriría cobertura parcial de esa ola,
+\emph{tampoco tiene ninguna imagen real utilizable en 2012 ni en 2013},
+según la verificación en vivo contra el catálogo de Google Earth Engine
+documentada en la Sección~\ref{subsubsec:verificacion_gee}: el sensor dejó
+de adquirir escenas de forma efectiva antes de esa fecha de decomisión, un
+matiz que las fuentes secundarias sobre su periodo operativo no siempre
+distinguen con claridad. Por eso ninguna de las dos se adopta como fuente
+adicional para la ola 2013: para esa ola ya se cuenta con Sentinel-1
+(real, brecha corta) y con DMSP-OLS/VIIRS (brecha cero); ALOS PALSAR y
+Landsat 5 no agregan una opción estrictamente mejor que esas —y en el caso
+de Landsat 5, ni siquiera llegan a ofrecer cobertura real de la ola.
+
+\subsubsection{Estado de verificación: qué está confirmado con hogares reales de la ELCA y qué no}
+
+Es importante ser explícito sobre qué parte de esta exploración está
+verificada con coordenadas reales de hogares y qué parte solo demuestra
+que el código funciona. La Tabla~\ref{tab:estado_verificacion} lo resume.
+
+\begin{table}[H]
+  \centering
+  \caption{Estado de verificación de cada pipeline geoespacial al momento
+  de escribir este documento.}
+  \label{tab:estado_verificacion}
+  \small
+  \begin{tabular}{lp{4.3cm}p{6.7cm}}
+    \toprule
+    \textbf{Pipeline} & \textbf{Estado} & \textbf{Evidencia} \\
+    \midrule
+    Google Street View & Producción completa, auditada & Sección~\ref{subsubsec:cobertura_gsv} \\
+    Sentinel-1 & Producción real (pasos 00--05 del pipeline) & 9{,}573 / 8{,}880 / 8{,}818 hogares reales por ola (2010/2013/2016), reportes en \texttt{data/processed/embeddings/} \\
+    VIIRS DNB & Código revisado y corregido; sin corrida real todavía & Solo prueba con coordenadas sintéticas (id \texttt{P0001} y similares) hasta esta revisión \\
+    DMSP-OLS & Conectividad y cobertura real verificadas en vivo contra GEE; corrida de producción (pasos 02--06) pendiente & Sección~\ref{subsubsec:verificacion_gee} — imágenes reales confirmadas para las seis combinaciones ronda$\times$año (2008--2010 y 2011--2013) \\
+    ALOS PALSAR & Conectividad y cobertura real verificadas en vivo contra GEE; corrida de producción pendiente & Sección~\ref{subsubsec:verificacion_gee} — teselas reales confirmadas para 2008--2010 (única ventana posible) \\
+    Landsat 5 TM & Conectividad verificada; \textbf{cobertura real de 2013 descartada} tras verificación en vivo & Sección~\ref{subsubsec:verificacion_gee} — sin ninguna escena real en 2012 ni 2013 en todo el catálogo mundial \\
+    Sentinel-2 & Corrida real incompleta & Solo 30/30/9 hogares de 860/819/774 procesados en el piloto; mayoría marcada ``no procesado aún'' \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Durante la revisión del código de \texttt{viirs\_pipeline/} para dejarlo
+listo para una corrida real se encontró y corrigió un error real: el
+cálculo de crecimiento/migración entre olas
+(\texttt{04\_indicadores\_derivados.py}) indexaba únicamente por
+(\texttt{consecutivo}, \texttt{ola}), lo que produce resultados ambiguos
+o incorrectos para hogares divididos (donde \texttt{consecutivo} se
+repite dentro de una ola) — el mismo tipo de hogar que ya se excluye, por
+la razón correcta, del panel principal de transición de pobreza
+(Sección~\ref{subsec:elco}). Se corrigió para excluir explícitamente esos
+casos, replicando el criterio ya usado en el propio control de calidad
+del pipeline, y se verificó la corrección con una prueba unitaria
+sintética antes de considerarlo listo para la sala de cómputo.
+
+\subsubsection{Verificación en vivo con Google Earth Engine: cobertura real de DMSP-OLS, ALOS PALSAR y Landsat 5 TM}
+\label{subsubsec:verificacion_gee}
+
+Los tres pipelines nuevos (DMSP-OLS, ALOS PALSAR, Landsat 5 TM) se
+diseñaron y probaron inicialmente solo con datos sintéticos (Tabla
+\ref{tab:estado_verificacion}). Antes de dar por buena la cobertura real
+que la Sección~\ref{subsubsec:alos_landsat} y la
+Tabla~\ref{tab:cobertura_temporal_fuentes} asumen a partir de la
+documentación oficial de cada catálogo, se hizo una verificación en vivo
+contra Google Earth Engine —consultando imágenes reales, no solo leyendo
+fechas de lanzamiento o de decomisión— cuyos resultados se documentan
+aquí.
+
+\paragraph{Reutilización de credenciales.} Los tres pipelines nuevos usan
+la misma cuenta de servicio de Google Cloud ya creada para Sentinel-1
+(\texttt{mi-servidor-osm@plasma-minutia-492021-k7.iam.gserviceaccount.com},
+proyecto \texttt{plasma-minutia-492021-k7}). Copiar el archivo de
+credenciales existente a la carpeta \texttt{credenciales/} de cada
+pipeline nuevo fue suficiente para conectar los tres a Google Earth
+Engine sin ningún cambio de código: la cuenta de servicio no está atada a
+un pipeline ni a una colección de datos en particular.
+
+\paragraph{DMSP-OLS.} La conexión y una consulta de prueba sobre Bogotá
+confirmaron 1 imagen real para 2010 con las tres bandas esperadas
+(\texttt{avg\_vis}, \texttt{stable\_lights}, \texttt{cf\_cvg}). El
+diagnóstico completo confirmó imágenes reales para las seis combinaciones
+ronda$\times$año que usa el diseño de estado/ventana acumulada
+(2008, 2009, 2010 para la ola 2010; 2011, 2012, 2013 para la ola 2013),
+con valores de luces nocturnas fisicamente plausibles para un hogar de
+prueba (p.\,ej.\ \texttt{avg\_vis}=17.2, \texttt{stable\_lights}=17.2,
+\texttt{cf\_cvg}=51.2 en el año de estado 2010). Esto confirma
+empíricamente que DMSP-OLS sí tiene cobertura real y utilizable sobre
+Colombia para ambas olas.
+
+\paragraph{ALOS PALSAR.} La conexión y la prueba de bandas confirmaron 1
+tesela real sobre Bogotá para 2010, con las bandas esperadas (\texttt{HH},
+\texttt{HV}) presentes. El diagnóstico completo para la única ventana
+posible dado el hueco de cobertura ya documentado (2008--2010) devolvió
+valores calibrados a $\gamma^0$ en dB físicamente plausibles para
+retrodispersión en banda L sobre superficie terrestre (\texttt{HH\_db}
+entre $-11$ y $-12$ dB, \texttt{HV\_db} entre $-19$ y $-20$ dB en los tres
+años, para un hogar de prueba), confirmando cobertura real sobre Colombia
+para la ola 2010.
+
+\paragraph{Landsat 5 TM: cobertura real descartada para 2013.} La prueba
+inicial reveló dos problemas de código que impedían siquiera completar
+una consulta real (un valor devuelto por \texttt{copyProperties()} que la
+API de Earth Engine tipa como \texttt{ee.Element} en vez de
+\texttt{ee.Image}, y la ausencia de un filtro geográfico antes de construir
+el compuesto anual, lo que hacía que Earth Engine agotara su límite de
+memoria por solicitud en años con decenas de miles de escenas en el
+catálogo mundial). Una vez corregidos ambos problemas, la extracción real
+funcionó correctamente para 2009, 2010 y 2011 (valores de reflectancia e
+índices ópticos plausibles, p.\,ej.\ NDVI $\approx 0.50$ para el año de
+estado 2010), pero devolvió cero datos para 2012 y 2013: el catálogo
+completo, sin ningún filtro geográfico, solo tiene 22 escenas en todo el
+mundo en 2012 y ninguna en 2013.
+
+Para descartar que este resultado fuera un artefacto de la consulta (y no
+evidencia real de falta de datos), se hicieron dos verificaciones
+adicionales, independientes de cualquier filtro geográfico o de nubes: (i)
+la escena más reciente de todo el catálogo mundial de Landsat 5 dentro de
+la ventana 2011--2013 tiene fecha 2012-05-05 (\texttt{LT05\_038037\_20120505})
+—después de esa fecha no existe ninguna imagen más, de ningún lugar del
+planeta, en todo el archivo—; (ii) la escena más reciente de todo el
+archivo específicamente sobre Bogotá tiene fecha 2011-06-02, más de un
+año antes del apagado mundial del sensor. Ambos resultados son
+consistentes con la historia real de la misión: el sensor TM tuvo una
+falla de electrónica en noviembre de 2011 que terminó la operación de
+rutina; el satélite se decomisionó formalmente en junio de 2013, pero
+había dejado de producir imágenes utilizables mucho antes de esa fecha —un
+matiz que la fecha de decomisión, usada como proxy de cobertura en la
+Sección~\ref{subsubsec:alos_landsat}, no capturaba.
+
+\textbf{Conclusión: Landsat 5 TM se descarta como fuente para la
+transición 2013$\to$2016}, pese a que el pipeline completo ya está
+construido (Sección~\ref{subsubsec:estado_acumulado}): la variable de
+\emph{estado} en 2013 no tiene ningún dato real posible, y la
+\emph{ventana acumulada} 2011--2013 de esa ola solo tendría un año (2011)
+con datos reales de los tres requeridos. Landsat 5 TM solo sigue siendo,
+en principio, una fuente válida para caracterizar el entorno en la ola
+2010 (fuera de la transición retenida en
+Sección~\ref{subsec:pivote_transicion}), no para 2013.
+
+\paragraph{Alcance de esta verificación.} Las pruebas de DMSP-OLS y ALOS
+PALSAR sobre un hogar de muestra usaron el archivo de coordenadas de
+hogares que, si bien contiene coordenadas reales y plausibles dentro de
+Colombia, todavía tiene identificadores de hogar sintéticos (no hogares
+reales de la ELCA) —ver la nota sobre \texttt{coordenadas\_hogares\_s1.\allowbreak parquet}
+en la Tabla~\ref{tab:estado_verificacion}—. Lo que esta sección confirma
+es que Google Earth Engine sí tiene datos reales sobre coordenadas
+colombianas para los años requeridos (DMSP-OLS y ALOS PALSAR) o no los
+tiene (Landsat 5 en 2012--2013), no que los cuatro pipelines pendientes ya
+se corrieron sobre la muestra real de hogares de la encuesta —eso sigue
+pendiente, como señala la Sección~\ref{subsubsec:estado_acumulado} y el
+próximo apartado.
+
+\subsubsection{Rediseño del diseño de validación}
+\label{subsec:pivote_transicion}
+
+El benchmark de ML original de la tesis (Sección~\ref{subsec:outcome})
+entrena con la transición 2010$\to$2013 y evalúa fuera de muestra
+temporal en la transición 2013$\to$2016. Ese diseño es válido para medir
+si el panel ELCA solo predice bien hacia el futuro, pero no permite
+comparar de forma justa un modelo ``solo ELCA'' contra uno ``ELCA +
+geoespacial'': ninguna fuente geoespacial tiene datos utilizables y
+confiables para 2010 (la ola que actúa como predictor en ese diseño), así
+que cualquier variable geoespacial agregada quedaría ausente exactamente
+en el conjunto de entrenamiento.
+
+Por esta razón —no por conveniencia, sino porque es la única forma de que
+la pregunta de investigación tenga una prueba limpia con las fuentes
+disponibles hoy— se redefine el terreno de la comparación ELCA-solo
+vs.\ ELCA+geoespacial exclusivamente a la transición 2013$\to$2016 (no
+pobre en 2013, cae en pobreza para 2016; $n=3{,}191$, 635 casos
+positivos, Sección~\ref{subsec:outcome}), evaluada con validación cruzada
+dentro de ese mismo periodo en vez de con el corte temporal 2010/2013
+usado como entrenamiento del benchmark original. Esto tiene un costo real
+que debe quedar explícito: se pierde la prueba de generalización
+\emph{temporal} (¿funciona el modelo en un periodo distinto al que
+aprendió?) a cambio de poder aislar la pregunta de interés (¿ayuda lo
+geoespacial, dado lo que sí se puede medir limpiamente?). El benchmark
+original entrenado en 2010$\to$2013 y evaluado en 2013$\to$2016
+(Sección~\ref{subsec:outcome}) se conserva sin cambios como la validación
+temporal principal del panel ELCA sin geoespacial —las dos preguntas son
+complementarias, no sustitutas, y no deben compararse cifra contra cifra
+porque usan esquemas de validación distintos. Para no perder del todo la
+idea de generalización a algo no visto, la validación cruzada dentro de
+2013$\to$2016 se hará agrupada por región/departamento en vez de
+completamente aleatoria.
+
+Dentro de esa transición, además, el desfase temporal remanente varía por
+fuente: VIIRS y DMSP-OLS tienen (por diseño, aunque VIIRS todavía sin
+verificar con hogares reales) ventana exactamente contemporánea a 2013;
+Sentinel-1 usa la misma ventana proxy de oct.2014--sep.2015 que para
+2010 (real, pero con un desfase de 1 a 2 años, no cero) — esto debe
+declararse explícitamente en cualquier resultado que use Sentinel-1 como
+predictor de la ola 2013, en vez de describirlo como una variable
+contemporánea.
+
+\subsubsection{Estado del proyecto y próximos pasos}
+
+Al momento de escribir este documento: (i) el pipeline de Sentinel-1 tiene
+una corrida real completa hasta el paso de extracción de texturas y
+composiciones temporales, pero no hay evidencia real de haber corrido los
+pasos finales de unión de variables y control de calidad (\texttt{06} y
+\texttt{07}) sobre hogares reales —queda pendiente para confirmar, entre
+otras cosas, cuántos hogares reales quedan afectados por la duplicación
+mecánica de la ventana proxy compartida entre 2010 y 2013—; (ii) el
+pipeline de VIIRS quedó revisado, con el error de hogares divididos ya
+corregido y verificado, y las rutas de dependencia hacia las coordenadas
+de Sentinel-1 hechas más robustas frente a distintas ubicaciones de
+carpeta entre el equipo de desarrollo y la sala de cómputo, pero aún sin
+ninguna corrida sobre coordenadas reales; (iii) se construyeron desde
+cero tres pipelines nuevos —DMSP-OLS, ALOS PALSAR y Landsat 5 TM—,
+siguiendo exactamente las mismas convenciones de código, estructura de
+reportes y llaves de unión que los pipelines existentes, y todos con el
+mismo diseño de variables de \emph{estado} y \emph{ventana acumulada}
+descrito en la Sección~\ref{subsubsec:estado_acumulado}. Ninguno de los
+tres se ha corrido en producción sobre la muestra real de hogares, pero sí
+se verificó su conectividad y su cobertura real contra Google Earth
+Engine (Sección~\ref{subsubsec:verificacion_gee}): DMSP-OLS y ALOS PALSAR
+tienen datos reales confirmados para las olas que les corresponden, y
+Landsat 5 TM quedó descartado como fuente para 2013 al no tener ninguna
+escena real en 2012 ni 2013 —una conclusión que solo fue posible obtener
+consultando el catálogo en vivo, no a partir de su fecha formal de
+decomisión—. La lógica de cómputo en Python de los tres pipelines
+(separación estado/ventana acumulada, detección de hogares divididos,
+cálculo de tendencias) también se verificó con datos sintéticos antes de
+dejarlos listos para la sala de cómputo. El siguiente paso concreto, antes
+de poder afirmar cualquier resultado sobre el valor predictivo de las
+variables geoespaciales, es correr los pipelines pendientes (VIIRS,
+DMSP-OLS, ALOS PALSAR) sobre coordenadas reales en la sala de cómputo y
+confirmar sus reportes de control de calidad, y solo después reconstruir
+el benchmark ELCA-solo bajo el nuevo esquema de validación cruzada
+agrupada como punto de comparación limpio frente al benchmark
+ELCA+geoespacial.
+
+\subsubsection{Qué mide cada fuente y qué variables se construyen: una explicación detallada}
+\label{subsubsec:estado_acumulado}
+
+Las subsecciones anteriores explican \emph{por qué} se añadieron DMSP-OLS,
+ALOS PALSAR y Landsat 5 TM al proyecto. Esta subsección explica, de forma
+detallada y sin asumir conocimiento previo de teledetección, \emph{qué}
+miden físicamente estas tres fuentes, \emph{qué} variables construye cada
+pipeline a partir de ellas, y \emph{qué} representan esas variables como
+proxy de las condiciones del hogar y su entorno.
+
+\paragraph{Por qué no basta con un solo número por ola.} Hasta ahora, cada
+fuente geoespacial de este proyecto —GSV, Sentinel-1, Sentinel-2, VIIRS—
+entrega, para cada hogar y cada ola, un valor que describe el entorno en
+\emph{un momento}: una fotografía, un panorama de radar, una imagen
+óptica, un mes de luz nocturna. Eso responde a la pregunta ``¿cómo se ve
+el entorno de este hogar en la ola $t$?'', pero no responde una pregunta
+distinta y potencialmente igual de relevante para predecir una
+\emph{transición}: ``¿el entorno de este hogar se venía deteriorando o
+mejorando en los años previos a la ola $t$?''. Dos hogares pueden verse
+igual de urbanizados en el momento exacto de la encuesta y, sin embargo,
+tener trayectorias muy distintas —uno estable desde hace una década, otro
+en medio de una expansión reciente y desordenada— que una sola fotografía
+del momento no distingue, pero que sí sería visible si se compara ese
+momento contra los años inmediatamente anteriores. Por esta razón, los
+tres pipelines nuevos de esta tesis (DMSP-OLS, ALOS PALSAR, Landsat 5 TM)
+construyen, para cada hogar, no una sino \textbf{tres} familias de
+variables, con tres preguntas distintas detrás de cada una:
+
+\begin{itemize}
+  \item \textbf{Estado} — ``¿cómo se ve el entorno justo en el año de la
+  ola?'' Un solo valor, del año exacto (2010 o 2013).
+  \item \textbf{Ventana acumulada} — ``¿cómo veía cambiando el entorno en
+  los tres años previos a la ola (incluido el año de la ola)?'' Estadísticos
+  —media, desviación estándar, mínimo, máximo, rango, coeficiente de
+  variación, tendencia (pendiente de una recta ajustada a los 3 años), y
+  el \emph{crecimiento acumulado} (variación relativa entre el primer y
+  el último año de la ventana)— calculados sobre 2008-2010 para la ola
+  2010, y sobre 2011-2013 para la ola 2013.
+  \item \textbf{Cambio entre olas} — ``¿cómo cambió el entorno de este
+  hogar entre la ola 2010 y la ola 2013?'' Compara únicamente los dos
+  valores de estado (2010 vs. 2013), no toda la ventana. Solo aplica a
+  DMSP-OLS y Landsat 5 (las dos fuentes que cubren ambas olas); ALOS
+  PALSAR, al cubrir solo 2010, no tiene esta tercera familia.
+\end{itemize}
+
+La Figura~\ref{fig:diagrama_estado_acumulado} ilustra las tres sobre la
+misma línea de tiempo. Es importante no confundirlas: la ventana
+acumulada de la ola 2010 (2008-2010) y la de la ola 2013 (2011-2013) no
+se traslapan —cada una describe el proceso \emph{previo a su propia
+ola}—, mientras que el cambio entre olas es una comparación distinta,
+entre los dos puntos de estado. Un hogar puede tener, por ejemplo, una
+ventana acumulada con tendencia fuertemente positiva antes de 2010 (se
+venía iluminando/urbanizando rápido) y aun así un cambio entre olas
+pequeño si el nivel de 2013 no se alejó mucho del de 2010 —son preguntas
+distintas y las tres se conservan por separado en el panel final, nunca
+se promedian entre sí.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figures/fig_diagrama_estado_acumulado.png}
+  \caption{Las tres familias de variables construidas por cada pipeline
+  nuevo (DMSP-OLS, ALOS PALSAR, Landsat 5 TM), ilustradas sobre la línea
+  de tiempo real de las ventanas usadas.}
+  \label{fig:diagrama_estado_acumulado}
+\end{figure}
+
+\paragraph{Limitación compartida por las tres familias de variables:} el
+supuesto de que el hogar vivía en la misma dirección durante toda la
+ventana acumulada. Como no existe una coordenada del hogar anterior a la
+primera ola en que aparece en la ELCA, los tres pipelines usan la
+coordenada registrada en la ola correspondiente (2010 o 2013) para
+extraer \emph{todos} los años de esa ventana —es decir, para un hogar que
+sí vivía ahí en 2008-2010, la ventana acumulada de la ola 2010 describe
+correctamente su entorno; si el hogar se mudó a esa dirección poco antes
+de la encuesta de 2010, la ventana acumulada describe el entorno de un
+lugar donde el hogar puede no haber vivido durante toda la ventana. Este
+supuesto no se puede verificar con los datos disponibles y debe quedar
+declarado como limitación explícita de estas variables.
+
+\paragraph{Qué mide físicamente cada fuente, y qué aproxima cada variable.}
+La Tabla~\ref{tab:variables_pedagogico} resume, para las tres fuentes
+nuevas, el mecanismo físico de medición, el nombre de las variables
+principales que construye cada pipeline, y la interpretación económica
+que se les da en esta tesis.
+
+\begin{table}[H]
+  \centering
+  \caption{Qué mide cada fuente nueva, qué variables construye, y qué
+  aproxima cada una.}
+  \label{tab:variables_pedagogico}
+  \small
+  \begin{tabular}{lp{3.1cm}p{3.7cm}p{4.0cm}}
+    \toprule
+    \textbf{Fuente} & \textbf{Mecanismo físico} & \textbf{Variables (estado / ventana acum.)} & \textbf{Qué aproxima} \\
+    \midrule
+    DMSP-OLS &
+    Radiancia visible nocturna captada por satélite (alumbrado público, vivienda, comercio) &
+    Estado: nivel, log, saturación\newline
+    Acumulada: media, tendencia, crecimiento (sobre \texttt{stable\_}\allowbreak\texttt{lights}) &
+    Actividad económica y electrificación agregada del entorno (nivel); si el entorno se venía electrificando/densificando antes de la ola (ventana acumulada) \\
+    \addlinespace
+    ALOS PALSAR &
+    Retrodispersión de radar en banda-L (HH, HV) sobre estructuras y vegetación &
+    Estado: HH, HV (dB), razón HH/HV, índice normalizado\newline
+    Acumulada: media, tendencia, crecimiento de cada una &
+    Densidad y consolidación del entorno construido vs. vegetación (nivel); si la zona se venía densificando/deforestando antes de 2010 (ventana acumulada) \\
+    \addlinespace
+    Landsat 5 TM &
+    Reflectancia óptica multiespectral (visible, infrarrojo cercano, infrarrojo de onda corta) &
+    Estado: NDVI, NDBI, BSI, Tasseled Cap (10 índices)\newline
+    Acumulada: media, tendencia, crecimiento de NDVI/NDBI/BSI/brillo &
+    Cobertura vegetal y densidad de construcción del entorno inmediato (nivel); pérdida de vegetación o expansión de área construida antes de la ola (ventana acumulada) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Un ejemplo numérico, para fijar ideas.} Supóngase un hogar
+urbano cuyo entorno, medido por DMSP-OLS, tuvo \texttt{stable\_lights}
+(en una escala de 0 a 63) de 10 en 2008, 12 en 2009 y 15 en 2010,
+y de 16, 18 y 20 en 2011, 2012 y 2013 respectivamente. Para la ola 2010:
+el \emph{estado} es 15 (el valor de 2010); la \emph{ventana acumulada}
+tiene media $\approx$12.3, tendencia $+2.5$ unidades/año (el entorno se
+iluminaba de forma sostenida) y \emph{crecimiento acumulado} de
+$(15-10)/10=50\%$ en los 3 años previos a la ola. Para la ola 2013: el
+estado es 20, y la ventana acumulada 2011-2013 tiene tendencia $+2.0$
+unidades/año. El \emph{cambio entre olas} es $(20-15)/15\approx 33\%$
+—un número distinto a cualquiera de los crecimientos acumulados
+anteriores, porque mide el salto completo de 3 años entre dos puntos, no
+la tendencia dentro de la ventana de ninguna de las dos olas por
+separado—. Las tres cifras (50\%, 33\%, y las tendencias de $+2.5$ y
+$+2.0$) son consistentes entre sí en este ejemplo (todas indican
+iluminación creciente), pero no tienen por qué coincidir en magnitud, y
+en un hogar real perfectamente podrían apuntar en direcciones distintas
+—p. ej. una ventana acumulada con tendencia negativa justo antes de una
+ola, seguida de una recuperación fuerte hacia la ola siguiente—, lo cual
+es, precisamente, el tipo de información que una sola fotografía o un
+solo panorama no puede capturar.
+
+\paragraph{Por qué tres años, y no un rango distinto.} Con observaciones
+anuales (no mensuales, como en VIIRS), tres años es el mínimo necesario
+para ajustar una tendencia con algo de robustez (dos puntos siempre
+``ajustan'' una línea recta perfectamente, sin decir nada sobre si esa
+línea es representativa) sin alejar demasiado la ventana del momento de
+la ola —una ventana de, por ejemplo, 6 años empezaría a mezclar
+``proceso reciente, relevante para la transición que se está prediciendo''
+con dinámicas de más largo plazo, menos directamente vinculadas a la ola
+específica que se está caracterizando.
+
 \subsection{Estadísticas descriptivas}
 \label{subsec:desc}
 
