@@ -52,7 +52,7 @@ def construir_pipeline(x_train, balanceo: str, semilla: int = mu.RANDOM_STATE) -
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    for espec in ["A", "B"]:
+    for espec in mu.ESPECIFICACIONES_PRINCIPAL:
         train, test = mu.cargar_datos(espec)
         x_train, y_train = mu.preparar_xy_crudo(train)
         x_test, y_test = mu.preparar_xy_crudo(test)
@@ -103,6 +103,61 @@ def main() -> None:
             balanceo_info=resultado,
             hiperparametros=hiperparametros,
             observaciones="Hiperparametros tuneados por RandomizedSearchCV (AUC-ROC, CV). Metricas = media +/- IC95 sobre 5 semillas (balanceo/hiperparametros fijos). Umbral elegido por CV maximizando F1 en cada semilla.",
+        )
+
+    for espec in mu.ESPECIFICACIONES_CV_2010_2013:
+        datos = mu.cargar_datos_cv(espec)
+        x, y = mu.preparar_xy_crudo(datos)
+
+        print(f"\n=== Random Forest -- Modelo {espec} (CV dentro de 2010->2013, sin holdout temporal) ===")
+        print(f"  n={x.shape[0]}, columnas={x.shape[1]}")
+
+        resultado = mu.comparar_balanceo_y_tunear(
+            construir_pipeline_fn=lambda b: construir_pipeline(x, b),
+            param_distributions_fn=lambda b: PARAM_DIST,
+            x_train=x, y_train=y,
+        )
+        pipe = resultado["estimador"]
+
+        modelo_final = pipe.named_steps["modelo"]
+        nombres_features = pipe.named_steps["prep"].get_feature_names_out()
+        importancias = pd.DataFrame({
+            "variable": nombres_features,
+            "importancia": modelo_final.feature_importances_,
+        }).sort_values("importancia", ascending=False)
+        importancias.to_csv(OUTPUT_DIR / f"importancia_variables_modelo_{espec}.csv", index=False)
+
+        multi = mu.evaluar_cv_semillas(
+            construir_pipeline_fn=lambda s: construir_pipeline(x, resultado["balanceo_elegido"], semilla=s),
+            mejores_params=resultado["mejores_params"],
+            x=x, y=y,
+        )
+        multi["detalle"].to_csv(OUTPUT_DIR / f"metricas_multiples_semillas_modelo_{espec}.csv", index=False)
+
+        print(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-CV por balanceo: {resultado['auc_cv_por_balanceo']})")
+        r = multi["resumen"]
+        print(f"  AUC-ROC (OOF): {r['auc_roc']['media']:.3f} (IC95 {r['auc_roc']['ci95_low']:.3f}-{r['auc_roc']['ci95_high']:.3f})")
+        print(f"  Top 10 variables mas importantes:")
+        print(importancias.head(10).to_string(index=False))
+
+        hiperparametros = {**resultado["mejores_params"], "class_weight": "balanced" if resultado["balanceo_elegido"] == "balanced" else None}
+        mu.registrar_resultado(
+            algoritmo="Random Forest",
+            especificacion=espec,
+            x_train_shape=x.shape, x_test_shape=x.shape,
+            n_covariables_originales=x.shape[1],
+            y_train=y, y_test=y,
+            multi_resultado=multi,
+            estrategia_imputacion="0 + indicador de faltante (numericas), 'Sin dato' + one-hot drop-first (categoricas)",
+            balanceo_info=resultado,
+            hiperparametros=hiperparametros,
+            observaciones=(
+                "PIPELINE 2 (exploratorio): ELCA + DMSP-OLS + ALOS PALSAR + Landsat 5 TM, "
+                "restringido a la transicion 2010->2013. Sin holdout temporal -- metricas "
+                "sobre probabilidades OUT-OF-FOLD dentro de la misma muestra, NO comparables "
+                "cifra a cifra contra A/B/AgeoDMSP/BgeoDMSP. n_train=n_test porque no hay "
+                "periodo de prueba separado."
+            ),
         )
 
     print(f"\nGuardado en: {OUTPUT_DIR}")

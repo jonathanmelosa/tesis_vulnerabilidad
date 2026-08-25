@@ -68,37 +68,47 @@ FUENTES = [
     {
         "nombre": "ALOS PALSAR (radar)",
         "color": COLOR_RADAR,
-        "segmentos": [(2006, 2011, 0.45, None, False), (2015, X_MAX, 0.45, None, False)],
+        "segmentos": [
+            (2006, 2008, 0.4, None, False),
+            (2008, 2011, 1.0, "//", True),
+            (2015, X_MAX, 0.4, None, False),
+        ],
         "continua": True,
-        "nota": "hueco confirmado 2011-2014",
+        "nota": "corrida real completa: 100% ola 2010;\nhueco confirmado 2011-2014 (0% ola 2013)",
     },
     {
         "nombre": "Sentinel-2 (óptico)",
         "color": COLOR_OPTICO,
         "segmentos": [(2015.5, 2017.25, 0.35, None, False), (2017.25, X_MAX, 0.75, None, False)],
         "continua": True,
-        "nota": "parcial hasta 2017; completa después",
+        "nota": "no se llevó a producción: no resuelve\nla cobertura real de la ola 2010",
     },
     {
         "nombre": "Landsat 5 TM (óptico)",
         "color": COLOR_OPTICO,
-        "segmentos": [(X_MIN, 2013, 0.45, None, False)],
+        "segmentos": [
+            (X_MIN, 2008, 0.4, None, False),
+            (2008, 2011.4, 1.0, "//", True),
+        ],
         "continua": False,
-        "nota": "en operación desde 1984",
+        "nota": "corrida real: 65.5% ola 2010 (nubosidad);\nsin escenas reales desde jun.2011 (0% ola 2013)",
     },
     {
         "nombre": "VIIRS DNB (luces)",
         "color": COLOR_LUCES,
         "segmentos": [(2012.25, X_MAX, 0.75, None, False)],
         "continua": True,
-        "nota": None,
+        "nota": "no se llevó a producción: no resuelve\nla cobertura real de la ola 2010",
     },
     {
         "nombre": "DMSP-OLS (luces)",
         "color": COLOR_LUCES,
-        "segmentos": [(X_MIN, 2014, 0.75, None, False)],
+        "segmentos": [
+            (X_MIN, 2008, 0.4, None, False),
+            (2008, 2014, 1.0, "//", True),
+        ],
         "continua": False,
-        "nota": "en operación desde 1992; pipeline nuevo, sin corrida todavía",
+        "nota": "corrida real completa: 100% ola 2010\ny 100% ola 2013",
     },
 ]
 
@@ -188,8 +198,8 @@ ax.set_title(
 
 leyenda = [
     mpatches.Patch(facecolor="#8a8a86", alpha=1.0, hatch="//", edgecolor="#2b2b28", label="Corrida real confirmada sobre hogares ELCA"),
-    mpatches.Patch(facecolor="#8a8a86", alpha=0.75, edgecolor="#8a8a86", label="Cobertura completa (sin corrida real todavía)"),
-    mpatches.Patch(facecolor="#8a8a86", alpha=0.4, edgecolor="#8a8a86", label="Cobertura parcial / no verificada"),
+    mpatches.Patch(facecolor="#8a8a86", alpha=0.75, edgecolor="#8a8a86", label="Cobertura de catálogo, no llevada a producción"),
+    mpatches.Patch(facecolor="#8a8a86", alpha=0.4, edgecolor="#8a8a86", label="Fuera de la ventana usada por el proyecto"),
     mpatches.Patch(facecolor=COLOR_FOTO, alpha=0.9, hatch="//", edgecolor="#2b2b28",
                     label="GSV: intensidad ∝ densidad real de fotos por año"),
 ]

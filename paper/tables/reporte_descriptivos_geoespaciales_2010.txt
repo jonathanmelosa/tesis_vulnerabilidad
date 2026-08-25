@@ -1,0 +1,43 @@
+======================================================================
+REPORTE COMPLETO — ESTADÍSTICAS DESCRIPTIVAS GEOESPACIALES (OLA 2010)
+======================================================================
+
+Hogares en la ola 2010: 9,573
+
+── DMSP-OLS — TODAS LAS VARIABLES DE ESTADO ──────────────
+
+  dmsp_avg_vis: n=9,573 (100.0%)  media=34.1652  std=25.2356  min=4.0000  max=63.0000
+  dmsp_cf_cvg: n=9,573 (100.0%)  media=59.5234  std=8.7937  min=37.0575  max=82.1339
+  dmsp_stable_lights: n=9,573 (100.0%)  media=33.7377  std=25.7571  min=0.0000  max=63.0000
+  dmsp_log_stable_lights: n=9,573 (100.0%)  media=3.0285  std=1.2366  min=0.0000  max=4.1589
+
+── ALOS PALSAR — TODAS LAS VARIABLES DE ESTADO ──────────────
+
+  alos_hh_db: n=9,573 (100.0%)  media=-7.3157  std=2.9085  min=-15.4154  max=5.9440
+  alos_hv_db: n=9,573 (100.0%)  media=-14.3395  std=2.5656  min=-23.4563  max=-8.9861
+  alos_hh_hv_diff: n=9,573 (100.0%)  media=7.0238  std=2.0808  min=2.5983  max=18.2242
+  alos_hh_hv_ratio: n=9,573 (100.0%)  media=7.7079  std=8.2234  min=2.0160  max=84.6124
+  alos_hv_hh_ratio: n=9,573 (100.0%)  media=0.2571  std=0.1754  min=0.0221  max=5.1791
+  alos_indice_normalizado: n=9,573 (100.0%)  media=0.6228  std=0.1079  min=0.2785  max=0.9602
+  alos_log_hh_hv: n=9,573 (100.0%)  media=1.6173  std=0.4791  min=0.5983  max=4.1963
+
+── Landsat 5 TM — TODAS LAS VARIABLES DE ESTADO ──────────────
+
+  l5_sr_b1: n=6,269 (65.5%)  media=0.0997  std=0.0998  min=-0.1112  max=1.6022
+  l5_sr_b2: n=6,269 (65.5%)  media=0.1221  std=0.0631  min=-0.0599  max=1.6022
+  l5_sr_b3: n=6,269 (65.5%)  media=0.1276  std=0.0686  min=-0.0332  max=1.6022
+  l5_sr_b4: n=6,269 (65.5%)  media=0.2938  std=0.0816  min=0.0828  max=1.6022
+  l5_sr_b5: n=6,269 (65.5%)  media=0.2615  std=0.0756  min=0.0316  max=1.6022
+  l5_sr_b7: n=6,269 (65.5%)  media=0.1715  std=0.0533  min=0.0118  max=0.7058
+  l5_ndvi: n=6,269 (65.5%)  media=0.4057  std=0.1694  min=-0.0835  max=1.1174
+  l5_ndbi: n=6,269 (65.5%)  media=-0.0636  std=0.1304  min=-0.4574  max=0.2223
+  l5_bsi: n=6,269 (65.5%)  media=-0.0084  std=0.1187  min=-0.3890  max=0.3088
+  l5_evi: n=6,269 (65.5%)  media=0.3057  std=0.1376  min=-0.0501  max=1.2704
+  l5_mndwi: n=6,269 (65.5%)  media=-0.3727  std=0.1568  min=-1.3557  max=0.2285
+  l5_ndwi: n=6,269 (65.5%)  media=-0.4222  std=0.1583  min=-1.2861  max=0.0000
+  l5_savi: n=6,269 (65.5%)  media=0.2699  std=0.1163  min=-0.1055  max=0.9022
+  l5_tc_brillo: n=6,269 (65.5%)  media=0.4315  std=0.1397  min=0.0844  max=3.4243
+  l5_tc_humedad: n=6,269 (65.5%)  media=-0.1685  std=0.0567  min=-0.5165  max=0.0778
+  l5_tc_verdor: n=6,269 (65.5%)  media=0.0950  std=0.0682  min=-0.4035  max=0.4992
+
+======================================================================

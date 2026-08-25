@@ -52,7 +52,7 @@ def construir_pipeline(x_train, balanceo: str, semilla: int = mu.RANDOM_STATE) -
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    for espec in ["A", "B"]:
+    for espec in mu.ESPECIFICACIONES_PRINCIPAL:
         train, test = mu.cargar_datos(espec)
         x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
         x_test, y_test, _ = mu.preparar_arboles_nativos(test)
@@ -102,6 +102,60 @@ def main() -> None:
             balanceo_info=resultado,
             hiperparametros=hiperparametros,
             observaciones="Hiperparametros tuneados por RandomizedSearchCV (AUC-ROC, CV). max_depth/num_leaves acotados por el riesgo de sobreajuste del crecimiento leaf-wise con n~3.089. Metricas = media +/- IC95 sobre 5 semillas. Umbral elegido por CV maximizando F1 en cada semilla.",
+        )
+
+    for espec in mu.ESPECIFICACIONES_CV_2010_2013:
+        datos = mu.cargar_datos_cv(espec)
+        x, y, cat_cols = mu.preparar_arboles_nativos(datos)
+
+        print(f"\n=== LightGBM -- Modelo {espec} (CV dentro de 2010->2013, sin holdout temporal) ===")
+        print(f"  n={x.shape[0]}, columnas={x.shape[1]}")
+
+        resultado = mu.comparar_balanceo_y_tunear(
+            construir_pipeline_fn=lambda b: construir_pipeline(x, b),
+            param_distributions_fn=lambda b: PARAM_DIST,
+            x_train=x, y_train=y,
+        )
+        pipe = resultado["estimador"]
+
+        modelo_final = pipe.named_steps["modelo"]
+        importancias = pd.DataFrame({
+            "variable": x.columns,
+            "importancia": modelo_final.feature_importances_,
+        }).sort_values("importancia", ascending=False)
+        importancias.to_csv(OUTPUT_DIR / f"importancia_variables_modelo_{espec}.csv", index=False)
+
+        multi = mu.evaluar_cv_semillas(
+            construir_pipeline_fn=lambda s: construir_pipeline(x, resultado["balanceo_elegido"], semilla=s),
+            mejores_params=resultado["mejores_params"],
+            x=x, y=y,
+        )
+        multi["detalle"].to_csv(OUTPUT_DIR / f"metricas_multiples_semillas_modelo_{espec}.csv", index=False)
+
+        print(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-CV por balanceo: {resultado['auc_cv_por_balanceo']})")
+        r = multi["resumen"]
+        print(f"  AUC-ROC (OOF): {r['auc_roc']['media']:.3f} (IC95 {r['auc_roc']['ci95_low']:.3f}-{r['auc_roc']['ci95_high']:.3f})")
+        print(f"  Top 10 variables mas importantes:")
+        print(importancias.head(10).to_string(index=False))
+
+        hiperparametros = {**resultado["mejores_params"], "class_weight": "balanced" if resultado["balanceo_elegido"] == "balanced" else None}
+        mu.registrar_resultado(
+            algoritmo="LightGBM",
+            especificacion=espec,
+            x_train_shape=x.shape, x_test_shape=x.shape,
+            n_covariables_originales=x.shape[1],
+            y_train=y, y_test=y,
+            multi_resultado=multi,
+            estrategia_imputacion="Ninguna -- soporte nativo de NaN y categoricas (dtype category, autodeteccion)",
+            balanceo_info=resultado,
+            hiperparametros=hiperparametros,
+            observaciones=(
+                "PIPELINE 2 (exploratorio): ELCA + DMSP-OLS + ALOS PALSAR + Landsat 5 TM, "
+                "restringido a la transicion 2010->2013. Sin holdout temporal -- metricas "
+                "sobre probabilidades OUT-OF-FOLD dentro de la misma muestra, NO comparables "
+                "cifra a cifra contra A/B/AgeoDMSP/BgeoDMSP. n_train=n_test porque no hay "
+                "periodo de prueba separado."
+            ),
         )
 
     print(f"\nGuardado en: {OUTPUT_DIR}")

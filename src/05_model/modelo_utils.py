@@ -143,14 +143,51 @@ REGISTRO_XLSX = RESULTADOS_DIR / "registro_modelos.xlsx"
 
 COLS_NO_FEATURE = ["consecutivo", "consecutivo_c", "llave_compuesta", "Y"]
 
+# Especificaciones del benchmark PRINCIPAL (holdout temporal 2010->2013 /
+# 2013->2016, ver cargar_datos()): A/B originales (solo ELCA) mas sus
+# variantes "geoDMSP" (agregan variables DMSP-OLS -- unica fuente
+# geoespacial con datos reales tanto en 2010 como en 2013, ver
+# construir_pipeline_geo_dmsp.py y la Seccion 3.2 de la tesis).
+ESPECIFICACIONES_PRINCIPAL = ["A", "B", "AgeoDMSP", "BgeoDMSP"]
+
+# Especificaciones del ejercicio EXPLORATORIO restringido a la transicion
+# 2010->2013 (sin holdout temporal -- ALOS PALSAR y Landsat 5 TM no tienen
+# datos reales en 2013, asi que no pueden evaluarse contra ese periodo;
+# ver construir_pipeline_geo3_cv.py). Se evaluan con validacion cruzada
+# agrupando por hogar dentro de esa misma transicion, no con un conjunto
+# de prueba separado -- NO comparable cifra a cifra contra
+# ESPECIFICACIONES_PRINCIPAL (esquemas de validacion distintos).
+ESPECIFICACIONES_CV_2010_2013 = ["Ageo3", "Bgeo3"]
+
+# Ablation: A/B y AgeoDMSP/BgeoDMSP sin n_servicios_publicos_hogar ni
+# n_bienes_durables_hogar -- las dos variables identificadas como
+# redundantes con DMSP-OLS (correlacion parcial ~0 tras controlar por
+# ellas, ver Seccion 5.3 de la tesis y construir_ablation_sin_riqueza.py).
+# Prueba directa de si DMSP-OLS aporta cuando esas preguntas de la
+# encuesta NO estan disponibles -- mismo holdout temporal que
+# ESPECIFICACIONES_PRINCIPAL (usan cargar_datos()/evaluar_multiples_semillas(),
+# no CV-only).
+ESPECIFICACIONES_ABLATION = ["Anoriq", "AnoriqGeo", "Bnoriq", "BnoriqGeo"]
+
 BALANCEOS = ["balanced", "ninguno", "oversampling"]
-N_ITER_BUSQUEDA = 15
+N_ITER_BUSQUEDA = 8  # reducido de 15 -- 10 especificaciones x 3 algoritmos hacia la corrida completa,
+                      # saga (logistica elastic net) puede tardar mucho por combinacion en algunas olas
+                      # aleatorias de C/l1_ratio; se prioriza terminar la corrida completa sobre una
+                      # busqueda mas exhaustiva por especificacion.
 CV_FOLDS = 3
 SCORING = "roc_auc"
 RANDOM_STATE = 42
 SEMILLAS = [42, 1, 2, 3, 4]
 
-METRICAS_RESUMEN = ["auc_roc", "recall", "precision", "f1"]
+METRICAS_RESUMEN = ["auc_roc", "recall", "precision", "f1", "precision_top10"]
+
+# Fraccion superior de hogares (por probabilidad predicha, de mayor a
+# menor riesgo) usada para precision_top10 -- ver docstring de
+# `precision_top_k`. 10% replica el tipo de restriccion de cobertura de
+# un programa de focalizacion con presupuesto fijo (ej. solo alcanza para
+# atender al decil de mayor riesgo), a diferencia de recall/precision/F1
+# a un umbral de probabilidad, que no tienen en cuenta esa restriccion.
+FRACCION_TOP_K = 0.10
 
 COLUMNAS_REGISTRO = [
     "algoritmo", "especificacion", "fecha_entrenamiento",
@@ -162,18 +199,28 @@ COLUMNAS_REGISTRO = [
     "recall_media", "recall_std", "recall_ci95_low", "recall_ci95_high",
     "precision_media", "precision_std", "precision_ci95_low", "precision_ci95_high",
     "f1_media", "f1_std", "f1_ci95_low", "f1_ci95_high",
+    "precision_top10_media", "precision_top10_std", "precision_top10_ci95_low", "precision_top10_ci95_high",
     "tn_semilla42", "fp_semilla42", "fn_semilla42", "tp_semilla42",
     "estrategia_imputacion", "hiperparametros", "observaciones",
 ]
 
 
 def cargar_datos(especificacion: str) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """especificacion: 'A' (con ingreso/gasto) o 'B' (sin). Train =
-    2010->2013, test = 2013->2016 (holdout temporal principal, ver
-    `build_benchmark_train_test.py`)."""
+    """especificacion: 'A'/'B' (solo ELCA) o 'AgeoDMSP'/'BgeoDMSP' (+ DMSP-OLS).
+    Train = 2010->2013, test = 2013->2016 (holdout temporal principal, ver
+    `build_benchmark_train_test.py` / `construir_pipeline_geo_dmsp.py`)."""
     train = pd.read_parquet(DATA_DIR / f"modelo_{especificacion}_2010_2013.parquet")
     test = pd.read_parquet(DATA_DIR / f"modelo_{especificacion}_2013_2016.parquet")
     return train, test
+
+
+def cargar_datos_cv(especificacion: str) -> pd.DataFrame:
+    """especificacion: 'Ageo3'/'Bgeo3' (ELCA + DMSP-OLS + ALOS PALSAR +
+    Landsat 5 TM). Un solo archivo -- la transicion 2010->2013 completa,
+    sin separar train/test, porque este ejercicio se evalua con
+    validacion cruzada dentro del mismo periodo (ver
+    `construir_pipeline_geo3_cv.py` y ESPECIFICACIONES_CV_2010_2013)."""
+    return pd.read_parquet(DATA_DIR / f"modelo_{especificacion}_2010_2013.parquet")
 
 
 def preparar_arboles_nativos(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series, list]:
@@ -189,13 +236,29 @@ def preparar_arboles_nativos(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series,
 
 def alinear_columnas_categoricas(x_train: pd.DataFrame, x_test: pd.DataFrame, cat_cols: list) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Alinea columnas y categorias entre train y test (pueden diferir
-    ligeramente en categorias observadas de una ola a otra)."""
+    ligeramente en categorias observadas de una ola a otra).
+
+    Una columna 100% NaN en un lado (p. ej. una variable de estado sin
+    ningun dato real en esa ola) se tipa como category con dtype de
+    categorias 'object' vacio, mientras que el otro lado puede tener
+    dtype real (bool, int) -- pd.api.types.union_categoricals() no
+    permite unir categorias de dtypes distintos ('dtype of categories
+    must be the same'). Se resuelve casteando ambos lados a string antes
+    de unir -- inocuo para columnas totalmente vacias, y para las demas
+    normaliza la representacion sin cambiar que categorias existen."""
     cols_comunes = [c for c in x_train.columns if c in x_test.columns]
     x_train = x_train[cols_comunes].copy()
     x_test = x_test[cols_comunes].copy()
     for c in cat_cols:
         if c not in cols_comunes:
             continue
+        cats_train, cats_test = x_train[c].cat.categories, x_test[c].cat.categories
+        if len(cats_train) == 0 or len(cats_test) == 0 or cats_train.dtype != cats_test.dtype:
+            for df_ in (x_train, x_test):
+                serie = df_[c].astype(str).astype("category")
+                if "nan" in serie.cat.categories:
+                    serie = serie.cat.remove_categories(["nan"])
+                df_[c] = serie
         categorias = pd.api.types.union_categoricals([x_train[c], x_test[c]]).categories
         x_train[c] = x_train[c].cat.set_categories(categorias)
         x_test[c] = x_test[c].cat.set_categories(categorias)
@@ -355,6 +418,89 @@ def evaluar_multiples_semillas(
     return {"detalle": detalle, "resumen": resumen}
 
 
+def evaluar_cv_semillas(
+    construir_pipeline_fn,
+    mejores_params: dict,
+    x: pd.DataFrame, y: pd.Series,
+    semillas: list = SEMILLAS,
+) -> dict:
+    """Version de `evaluar_multiples_semillas` para especificaciones SIN
+    holdout temporal (ESPECIFICACIONES_CV_2010_2013): en vez de entrenar
+    en train y medir en un test separado, mide con probabilidades
+    OUT-OF-FOLD (`cross_val_predict`) dentro de la MISMA muestra -- cada
+    hogar se predice con un modelo que nunca lo vio en entrenamiento,
+    pero la prueba es sobre otros HOGARES de la misma transicion
+    2010->2013, no sobre otro PERIODO de tiempo (ver docstring de
+    ESPECIFICACIONES_CV_2010_2013 -- NO comparable cifra a cifra contra
+    `evaluar_multiples_semillas`).
+
+    Para cada semilla: re-entrena el pipeline FINAL (balanceo y
+    mejores_params ya elegidos, fijos -- igual que evaluar_multiples_semillas)
+    sobre folds de CV con esa semilla, obtiene probabilidades OOF para el
+    100% de `x`, elige el umbral que maximiza F1 sobre esas mismas
+    probabilidades OOF, y calcula metricas comparando esas probabilidades
+    contra `y`. Retorna el mismo formato que evaluar_multiples_semillas
+    (detalle por semilla + resumen media/std/IC95) para que
+    registrar_resultado() no necesite ningun cambio.
+    """
+    filas = []
+    for semilla in semillas:
+        pipe = construir_pipeline_fn(semilla)
+        if mejores_params:
+            pipe.set_params(**mejores_params)
+        cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=semilla)
+        proba_oof = cross_val_predict(pipe, x, y, cv=cv, method="predict_proba", n_jobs=-1)[:, 1]
+
+        mejor_umbral, mejor_f1 = 0.5, -1.0
+        for umbral in np.linspace(0.02, 0.98, 97):
+            f1 = f1_score(y, (proba_oof >= umbral).astype(int), zero_division=0)
+            if f1 > mejor_f1:
+                mejor_umbral, mejor_f1 = float(umbral), f1
+
+        metricas = calcular_metricas(y, proba_oof, umbral=mejor_umbral)
+        filas.append({"semilla": semilla, "umbral": mejor_umbral, **metricas})
+
+    detalle = pd.DataFrame(filas)
+
+    n = len(semillas)
+    t_mult = float(scipy_stats.t.ppf(0.975, df=n - 1)) if n > 1 else 0.0
+    resumen = {"umbral_media": round(float(detalle["umbral"].mean()), 4)}
+    for metrica in METRICAS_RESUMEN:
+        media = float(detalle[metrica].mean())
+        std = float(detalle[metrica].std(ddof=1)) if n > 1 else 0.0
+        margen = t_mult * std / np.sqrt(n) if n > 1 else 0.0
+        resumen[metrica] = {
+            "media": round(media, 4), "std": round(std, 4),
+            "ci95_low": round(media - margen, 4), "ci95_high": round(media + margen, 4),
+        }
+
+    fila_ref = detalle[detalle["semilla"] == RANDOM_STATE].iloc[0]
+    resumen["confusion_semilla42"] = {
+        "tn": int(fila_ref["tn"]), "fp": int(fila_ref["fp"]),
+        "fn": int(fila_ref["fn"]), "tp": int(fila_ref["tp"]),
+    }
+
+    return {"detalle": detalle, "resumen": resumen}
+
+
+def precision_top_k(y_true, proba, frac: float = FRACCION_TOP_K) -> float:
+    """
+    Precision entre el `frac` (10% por defecto) de hogares con MAYOR
+    probabilidad predicha -- no depende del umbral de clasificacion, mide
+    directamente la pregunta relevante para un programa con capacidad
+    fija: "de los hogares que el modelo señalaria como mas riesgosos si
+    solo pudiera atender a una fraccion de la poblacion, que porcentaje
+    realmente cae en pobreza?". Recall/precision/F1 a un umbral de
+    probabilidad no responden esto -- ese umbral no tiene por que
+    corresponder a ninguna restriccion real de cobertura.
+    """
+    y_arr = np.asarray(y_true)
+    proba_arr = np.asarray(proba)
+    n_top = max(1, int(np.ceil(len(proba_arr) * frac)))
+    idx_top = np.argsort(proba_arr)[::-1][:n_top]
+    return float(y_arr[idx_top].mean())
+
+
 def calcular_metricas(y_test, proba_test, umbral: float = 0.5) -> dict:
     pred_test = (proba_test >= umbral).astype(int)
     metrics = {
@@ -362,6 +508,7 @@ def calcular_metricas(y_test, proba_test, umbral: float = 0.5) -> dict:
         "recall": recall_score(y_test, pred_test),
         "precision": precision_score(y_test, pred_test, zero_division=0),
         "f1": f1_score(y_test, pred_test),
+        "precision_top10": precision_top_k(y_test, proba_test),
     }
     tn, fp, fn, tp = confusion_matrix(y_test, pred_test).ravel()
     metrics.update({"tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp)})
