@@ -1,0 +1,2473 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/apasortcite//global/global/global}
+    \entry{aiken2022}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=a9b68a54c6517d456a1152040a7146fc}{%
+           family={Aiken},
+           familyi={A\bibinitperiod},
+           given={Emily},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab8cd7a577c14a14f38facbaf192bc48}{%
+           family={Bellue},
+           familyi={B\bibinitperiod},
+           given={Suzanne},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=940678209828a76685d3c727e9e1463f}{%
+           family={Karlan},
+           familyi={K\bibinitperiod},
+           given={Dean},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=afa67f70458fab65065bb4a800577162}{%
+           family={Udry},
+           familyi={U\bibinitperiod},
+           given={Christopher},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7c903c72cf88893a6fa586bb74bcdb41}{%
+           family={Blumenstock},
+           familyi={B\bibinitperiod},
+           given={Joshua\bibnamedelima E.},
+           giveni={J\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{07cf88db9edc4d01fac9696dfbcf5c9b}
+      \strng{fullhash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{fullhashraw}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{bibnamehash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{authorbibnamehash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{authornamehash}{07cf88db9edc4d01fac9696dfbcf5c9b}
+      \strng{authorfullhash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{authorfullhashraw}{6abb597e956b0f0822380bc78ad9b870}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature}
+      \field{title}{Machine Learning and Phone Data Can Improve Targeting of Humanitarian Aid}
+      \field{volume}{603}
+      \field{year}{2022}
+      \field{pages}{864\bibrangedash 870}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1038/s41586-022-04484-9
+      \endverb
+    \endentry
+    \entry{bergolo2010}{report}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=7cad6cd993c51a4ba76dd3dfe1dd84a0}{%
+           family={Bérgolo},
+           familyi={B\bibinitperiod},
+           given={Marcelo},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d55e4d3690f5759d5d814179ab839e45}{%
+           family={Cruces},
+           familyi={C\bibinitperiod},
+           given={Guillermo},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5dfb517c39880a32ea5fadeac4261096}{%
+           family={Gasparini},
+           familyi={G\bibinitperiod},
+           given={Leonardo},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6f4e27ff80715986e992a5c2b56229c3}{%
+           family={Ham},
+           familyi={H\bibinitperiod},
+           given={Andrés},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Chronic Poverty Research Centre}%
+      }
+      \strng{namehash}{fbdbfe3a878dc7404206e734db4dc22c}
+      \strng{fullhash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{fullhashraw}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{bibnamehash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{authorbibnamehash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{authornamehash}{fbdbfe3a878dc7404206e734db4dc22c}
+      \strng{authorfullhash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{authorfullhashraw}{e0b661dec9516c063fe329bc51c4126e}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Vulnerability to Poverty in Latin America: Empirical Evidence from Cross-Sectional Data and Robustness Analysis with Panel Data}
+      \field{type}{techreport}
+      \field{year}{2010}
+    \endentry
+    \entry{blumenstock2015}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=9843359a5181746f01315345c9945d84}{%
+           family={Blumenstock},
+           familyi={B\bibinitperiod},
+           given={Joshua},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d1573acfb56bf1250d7006ea9cc4ed2c}{%
+           family={Cadamuro},
+           familyi={C\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f61cb6e5e03c1dec7aa138423252fec3}{%
+           family={On},
+           familyi={O\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{dda125e54eb1c2dac5950e5b28c07811}
+      \strng{fullhash}{c3887558f0abb10796319073e70adad4}
+      \strng{fullhashraw}{c3887558f0abb10796319073e70adad4}
+      \strng{bibnamehash}{c3887558f0abb10796319073e70adad4}
+      \strng{authorbibnamehash}{c3887558f0abb10796319073e70adad4}
+      \strng{authornamehash}{dda125e54eb1c2dac5950e5b28c07811}
+      \strng{authorfullhash}{c3887558f0abb10796319073e70adad4}
+      \strng{authorfullhashraw}{c3887558f0abb10796319073e70adad4}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Science}
+      \field{number}{6264}
+      \field{title}{Predicting Poverty and Wealth from Mobile Phone Metadata}
+      \field{volume}{350}
+      \field{year}{2015}
+      \field{pages}{1073\bibrangedash 1076}
+      \range{pages}{4}
+    \endentry
+    \entry{castaneda2012}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=366592ef6a17148756f86713d33532e6}{%
+           family={Castañeda\bibnamedelima Castrillón},
+           familyi={C\bibinitperiod\bibinitdelim C\bibinitperiod},
+           given={Camilo\bibnamedelima Andrés},
+           giveni={C\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Universidad de los Andes}%
+      }
+      \strng{namehash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhashraw}{366592ef6a17148756f86713d33532e6}
+      \strng{bibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorbibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authornamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhashraw}{366592ef6a17148756f86713d33532e6}
+      \field{extraname}{1}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Trampas de Pobreza en Colombia: Una Aproximación Empírica Mediante Pseudo Panel}
+      \field{type}{mathesis}
+      \field{year}{2012}
+      \verb{urlraw}
+      \verb https://hdl.handle.net/1992/62019
+      \endverb
+      \verb{url}
+      \verb https://hdl.handle.net/1992/62019
+      \endverb
+    \endentry
+    \entry{castaneda2021}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=366592ef6a17148756f86713d33532e6}{%
+           family={Castañeda\bibnamedelima Castrillón},
+           familyi={C\bibinitperiod\bibinitdelim C\bibinitperiod},
+           given={Camilo\bibnamedelima Andrés},
+           giveni={C\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Barcelona School of Management}%
+      }
+      \strng{namehash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhashraw}{366592ef6a17148756f86713d33532e6}
+      \strng{bibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorbibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authornamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhashraw}{366592ef6a17148756f86713d33532e6}
+      \field{extraname}{2}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Nuevos Vulnerables en Colombia: Diagnóstico de los Efectos del COVID-19 en los Empleados del Sector Formal y Propuesta de Esquema de Protección}
+      \field{type}{mathesis}
+      \field{year}{2021}
+    \endentry
+    \entry{chaudhuri2002}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=a87db0c934257851e00aa3ac3dc41d38}{%
+           family={Chaudhuri},
+           familyi={C\bibinitperiod},
+           given={Shubham},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b92e268c0d98ed6a6c144425c37bfa6b}{%
+           family={Jalan},
+           familyi={J\bibinitperiod},
+           given={Jyotsna},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f3f6c8fe6926fa36174b3ed77825bcea}{%
+           family={Suryahadi},
+           familyi={S\bibinitperiod},
+           given={Asep},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ee073843f766ce976616183812002280}
+      \strng{fullhash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{fullhashraw}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{bibnamehash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{authorbibnamehash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{authornamehash}{ee073843f766ce976616183812002280}
+      \strng{authorfullhash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{authorfullhashraw}{a3abc14f9cf1d526253be052521ea74f}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Columbia University Department of Economics Discussion Papers}
+      \field{number}{0102-52}
+      \field{title}{Assessing Household Vulnerability to Poverty from Cross-Sectional Data}
+      \field{year}{2002}
+    \endentry
+    \entry{christiaensen2005}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4892b8961297ace47268e1bfd2620a8d}{%
+           family={Christiaensen},
+           familyi={C\bibinitperiod},
+           given={Luc},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=caa5eb49f4c5faaee2da258fbca05f9f}{%
+           family={Subbarao},
+           familyi={S\bibinitperiod},
+           given={Kalanidhi},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{fullhash}{142616d95e1b4b22188340eda0c51959}
+      \strng{fullhashraw}{142616d95e1b4b22188340eda0c51959}
+      \strng{bibnamehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authorbibnamehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authornamehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authorfullhash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authorfullhashraw}{142616d95e1b4b22188340eda0c51959}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of African Economies}
+      \field{number}{4}
+      \field{title}{Towards an Understanding of Household Vulnerability in Rural Kenya}
+      \field{volume}{14}
+      \field{year}{2005}
+      \field{pages}{520\bibrangedash 558}
+      \range{pages}{39}
+      \verb{doi}
+      \verb 10.1093/jae/eji008
+      \endverb
+    \endentry
+    \entry{conpes2016}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=c32925145e14940b147d016bf7268fc5}{%
+           family={{Consejo Nacional de Política Económica y Social}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Departamento Nacional de Planeación}%
+      }
+      \strng{namehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{fullhash}{c32925145e14940b147d016bf7268fc5}
+      \strng{fullhashraw}{c32925145e14940b147d016bf7268fc5}
+      \strng{bibnamehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authorbibnamehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authornamehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authorfullhash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authorfullhashraw}{c32925145e14940b147d016bf7268fc5}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{3877}
+      \field{title}{Declaración de Importancia Estratégica del Sistema de Identificación de Potenciales Beneficiarios (Sisbén IV)}
+      \field{type}{Documento CONPES}
+      \field{year}{2016}
+    \endentry
+    \entry{costella2023}{report}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=753b534ccc39800034c367ebc869cabe}{%
+           family={Costella},
+           familyi={C\bibinitperiod},
+           given={Cecilia},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=27eca0419515bcecdc75a4aeaab834d6}{%
+           family={Diez},
+           familyi={D\bibinitperiod},
+           given={Alicia},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b2267931ebf16a19f0e4dbe73d292246}{%
+           family={Beazley},
+           familyi={B\bibinitperiod},
+           given={Rodolfo},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bb2908e71665f3ad4f2069e5c73177ee}{%
+           family={Alfonso},
+           familyi={A\bibinitperiod},
+           given={Marisela},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Inter-American Development Bank}%
+      }
+      \strng{namehash}{4e459fb3d2e5bf9c12c3552d1ab9a29d}
+      \strng{fullhash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{fullhashraw}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{bibnamehash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{authorbibnamehash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{authornamehash}{4e459fb3d2e5bf9c12c3552d1ab9a29d}
+      \strng{authorfullhash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{authorfullhashraw}{3ea9698dda855e655fdf80cc3da67e5c}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{IDB-WP-01428}
+      \field{title}{Shock-Responsive Social Protection and Climate Shocks in Latin America and the Caribbean: Lessons from COVID-19}
+      \field{type}{IDB Working Paper}
+      \field{year}{2023}
+    \endentry
+    \entry{dercon2002}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=a020b273609d91c7520d5ca3dbddfe9e}{%
+           family={Dercon},
+           familyi={D\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{fullhash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{fullhashraw}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{bibnamehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authorbibnamehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authornamehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authorfullhash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authorfullhashraw}{a020b273609d91c7520d5ca3dbddfe9e}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The World Bank Research Observer}
+      \field{number}{2}
+      \field{title}{Income Risk, Coping Strategies, and Safety Nets}
+      \field{volume}{17}
+      \field{year}{2002}
+      \field{pages}{141\bibrangedash 166}
+      \range{pages}{26}
+    \endentry
+    \entry{dercon2000}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=a020b273609d91c7520d5ca3dbddfe9e}{%
+           family={Dercon},
+           familyi={D\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dae4f341539b433621bab136add1d935}{%
+           family={Krishnan},
+           familyi={K\bibinitperiod},
+           given={Pramila},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{fullhash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{fullhashraw}{6d5289baefb1724bf38499ac976649d0}
+      \strng{bibnamehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authorbibnamehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authornamehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authorfullhash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authorfullhashraw}{6d5289baefb1724bf38499ac976649d0}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Development Studies}
+      \field{number}{6}
+      \field{title}{Vulnerability, Seasonality and Poverty in Ethiopia}
+      \field{volume}{36}
+      \field{year}{2000}
+      \field{pages}{25\bibrangedash 53}
+      \range{pages}{29}
+      \verb{doi}
+      \verb 10.1080/713600071
+      \endverb
+    \endentry
+    \entry{ferdausi2025}{article}{}{}
+      \name{author}{12}{}{%
+        {{un=0,uniquepart=base,hash=fc6db4159c80f9b15572bc50421b8f07}{%
+           family={Ferdausi},
+           familyi={F\bibinitperiod},
+           given={Marufa},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ca6d0b90574586d34b646bf3e1c9355a}{%
+           family={Tarana},
+           familyi={T\bibinitperiod},
+           given={Mysha\bibnamedelima Y.},
+           giveni={M\bibinitperiod\bibinitdelim Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=98e61e837eab2efcf2e7e1149d8d6936}{%
+           family={Alam},
+           familyi={A\bibinitperiod},
+           given={Md.\bibnamedelimi Shahjahan},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0f6ec0576559274d61886545105fb141}{%
+           family={Murshed},
+           familyi={M\bibinitperiod},
+           given={Md.\bibnamedelimi Faisal},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f1b14b6972d13e3a46323b7d64a5d97}{%
+           family={Ehsan},
+           familyi={E\bibinitperiod},
+           given={S.\bibnamedelimi M.\bibnamedelimi A.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4856f24f12250544a2f653cf59fdeae0}{%
+           family={Elahi},
+           familyi={E\bibinitperiod},
+           given={M.\bibnamedelimi M.\bibnamedelimi L.},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cf2bed8e81ff26b710b57a29aeff4929}{%
+           family={Ahmed},
+           familyi={A\bibinitperiod},
+           given={Shakil},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4f60f9ac071de8624e8fcede084ca95f}{%
+           family={Rahman},
+           familyi={R\bibinitperiod},
+           given={Md.\bibnamedelimi Feisal},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=732e8da7f52edf23020139fcb12b23e0}{%
+           family={Khan},
+           familyi={K\bibinitperiod},
+           given={H.\bibnamedelimi M.},
+           giveni={H\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a2142704a5fdfbfb56707fe0360811c5}{%
+           family={Badhon},
+           familyi={B\bibinitperiod},
+           given={Md.\bibnamedelimi A.\bibnamedelimi A.},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=60e193d3c8fcc36dd3a1414511d8b629}{%
+           family={Hossein},
+           familyi={H\bibinitperiod},
+           given={Md.\bibnamedelimi K.},
+           giveni={M\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0a0f486d6541efc4263aab4b49bdbac2}{%
+           family={Jakariya},
+           familyi={J\bibinitperiod},
+           given={Md.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{1a431ff64937ed87c745f5014f3da69b}
+      \strng{fullhash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{fullhashraw}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{bibnamehash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{authorbibnamehash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{authornamehash}{1a431ff64937ed87c745f5014f3da69b}
+      \strng{authorfullhash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{authorfullhashraw}{0aebe9c8dacd8f80fe006047963c78f5}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Sustainable Development \& World Ecology}
+      \field{title}{Strengthening Resilience in Ultra-Poverty: Using Multilayered Indicators Approach in Climate-Induced Vulnerability}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.1080/13504509.2025.2590759
+      \endverb
+    \endentry
+    \entry{fujii2016}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=827378cf945651011800d2fcb254256b}{%
+           family={Fujii},
+           familyi={F\bibinitperiod},
+           given={Tomoki},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Asian Development Bank Institute}%
+      }
+      \strng{namehash}{827378cf945651011800d2fcb254256b}
+      \strng{fullhash}{827378cf945651011800d2fcb254256b}
+      \strng{fullhashraw}{827378cf945651011800d2fcb254256b}
+      \strng{bibnamehash}{827378cf945651011800d2fcb254256b}
+      \strng{authorbibnamehash}{827378cf945651011800d2fcb254256b}
+      \strng{authornamehash}{827378cf945651011800d2fcb254256b}
+      \strng{authorfullhash}{827378cf945651011800d2fcb254256b}
+      \strng{authorfullhashraw}{827378cf945651011800d2fcb254256b}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Concepts and Measurement of Vulnerability to Poverty and Other Issues: A Review of Literature}
+      \field{type}{ADBI Working Paper}
+      \field{year}{2016}
+    \endentry
+    \entry{gaitan2023}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=fcd2d6ea337f43cb6e32c9d3c4e6671f}{%
+           family={Gaitán},
+           familyi={G\bibinitperiod},
+           given={Andrés},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Secretaría Distrital de Planeación, Bogotá}%
+      }
+      \strng{namehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{fullhash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{fullhashraw}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{bibnamehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authorbibnamehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authornamehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authorfullhash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authorfullhashraw}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{10}
+      \field{title}{Población en Condición de Vulnerabilidad Monetaria en Bogotá}
+      \field{type}{Documento de Trabajo}
+      \field{year}{2023}
+    \endentry
+    \entry{hall2023}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=0aa18ecdf38f43bf461e4a82810390ed}{%
+           family={Hall},
+           familyi={H\bibinitperiod},
+           given={Ola},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bce2c0015d5d9ef8b7157522989c92cf}{%
+           family={Dompae},
+           familyi={D\bibinitperiod},
+           given={Frank},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=abdb544e3cfa979c88bbc3bd9937a46b}{%
+           family={Wahab},
+           familyi={W\bibinitperiod},
+           given={Ibrahim},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d54a572363c0f7e0881a4ad6bd97bc10}{%
+           family={Dzanku},
+           familyi={D\bibinitperiod},
+           given={Fred\bibnamedelima M.},
+           giveni={F\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6e7b038e376f662e23c7958c5860c838}
+      \strng{fullhash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{fullhashraw}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{bibnamehash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{authorbibnamehash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{authornamehash}{6e7b038e376f662e23c7958c5860c838}
+      \strng{authorfullhash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{authorfullhashraw}{b2a80e1d5a700895898d73304e5d830a}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of International Development}
+      \field{title}{A Review of Machine Learning and Satellite Imagery for Poverty Prediction: Implications for Development Research and Applications}
+      \field{year}{2023}
+      \verb{doi}
+      \verb 10.1002/jid.3751
+      \endverb
+    \endentry
+    \entry{hofer2025}{article}{}{}
+      \name{author}{7}{}{%
+        {{un=0,uniquepart=base,hash=3fa9f873c98eea0b21746edafddc8b42}{%
+           family={Hofer},
+           familyi={H\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ac65b5ea31114954cd713d8769368a46}{%
+           family={Sako},
+           familyi={S\bibinitperiod},
+           given={Toshiaki},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=570c8703e99ded6c10b0b485f3f75b2e}{%
+           family={Martinez},
+           familyi={M\bibinitperiod},
+           given={Alfonso\bibnamedelima Jr.},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e5db27d8002b60edb3d8ec8f92ae4394}{%
+           family={Bulan},
+           familyi={B\bibinitperiod},
+           given={Jomar},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1b3ae47aeadbc02aecec5f7a05b4e4ff}{%
+           family={Addawe},
+           familyi={A\bibinitperiod},
+           given={Marymell},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d30cc39dbf55e5011d8d2d72fe6aa0be}{%
+           family={Durante},
+           familyi={D\bibinitperiod},
+           given={Ron\bibnamedelima Luigi},
+           giveni={R\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f55bf85ae2ccca22a6aa7d870bc3df38}{%
+           family={Martillan},
+           familyi={M\bibinitperiod},
+           given={Marizen},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{dbc9321784147a6fed4024d4451c48e5}
+      \strng{fullhash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{fullhashraw}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{bibnamehash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{authorbibnamehash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{authornamehash}{dbc9321784147a6fed4024d4451c48e5}
+      \strng{authorfullhash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{authorfullhashraw}{38d95e6550724da14b5bdce0e5e850f7}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Asian Economic Journal}
+      \field{title}{Exploring the Use of Satellite Imagery and Computer Vision-Based Machine Learning Method to Improve the Spatial Granularity of Poverty Statistics}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.1111/asej.12349
+      \endverb
+    \endentry
+    \entry{jalan2000}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=b92e268c0d98ed6a6c144425c37bfa6b}{%
+           family={Jalan},
+           familyi={J\bibinitperiod},
+           given={Jyotsna},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=431d48a8a273cfe31dd181ae8613fe49}{%
+           family={Ravallion},
+           familyi={R\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{fullhash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{fullhashraw}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{bibnamehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authorbibnamehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authornamehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authorfullhash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authorfullhashraw}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Development Economics}
+      \field{number}{1}
+      \field{title}{Is Transient Poverty Different? Evidence for Rural China}
+      \field{volume}{61}
+      \field{year}{2000}
+      \field{pages}{99\bibrangedash 111}
+      \range{pages}{13}
+    \endentry
+    \entry{jean2016}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=0535712b29c5223cf7facd161321351f}{%
+           family={Jean},
+           familyi={J\bibinitperiod},
+           given={Neal},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cc8245e7c2a58c63604e2816e127e747}{%
+           family={Burke},
+           familyi={B\bibinitperiod},
+           given={Marshall},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5c88dde98a185eaa3f1a195b3d152aca}{%
+           family={Xie},
+           familyi={X\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=65f196965b52b3ffb29ef11be8fd61de}{%
+           family={Davis},
+           familyi={D\bibinitperiod},
+           given={W.\bibnamedelimi Matthew},
+           giveni={W\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b95e5b4d12fe0ed0847d7cb8abaf7da0}{%
+           family={Lobell},
+           familyi={L\bibinitperiod},
+           given={David\bibnamedelima B.},
+           giveni={D\bibinitperiod\bibinitdelim B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=160929a7e6ceecdf3f7c9a13abd5ea35}{%
+           family={Ermon},
+           familyi={E\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{957502fb61bf40b204d2ffbfe7561a3a}
+      \strng{fullhash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{fullhashraw}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{bibnamehash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{authorbibnamehash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{authornamehash}{957502fb61bf40b204d2ffbfe7561a3a}
+      \strng{authorfullhash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{authorfullhashraw}{5ac3f45a82d8c6dde83c31208e86b825}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Science}
+      \field{number}{6301}
+      \field{title}{Combining Satellite Imagery and Machine Learning to Predict Poverty}
+      \field{volume}{353}
+      \field{year}{2016}
+      \field{pages}{790\bibrangedash 794}
+      \range{pages}{5}
+    \endentry
+    \entry{Kleinberg2015}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=e405ae3c720db1b0e447ff5b601b968f}{%
+           family={Kleinberg},
+           familyi={K\bibinitperiod},
+           given={Jon},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=358307c361a8a70eb2780e904d602421}{%
+           family={Ludwig},
+           familyi={L\bibinitperiod},
+           given={Jens},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0ad4a50fedec7f3fb2ce43f3f64e62d6}{%
+           family={Mullainathan},
+           familyi={M\bibinitperiod},
+           given={Sendhil},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=95c7bf8ea53f4557318dece55a41595e}{%
+           family={Obermeyer},
+           familyi={O\bibinitperiod},
+           given={Ziad},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{bbfb09b5b5b4060670d10f1d227bac97}
+      \strng{fullhash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{fullhashraw}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{bibnamehash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{authorbibnamehash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{authornamehash}{bbfb09b5b5b4060670d10f1d227bac97}
+      \strng{authorfullhash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{authorfullhashraw}{16a5d01f41820443a5bd54ce26044dfb}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{American Economic Review}
+      \field{number}{5}
+      \field{title}{Prediction Policy Problems}
+      \field{volume}{105}
+      \field{year}{2015}
+      \field{pages}{491\bibrangedash 495}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1257/aer.p20151023
+      \endverb
+    \endentry
+    \entry{li2019}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=ff601f0ae62e304f8476f043391245b6}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Guangyu},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e580e81a7c6e1a0887361e7764045f51}{%
+           family={Cai},
+           familyi={C\bibinitperiod},
+           given={Zhi},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e604b8fe00b9ef358fcfa4804565955b}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Xiaoping},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fd903bc507de58459375d974764ab4ea}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Jian},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7a5d055b2f883f5a548cc6a2e68e5381}{%
+           family={Su},
+           familyi={S\bibinitperiod},
+           given={Shiliang},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{7b91538211716de6053a131e0bd7ad70}
+      \strng{fullhash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{fullhashraw}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{bibnamehash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{authorbibnamehash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{authornamehash}{7b91538211716de6053a131e0bd7ad70}
+      \strng{authorfullhash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{authorfullhashraw}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Remote Sensing}
+      \field{number}{15}
+      \field{title}{A Comparison of Machine Learning Approaches for Identifying High-Poverty Counties: Robust Features of DMSP/OLS Night-Time Light Imagery}
+      \field{volume}{40}
+      \field{year}{2019}
+      \field{pages}{5716\bibrangedash 5736}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1080/01431161.2019.1580820
+      \endverb
+    \endentry
+    \entry{lopezCalva2011}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=85a48235b600be20ebd80cc4b5f1d4cc}{%
+           family={López-Calva},
+           familyi={L\bibinithyphendelim C\bibinitperiod},
+           given={Luis\bibnamedelima F.},
+           giveni={L\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3a510f5beb2cf190dbf4302ef081cf3f}{%
+           family={Ortiz-Juárez},
+           familyi={O\bibinithyphendelim J\bibinitperiod},
+           given={Eduardo},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{bibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorbibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authornamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \field{extraname}{1}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{World Bank Policy Research Working Paper}
+      \field{number}{5902}
+      \field{title}{A Vulnerability Approach to the Definition of the Middle Class}
+      \field{year}{2011}
+    \endentry
+    \entry{lopezCalva2014}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=85a48235b600be20ebd80cc4b5f1d4cc}{%
+           family={López-Calva},
+           familyi={L\bibinithyphendelim C\bibinitperiod},
+           given={Luis\bibnamedelima F.},
+           giveni={L\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3a510f5beb2cf190dbf4302ef081cf3f}{%
+           family={Ortiz-Juárez},
+           familyi={O\bibinithyphendelim J\bibinitperiod},
+           given={Eduardo},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{bibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorbibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authornamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \field{extraname}{2}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The Journal of Economic Inequality}
+      \field{number}{1}
+      \field{title}{A Vulnerability Approach to the Definition of the Middle Class}
+      \field{volume}{12}
+      \field{year}{2014}
+      \field{pages}{23\bibrangedash 47}
+      \range{pages}{25}
+    \endentry
+    \entry{mcbride2018}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=eef95c30f28064f663e4b7d149fb3aea}{%
+           family={McBride},
+           familyi={M\bibinitperiod},
+           given={Linden},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=87dccc6151b6bbe6429f38ba4f985bcb}{%
+           family={Nichols},
+           familyi={N\bibinitperiod},
+           given={Austin},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{fullhash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{fullhashraw}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{bibnamehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authorbibnamehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authornamehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authorfullhash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authorfullhashraw}{63cb8a9a68224b65c071cf696ba4acee}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The World Bank Economic Review}
+      \field{number}{3}
+      \field{title}{Retooling Poverty Targeting Using Out-of-Sample Validation and Machine Learning}
+      \field{volume}{32}
+      \field{year}{2018}
+      \field{pages}{531\bibrangedash 550}
+      \range{pages}{20}
+    \endentry
+    \entry{muneton2022}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=0d816d0f00e667374d956d1c2623eacf}{%
+           family={Muñetón},
+           familyi={M\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3df8d39cd053520cbeb54b3fefac536c}{%
+           family={Escobar},
+           familyi={E\bibinitperiod},
+           given={Diana},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f638310f6efaf2241c67f4525cb6a9d6}{%
+           family={López},
+           familyi={L\bibinitperiod},
+           given={Franco},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e5892ba73c1d4ebd02703cdf8f61487d}{%
+           family={Pérez},
+           familyi={P\bibinitperiod},
+           given={Paula},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=32f45f96e404557354a1db735285b4a7}{%
+           family={Orozco},
+           familyi={O\bibinitperiod},
+           given={Jesús},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{231d67e7c265e7025e9121599b818791}
+      \strng{fullhash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{fullhashraw}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{bibnamehash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{authorbibnamehash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{authornamehash}{231d67e7c265e7025e9121599b818791}
+      \strng{authorfullhash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{authorfullhashraw}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Social Indicators Research}
+      \field{title}{Classification of Poverty Condition Using Natural Language Processing}
+      \field{volume}{162}
+      \field{year}{2022}
+      \field{pages}{1413\bibrangedash 1435}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.1007/s11205-022-02883-z
+      \endverb
+    \endentry
+    \entry{newhouse2025}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=92737b1c3cfd016e6f41f47fa0f9ba0e}{%
+           family={Newhouse},
+           familyi={N\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b8c44f07cd97fea01b2cf84e4b34fee2}{%
+           family={Merfeld},
+           familyi={M\bibinitperiod},
+           given={Joshua},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d31c40be83c6c4e91877c31622bdc33a}{%
+           family={Ramakrishnan},
+           familyi={R\bibinitperiod},
+           given={Anusha},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b2b219df79f7282b4fff4e22bb2bbc46}{%
+           family={Swartz},
+           familyi={S\bibinitperiod},
+           given={Tom},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dbfc6a59aa6f373afd70ff971b1d1c1e}{%
+           family={Lahiri},
+           familyi={L\bibinitperiod},
+           given={Partha},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{c1957d0557ce1781cf51cc848ee51e3f}
+      \strng{fullhash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{fullhashraw}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{bibnamehash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{authorbibnamehash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{authornamehash}{c1957d0557ce1781cf51cc848ee51e3f}
+      \strng{authorfullhash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{authorfullhashraw}{8b158f465ec7b37eaf0de46435ed1932}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Oxford Bulletin of Economics and Statistics}
+      \field{number}{6}
+      \field{title}{Small Area Estimation of Monetary Poverty in Mexico Using Satellite Imagery and Machine Learning}
+      \field{volume}{87}
+      \field{year}{2025}
+      \field{pages}{1158\bibrangedash 1172}
+      \range{pages}{15}
+    \endentry
+    \entry{usmanova2022}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=ba01146aaadd8bb70a9e7dcce14844f3}{%
+           family={Usmanova},
+           familyi={U\bibinitperiod},
+           given={Aziza},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=53c0657ef45b03610b5b6de2de614562}{%
+           family={Aziz},
+           familyi={A\bibinitperiod},
+           given={Azizi},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=73218250863f6f08c63946c62a147869}{%
+           family={Rakhmonov},
+           familyi={R\bibinitperiod},
+           given={Dilnoza},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5a817ffa467f95601538325e68c93083}{%
+           family={Osamy},
+           familyi={O\bibinitperiod},
+           given={Walid},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5b66b7b943271f5eacb2781acb09fbdf}
+      \strng{fullhash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{fullhashraw}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{bibnamehash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{authorbibnamehash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{authornamehash}{5b66b7b943271f5eacb2781acb09fbdf}
+      \strng{authorfullhash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{authorfullhashraw}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \field{sortinit}{U}
+      \field{sortinithash}{6901a00e45705986ee5e7ca9fd39adca}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Sustainability}
+      \field{number}{21}
+      \field{title}{Utilities of Artificial Intelligence in Poverty Prediction: A Review}
+      \field{volume}{14}
+      \field{year}{2022}
+      \field{pages}{14238}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/su142114238
+      \endverb
+    \endentry
+  \enddatalist
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{aiken2022}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=a9b68a54c6517d456a1152040a7146fc}{%
+           family={Aiken},
+           familyi={A\bibinitperiod},
+           given={Emily},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab8cd7a577c14a14f38facbaf192bc48}{%
+           family={Bellue},
+           familyi={B\bibinitperiod},
+           given={Suzanne},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=940678209828a76685d3c727e9e1463f}{%
+           family={Karlan},
+           familyi={K\bibinitperiod},
+           given={Dean},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=afa67f70458fab65065bb4a800577162}{%
+           family={Udry},
+           familyi={U\bibinitperiod},
+           given={Christopher},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7c903c72cf88893a6fa586bb74bcdb41}{%
+           family={Blumenstock},
+           familyi={B\bibinitperiod},
+           given={Joshua\bibnamedelima E.},
+           giveni={J\bibinitperiod\bibinitdelim E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{07cf88db9edc4d01fac9696dfbcf5c9b}
+      \strng{fullhash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{fullhashraw}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{bibnamehash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{authorbibnamehash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{authornamehash}{07cf88db9edc4d01fac9696dfbcf5c9b}
+      \strng{authorfullhash}{6abb597e956b0f0822380bc78ad9b870}
+      \strng{authorfullhashraw}{6abb597e956b0f0822380bc78ad9b870}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Nature}
+      \field{title}{Machine Learning and Phone Data Can Improve Targeting of Humanitarian Aid}
+      \field{volume}{603}
+      \field{year}{2022}
+      \field{pages}{864\bibrangedash 870}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1038/s41586-022-04484-9
+      \endverb
+    \endentry
+    \entry{bergolo2010}{report}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=7cad6cd993c51a4ba76dd3dfe1dd84a0}{%
+           family={Bérgolo},
+           familyi={B\bibinitperiod},
+           given={Marcelo},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d55e4d3690f5759d5d814179ab839e45}{%
+           family={Cruces},
+           familyi={C\bibinitperiod},
+           given={Guillermo},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5dfb517c39880a32ea5fadeac4261096}{%
+           family={Gasparini},
+           familyi={G\bibinitperiod},
+           given={Leonardo},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6f4e27ff80715986e992a5c2b56229c3}{%
+           family={Ham},
+           familyi={H\bibinitperiod},
+           given={Andrés},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Chronic Poverty Research Centre}%
+      }
+      \strng{namehash}{fbdbfe3a878dc7404206e734db4dc22c}
+      \strng{fullhash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{fullhashraw}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{bibnamehash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{authorbibnamehash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{authornamehash}{fbdbfe3a878dc7404206e734db4dc22c}
+      \strng{authorfullhash}{e0b661dec9516c063fe329bc51c4126e}
+      \strng{authorfullhashraw}{e0b661dec9516c063fe329bc51c4126e}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Vulnerability to Poverty in Latin America: Empirical Evidence from Cross-Sectional Data and Robustness Analysis with Panel Data}
+      \field{type}{techreport}
+      \field{year}{2010}
+    \endentry
+    \entry{blumenstock2015}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=9843359a5181746f01315345c9945d84}{%
+           family={Blumenstock},
+           familyi={B\bibinitperiod},
+           given={Joshua},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d1573acfb56bf1250d7006ea9cc4ed2c}{%
+           family={Cadamuro},
+           familyi={C\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f61cb6e5e03c1dec7aa138423252fec3}{%
+           family={On},
+           familyi={O\bibinitperiod},
+           given={Robert},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{dda125e54eb1c2dac5950e5b28c07811}
+      \strng{fullhash}{c3887558f0abb10796319073e70adad4}
+      \strng{fullhashraw}{c3887558f0abb10796319073e70adad4}
+      \strng{bibnamehash}{c3887558f0abb10796319073e70adad4}
+      \strng{authorbibnamehash}{c3887558f0abb10796319073e70adad4}
+      \strng{authornamehash}{dda125e54eb1c2dac5950e5b28c07811}
+      \strng{authorfullhash}{c3887558f0abb10796319073e70adad4}
+      \strng{authorfullhashraw}{c3887558f0abb10796319073e70adad4}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Science}
+      \field{number}{6264}
+      \field{title}{Predicting Poverty and Wealth from Mobile Phone Metadata}
+      \field{volume}{350}
+      \field{year}{2015}
+      \field{pages}{1073\bibrangedash 1076}
+      \range{pages}{4}
+    \endentry
+    \entry{castaneda2012}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=366592ef6a17148756f86713d33532e6}{%
+           family={Castañeda\bibnamedelima Castrillón},
+           familyi={C\bibinitperiod\bibinitdelim C\bibinitperiod},
+           given={Camilo\bibnamedelima Andrés},
+           giveni={C\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Universidad de los Andes}%
+      }
+      \strng{namehash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhashraw}{366592ef6a17148756f86713d33532e6}
+      \strng{bibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorbibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authornamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhashraw}{366592ef6a17148756f86713d33532e6}
+      \field{extraname}{1}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Trampas de Pobreza en Colombia: Una Aproximación Empírica Mediante Pseudo Panel}
+      \field{type}{mathesis}
+      \field{year}{2012}
+      \verb{urlraw}
+      \verb https://hdl.handle.net/1992/62019
+      \endverb
+      \verb{url}
+      \verb https://hdl.handle.net/1992/62019
+      \endverb
+    \endentry
+    \entry{castaneda2021}{thesis}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=366592ef6a17148756f86713d33532e6}{%
+           family={Castañeda\bibnamedelima Castrillón},
+           familyi={C\bibinitperiod\bibinitdelim C\bibinitperiod},
+           given={Camilo\bibnamedelima Andrés},
+           giveni={C\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Barcelona School of Management}%
+      }
+      \strng{namehash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{fullhashraw}{366592ef6a17148756f86713d33532e6}
+      \strng{bibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorbibnamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authornamehash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhash}{366592ef6a17148756f86713d33532e6}
+      \strng{authorfullhashraw}{366592ef6a17148756f86713d33532e6}
+      \field{extraname}{2}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Nuevos Vulnerables en Colombia: Diagnóstico de los Efectos del COVID-19 en los Empleados del Sector Formal y Propuesta de Esquema de Protección}
+      \field{type}{mathesis}
+      \field{year}{2021}
+    \endentry
+    \entry{chaudhuri2002}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=a87db0c934257851e00aa3ac3dc41d38}{%
+           family={Chaudhuri},
+           familyi={C\bibinitperiod},
+           given={Shubham},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b92e268c0d98ed6a6c144425c37bfa6b}{%
+           family={Jalan},
+           familyi={J\bibinitperiod},
+           given={Jyotsna},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f3f6c8fe6926fa36174b3ed77825bcea}{%
+           family={Suryahadi},
+           familyi={S\bibinitperiod},
+           given={Asep},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ee073843f766ce976616183812002280}
+      \strng{fullhash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{fullhashraw}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{bibnamehash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{authorbibnamehash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{authornamehash}{ee073843f766ce976616183812002280}
+      \strng{authorfullhash}{a3abc14f9cf1d526253be052521ea74f}
+      \strng{authorfullhashraw}{a3abc14f9cf1d526253be052521ea74f}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Columbia University Department of Economics Discussion Papers}
+      \field{number}{0102-52}
+      \field{title}{Assessing Household Vulnerability to Poverty from Cross-Sectional Data}
+      \field{year}{2002}
+    \endentry
+    \entry{christiaensen2005}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4892b8961297ace47268e1bfd2620a8d}{%
+           family={Christiaensen},
+           familyi={C\bibinitperiod},
+           given={Luc},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=caa5eb49f4c5faaee2da258fbca05f9f}{%
+           family={Subbarao},
+           familyi={S\bibinitperiod},
+           given={Kalanidhi},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{fullhash}{142616d95e1b4b22188340eda0c51959}
+      \strng{fullhashraw}{142616d95e1b4b22188340eda0c51959}
+      \strng{bibnamehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authorbibnamehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authornamehash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authorfullhash}{142616d95e1b4b22188340eda0c51959}
+      \strng{authorfullhashraw}{142616d95e1b4b22188340eda0c51959}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of African Economies}
+      \field{number}{4}
+      \field{title}{Towards an Understanding of Household Vulnerability in Rural Kenya}
+      \field{volume}{14}
+      \field{year}{2005}
+      \field{pages}{520\bibrangedash 558}
+      \range{pages}{39}
+      \verb{doi}
+      \verb 10.1093/jae/eji008
+      \endverb
+    \endentry
+    \entry{conpes2016}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=c32925145e14940b147d016bf7268fc5}{%
+           family={{Consejo Nacional de Política Económica y Social}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {Departamento Nacional de Planeación}%
+      }
+      \strng{namehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{fullhash}{c32925145e14940b147d016bf7268fc5}
+      \strng{fullhashraw}{c32925145e14940b147d016bf7268fc5}
+      \strng{bibnamehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authorbibnamehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authornamehash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authorfullhash}{c32925145e14940b147d016bf7268fc5}
+      \strng{authorfullhashraw}{c32925145e14940b147d016bf7268fc5}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{3877}
+      \field{title}{Declaración de Importancia Estratégica del Sistema de Identificación de Potenciales Beneficiarios (Sisbén IV)}
+      \field{type}{Documento CONPES}
+      \field{year}{2016}
+    \endentry
+    \entry{costella2023}{report}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=753b534ccc39800034c367ebc869cabe}{%
+           family={Costella},
+           familyi={C\bibinitperiod},
+           given={Cecilia},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=27eca0419515bcecdc75a4aeaab834d6}{%
+           family={Diez},
+           familyi={D\bibinitperiod},
+           given={Alicia},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b2267931ebf16a19f0e4dbe73d292246}{%
+           family={Beazley},
+           familyi={B\bibinitperiod},
+           given={Rodolfo},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bb2908e71665f3ad4f2069e5c73177ee}{%
+           family={Alfonso},
+           familyi={A\bibinitperiod},
+           given={Marisela},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Inter-American Development Bank}%
+      }
+      \strng{namehash}{4e459fb3d2e5bf9c12c3552d1ab9a29d}
+      \strng{fullhash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{fullhashraw}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{bibnamehash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{authorbibnamehash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{authornamehash}{4e459fb3d2e5bf9c12c3552d1ab9a29d}
+      \strng{authorfullhash}{3ea9698dda855e655fdf80cc3da67e5c}
+      \strng{authorfullhashraw}{3ea9698dda855e655fdf80cc3da67e5c}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{IDB-WP-01428}
+      \field{title}{Shock-Responsive Social Protection and Climate Shocks in Latin America and the Caribbean: Lessons from COVID-19}
+      \field{type}{IDB Working Paper}
+      \field{year}{2023}
+    \endentry
+    \entry{dercon2002}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=a020b273609d91c7520d5ca3dbddfe9e}{%
+           family={Dercon},
+           familyi={D\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{fullhash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{fullhashraw}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{bibnamehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authorbibnamehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authornamehash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authorfullhash}{a020b273609d91c7520d5ca3dbddfe9e}
+      \strng{authorfullhashraw}{a020b273609d91c7520d5ca3dbddfe9e}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The World Bank Research Observer}
+      \field{number}{2}
+      \field{title}{Income Risk, Coping Strategies, and Safety Nets}
+      \field{volume}{17}
+      \field{year}{2002}
+      \field{pages}{141\bibrangedash 166}
+      \range{pages}{26}
+    \endentry
+    \entry{dercon2000}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=a020b273609d91c7520d5ca3dbddfe9e}{%
+           family={Dercon},
+           familyi={D\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dae4f341539b433621bab136add1d935}{%
+           family={Krishnan},
+           familyi={K\bibinitperiod},
+           given={Pramila},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{fullhash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{fullhashraw}{6d5289baefb1724bf38499ac976649d0}
+      \strng{bibnamehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authorbibnamehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authornamehash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authorfullhash}{6d5289baefb1724bf38499ac976649d0}
+      \strng{authorfullhashraw}{6d5289baefb1724bf38499ac976649d0}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Development Studies}
+      \field{number}{6}
+      \field{title}{Vulnerability, Seasonality and Poverty in Ethiopia}
+      \field{volume}{36}
+      \field{year}{2000}
+      \field{pages}{25\bibrangedash 53}
+      \range{pages}{29}
+      \verb{doi}
+      \verb 10.1080/713600071
+      \endverb
+    \endentry
+    \entry{ferdausi2025}{article}{}{}
+      \name{author}{12}{}{%
+        {{un=0,uniquepart=base,hash=fc6db4159c80f9b15572bc50421b8f07}{%
+           family={Ferdausi},
+           familyi={F\bibinitperiod},
+           given={Marufa},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ca6d0b90574586d34b646bf3e1c9355a}{%
+           family={Tarana},
+           familyi={T\bibinitperiod},
+           given={Mysha\bibnamedelima Y.},
+           giveni={M\bibinitperiod\bibinitdelim Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=98e61e837eab2efcf2e7e1149d8d6936}{%
+           family={Alam},
+           familyi={A\bibinitperiod},
+           given={Md.\bibnamedelimi Shahjahan},
+           giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0f6ec0576559274d61886545105fb141}{%
+           family={Murshed},
+           familyi={M\bibinitperiod},
+           given={Md.\bibnamedelimi Faisal},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2f1b14b6972d13e3a46323b7d64a5d97}{%
+           family={Ehsan},
+           familyi={E\bibinitperiod},
+           given={S.\bibnamedelimi M.\bibnamedelimi A.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4856f24f12250544a2f653cf59fdeae0}{%
+           family={Elahi},
+           familyi={E\bibinitperiod},
+           given={M.\bibnamedelimi M.\bibnamedelimi L.},
+           giveni={M\bibinitperiod\bibinitdelim M\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cf2bed8e81ff26b710b57a29aeff4929}{%
+           family={Ahmed},
+           familyi={A\bibinitperiod},
+           given={Shakil},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4f60f9ac071de8624e8fcede084ca95f}{%
+           family={Rahman},
+           familyi={R\bibinitperiod},
+           given={Md.\bibnamedelimi Feisal},
+           giveni={M\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=732e8da7f52edf23020139fcb12b23e0}{%
+           family={Khan},
+           familyi={K\bibinitperiod},
+           given={H.\bibnamedelimi M.},
+           giveni={H\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a2142704a5fdfbfb56707fe0360811c5}{%
+           family={Badhon},
+           familyi={B\bibinitperiod},
+           given={Md.\bibnamedelimi A.\bibnamedelimi A.},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=60e193d3c8fcc36dd3a1414511d8b629}{%
+           family={Hossein},
+           familyi={H\bibinitperiod},
+           given={Md.\bibnamedelimi K.},
+           giveni={M\bibinitperiod\bibinitdelim K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0a0f486d6541efc4263aab4b49bdbac2}{%
+           family={Jakariya},
+           familyi={J\bibinitperiod},
+           given={Md.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{1a431ff64937ed87c745f5014f3da69b}
+      \strng{fullhash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{fullhashraw}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{bibnamehash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{authorbibnamehash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{authornamehash}{1a431ff64937ed87c745f5014f3da69b}
+      \strng{authorfullhash}{0aebe9c8dacd8f80fe006047963c78f5}
+      \strng{authorfullhashraw}{0aebe9c8dacd8f80fe006047963c78f5}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Sustainable Development \& World Ecology}
+      \field{title}{Strengthening Resilience in Ultra-Poverty: Using Multilayered Indicators Approach in Climate-Induced Vulnerability}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.1080/13504509.2025.2590759
+      \endverb
+    \endentry
+    \entry{fujii2016}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=827378cf945651011800d2fcb254256b}{%
+           family={Fujii},
+           familyi={F\bibinitperiod},
+           given={Tomoki},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Asian Development Bank Institute}%
+      }
+      \strng{namehash}{827378cf945651011800d2fcb254256b}
+      \strng{fullhash}{827378cf945651011800d2fcb254256b}
+      \strng{fullhashraw}{827378cf945651011800d2fcb254256b}
+      \strng{bibnamehash}{827378cf945651011800d2fcb254256b}
+      \strng{authorbibnamehash}{827378cf945651011800d2fcb254256b}
+      \strng{authornamehash}{827378cf945651011800d2fcb254256b}
+      \strng{authorfullhash}{827378cf945651011800d2fcb254256b}
+      \strng{authorfullhashraw}{827378cf945651011800d2fcb254256b}
+      \field{sortinit}{F}
+      \field{sortinithash}{2638baaa20439f1b5a8f80c6c08a13b4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Concepts and Measurement of Vulnerability to Poverty and Other Issues: A Review of Literature}
+      \field{type}{ADBI Working Paper}
+      \field{year}{2016}
+    \endentry
+    \entry{gaitan2023}{report}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=fcd2d6ea337f43cb6e32c9d3c4e6671f}{%
+           family={Gaitán},
+           familyi={G\bibinitperiod},
+           given={Andrés},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {Secretaría Distrital de Planeación, Bogotá}%
+      }
+      \strng{namehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{fullhash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{fullhashraw}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{bibnamehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authorbibnamehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authornamehash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authorfullhash}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \strng{authorfullhashraw}{fcd2d6ea337f43cb6e32c9d3c4e6671f}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{10}
+      \field{title}{Población en Condición de Vulnerabilidad Monetaria en Bogotá}
+      \field{type}{Documento de Trabajo}
+      \field{year}{2023}
+    \endentry
+    \entry{hall2023}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=0aa18ecdf38f43bf461e4a82810390ed}{%
+           family={Hall},
+           familyi={H\bibinitperiod},
+           given={Ola},
+           giveni={O\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=bce2c0015d5d9ef8b7157522989c92cf}{%
+           family={Dompae},
+           familyi={D\bibinitperiod},
+           given={Frank},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=abdb544e3cfa979c88bbc3bd9937a46b}{%
+           family={Wahab},
+           familyi={W\bibinitperiod},
+           given={Ibrahim},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d54a572363c0f7e0881a4ad6bd97bc10}{%
+           family={Dzanku},
+           familyi={D\bibinitperiod},
+           given={Fred\bibnamedelima M.},
+           giveni={F\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6e7b038e376f662e23c7958c5860c838}
+      \strng{fullhash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{fullhashraw}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{bibnamehash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{authorbibnamehash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{authornamehash}{6e7b038e376f662e23c7958c5860c838}
+      \strng{authorfullhash}{b2a80e1d5a700895898d73304e5d830a}
+      \strng{authorfullhashraw}{b2a80e1d5a700895898d73304e5d830a}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of International Development}
+      \field{title}{A Review of Machine Learning and Satellite Imagery for Poverty Prediction: Implications for Development Research and Applications}
+      \field{year}{2023}
+      \verb{doi}
+      \verb 10.1002/jid.3751
+      \endverb
+    \endentry
+    \entry{hofer2025}{article}{}{}
+      \name{author}{7}{}{%
+        {{un=0,uniquepart=base,hash=3fa9f873c98eea0b21746edafddc8b42}{%
+           family={Hofer},
+           familyi={H\bibinitperiod},
+           given={Matthias},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ac65b5ea31114954cd713d8769368a46}{%
+           family={Sako},
+           familyi={S\bibinitperiod},
+           given={Toshiaki},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=570c8703e99ded6c10b0b485f3f75b2e}{%
+           family={Martinez},
+           familyi={M\bibinitperiod},
+           given={Alfonso\bibnamedelima Jr.},
+           giveni={A\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e5db27d8002b60edb3d8ec8f92ae4394}{%
+           family={Bulan},
+           familyi={B\bibinitperiod},
+           given={Jomar},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1b3ae47aeadbc02aecec5f7a05b4e4ff}{%
+           family={Addawe},
+           familyi={A\bibinitperiod},
+           given={Marymell},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d30cc39dbf55e5011d8d2d72fe6aa0be}{%
+           family={Durante},
+           familyi={D\bibinitperiod},
+           given={Ron\bibnamedelima Luigi},
+           giveni={R\bibinitperiod\bibinitdelim L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f55bf85ae2ccca22a6aa7d870bc3df38}{%
+           family={Martillan},
+           familyi={M\bibinitperiod},
+           given={Marizen},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{dbc9321784147a6fed4024d4451c48e5}
+      \strng{fullhash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{fullhashraw}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{bibnamehash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{authorbibnamehash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{authornamehash}{dbc9321784147a6fed4024d4451c48e5}
+      \strng{authorfullhash}{38d95e6550724da14b5bdce0e5e850f7}
+      \strng{authorfullhashraw}{38d95e6550724da14b5bdce0e5e850f7}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Asian Economic Journal}
+      \field{title}{Exploring the Use of Satellite Imagery and Computer Vision-Based Machine Learning Method to Improve the Spatial Granularity of Poverty Statistics}
+      \field{year}{2025}
+      \verb{doi}
+      \verb 10.1111/asej.12349
+      \endverb
+    \endentry
+    \entry{jalan2000}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=b92e268c0d98ed6a6c144425c37bfa6b}{%
+           family={Jalan},
+           familyi={J\bibinitperiod},
+           given={Jyotsna},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=431d48a8a273cfe31dd181ae8613fe49}{%
+           family={Ravallion},
+           familyi={R\bibinitperiod},
+           given={Martin},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{fullhash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{fullhashraw}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{bibnamehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authorbibnamehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authornamehash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authorfullhash}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \strng{authorfullhashraw}{96396ffd72a4d5e6486f9b3e1803b6f7}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Development Economics}
+      \field{number}{1}
+      \field{title}{Is Transient Poverty Different? Evidence for Rural China}
+      \field{volume}{61}
+      \field{year}{2000}
+      \field{pages}{99\bibrangedash 111}
+      \range{pages}{13}
+    \endentry
+    \entry{jean2016}{article}{}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=0535712b29c5223cf7facd161321351f}{%
+           family={Jean},
+           familyi={J\bibinitperiod},
+           given={Neal},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cc8245e7c2a58c63604e2816e127e747}{%
+           family={Burke},
+           familyi={B\bibinitperiod},
+           given={Marshall},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5c88dde98a185eaa3f1a195b3d152aca}{%
+           family={Xie},
+           familyi={X\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=65f196965b52b3ffb29ef11be8fd61de}{%
+           family={Davis},
+           familyi={D\bibinitperiod},
+           given={W.\bibnamedelimi Matthew},
+           giveni={W\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b95e5b4d12fe0ed0847d7cb8abaf7da0}{%
+           family={Lobell},
+           familyi={L\bibinitperiod},
+           given={David\bibnamedelima B.},
+           giveni={D\bibinitperiod\bibinitdelim B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=160929a7e6ceecdf3f7c9a13abd5ea35}{%
+           family={Ermon},
+           familyi={E\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{957502fb61bf40b204d2ffbfe7561a3a}
+      \strng{fullhash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{fullhashraw}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{bibnamehash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{authorbibnamehash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{authornamehash}{957502fb61bf40b204d2ffbfe7561a3a}
+      \strng{authorfullhash}{5ac3f45a82d8c6dde83c31208e86b825}
+      \strng{authorfullhashraw}{5ac3f45a82d8c6dde83c31208e86b825}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Science}
+      \field{number}{6301}
+      \field{title}{Combining Satellite Imagery and Machine Learning to Predict Poverty}
+      \field{volume}{353}
+      \field{year}{2016}
+      \field{pages}{790\bibrangedash 794}
+      \range{pages}{5}
+    \endentry
+    \entry{Kleinberg2015}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=e405ae3c720db1b0e447ff5b601b968f}{%
+           family={Kleinberg},
+           familyi={K\bibinitperiod},
+           given={Jon},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=358307c361a8a70eb2780e904d602421}{%
+           family={Ludwig},
+           familyi={L\bibinitperiod},
+           given={Jens},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0ad4a50fedec7f3fb2ce43f3f64e62d6}{%
+           family={Mullainathan},
+           familyi={M\bibinitperiod},
+           given={Sendhil},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=95c7bf8ea53f4557318dece55a41595e}{%
+           family={Obermeyer},
+           familyi={O\bibinitperiod},
+           given={Ziad},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{bbfb09b5b5b4060670d10f1d227bac97}
+      \strng{fullhash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{fullhashraw}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{bibnamehash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{authorbibnamehash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{authornamehash}{bbfb09b5b5b4060670d10f1d227bac97}
+      \strng{authorfullhash}{16a5d01f41820443a5bd54ce26044dfb}
+      \strng{authorfullhashraw}{16a5d01f41820443a5bd54ce26044dfb}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{American Economic Review}
+      \field{number}{5}
+      \field{title}{Prediction Policy Problems}
+      \field{volume}{105}
+      \field{year}{2015}
+      \field{pages}{491\bibrangedash 495}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1257/aer.p20151023
+      \endverb
+    \endentry
+    \entry{li2019}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=ff601f0ae62e304f8476f043391245b6}{%
+           family={Li},
+           familyi={L\bibinitperiod},
+           given={Guangyu},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e580e81a7c6e1a0887361e7764045f51}{%
+           family={Cai},
+           familyi={C\bibinitperiod},
+           given={Zhi},
+           giveni={Z\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e604b8fe00b9ef358fcfa4804565955b}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Xiaoping},
+           giveni={X\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=fd903bc507de58459375d974764ab4ea}{%
+           family={Liu},
+           familyi={L\bibinitperiod},
+           given={Jian},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7a5d055b2f883f5a548cc6a2e68e5381}{%
+           family={Su},
+           familyi={S\bibinitperiod},
+           given={Shiliang},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{7b91538211716de6053a131e0bd7ad70}
+      \strng{fullhash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{fullhashraw}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{bibnamehash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{authorbibnamehash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{authornamehash}{7b91538211716de6053a131e0bd7ad70}
+      \strng{authorfullhash}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \strng{authorfullhashraw}{ba73fcabac3cc1ac2cbe76e8c40f4110}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Remote Sensing}
+      \field{number}{15}
+      \field{title}{A Comparison of Machine Learning Approaches for Identifying High-Poverty Counties: Robust Features of DMSP/OLS Night-Time Light Imagery}
+      \field{volume}{40}
+      \field{year}{2019}
+      \field{pages}{5716\bibrangedash 5736}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1080/01431161.2019.1580820
+      \endverb
+    \endentry
+    \entry{lopezCalva2011}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=85a48235b600be20ebd80cc4b5f1d4cc}{%
+           family={López-Calva},
+           familyi={L\bibinithyphendelim C\bibinitperiod},
+           given={Luis\bibnamedelima F.},
+           giveni={L\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3a510f5beb2cf190dbf4302ef081cf3f}{%
+           family={Ortiz-Juárez},
+           familyi={O\bibinithyphendelim J\bibinitperiod},
+           given={Eduardo},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{bibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorbibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authornamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \field{extraname}{1}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{World Bank Policy Research Working Paper}
+      \field{number}{5902}
+      \field{title}{A Vulnerability Approach to the Definition of the Middle Class}
+      \field{year}{2011}
+    \endentry
+    \entry{lopezCalva2014}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=85a48235b600be20ebd80cc4b5f1d4cc}{%
+           family={López-Calva},
+           familyi={L\bibinithyphendelim C\bibinitperiod},
+           given={Luis\bibnamedelima F.},
+           giveni={L\bibinitperiod\bibinitdelim F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3a510f5beb2cf190dbf4302ef081cf3f}{%
+           family={Ortiz-Juárez},
+           familyi={O\bibinithyphendelim J\bibinitperiod},
+           given={Eduardo},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{fullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{bibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorbibnamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authornamehash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhash}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \strng{authorfullhashraw}{6f0a0e91dff0c8bfca8dc60d5cfc2369}
+      \field{extraname}{2}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The Journal of Economic Inequality}
+      \field{number}{1}
+      \field{title}{A Vulnerability Approach to the Definition of the Middle Class}
+      \field{volume}{12}
+      \field{year}{2014}
+      \field{pages}{23\bibrangedash 47}
+      \range{pages}{25}
+    \endentry
+    \entry{mcbride2018}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=eef95c30f28064f663e4b7d149fb3aea}{%
+           family={McBride},
+           familyi={M\bibinitperiod},
+           given={Linden},
+           giveni={L\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=87dccc6151b6bbe6429f38ba4f985bcb}{%
+           family={Nichols},
+           familyi={N\bibinitperiod},
+           given={Austin},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{fullhash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{fullhashraw}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{bibnamehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authorbibnamehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authornamehash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authorfullhash}{63cb8a9a68224b65c071cf696ba4acee}
+      \strng{authorfullhashraw}{63cb8a9a68224b65c071cf696ba4acee}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{The World Bank Economic Review}
+      \field{number}{3}
+      \field{title}{Retooling Poverty Targeting Using Out-of-Sample Validation and Machine Learning}
+      \field{volume}{32}
+      \field{year}{2018}
+      \field{pages}{531\bibrangedash 550}
+      \range{pages}{20}
+    \endentry
+    \entry{muneton2022}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=0d816d0f00e667374d956d1c2623eacf}{%
+           family={Muñetón},
+           familyi={M\bibinitperiod},
+           given={Gabriel},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=3df8d39cd053520cbeb54b3fefac536c}{%
+           family={Escobar},
+           familyi={E\bibinitperiod},
+           given={Diana},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=f638310f6efaf2241c67f4525cb6a9d6}{%
+           family={López},
+           familyi={L\bibinitperiod},
+           given={Franco},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e5892ba73c1d4ebd02703cdf8f61487d}{%
+           family={Pérez},
+           familyi={P\bibinitperiod},
+           given={Paula},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=32f45f96e404557354a1db735285b4a7}{%
+           family={Orozco},
+           familyi={O\bibinitperiod},
+           given={Jesús},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{231d67e7c265e7025e9121599b818791}
+      \strng{fullhash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{fullhashraw}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{bibnamehash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{authorbibnamehash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{authornamehash}{231d67e7c265e7025e9121599b818791}
+      \strng{authorfullhash}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \strng{authorfullhashraw}{a87a104d16ea2d1bcf5f3416abaa8768}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Social Indicators Research}
+      \field{title}{Classification of Poverty Condition Using Natural Language Processing}
+      \field{volume}{162}
+      \field{year}{2022}
+      \field{pages}{1413\bibrangedash 1435}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.1007/s11205-022-02883-z
+      \endverb
+    \endentry
+    \entry{newhouse2025}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=92737b1c3cfd016e6f41f47fa0f9ba0e}{%
+           family={Newhouse},
+           familyi={N\bibinitperiod},
+           given={David},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b8c44f07cd97fea01b2cf84e4b34fee2}{%
+           family={Merfeld},
+           familyi={M\bibinitperiod},
+           given={Joshua},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d31c40be83c6c4e91877c31622bdc33a}{%
+           family={Ramakrishnan},
+           familyi={R\bibinitperiod},
+           given={Anusha},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b2b219df79f7282b4fff4e22bb2bbc46}{%
+           family={Swartz},
+           familyi={S\bibinitperiod},
+           given={Tom},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=dbfc6a59aa6f373afd70ff971b1d1c1e}{%
+           family={Lahiri},
+           familyi={L\bibinitperiod},
+           given={Partha},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{c1957d0557ce1781cf51cc848ee51e3f}
+      \strng{fullhash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{fullhashraw}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{bibnamehash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{authorbibnamehash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{authornamehash}{c1957d0557ce1781cf51cc848ee51e3f}
+      \strng{authorfullhash}{8b158f465ec7b37eaf0de46435ed1932}
+      \strng{authorfullhashraw}{8b158f465ec7b37eaf0de46435ed1932}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Oxford Bulletin of Economics and Statistics}
+      \field{number}{6}
+      \field{title}{Small Area Estimation of Monetary Poverty in Mexico Using Satellite Imagery and Machine Learning}
+      \field{volume}{87}
+      \field{year}{2025}
+      \field{pages}{1158\bibrangedash 1172}
+      \range{pages}{15}
+    \endentry
+    \entry{usmanova2022}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=ba01146aaadd8bb70a9e7dcce14844f3}{%
+           family={Usmanova},
+           familyi={U\bibinitperiod},
+           given={Aziza},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=53c0657ef45b03610b5b6de2de614562}{%
+           family={Aziz},
+           familyi={A\bibinitperiod},
+           given={Azizi},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=73218250863f6f08c63946c62a147869}{%
+           family={Rakhmonov},
+           familyi={R\bibinitperiod},
+           given={Dilnoza},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5a817ffa467f95601538325e68c93083}{%
+           family={Osamy},
+           familyi={O\bibinitperiod},
+           given={Walid},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5b66b7b943271f5eacb2781acb09fbdf}
+      \strng{fullhash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{fullhashraw}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{bibnamehash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{authorbibnamehash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{authornamehash}{5b66b7b943271f5eacb2781acb09fbdf}
+      \strng{authorfullhash}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \strng{authorfullhashraw}{e6d4eb7b1a48dbdd7cb1d307cb8f25c9}
+      \field{sortinit}{U}
+      \field{sortinithash}{6901a00e45705986ee5e7ca9fd39adca}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Sustainability}
+      \field{number}{21}
+      \field{title}{Utilities of Artificial Intelligence in Poverty Prediction: A Review}
+      \field{volume}{14}
+      \field{year}{2022}
+      \field{pages}{14238}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.3390/su142114238
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
