@@ -33,6 +33,54 @@ dominio "Urbano/Rural" del DANE en 2010, y se mapea de forma directa a "Cabecera
 (2013) y "Cabeceras/Centros poblados y rural disperso" (2016), que son la misma partición
 conceptual con nombres distintos según el año de publicación.
 
+## 1.b Líneas de pobreza ELCO (2019, 2022) — serie metodológica distinta
+
+| Año | Documento local | Fuente oficial | Tabla usada |
+|---|---|---|---|
+| 2019 | `Boletin-pobreza-monetaria_2019.pdf` | [DANE — Boletín Técnico, Pobreza Monetaria en Colombia 2019](https://www.dane.gov.co/files/investigaciones/condiciones_vida/pobreza/2019/Boletin-pobreza-monetaria_2019.pdf) | Tabla 1 (p. 4) y Tabla 6 (p. 13): "Comportamiento de la línea de pobreza / pobreza extrema", dominios Total Nacional/Cabeceras/Centros poblados y rural disperso |
+| 2022 | `bol-PM-2023.pdf` | [DANE — Boletín técnico, Pobreza Monetaria (PM) Año 2023](https://www.dane.gov.co/files/operaciones/PM/bol-PM-2023.pdf) | Tabla 1 (p. 4) y Tabla 4 (p. 14): tablas comparativas "Años 2022 a 2023" — se toma la columna 2022, no 2023 |
+
+**Este bloque NO es continuación de la tabla de la sección 1.** El boletín de 2019 dice
+textualmente: *"Estas cifras no son comparables con las cifras de la serie MESEP."* A partir
+de 2019 el DANE recalculó la línea de pobreza usando una canasta base nueva (Encuesta
+Nacional de Presupuesto de los Hogares — ENPH — 2016-2017), reemplazando la serie ENIG
+2006-2007/MESEP que sustenta la sección 1. Ambas tablas (2019 y 2023, que reporta 2022)
+citan la misma fuente — *"líneas base ENPH 2016-2017, actualizadas con el deflactor
+especial de las líneas de pobreza"* — lo que confirma que **2019 y 2022 sí están en una
+serie interna consistente entre sí**, sin otro rebasing intermedio detectado.
+
+Implicación práctica: 2019 y 2022 se pueden comparar entre sí para clasificar pobreza, pero
+**no se debe mezclar esta tabla con `LINEAS_POBREZA` (2010/2013/2016) como si fuera una
+serie continua** — son dos definiciones de canasta distintas. Ver `config_dane.py`,
+`LINEAS_POBREZA_ELCO`.
+
+Dominio: mismo mapeo que ya usa la sección 1 para 2013/2016 — "Cabeceras" → zona "Urbano",
+"Centros poblados y rural disperso" → zona "Rural".
+
+## 1.c Línea de pobreza 2016 bajo metodología ENPH (para transición 2016→2019)
+
+Necesaria porque el 2016 de la sección 1 está en metodología MESEP, incompatible con el
+2019/2022 ENPH de la sección 1.b — comparar pobreza 2016→2019 exige que ambos años estén en
+la misma metodología.
+
+| Documento local | Fuente oficial | Contenido |
+|---|---|---|
+| `lineas_pobreza_2012_2018_enph/lineas_20122018.csv` | DANE, catálogo de microdatos — [Líneas de Pobreza Monetaria y Pobreza Monetaria Extrema, Actualización Metodológica, Serie 2012-2018](https://microdatos.dane.gov.co/index.php/catalog/689) (archivo `lineas_20122018.zip`, descargado vía el flujo "Obtener Microdatos" de esa página) | LP/LI mensual, 2012-2018, por dominio: 24 ciudades individuales + "Resto Urbano" + "Rural" |
+
+**Confirmado:** dominio `RURAL`, diciembre 2016 (fila `año=2016;semestre=2;mes=12;dominio=RURAL`
+del csv) — corresponde 1:1 a `zona="Rural"` del proyecto, sin necesidad de agregación:
+- LP = $196.225, LI = $102.020
+
+Para comparar: el valor MESEP que usa `LINEAS_POBREZA` para 2016/Rural es LP=$159.543,
+LI=$97.867 — una diferencia de ~23% en LP, que confirma que efectivamente no son series
+intercambiables (ver `config_dane.py`, `LP_2016_ENPH_RURAL`).
+
+**Pendiente:** el dominio `zona="Urbano"` (equivalente al agregado "Cabeceras" que publican
+los boletines) no viene directamente en este csv — solo trae ciudades individuales + "Resto
+Urbano" por separado, sin los pesos poblacionales de la GEIH necesarios para agregarlos
+correctamente (promediar sin ponderar subestimaría el peso de Bogotá y las 13 ciudades
+grandes frente a las ciudades pequeñas). Ver `config_dane.py`, `LP_2016_ENPH_URBANO = None`.
+
 ## 2. Índice de Precios al Consumidor (IPC)
 
 | Documento local | Fuente oficial | Contenido usado |
@@ -64,4 +112,9 @@ IPC descargada de forma independiente.
   deflactores de esta carpeta solo se usan para construir series de ingreso/gasto en
   términos reales para análisis descriptivo y de tendencia, no para la clasificación de
   pobreza.
-- Fecha de descarga de estos documentos: 2026-08-06.
+- Fecha de descarga de los documentos de la sección 1 y 2: 2026-08-06. Fecha de descarga
+  de los documentos de la sección 1.b (2019/2022): 2026-08-25.
+- Pendiente: no se ha descargado la serie de IPC con la nueva base (diciembre 2018 = 100)
+  que el DANE usa desde enero de 2019 — `IPC_Variacion.xls` (sección 2) solo cubre hasta
+  esa fecha. Necesaria solo para series descriptivas en pesos reales de 2019/2022, no para
+  la clasificación de pobreza (que es nominal-contra-nominal, ver arriba).

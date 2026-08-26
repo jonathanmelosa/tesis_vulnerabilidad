@@ -3585,3 +3585,114 @@ Limitaciones sobre "cuantificar incertidumbre" marcado como resuelto y
 reemplazado por "prueba formal de diferencias entre algoritmos"
 (pendiente). PDF compila limpio, 38 paginas, sin overfull ni referencias
 indefinidas.
+
+## 2026-08-25: Evaluacion de comparabilidad ELCA -> ELCO (2019/2022) antes de pedir acceso a los datos
+
+Antes de solicitar permiso de acceso y procesar ELCO 2019/2022 para
+extender el panel a la transicion 2016->2019 (con 2019->2022 como
+generalizacion), se evaluo si las variables de ELCA (2010/2013/2016) son
+identificables e interpretables igual en ELCO, dado que el DANE cambio de
+administrador y de metodologia del cuestionario a partir de 2019.
+Herramienta construida para esto: `src/01_download/01_descarga_ELCA/
+10_diccionario_elco.py`, que parsea `documentacion_ELCO.pdf` (711
+paginas) a una tabla codigo->pregunta->modulo buscable (`data/processed/
+diccionario_elco.parquet`), en vez de buscar a mano.
+
+**Resuelto y verificado:**
+
+- Ingreso laboral (`ingreso_laboral` en `build_ingreso_hogar_elco.py`):
+  logica de `coalesce()` de las 3 rutas (P158 asalariados / P6749S1-S2
+  independientes / P7422S1 desocupados) verificada contra el diseno de
+  skip-logic real de `Formulario_Seguimiento_ELCO_2022.pdf` (paginas
+  86-91) -- las rutas son mutuamente excluyentes por diseno del
+  cuestionario, no un supuesto.
+- Ingreso directo y excepcional/ocasional: mapeados y YA CODIFICADOS en
+  `build_ingreso_hogar_elco.py`. Hallazgo relevante: ELCO NO desagrega
+  herencias/polizas/venta de inmueble/venta de negocio/otros como ELCA
+  (6 preguntas independientes de 12 meses) -- las bundlea en una sola
+  pregunta catch-all (P2375S6/P2375S6A1, ya mapeada como
+  `otras_fuentes`). Se pierde la desagregacion por tipo, no el total.
+- 4 de 5 variables prioritarias no monetarias mapeadas: `pct_ninos_
+  madre_viva`->P6083, `pct_ninos_padre_vivo`->P6081, `pct_ninos_
+  control_pediatrico`->P2286, `pct_ninos_oficios_hogar`->P2298S1-S8
+  (bateria "De los siguientes oficios...", mismo diseno que ELCA).
+  `problema_homicidios_comunidad` NO tiene equivalente: viene del modulo
+  "Comunidades" de ELCA (entrevista a lideres comunitarios), que ELCO no
+  tiene -- confirmado que es ausencia real de la fuente, no un problema
+  de busqueda.
+- Gasto del hogar: estructuralmente comparable -- `F_GASTOS DEL HOGAR`/
+  `F_CICLO GASTOS DEL HOGAR` usa el mismo diseno de periodicidad de
+  recordacion que ELCA (15 dias / 3 meses / 12 meses), categorias de
+  articulo equivalentes. Construirlo requiere el mismo esfuerzo de
+  auditoria articulo-por-articulo que tomo `build_gasto_hogar.py` en
+  ELCA -- viable, no iniciado.
+- Pobreza monetaria -- LP/LI: la clasificacion pobre/no-pobre siempre es
+  nominal-contra-nominal del mismo ano (asi lo hace `build_pobreza_
+  monetaria.py`), asi que la LP/LI de cada ano es una serie oficial del
+  DANE independiente de ELCA/ELCO, no algo que dependa de la encuesta.
+  Verificado con boletines oficiales descargados y guardados en
+  `docs/fuentes_dane/`:
+    - El DANE recalculo la LP/LI a partir de 2019 con una canasta base
+      nueva (ENPH 2016-2017), reemplazando la serie ENIG 2006-2007/MESEP
+      que usa el proyecto para 2010/2013/2016. El boletin de 2019 dice
+      textualmente: "Estas cifras no son comparables con las cifras de
+      la serie MESEP."
+    - 2019 y 2022 SI estan en la misma serie ENPH entre si (confirmado
+      con 2 boletines independientes -- 2019 y 2023, este ultimo reporta
+      2022 en su tabla comparativa -- ambos citan "lineas base ENPH
+      2016-2017, actualizadas con el deflactor especial de las lineas de
+      pobreza"). Valores agregados a `config_dane.LINEAS_POBREZA_ELCO`.
+    - Para la transicion 2016->2019 especificamente, se necesita el 2016
+      recalculado bajo ENPH (no el de `LINEAS_POBREZA`, que es MESEP).
+      Se descargo el dataset oficial del DANE con esa serie (microdatos.
+      dane.gov.co/index.php/catalog/689, archivo `lineas_20122018.csv`,
+      copiado en `docs/fuentes_dane/lineas_pobreza_2012_2018_enph/`).
+      Dominio RURAL diciembre-2016 confirmado 1:1 con zona="Rural"
+      (LP=$196.225, LI=$102.020 -- ~23% mas alto que el valor MESEP que
+      usa el proyecto hoy para 2016/Rural, confirma que no son series
+      intercambiables). Agregado a `config_dane.LP_2016_ENPH_RURAL`/
+      `LI_2016_ENPH_RURAL`.
+
+**Pendiente, sin resolver:**
+
+1. LP/LI 2016-ENPH, dominio Urbano (`config_dane.LP_2016_ENPH_URBANO =
+   None`): el archivo fuente del DANE solo trae LP/LI por ciudad
+   individual (24 dominios) + "Resto Urbano", sin los pesos
+   poblacionales de la GEIH para agregarlos en el equivalente a
+   "Cabeceras". Se confirmo que el DANE nunca publico esta cifra
+   agregada en un boletin (el primer boletin bajo esta metodologia
+   compara 2017->2018, no llega a 2016). Camino viable no explorado:
+   calcularlo ponderando por proyecciones oficiales de poblacion del
+   DANE por municipio/dominio (dato publico independiente) -- pendiente,
+   requiere trabajo adicional, se dejo documentado como calculo
+   derivado si se hace (no séria una cita directa de una tabla del
+   DANE).
+2. Deflactor IPC: `IPC_Variacion.xls` (usado por `build_deflactor_ipc.py`)
+   solo cubre metodologia IPC-08 hasta dic-2018. El DANE reemplazo esa
+   serie con una base nueva (dic-2018=100) desde enero de 2019 -- falta
+   descargar esa serie nueva. Solo afecta series descriptivas en pesos
+   reales, NO la clasificacion de pobreza (que es nominal-contra-nominal
+   del mismo ano).
+3. `build_gasto_hogar_elco.py`: no iniciado (ver hallazgo de
+   comparabilidad arriba -- viable, esfuerzo similar al de ELCA).
+4. `build_pobreza_monetaria_elco.py`: no iniciado. Insumos ya
+   disponibles para 2019/2022 completos; para 2016->2019 falta resolver
+   el punto 1 (Urbano-ENPH-2016) antes de poder clasificar pobreza en
+   zona urbana para ese ano.
+5. Extender `build_ninos_hogar.py`-equivalente en ELCO con las 4
+   variables prioritarias ya mapeadas (madre_viva, padre_vivo,
+   control_pediatrico, oficios_hogar) -- mapeo hecho, codigo no escrito.
+6. Decision de alcance no tomada: si se construye el panel 2016->2019
+   (entrenamiento) con evaluacion en 2019->2022 (generalizacion), falta
+   decidir explicitamente si esto reemplaza o complementa el panel
+   2010->2013->2016 ya existente, antes de invertir en construir todos
+   los insumos restantes.
+
+Output (nuevo/modificado en esta sesion): `src/04_features/
+build_ingreso_hogar_elco.py` (docstring y comentarios actualizados a
+"verificado"), `src/04_features/config_dane.py` (`LINEAS_POBREZA_ELCO`,
+`LP_2016_ENPH_RURAL`/`LI_2016_ENPH_RURAL`, `LP_2016_ENPH_URBANO`/
+`LI_2016_ENPH_URBANO = None`), `docs/fuentes_dane/README.md` (secciones
+1.b y 1.c), `docs/fuentes_dane/Boletin-pobreza-monetaria_2019.pdf`,
+`docs/fuentes_dane/bol-PM-2023.pdf`, `docs/fuentes_dane/
+lineas_pobreza_2012_2018_enph/lineas_20122018.csv`.
