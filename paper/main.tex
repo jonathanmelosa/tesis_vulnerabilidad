@@ -1051,10 +1051,11 @@ mientras que los modelos de árboles (Random Forest, XGBoost, LightGBM,
 HistGradientBoosting) son estructuralmente más robustos a esta
 colinealidad porque cada partición usa una sola variable a la vez.
 
-El hallazgo no trivial de esta matriz es geoespacial es que
+Un hallazgo no trivial es que
 \texttt{dmsp\_stable\_lights} correlaciona 0.87 con la línea de pobreza
 \texttt{lp} y 0.81 con el número de servicios públicos del hogar
-(\texttt{n\_servicios\_publicos\_hogar}). Esto se puede deber a que la LP oficial del DANE es distinta para zona urbana y rural
+(\texttt{n\_servicios\_publicos\_hogar}). Esto se puede deber a que 
+la LP oficial del DANE es distinta para zona urbana y rural
 (típicamente mayor en zona urbana), y el acceso a servicios públicos
 también está fuertemente urbanizado, de modo que la luz nocturna, un
 proxy remoto y no auto-reportado de urbanización, reproduce
@@ -1091,9 +1092,7 @@ siguiente $t+1$ (columnas), usando el ingreso per cápita del hogar contra
 la línea de pobreza (LP) oficial del DANE, específica por año y zona
 (urbana/rural). El análisis empírico se restringe a la submuestra de
 hogares que se encuentran por encima de la LP en el periodo inicial $t$. 
-En otras palabras,un hogar que ya es pobre no puede ``caer'' en pobreza, 
-esa corresponde a la categoría \emph{siempre pobre}, no \emph{entra en pobreza}. 
-Sobre esta población se define la variable dependiente binaria
+Sobre esta población se define la variable dependiente binaria:
 
 \begin{equation}
   \text{CaidaPobreza}_{i,t+1} =
@@ -1104,7 +1103,7 @@ Sobre esta población se define la variable dependiente binaria
   \label{eq:outcome}
 \end{equation}
 
-\noindent y el objetivo es estimar la probabilidad condicional de caer en
+\noindent El objetivo es estimar la probabilidad condicional de caer en
 pobreza en el periodo siguiente dada la información observada en $t$
 (Ecuación~\ref{eq:modelo_base}). El emparejamiento de hogares entre olas
 usa exclusivamente coincidencias uno a uno del identificador de hogar
