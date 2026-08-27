@@ -1,0 +1,32 @@
+\begin{table}[H]
+  \centering
+  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin
+  DMSP-OLS, holdout temporal (train 2010$\to$2013, test 2013$\to$2016).}
+  \label{tab:marginal_dmsp}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llccccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
+    \midrule
+    XGBoost                  & A               & 0.763 & [0.761, 0.764] & 0.485 & [0.471, 0.499] & 0.710 & 0.349 & 0.467 \\
+    XGBoost                  & A + DMSP-OLS    & 0.762 & [0.761, 0.762] & 0.484 & [0.479, 0.489] & 0.718 & 0.344 & 0.465 \\
+    \addlinespace
+    HistGradientBoosting     & A               & 0.754 & [0.754, 0.754] & 0.491 & [0.491, 0.491] & 0.736 & 0.332 & 0.457 \\
+    HistGradientBoosting     & A + DMSP-OLS    & 0.755 & [0.755, 0.755] & 0.491 & [0.491, 0.491] & 0.692 & 0.345 & 0.458 \\
+    \addlinespace
+    Logística regularizada   & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] & 0.752 & 0.310 & 0.438 \\
+    Logística regularizada   & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] & 0.753 & 0.311 & 0.439 \\
+    \addlinespace
+    XGBoost                  & B               & 0.734 & [0.732, 0.735] & 0.488 & [0.482, 0.494] & 0.665 & 0.332 & 0.442 \\
+    XGBoost                  & B + DMSP-OLS    & 0.732 & [0.729, 0.734] & 0.475 & [0.466, 0.484] & 0.781 & 0.302 & 0.435 \\
+    \addlinespace
+    HistGradientBoosting     & B               & 0.734 & [0.734, 0.734] & 0.484 & [0.484, 0.484] & 0.662 & 0.326 & 0.437 \\
+    HistGradientBoosting     & B + DMSP-OLS    & 0.735 & [0.735, 0.735] & 0.475 & [0.475, 0.475] & 0.663 & 0.340 & 0.449 \\
+    \addlinespace
+    Logística regularizada   & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] & 0.697 & 0.317 & 0.435 \\
+    Logística regularizada   & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] & 0.698 & 0.315 & 0.434 \\
+    \bottomrule
+  \end{tabular}%
+  }

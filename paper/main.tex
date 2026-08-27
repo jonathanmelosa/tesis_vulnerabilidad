@@ -745,7 +745,7 @@ de hogares que cumplen esa condición.
     \midrule
     Hogar        & 155 & 103 & 100\% \\
     Personas (9 bloques) & 139 & 57  & 100\% \\
-    Comunidades  & 212 & 22  & 91.9--96.4\% \\
+    Comunidades  & 212 & 21  & 91.9--96.4\% \\
     Niños (6--9 años) & 83 & 13 & 55.4\% (15{,}473 / 27{,}932) \\
     Choques      & --  & 17  & 100\% \\
     \bottomrule
@@ -755,8 +755,15 @@ de hogares que cumplen esa condición.
     \footnotesize \textit{Nota:} ``Candidatas auditadas'' es el número de
     columnas del módulo que superaron los cuatro filtros de calidad de la
     auditoría (Sección~\ref{subsec:elco}); ``usadas en el modelo'' es el
-    subconjunto final tras la construcción de \emph{features}. Fuente: cálculos
-    propios con base en ELCA 2010, 2013, 2016.
+    subconjunto final tras la construcción de \emph{features} -- excepto
+    en Hogar, donde por la magnitud de la compresión hacia variables
+    compuestas (61 columnas finales) se reporta en cambio el número de
+    candidatas crudas absorbidas, directas o dentro de un compuesto
+    (\texttt{docs/decisions.md}, ``Bloque de features de Hogar''). No
+    incluye llaves de identidad (p. ej. \texttt{consecutivo\_c} en
+    Comunidades). Fuente: cálculos propios con base en ELCA 2010, 2013,
+    2016 y \texttt{docs/variable\_audit/*\_construccion.csv}, generados
+    por \texttt{src/tabla\_cobertura\_modulos.py}.
   \end{minipage}
 \end{table}
 
@@ -1068,6 +1075,15 @@ si aporta poder predictivo \emph{incremental}, más allá de esta
 correlación, se responde directamente en la
 Sección~\ref{subsec:marginal}.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.98\textwidth]{../outputs/figures/eda_variables_modelo/04_matriz_correlacion.png}
+  \caption{Matriz de correlación de Pearson de las 159 variables numéricas
+  del dataset consolidado, agrupadas por módulo. Los círculos marcan pares
+  con $|r|>0.7$ calculados sobre al menos 500 observaciones conjuntas
+  no-nulas. Fuente: cálculos propios.}
+  \label{fig:matriz_correlacion}
+\end{figure}
 
 % ============================================================
 % SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
@@ -1577,13 +1593,13 @@ y \ref{subsec:desbalance}).
     \midrule
     Random Forest              & A & balanced  & 0.48 & 0.764 & [0.763, 0.764] & 0.732 & 0.473 \\
     XGBoost                    & A & ninguno   & 0.26 & 0.763 & [0.761, 0.764] & 0.710 & 0.467 \\
-    HistGradientBoosting       & A & ninguno   & 0.23 & 0.759 & [0.759, 0.759] & 0.741 & 0.462 \\
-    LightGBM                   & A & balanced  & 0.53 & 0.758 & [0.758, 0.758] & 0.681 & 0.466 \\
+    LightGBM                   & A & balanced  & 0.53 & 0.757 & [0.757, 0.757] & 0.681 & 0.466 \\
+    HistGradientBoosting       & A & ninguno   & 0.24 & 0.754 & [0.754, 0.754] & 0.736 & 0.457 \\
     Logística regularizada     & A & balanced  & 0.46 & 0.747 & [0.747, 0.747] & 0.752 & 0.438 \\
     \addlinespace
-    HistGradientBoosting       & B & balanced  & 0.47 & 0.740 & [0.740, 0.740] & 0.674 & 0.445 \\
     Logística regularizada     & B & balanced  & 0.48 & 0.739 & [0.739, 0.739] & 0.697 & 0.435 \\
     Random Forest              & B & balanced  & 0.48 & 0.739 & [0.738, 0.740] & 0.675 & 0.442 \\
+    HistGradientBoosting       & B & ninguno   & 0.23 & 0.734 & [0.734, 0.734] & 0.662 & 0.437 \\
     XGBoost                    & B & ninguno   & 0.27 & 0.734 & [0.732, 0.735] & 0.665 & 0.442 \\
     LightGBM                   & B & ninguno   & 0.25 & 0.727 & [0.727, 0.727] & 0.692 & 0.436 \\
     \bottomrule
@@ -1599,8 +1615,19 @@ y \ref{subsec:desbalance}).
     (Sección~\ref{subsec:desempeno}) -- es nulo o casi nulo para
     HistGradientBoosting, LightGBM y la regresión logística porque, con
     los hiperparámetros elegidos, su ajuste es determinístico dado el
-    conjunto de entrenamiento. Fuente: cálculos propios,
-    \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv}.
+    conjunto de entrenamiento. HistGradientBoosting usa aquí
+    \texttt{RandomizedSearchCV} con 8 iteraciones, el mismo presupuesto de
+    búsqueda de la Sección~\ref{subsec:marginal} (reducido de 15 por costo
+    computacional al ampliarse la comparación a las especificaciones
+    geoespaciales) --una corrida anterior con 15 iteraciones había dado
+    AUC-ROC 0.759 (Modelo A) y 0.740 (Modelo B), documentada en
+    \texttt{docs/decisions.md} (entrada 2026-08-10); la diferencia frente a
+    los valores aquí reportados (0.754/0.734) es ruido del procedimiento de
+    ajuste, no un cambio en los datos ni en el modelo (ver discusión de
+    magnitud comparable en la Sección~\ref{subsec:marginal}). Fuente:
+    cálculos propios,
+    \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv},
+    generados por \texttt{src/tabla\_desempeno\_modelos.py}.
   \end{minipage}
 \end{table}
 
@@ -1629,7 +1656,8 @@ remuestreo \emph{bootstrap} y del submuestreo de observaciones/columnas
 que sus hiperparámetros óptimos activan. Con esa variabilidad, la ventaja
 de Random Forest (AUC-ROC 0.764) sobre XGBoost (0.763) en el Modelo A es
 marginal y sus intervalos de confianza casi se traslapan; la de ambos
-sobre HistGradientBoosting (0.759) es algo más clara. Es importante notar
+sobre LightGBM (0.757) y, más aún, sobre HistGradientBoosting (0.754) es
+algo más clara. Es importante notar
 que este intervalo de confianza mide únicamente la aleatoriedad del propio
 procedimiento de ajuste sobre el mismo conjunto de prueba, no la
 incertidumbre muestral de la estimación del AUC-ROC en sí --una
@@ -1638,8 +1666,8 @@ ejemplo, de DeLong) sobre las predicciones del mismo conjunto de prueba,
 no realizada en este documento--. Con esa salvedad, la evidencia sigue sin
 señalar un algoritmo que domine de forma inequívoca a los demás. Segundo,
 el ranking cambia según la métrica: la regresión logística tiene el mayor
-recall del Modelo A (0.752), seguida de cerca por HistGradientBoosting
-(0.741), ambos a costa de más falsos positivos, mientras que Random
+recall del Modelo A (0.752), seguida por HistGradientBoosting
+(0.736), ambos a costa de más falsos positivos, mientras que Random
 Forest tiene el mayor F1 en ambas especificaciones (0.473 en A, 0.442 en
 B). Esto sugiere que, más que declarar un ``mejor'' algoritmo único, la
 elección final debería depender de las preferencias de la institución que
@@ -1727,50 +1755,66 @@ DMSP-OLS de estado y ventana acumulada (Sección~\ref{subsubsec:estado_acumulado
 en el código y en los archivos de resultados esta comparación se
 identifica como \texttt{A}/\texttt{AgeoDMSP} y \texttt{B}/\texttt{BgeoDMSP};
 aquí se usa la forma expandida ``A'' / ``A + DMSP-OLS'' por legibilidad.
-Se agrega además
-\texttt{precision\_top10} --la precisión entre el 10\% de hogares que el
-modelo señala como de mayor riesgo-- porque para un programa de
-focalización con capacidad fija esta cifra es más relevante que
-recall/precision/F1 a un umbral de probabilidad, que no reflejan ninguna
-restricción real de cobertura.
+Se agrega además \texttt{precision\_top10} --la precisión entre el 10\%
+de hogares que el modelo señala como de mayor riesgo-- porque para un
+programa de focalización con capacidad fija esta cifra es más relevante
+que recall/precision/F1 a un umbral de probabilidad, que no reflejan
+ninguna restricción real de cobertura. Aun así, para no dejar una lectura
+incompleta, la Tabla~\ref{tab:marginal_dmsp} también reporta esas tres
+métricas al umbral de clasificación ya elegido por validación cruzada
+(Sección~\ref{subsec:desbalance}): \emph{recall} es la fracción de hogares
+que sí cayeron en pobreza y el modelo efectivamente marcó como riesgo
+(cuánto de la pobreza real se captura); \emph{precision} es la fracción de
+los hogares marcados como riesgo que efectivamente cayeron en pobreza
+(cuánta de la alarma es acertada, no falsa alarma); \emph{F1} resume ambas
+en un solo número (su media armónica), útil para comparar sin tener que
+decidir de antemano si importa más no dejar pobres sin detectar (recall) o
+no gastar recursos de focalización en quien no los necesita (precision).
 
 \begin{table}[H]
   \centering
-  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin
-  DMSP-OLS, holdout temporal (train 2010$\to$2013, test 2013$\to$2016).}
+  \caption{AUC-ROC, precisión en el decil de mayor riesgo, y métricas al
+  umbral elegido por CV, con y sin DMSP-OLS, holdout temporal (train
+  2010$\to$2013, test 2013$\to$2016).}
   \label{tab:marginal_dmsp}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{llcccc}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llccccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} \\
+    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
     \midrule
-    XGBoost                 & A               & 0.763 & [0.761, 0.764] & 0.485 & [0.471, 0.499] \\
-    XGBoost                 & A + DMSP-OLS    & 0.762 & [0.761, 0.762] & 0.484 & [0.479, 0.489] \\
+    XGBoost                  & A               & 0.763 & [0.761, 0.764] & 0.485 & [0.471, 0.499] & 0.710 & 0.349 & 0.467 \\
+    XGBoost                  & A + DMSP-OLS    & 0.762 & [0.761, 0.762] & 0.484 & [0.479, 0.489] & 0.718 & 0.344 & 0.465 \\
     \addlinespace
-    HistGradientBoosting    & A               & 0.754 & [0.754, 0.754] & 0.491 & [0.491, 0.491] \\
-    HistGradientBoosting    & A + DMSP-OLS    & 0.755 & [0.755, 0.755] & 0.491 & [0.491, 0.491] \\
+    HistGradientBoosting     & A               & 0.754 & [0.754, 0.754] & 0.491 & [0.491, 0.491] & 0.736 & 0.332 & 0.457 \\
+    HistGradientBoosting     & A + DMSP-OLS    & 0.755 & [0.755, 0.755] & 0.491 & [0.491, 0.491] & 0.692 & 0.345 & 0.458 \\
     \addlinespace
-    Logística regularizada  & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] \\
-    Logística regularizada  & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] \\
+    Logística regularizada   & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] & 0.752 & 0.310 & 0.438 \\
+    Logística regularizada   & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] & 0.753 & 0.311 & 0.439 \\
     \addlinespace
-    XGBoost                 & B               & 0.734 & [0.732, 0.735] & 0.488 & [0.482, 0.494] \\
-    XGBoost                 & B + DMSP-OLS    & 0.732 & [0.729, 0.734] & 0.475 & [0.466, 0.484] \\
+    XGBoost                  & B               & 0.734 & [0.732, 0.735] & 0.488 & [0.482, 0.494] & 0.665 & 0.332 & 0.442 \\
+    XGBoost                  & B + DMSP-OLS    & 0.732 & [0.729, 0.734] & 0.475 & [0.466, 0.484] & 0.781 & 0.302 & 0.435 \\
     \addlinespace
-    HistGradientBoosting    & B               & 0.734 & [0.734, 0.734] & 0.484 & [0.484, 0.484] \\
-    HistGradientBoosting    & B + DMSP-OLS    & 0.735 & [0.735, 0.735] & 0.475 & [0.475, 0.475] \\
+    HistGradientBoosting     & B               & 0.734 & [0.734, 0.734] & 0.484 & [0.484, 0.484] & 0.662 & 0.326 & 0.437 \\
+    HistGradientBoosting     & B + DMSP-OLS    & 0.735 & [0.735, 0.735] & 0.475 & [0.475, 0.475] & 0.663 & 0.340 & 0.449 \\
     \addlinespace
-    Logística regularizada  & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] \\
-    Logística regularizada  & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] \\
+    Logística regularizada   & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] & 0.697 & 0.317 & 0.435 \\
+    Logística regularizada   & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] & 0.698 & 0.315 & 0.434 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}%
+  }
   \begin{minipage}{0.95\textwidth}
     \vspace{4pt}
-    \footnotesize \textit{Nota:} Fuente: cálculos propios,
+    \footnotesize \textit{Nota:} recall, precision y F1 se miden al umbral
+    de clasificación ya elegido para cada algoritmo/especificación por
+    validación cruzada (Sección~\ref{subsec:desbalance}, sin re-elegirlo al
+    agregar DMSP-OLS). Fuente: cálculos propios,
     \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv},
-    generado por \texttt{src/05\_model/modelo\_\{xgboost,}
-    \texttt{histgradientboosting,logistica\_regularizada\}.py} sobre
-    \texttt{modelo\_\{A,B,AgeoDMSP,BgeoDMSP\}\_2010\_2013/2013\_2016.parquet}
+    generados por \texttt{src/tabla\_marginal\_dmsp.py} sobre resultados de
+    \texttt{src/05\_model/modelo\_\{xgboost,}
+    \texttt{histgradientboosting,logistica\_regularizada\}.py} corridos
+    sobre \texttt{modelo\_\{A,B,AgeoDMSP,BgeoDMSP\}\_2010\_2013/2013\_2016.parquet}
     (construidos por \texttt{construir\_pipeline\_geo\_dmsp.py}).
     \texttt{RandomizedSearchCV} con 8 iteraciones (reducido de 15 por
     costo computacional tras rehacer la búsqueda para 10
@@ -1804,6 +1848,30 @@ brecha debería ensancharse. No fue el caso: el mayor cambio observado fue
 de +0.004 (XGBoost, Modelo B), muy por debajo del umbral de alerta (0.03)
 definido \emph{ex ante}. La ausencia de mejora no es, entonces, un
 problema de sobreajuste del modelo.
+
+Recall, precision y F1 confirman la misma conclusión en 5 de las 6
+comparaciones algoritmo/especificación: se mueven menos de 0.02 en
+cualquier dirección al agregar DMSP-OLS, ruido de ajuste más que señal.
+La excepción clara es \textbf{XGBoost, Modelo B}: el recall sube de 0.665
+a 0.781 (+0.116, el mayor cambio de toda la tabla) y la precision cae de
+0.332 a 0.302, con F1 prácticamente plano (0.442 $\to$ 0.435) porque ambos
+movimientos se compensan. La causa no es un cambio de comportamiento del
+modelo sino del umbral que la validación cruzada eligió para cada
+especificación: 0.268 sin DMSP-OLS vs. 0.216 con DMSP-OLS --el umbral más
+bajo hace que el modelo marque más hogares como riesgo, capturando más
+verdaderos positivos (sube recall) a costa de más falsos positivos (baja
+precision)--. Es, otra vez, una consecuencia del procedimiento de
+selección de umbral (Sección~\ref{subsec:desbalance}), no evidencia de que
+DMSP-OLS cambie la capacidad predictiva del modelo; el AUC-ROC de este
+mismo par (0.734 $\to$ 0.732), que no depende de umbral, se mantiene
+esencialmente igual. HistGradientBoosting-A muestra un patrón más pequeño
+en la misma dirección (recall 0.736 $\to$ 0.692, precision 0.332 $\to$
+0.345, F1 estable en 0.457--0.458), y HistGradientBoosting-B tiene el
+mayor cambio de F1 de la tabla (0.437 $\to$ 0.449, +0.012) aunque tampoco
+económicamente significativo. Ningún caso invierte la conclusión general:
+DMSP-OLS reordena marginalmente qué hogares específicos caen a cada lado
+del umbral, sin mejorar la capacidad de discriminación subyacente del
+modelo.
 
 \paragraph{Por qué DMSP-OLS no aporta: redundancia, no ausencia de
 señal.} Tomada sola, \texttt{dmsp\_stable\_lights} sí correlaciona con la
