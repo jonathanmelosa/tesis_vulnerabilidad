@@ -1,0 +1,35 @@
+\begin{table}[H]
+  \centering
+  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin
+  DMSP-OLS, holdout temporal (train 2010$\to$2013, test 2013$\to$2016).
+  Umbral elegido por CV maximizando F-beta ($\beta=2$, pesa recall el
+  doble que precision) en vez de F1 -- comparar con
+  Tabla~\ref{tab:marginal_dmsp}.}
+  \label{tab:marginal_dmsp_fbeta2}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llccccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
+    \midrule
+    XGBoost                  & A               & 0.763 & [0.761, 0.764] & 0.485 & [0.471, 0.499] & 0.160 & 0.931 & 0.274 & 0.424 \\
+    XGBoost                  & A + DMSP-OLS    & 0.762 & [0.761, 0.762] & 0.484 & [0.479, 0.489] & 0.164 & 0.922 & 0.281 & 0.431 \\
+    \addlinespace
+    HistGradientBoosting     & A               & 0.754 & [0.754, 0.754] & 0.491 & [0.491, 0.491] & 0.138 & 0.907 & 0.279 & 0.427 \\
+    HistGradientBoosting     & A + DMSP-OLS    & 0.755 & [0.755, 0.755] & 0.491 & [0.491, 0.491] & 0.130 & 0.910 & 0.278 & 0.426 \\
+    \addlinespace
+    Logística regularizada   & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] & 0.370 & 0.884 & 0.279 & 0.424 \\
+    Logística regularizada   & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] & 0.362 & 0.890 & 0.278 & 0.423 \\
+    \addlinespace
+    XGBoost                  & B               & 0.734 & [0.732, 0.735] & 0.488 & [0.482, 0.494] & 0.156 & 0.940 & 0.242 & 0.385 \\
+    XGBoost                  & B + DMSP-OLS    & 0.732 & [0.729, 0.734] & 0.475 & [0.466, 0.484] & 0.114 & 0.966 & 0.233 & 0.376 \\
+    \addlinespace
+    HistGradientBoosting     & B               & 0.734 & [0.734, 0.734] & 0.484 & [0.484, 0.484] & 0.136 & 0.885 & 0.270 & 0.414 \\
+    HistGradientBoosting     & B + DMSP-OLS    & 0.735 & [0.735, 0.735] & 0.475 & [0.475, 0.475] & 0.122 & 0.877 & 0.274 & 0.417 \\
+    \addlinespace
+    Logística regularizada   & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] & 0.348 & 0.893 & 0.270 & 0.414 \\
+    Logística regularizada   & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] & 0.350 & 0.886 & 0.273 & 0.417 \\
+    \bottomrule
+  \end{tabular}%
+  }

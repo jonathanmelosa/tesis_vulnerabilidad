@@ -130,7 +130,7 @@ from imblearn.over_sampling import RandomOverSampler
 from imblearn.pipeline import Pipeline as ImbPipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import confusion_matrix, f1_score, fbeta_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, cross_val_predict
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from scipy import stats as scipy_stats
@@ -308,6 +308,10 @@ def comparar_balanceo_y_tunear(
     param_distributions_fn,
     x_train: pd.DataFrame,
     y_train: pd.Series,
+    cv_folds: int = CV_FOLDS,
+    n_iter_busqueda: int = N_ITER_BUSQUEDA,
+    verbose: int = 0,
+    random_state: int = RANDOM_STATE,
 ) -> dict:
     """Para cada estrategia de balanceo en BALANCEOS: construye el pipeline
     correspondiente (via `construir_pipeline_fn(balanceo)`), corre
@@ -315,7 +319,17 @@ def comparar_balanceo_y_tunear(
     y se queda con la estrategia+configuracion de mayor AUC-ROC promedio en
     CV. Retorna el mejor estimador ya reentrenado sobre todo x_train/y_train,
     mas el detalle de la comparacion para el registro y la consola.
-    """
+
+    `cv_folds`/`n_iter_busqueda` (defaults = CV_FOLDS/N_ITER_BUSQUEDA, iguales
+    a la suite original) permiten correr una busqueda mas exhaustiva sin
+    tocar los defaults que usan `modelo_xgboost.py` etc. `verbose` se pasa
+    directo a RandomizedSearchCV (0 = silencioso, igual que antes; >0 imprime
+    avance por fit -- util para corridas largas). `random_state` (default =
+    RANDOM_STATE) gobierna tanto el split de StratifiedKFold como el
+    muestreo de candidatos de RandomizedSearchCV -- variarlo permite
+    diagnosticar si la estrategia de balanceo ganadora es estable frente a
+    otro split de CV, o si esta al borde del ruido (ver
+    diagnostico_estabilidad_balanceo.py)."""
     resultados = {}
     mejor_balanceo, mejor_score = None, -np.inf
     mejor_estimador, mejor_params = None, {}
@@ -323,12 +337,13 @@ def comparar_balanceo_y_tunear(
     for balanceo in BALANCEOS:
         pipeline = construir_pipeline_fn(balanceo)
         param_dist = param_distributions_fn(balanceo)
-        cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+        cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
 
         if param_dist:
             search = RandomizedSearchCV(
-                pipeline, param_distributions=param_dist, n_iter=N_ITER_BUSQUEDA,
-                scoring=SCORING, cv=cv, random_state=RANDOM_STATE, n_jobs=-1, refit=True,
+                pipeline, param_distributions=param_dist, n_iter=n_iter_busqueda,
+                scoring=SCORING, cv=cv, random_state=random_state, n_jobs=-1, refit=True,
+                verbose=verbose,
             )
             search.fit(x_train, y_train)
             score, mejores_params, estimador = search.best_score_, search.best_params_, search.best_estimator_
@@ -350,20 +365,23 @@ def comparar_balanceo_y_tunear(
     }
 
 
-def elegir_umbral_por_cv(estimador, x_train: pd.DataFrame, y_train: pd.Series, semilla: int = RANDOM_STATE) -> float:
+def elegir_umbral_por_cv(estimador, x_train: pd.DataFrame, y_train: pd.Series, semilla: int = RANDOM_STATE, beta: float = 1.0, cv_folds: int = CV_FOLDS) -> float:
     """Probabilidades out-of-fold (cross_val_predict, mismos folds que la
     busqueda de hiperparametros) -- se escanea una grilla de umbrales y se
-    elige la que maximiza F1. Evita fijar 0.5 quando la calibracion de las
-    probabilidades depende de la estrategia de balanceo elegida (ver
-    docstring del modulo)."""
-    cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=semilla)
+    elige la que maximiza F-beta (beta=1.0 -> F1, el default de toda la
+    suite original; beta>1 pesa mas el recall que la precision, beta<1 pesa
+    mas la precision que el recall). Evita fijar 0.5 quando la calibracion
+    de las probabilidades depende de la estrategia de balanceo elegida (ver
+    docstring del modulo). `cv_folds` default = CV_FOLDS (igual a la suite
+    original)."""
+    cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=semilla)
     proba_oof = cross_val_predict(estimador, x_train, y_train, cv=cv, method="predict_proba", n_jobs=-1)[:, 1]
 
-    mejor_umbral, mejor_f1 = 0.5, -1.0
+    mejor_umbral, mejor_fbeta = 0.5, -1.0
     for umbral in np.linspace(0.02, 0.98, 97):
-        f1 = f1_score(y_train, (proba_oof >= umbral).astype(int), zero_division=0)
-        if f1 > mejor_f1:
-            mejor_umbral, mejor_f1 = float(umbral), f1
+        score = fbeta_score(y_train, (proba_oof >= umbral).astype(int), beta=beta, zero_division=0)
+        if score > mejor_fbeta:
+            mejor_umbral, mejor_fbeta = float(umbral), score
     return mejor_umbral
 
 
@@ -373,6 +391,8 @@ def evaluar_multiples_semillas(
     x_train: pd.DataFrame, y_train: pd.Series,
     x_test: pd.DataFrame, y_test: pd.Series,
     semillas: list = SEMILLAS,
+    beta: float = 1.0,
+    cv_folds: int = CV_FOLDS,
 ) -> dict:
     """Re-entrena el modelo FINAL (balanceo y mejores_params ya elegidos,
     fijos) con cada semilla en `semillas` -- `construir_pipeline_fn(semilla)`
@@ -380,17 +400,19 @@ def evaluar_multiples_semillas(
     elegido por `comparar_balanceo_y_tunear`, solo cambia el random_state
     interno) -- se le aplican los `mejores_params` via `set_params` antes de
     entrenar. Para cada semilla se re-elige tambien el umbral por CV (mismos
-    folds, misma semilla). Retorna el detalle por semilla y un resumen
-    (media, std, IC 95% via t de Student) para AUC-ROC/recall/precision/F1
-    -- ver docstring del modulo, "Multiples semillas e intervalos de
-    confianza"."""
+    folds, misma semilla), maximizando F-beta (`beta`, default 1.0 = F1,
+    igual que la suite original -- ver `elegir_umbral_por_cv`). `cv_folds`
+    default = CV_FOLDS (igual a la suite original). Retorna el detalle por
+    semilla y un resumen (media, std, IC 95% via t de Student) para
+    AUC-ROC/recall/precision/F1 -- ver docstring del modulo, "Multiples
+    semillas e intervalos de confianza"."""
     filas = []
     for semilla in semillas:
         pipe = construir_pipeline_fn(semilla)
         if mejores_params:
             pipe.set_params(**mejores_params)
         pipe.fit(x_train, y_train)
-        umbral = elegir_umbral_por_cv(pipe, x_train, y_train, semilla=semilla)
+        umbral = elegir_umbral_por_cv(pipe, x_train, y_train, semilla=semilla, beta=beta, cv_folds=cv_folds)
         proba_test = pipe.predict_proba(x_test)[:, 1]
         metricas = calcular_metricas(y_test, proba_test, umbral=umbral)
         filas.append({"semilla": semilla, "umbral": umbral, **metricas})
@@ -423,6 +445,8 @@ def evaluar_cv_semillas(
     mejores_params: dict,
     x: pd.DataFrame, y: pd.Series,
     semillas: list = SEMILLAS,
+    beta: float = 1.0,
+    cv_folds: int = CV_FOLDS,
 ) -> dict:
     """Version de `evaluar_multiples_semillas` para especificaciones SIN
     holdout temporal (ESPECIFICACIONES_CV_2010_2013): en vez de entrenar
@@ -437,25 +461,25 @@ def evaluar_cv_semillas(
     Para cada semilla: re-entrena el pipeline FINAL (balanceo y
     mejores_params ya elegidos, fijos -- igual que evaluar_multiples_semillas)
     sobre folds de CV con esa semilla, obtiene probabilidades OOF para el
-    100% de `x`, elige el umbral que maximiza F1 sobre esas mismas
-    probabilidades OOF, y calcula metricas comparando esas probabilidades
-    contra `y`. Retorna el mismo formato que evaluar_multiples_semillas
-    (detalle por semilla + resumen media/std/IC95) para que
-    registrar_resultado() no necesite ningun cambio.
+    100% de `x`, elige el umbral que maximiza F-beta (`beta`, default 1.0 =
+    F1) sobre esas mismas probabilidades OOF, y calcula metricas comparando
+    esas probabilidades contra `y`. Retorna el mismo formato que
+    evaluar_multiples_semillas (detalle por semilla + resumen media/std/IC95)
+    para que registrar_resultado() no necesite ningun cambio.
     """
     filas = []
     for semilla in semillas:
         pipe = construir_pipeline_fn(semilla)
         if mejores_params:
             pipe.set_params(**mejores_params)
-        cv = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=semilla)
+        cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=semilla)
         proba_oof = cross_val_predict(pipe, x, y, cv=cv, method="predict_proba", n_jobs=-1)[:, 1]
 
-        mejor_umbral, mejor_f1 = 0.5, -1.0
+        mejor_umbral, mejor_fbeta = 0.5, -1.0
         for umbral in np.linspace(0.02, 0.98, 97):
-            f1 = f1_score(y, (proba_oof >= umbral).astype(int), zero_division=0)
-            if f1 > mejor_f1:
-                mejor_umbral, mejor_f1 = float(umbral), f1
+            score = fbeta_score(y, (proba_oof >= umbral).astype(int), beta=beta, zero_division=0)
+            if score > mejor_fbeta:
+                mejor_umbral, mejor_fbeta = float(umbral), score
 
         metricas = calcular_metricas(y, proba_oof, umbral=mejor_umbral)
         filas.append({"semilla": semilla, "umbral": mejor_umbral, **metricas})
@@ -528,12 +552,17 @@ def registrar_resultado(
     balanceo_info: dict,
     hiperparametros: dict,
     observaciones: str,
+    registro_csv: Path = REGISTRO_CSV,
+    registro_xlsx: Path = REGISTRO_XLSX,
 ) -> None:
-    """Upsert de una fila en registro_modelos.csv (clave: algoritmo +
-    especificacion) y regeneracion completa de registro_modelos.xlsx.
-    `multi_resultado` es el dict retornado por `evaluar_multiples_semillas`
-    -- se registran media/std/IC95 por metrica, no un unico valor."""
-    RESULTADOS_DIR.mkdir(parents=True, exist_ok=True)
+    """Upsert de una fila en `registro_csv` (default: registro_modelos.csv;
+    clave: algoritmo + especificacion) y regeneracion completa de
+    `registro_xlsx` a partir de ese CSV. `multi_resultado` es el dict
+    retornado por `evaluar_multiples_semillas` -- se registran media/std/
+    IC95 por metrica, no un unico valor. Pasar `registro_csv`/`registro_xlsx`
+    distintos a los defaults (ej. para una comparacion con otro criterio de
+    umbral) para no tocar el registro original."""
+    registro_csv.parent.mkdir(parents=True, exist_ok=True)
 
     auc_cv = balanceo_info.get("auc_cv_por_balanceo", {})
     resumen = multi_resultado["resumen"]
@@ -567,20 +596,20 @@ def registrar_resultado(
         fila[f"{metrica}_ci95_low"] = m["ci95_low"]
         fila[f"{metrica}_ci95_high"] = m["ci95_high"]
 
-    if REGISTRO_CSV.exists():
-        registro = pd.read_csv(REGISTRO_CSV)
+    if registro_csv.exists():
+        registro = pd.read_csv(registro_csv)
         registro = registro[~((registro["algoritmo"] == algoritmo) & (registro["especificacion"] == especificacion))]
         registro = pd.concat([registro, pd.DataFrame([fila])], ignore_index=True)
     else:
         registro = pd.DataFrame([fila])
 
     registro = registro[COLUMNAS_REGISTRO].sort_values(["algoritmo", "especificacion"]).reset_index(drop=True)
-    registro.to_csv(REGISTRO_CSV, index=False)
-    _regenerar_excel(registro)
+    registro.to_csv(registro_csv, index=False)
+    _regenerar_excel(registro, registro_xlsx)
 
 
-def _regenerar_excel(registro: pd.DataFrame) -> None:
-    with pd.ExcelWriter(REGISTRO_XLSX, engine="openpyxl") as writer:
+def _regenerar_excel(registro: pd.DataFrame, registro_xlsx: Path = REGISTRO_XLSX) -> None:
+    with pd.ExcelWriter(registro_xlsx, engine="openpyxl") as writer:
         registro.to_excel(writer, sheet_name="Registro modelos", index=False)
         ws = writer.sheets["Registro modelos"]
         ws.freeze_panes = "A2"
