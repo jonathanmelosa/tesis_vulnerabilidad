@@ -3696,3 +3696,105 @@ build_ingreso_hogar_elco.py` (docstring y comentarios actualizados a
 1.b y 1.c), `docs/fuentes_dane/Boletin-pobreza-monetaria_2019.pdf`,
 `docs/fuentes_dane/bol-PM-2023.pdf`, `docs/fuentes_dane/
 lineas_pobreza_2012_2018_enph/lineas_20122018.csv`.
+
+### 2026-08-28 — Construccion del Indice de Pobreza Multidimensional
+(IPM-Colombia) sobre el panel ELCA
+
+Motivacion: dentro de la investigacion sobre si DMSP-OLS aporta a la
+prediccion de vulnerabilidad (ver `~/Desktop/informe_dmsp_ols_evidencia.pdf`,
+documento externo al repo), el usuario pidio probar si el hallazgo de "no
+aporta" es especifico de la definicion de pobreza monetaria o se sostiene
+tambien con pobreza multidimensional. No existia ningun indicador de
+pobreza multidimensional en el repositorio (confirmado por busqueda
+exhaustiva) -- se construyo desde cero en
+`src/04_features/build_ipm_multidimensional.py`.
+
+**Metodologia**: 5 dimensiones (educacion, niñez y juventud, trabajo,
+salud, vivienda y servicios publicos), 15 indicadores, estructura de
+ponderacion anidada Alkire-Foster (cada dimension 20%, cada indicador
+igual peso dentro de su dimension), punto de corte 33,3% -- definiciones
+operativas extraidas palabra por palabra del glosario del Boletin Tecnico
+DANE "Pobreza Multidimensional en Colombia" (2018,
+`bt_pobreza_multidimensional_18.pdf`, via `pdftotext`, no de memoria).
+
+**Bug real encontrado y corregido**: rezago escolar (niños 7-17) se
+construyo primero con `grado_educ` (grado YA COMPLETADO), que tiene
+0,4%-7,6% de cobertura entre niños en las 3 olas -- la mayoria de los
+niños en edad escolar todavia esta cursando, no "completo" nada
+recientemente. La variable correcta es `grado_educ_cursa` (grado que
+cursa actualmente), con cobertura 26,6%/91,9%/92,5% (ola 1/2/3).
+Corregido.
+
+**Limitacion real, sin arreglo posible, encontrada por investigacion
+profunda (no solo diferencia de nomenclatura entre olas)**: 4 de los 15
+indicadores dependen de `actividad_ppal` (adultos y niños 12-17) o
+`estudia` (niños 6-16) -- ambas variables tienen cobertura severamente
+baja en la OLA 1 (2010) especificamente, frente a ~100%/~75-80% en olas
+2/3:
+
+  - `actividad_ppal` en niños 12-17: 0,4% cobertura ola 1 vs. ~100% ola 2/3.
+  - `estudia` en niños 6-16: 35,3% cobertura ola 1 vs. 99,6% ola 2/3.
+  - `actividad_ppal` en adultos: ~20% cobertura ola 1 vs. ~75-80% ola 2/3.
+
+A diferencia de otros huecos de cobertura ya resueltos en esta misma
+sesion (nivel educativo en ola 3 -- arrastrado desde la ola anterior de
+la misma persona via `llave_ID_lb`; aseguramiento en salud -- variable
+mal elegida, `segsoc_salud` en vez de `afiliacion`, corregida; barreras
+de acceso a salud en ola 2/3 -- variable correcta encontrada,
+`tratar_problema`), este NO tiene arreglo posible: 2010 es la primera
+ola del panel, no existe una ola anterior de la cual arrastrar el dato
+para esas mismas personas. Se buscaron variables alternativas con el
+mismo metodo que resolvio los otros casos, sin encontrar ninguna con
+mejor cobertura en ola 1 para actividad economica o asistencia escolar.
+
+**Decision (confirmada con el usuario, 2026-08-28)**: se excluyen del
+`ipm_score` los 4 indicadores afectados (`priv_inasistencia_escolar`,
+`priv_trabajo_infantil`, `priv_empleo_informal`,
+`priv_desempleo_larga_duracion`) mas `priv_primera_infancia` (excluido
+por una razon distinta -- ver docstring del script, punto 4: el modulo
+de cuidado de primera infancia de la encuesta no se pregunto en ola 3 ni
+tiene sub-componente de nutricion en ola 1). Las 5 columnas se calculan
+y se guardan igual en el parquet de salida (para auditoria/transparencia,
+`COLS_EXCLUIDAS_SCORE` en el script), pero no entran en el score.
+
+Al excluir los 2 unicos indicadores de la dimension "Trabajo", esa
+dimension queda vacia -- su 20% de peso se redistribuye entre las 4
+dimensiones restantes (Educacion, Niñez y juventud, Salud, Vivienda),
+que pasan de 20% a 25% cada una (practica estandar Alkire-Foster cuando
+una dimension completa no es medible). El IPM final queda con 10
+indicadores activos en el score (de los 15 originales), y la tasa de
+pobreza IPM por ola resulto notablemente mas estable tras la
+redistribucion (20,9%/20,8%/19,2% en 2010/2013/2016, frente a
+17,4%/27,8%/25,3% con los indicadores problematicos todavia incluidos) --
+consistente con que esos indicadores estaban metiendo ruido/sesgo de
+cobertura, no señal real.
+
+**Implicacion para uso futuro**: si se usa 2010 como ola base para
+definir "hogares no pobres en IPM al inicio" (target de transicion,
+espejo de `build_benchmark_train_test.py` para pobreza monetaria), la
+clasificacion de 2010 ya no arrastra el sesgo de los 4 indicadores
+excluidos -- pero sigue dependiendo de las aproximaciones documentadas en
+el docstring del script (años de educacion via tabla de conversion propia,
+no oficial DANE; barreras de acceso a salud via proxy mas agresivo en
+ola 1 que en ola 2/3; norma de rezago escolar aproximada linealmente).
+
+**Intento de segunda ronda de exclusion, REVERTIDO (mismo dia)**: se
+evaluo excluir tambien `priv_rezago_escolar` (que si tiene cobertura
+imperfecta en ola 1 -- 26,6% vs. ~92% en ola 2/3, aunque bastante menos
+grave que los 4 ya excluidos). Resultado: con solo 9 indicadores activos
+en el score, cada uno pesa proporcionalmente mas, y el sesgo YA CONOCIDO
+de `priv_barreras_acceso_salud` (proxy mas agresivo en ola 1 sin arreglo
+disponible, ver docstring punto 3) paso a DOMINAR el agregado -- la tasa
+de pobreza IPM saltaba a 49,6% en ola 1 vs. 36,1%/34,9% en ola 2/3, una
+inestabilidad peor que el problema que se intentaba resolver. Hallazgo
+metodologico general, no especifico de este indicador: excluir
+indicadores para "limpiar" un sesgo de cobertura tiene un limite --
+mas alla de cierto punto, concentra peso en los sesgos que quedan sin
+poder excluirse (porque son la unica pregunta disponible, no un
+duplicado de otra) en vez de diluirlos. Se revirtio la exclusion de
+`priv_rezago_escolar`, quedando la version de 10 indicadores/25% por
+dimension como version final (confirmado con el usuario).
+
+Output: `src/04_features/build_ipm_multidimensional.py` (nuevo),
+`data/processed/ipm_multidimensional_elca_longitudinal.parquet` (nuevo).
+lineas_pobreza_2012_2018_enph/lineas_20122018.csv`.
