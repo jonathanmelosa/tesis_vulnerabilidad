@@ -1,0 +1,36 @@
+\begin{table}[H]
+  \centering
+  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin
+  DMSP-OLS, target IPM (pobreza multidimensional), holdout temporal
+  (train 2010$\to$2013, test 2013$\to$2016). Umbral elegido por CV
+  maximizando F-beta ($\beta=2$), con CV\_FOLDS=10 y
+  N\_ITER\_BUSQUEDA=30 -- misma configuración que
+  Tabla~\ref{tab:marginal_dmsp_fbeta2_cv10} (pobreza monetaria).}
+  \label{tab:marginal_dmsp_ipm}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llccccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
+    \midrule
+    XGBoost                  & A (IPM)                & 0.725 & [0.719, 0.732] & 0.251 & [0.242, 0.260] & 0.114 & 0.844 & 0.139 & 0.239 \\
+    XGBoost                  & A (IPM) + DMSP-OLS     & 0.736 & [0.734, 0.739] & 0.273 & [0.264, 0.283] & 0.100 & 0.908 & 0.134 & 0.233 \\
+    \addlinespace
+    HistGradientBoosting     & A (IPM)                & 0.740 & [0.740, 0.740] & 0.271 & [0.271, 0.271] & 0.114 & 0.603 & 0.197 & 0.295 \\
+    HistGradientBoosting     & A (IPM) + DMSP-OLS     & 0.738 & [0.738, 0.738] & 0.272 & [0.272, 0.272] & 0.100 & 0.671 & 0.179 & 0.282 \\
+    \addlinespace
+    Logística regularizada   & A (IPM)                & 0.730 & [0.730, 0.730] & 0.258 & [0.258, 0.258] & 0.104 & 0.726 & 0.166 & 0.269 \\
+    Logística regularizada   & A (IPM) + DMSP-OLS     & 0.730 & [0.730, 0.730] & 0.267 & [0.267, 0.267] & 0.108 & 0.720 & 0.167 & 0.271 \\
+    \addlinespace
+    XGBoost                  & B (IPM)                & 0.728 & [0.723, 0.732] & 0.258 & [0.245, 0.272] & 0.094 & 0.901 & 0.130 & 0.228 \\
+    XGBoost                  & B (IPM) + DMSP-OLS     & 0.746 & [0.743, 0.748] & 0.274 & [0.263, 0.285] & 0.110 & 0.868 & 0.145 & 0.248 \\
+    \addlinespace
+    HistGradientBoosting     & B (IPM)                & 0.739 & [0.739, 0.739] & 0.265 & [0.265, 0.265] & 0.104 & 0.620 & 0.189 & 0.289 \\
+    HistGradientBoosting     & B (IPM) + DMSP-OLS     & 0.740 & [0.740, 0.740] & 0.258 & [0.258, 0.258] & 0.102 & 0.655 & 0.188 & 0.291 \\
+    \addlinespace
+    Logística regularizada   & B (IPM)                & 0.730 & [0.730, 0.730] & 0.255 & [0.255, 0.255] & 0.106 & 0.716 & 0.167 & 0.270 \\
+    Logística regularizada   & B (IPM) + DMSP-OLS     & 0.730 & [0.730, 0.730] & 0.265 & [0.265, 0.265] & 0.108 & 0.713 & 0.165 & 0.269 \\
+    \bottomrule
+  \end{tabular}%
+  }
