@@ -1,0 +1,32 @@
+\begin{table}[H]
+  \centering
+  \caption{Matrices de transición de pobreza multidimensional (IPM)
+  (\% de fila, panel emparejado 1 a 1)}
+  \label{tab:matriz_transicion_ipm}
+  \begin{tabular}{llcc}
+    \toprule
+    \textbf{Periodo} & \textbf{Estado inicial} & \textbf{No pobre (final)} & \textbf{Pobre (final)} \\
+    \midrule
+    \multirow{2}{*}{2010 $\rightarrow$ 2013 ($n=8{,}218$)}
+      & No pobre & 87.9\% & 12.1\% \\
+      & Pobre    & 54.5\% & 45.5\% \\
+    \addlinespace
+    \multirow{2}{*}{2013 $\rightarrow$ 2016 ($n=6{,}911$)}
+      & No pobre & 90.3\% & 9.7\% \\
+      & Pobre    & 52.3\% & 47.7\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.85\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} $n$ = hogares con emparejamiento 1 a 1;
+    excluye 511 (2010--2013) y 1{,}190 (2013--2016) casos de hogares que se
+    dividieron entre olas -- mismo criterio de emparejamiento que la matriz
+    de pobreza monetaria (Tabla~\ref{tab:matriz_transicion}), aquí aplicado
+    a la clasificación IPM (\texttt{pobre\_ipm}, ver
+    \texttt{build\_ipm\_multidimensional.py}). Fuente: cálculos propios con
+    base en ELCA 2010, 2013, 2016, generados por
+    \texttt{src/tabla\_matriz\_transicion\_ipm.py} sobre
+    \texttt{outputs/tables/pobreza/transicion\_\{pct,conteo\}\_ipm\_ola*.csv}
+    (\texttt{src/04\_features/build\_matriz\_transicion\_ipm.py}).
+  \end{minipage}
+\end{table}
