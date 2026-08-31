@@ -91,7 +91,7 @@ def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
         r"  \resizebox{\textwidth}{!}{%",
-        r"  \begin{tabular}{llccccccc}",
+        r"  \begin{tabular}{llcccccccc}",
         r"    \toprule",
         r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\",
         r"    \midrule",
