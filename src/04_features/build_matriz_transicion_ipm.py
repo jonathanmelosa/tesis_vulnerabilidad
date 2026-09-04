@@ -23,6 +23,12 @@ como esta definido). Si se necesita una version ponderada, agregar
 `peso_col` reusando la misma logica de `peso_transversal`/
 `peso_longitudinal` ya construida para pobreza monetaria.
 
+Tambien genera la figura de barras apiladas (espejo de
+`06_transiciones_pobreza.png`, la de pobreza monetaria) reusando
+`graf_transiciones_generico` -- IMPORTADA de `build_pobreza_desagregaciones.py`,
+no duplicada -- con dos paneles (porcentaje y numero absoluto de hogares,
+pedido explicito del usuario 2026-09-02).
+
 INPUTS
 
     data/processed/ipm_multidimensional_elca_longitudinal.parquet
@@ -32,6 +38,7 @@ OUTPUTS
     outputs/tables/pobreza/transicion_conteo_ipm_ola{1_a_2,2_a_3}.csv
     outputs/tables/pobreza/transicion_pct_ipm_ola{1_a_2,2_a_3}.csv
     outputs/tables/pobreza/transicion_categorias_ipm_ola{1_a_2,2_a_3}.csv
+    outputs/figures/pobreza/06_transiciones_pobreza_ipm.png
 
 COMO CORRER
 
@@ -44,7 +51,13 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_pobreza_desagregaciones import ANO_POR_OLA, OUTPUT_DIR, construir_matriz_transicion  # noqa: E402
+from build_pobreza_desagregaciones import (  # noqa: E402
+    ANO_POR_OLA,
+    FIGURES_DIR,
+    OUTPUT_DIR,
+    construir_matriz_transicion,
+    graf_transiciones_generico,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 IPM_PATH = PROJECT_ROOT / "data" / "processed" / "ipm_multidimensional_elca_longitudinal.parquet"
@@ -53,7 +66,9 @@ IPM_PATH = PROJECT_ROOT / "data" / "processed" / "ipm_multidimensional_elca_long
 def main() -> None:
     ipm = pd.read_parquet(IPM_PATH)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
+    resumen_transiciones_ipm = []
     for ola_ini, ola_fin in [(1, 2), (2, 3)]:
         sufijo = f"{ola_ini}_a_{ola_fin}"
         periodo = f"{ANO_POR_OLA[ola_ini]}-{ANO_POR_OLA[ola_fin]}"
@@ -64,6 +79,7 @@ def main() -> None:
         resultado["distribucion_categorias"].to_csv(
             OUTPUT_DIR / f"transicion_categorias_ipm_ola{sufijo}.csv", header=["porcentaje"]
         )
+        resumen_transiciones_ipm.append(resultado)
 
         print(
             f"\nTransicion IPM {periodo} (ola {ola_ini} -> ola {ola_fin}) "
@@ -72,7 +88,13 @@ def main() -> None:
         print(resultado["matriz_porcentaje_fila"])
         print(resultado["distribucion_categorias"])
 
-    print(f"\nGuardado en: {OUTPUT_DIR}")
+    graf_transiciones_generico(
+        resumen_transiciones_ipm,
+        titulo="Matriz de transicion de pobreza multidimensional (IPM) entre olas\n(Lopez-Calva y Ortiz-Juarez, 2014)",
+        nombre_archivo="06_transiciones_pobreza_ipm.png",
+    )
+
+    print(f"\nGuardado en: {OUTPUT_DIR} y {FIGURES_DIR}")
 
 
 if __name__ == "__main__":

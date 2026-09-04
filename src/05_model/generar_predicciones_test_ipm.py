@@ -1,11 +1,22 @@
 """
 Version de `generar_predicciones_test_dmsp.py` para el target IPM --
 genera y persiste las probabilidades de test (con metadatos por hogar) de
-los 12 modelos ya calibrados en `registro_modelos_ipm.csv` (3 algoritmos x
+los modelos ya calibrados en `registro_modelos_ipm.csv` (5 algoritmos x
 Aipm/AipmgeoDMSP/Bipm/BipmgeoDMSP). Artefacto compartido para el bootstrap
 con clustering por comunidad y el analisis de heterogeneidad sobre el
-hallazgo de que DMSP-OLS SI aporta bajo IPM en XGBoost (ver
+hallazgo de que DMSP-OLS SI aporta bajo IPM en XGBoost y LightGBM (ver
 `diagnostico_bootstrap_ipm.py`).
+
+CORREGIDO (2026-09-02): la version anterior tenia una lista
+`ALGOS = {...}` hardcodeada con solo 3 de 5 algoritmos (XGBoost,
+HistGradientBoosting, Logistica) -- por eso `diagnostico_heterogeneidad_ipm.py`,
+que SI deriva sus algoritmos dinamicamente de este parquet
+(`pred["algoritmo"].unique()`), nunca vio a Random Forest ni LightGBM: el
+hueco no estaba en ese script sino uno mas arriba, en este. Se corrige
+igual que `diagnostico_bootstrap_ipm.py` y `diagnostico_shap.py`: los
+algoritmos a procesar se DERIVAN de `registro_modelos_ipm.csv`
+(`algoritmos_presentes_en_registro`, en `algoritmos_suite.py`), no de una
+lista mantenida a mano.
 
 NO vuelve a correr RandomizedSearchCV -- reutiliza `balanceo_elegido` y
 `mejores_params` ya encontrados, UN solo fit por combinacion
@@ -21,35 +32,26 @@ COMO CORRER
     cd src/05_model && python -u generar_predicciones_test_ipm.py
 """
 
-import json
 from typing import Optional
 
 import pandas as pd
 
 import modelo_utils as mu
-import modelo_histgradientboosting as m_hgb
-import modelo_logistica_regularizada as m_log
-import modelo_xgboost as m_xgb
+from algoritmos_suite import (
+    algoritmos_presentes_en_registro,
+    filtrar_params_modelo,
+    preparar_x_y,
+    resolver_algoritmo,
+)
 
 REGISTRO = mu.RESULTADOS_DIR / "registro_modelos_ipm.csv"
 OUT_DIR = mu.RESULTADOS_DIR
-
-ALGOS = {
-    "XGBoost": "XGBoost",
-    "HistGradientBoosting (sklearn)": "HistGradientBoosting",
-    "Logistica regularizada (elastic net, benchmark)": "Logistica",
-}
 PARES = [("Aipm", "AipmgeoDMSP"), ("Bipm", "BipmgeoDMSP")]
 
 METADATA_COLS = [
     "consecutivo", "consecutivo_c", "zona", "brecha_lp_ingreso",
     "estrato_verificado_hogar", "n_servicios_publicos_hogar", "n_bienes_durables_hogar",
 ]
-
-
-def filtrar_params_modelo(hiperparametros_json: str) -> dict:
-    d = json.loads(hiperparametros_json)
-    return {k: v for k, v in d.items() if k.startswith("modelo__")}
 
 
 def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame, metadata_extra: Optional[pd.DataFrame] = None):
@@ -63,22 +65,8 @@ def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame, 
         assert metadata_extra is not None, f"faltan columnas {faltantes} y no hay metadata_extra para completarlas"
         test_raw = test_raw.merge(metadata_extra[["consecutivo"] + faltantes], on="consecutivo", how="left")
 
-    if algoritmo_raw == "XGBoost":
-        x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
-        x_test, y_test, _ = mu.preparar_arboles_nativos(test_raw)
-        x_train, x_test = mu.alinear_columnas_categoricas(x_train, x_test, cat_cols)
-        pipe = m_xgb.construir_pipeline(x_train, y_train, balanceo)
-    elif algoritmo_raw == "HistGradientBoosting (sklearn)":
-        x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
-        x_test, y_test, _ = mu.preparar_arboles_nativos(test_raw)
-        x_train, x_test = mu.alinear_columnas_categoricas(x_train, x_test, cat_cols)
-        pipe = m_hgb.construir_pipeline(balanceo)
-    else:
-        x_train, y_train = mu.preparar_xy_crudo(train)
-        x_test, y_test = mu.preparar_xy_crudo(test_raw)
-        x_train, x_test = x_train.align(x_test, join="inner", axis=1)
-        pipe = m_log.construir_pipeline(x_train, balanceo)
-
+    x_train, y_train, x_test, y_test, _ = preparar_x_y(algoritmo_raw, train, test_raw)
+    pipe = resolver_algoritmo(algoritmo_raw)["construir_pipeline_fn"](x_train, y_train, balanceo, mu.RANDOM_STATE)
     if params:
         pipe.set_params(**params)
     pipe.fit(x_train, y_train)
@@ -92,11 +80,14 @@ def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame, 
 
 def main() -> None:
     registro = pd.read_csv(REGISTRO)
+    algoritmos_crudos = algoritmos_presentes_en_registro(REGISTRO)
+    print(f"Algoritmos detectados en {REGISTRO.name}: {algoritmos_crudos}")
     _, metadata_ref = mu.cargar_datos("Aipm")
 
     for base, geo in PARES:
         piezas = []
-        for algoritmo_raw, nombre in ALGOS.items():
+        for algoritmo_raw in algoritmos_crudos:
+            nombre = resolver_algoritmo(algoritmo_raw)["nombre_bonito"]
             print(f"=== {nombre} -- {base} ===")
             m_base = entrenar_y_predecir(algoritmo_raw, base, registro, metadata_ref)
             print(f"=== {nombre} -- {geo} ===")

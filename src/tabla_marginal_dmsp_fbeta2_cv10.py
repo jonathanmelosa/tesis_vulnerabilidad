@@ -32,9 +32,17 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 CONFIG = {
     "registro_modelos": REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_fbeta2_cv10.csv",
-    "algoritmos_orden": ["XGBoost", "HistGradientBoosting (sklearn)", "Logistica regularizada (elastic net, benchmark)"],
+    "algoritmos_orden": [
+        "Random Forest",
+        "XGBoost",
+        "LightGBM",
+        "HistGradientBoosting (sklearn)",
+        "Logistica regularizada (elastic net, benchmark)",
+    ],
     "nombres_algoritmo": {
+        "Random Forest": "Random Forest",
         "XGBoost": "XGBoost",
+        "LightGBM": "LightGBM",
         "HistGradientBoosting (sklearn)": "HistGradientBoosting",
         "Logistica regularizada (elastic net, benchmark)": "Logística regularizada",
     },

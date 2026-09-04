@@ -189,30 +189,43 @@ def _grupo_edad(edad: pd.Series) -> pd.Series:
     )
 
 
-def cargar_pesos_ingreso_robustez(pobreza: pd.DataFrame, llave_pobreza: pd.Series) -> pd.DataFrame:
+def cargar_pesos_muestrales(df: pd.DataFrame, llave: pd.Series) -> pd.DataFrame:
     """
-    Agrega a `pobreza` (in place, devuelve el mismo df):
-      - peso_transversal / peso_longitudinal (ver docstring del modulo)
-      - ingreso_percapita_sin_excepcional / _sin_ayudas y sus reclasificaciones
-        pobre_sin_excepcional / pobre_sin_ayudas
-      - pobre_banda_baja / pobre_banda_alta (LP*0.9 / LP*1.1)
+    Agrega a `df` (in place, devuelve el mismo df) `peso_transversal` y
+    `peso_longitudinal` (ver docstring del modulo). Generico sobre cualquier
+    dataframe con columnas consecutivo/ola/llave/llave_n16 (usado por
+    pobreza monetaria via `cargar_pesos_ingreso_robustez`, y por IPM en
+    `eda_transicion_covariables.py` -- misma logica, sin las reclasificaciones
+    de robustez de ingreso que solo aplican a pobreza monetaria).
     """
     hogar = pd.read_parquet(HOGAR_PATH)[
         ["consecutivo", "ola", "llave", "llave_n16", "fexhog", "fexhog_2013", "fexhog_2010"]
     ]
     llave_hogar = _llave_compuesta(hogar)
     hogar_por_llave = hogar.set_index(llave_hogar)[["fexhog", "fexhog_2013", "fexhog_2010"]]
-    pobreza["fexhog"] = llave_pobreza.map(hogar_por_llave["fexhog"])
-    pobreza["fexhog_2013"] = llave_pobreza.map(hogar_por_llave["fexhog_2013"])
-    pobreza["fexhog_2010"] = llave_pobreza.map(hogar_por_llave["fexhog_2010"])
+    df["fexhog"] = llave.map(hogar_por_llave["fexhog"])
+    df["fexhog_2013"] = llave.map(hogar_por_llave["fexhog_2013"])
+    df["fexhog_2010"] = llave.map(hogar_por_llave["fexhog_2010"])
     # Transversal: fexhog (ola 1) / fexhog_2013 (ola 2) / fexhog_2010 (ola 3,
     # unico disponible -- ver limitacion documentada en el docstring del modulo).
-    pobreza["peso_transversal"] = pobreza["fexhog"].where(
-        pobreza["ola"] == 1, pobreza["fexhog_2013"].where(pobreza["ola"] == 2, pobreza["fexhog_2010"])
+    df["peso_transversal"] = df["fexhog"].where(
+        df["ola"] == 1, df["fexhog_2013"].where(df["ola"] == 2, df["fexhog_2010"])
     )
     # Longitudinal: fexhog_2010, ancorado a la ola 1 (NaN en ola 1 misma, por diseno).
-    pobreza["peso_longitudinal"] = pobreza["fexhog_2010"]
-    pobreza.drop(columns=["fexhog", "fexhog_2013", "fexhog_2010"], inplace=True)
+    df["peso_longitudinal"] = df["fexhog_2010"]
+    df.drop(columns=["fexhog", "fexhog_2013", "fexhog_2010"], inplace=True)
+    return df
+
+
+def cargar_pesos_ingreso_robustez(pobreza: pd.DataFrame, llave_pobreza: pd.Series) -> pd.DataFrame:
+    """
+    Agrega a `pobreza` (in place, devuelve el mismo df):
+      - peso_transversal / peso_longitudinal (ver `cargar_pesos_muestrales`)
+      - ingreso_percapita_sin_excepcional / _sin_ayudas y sus reclasificaciones
+        pobre_sin_excepcional / pobre_sin_ayudas
+      - pobre_banda_baja / pobre_banda_alta (LP*0.9 / LP*1.1)
+    """
+    cargar_pesos_muestrales(pobreza, llave_pobreza)
 
     ingreso = pd.read_parquet(INGRESO_PATH)
     llave_ingreso = _llave_compuesta(ingreso)
@@ -398,7 +411,14 @@ def construir_matriz_transicion(
         distribucion_categorias = (pesos_por_categoria / pesos_por_categoria.sum() * 100).round(1)
     else:
         distribucion_categorias = (panel["categoria"].value_counts(normalize=True) * 100).round(1)
+    # conteo SIEMPRE sin ponderar (n de hogares del panel emparejado) -- el
+    # panel absoluto de graf_transiciones_generico usa esto incluso cuando
+    # `peso_col` esta presente, porque "cuantos hogares" no admite una
+    # version ponderada coherente (el factor de expansion ya se usa para
+    # el panel de porcentajes).
+    distribucion_categorias_n = panel["categoria"].value_counts()
 
+    cols_panel = ["consecutivo", "categoria"] + ([peso_col] if peso_col else [])
     return {
         "ola_inicial": ola_ini,
         "ola_final": ola_fin,
@@ -407,6 +427,12 @@ def construir_matriz_transicion(
         "matriz_porcentaje_fila": matriz_pct,
         "matriz_conteo": matriz_n,
         "distribucion_categorias": distribucion_categorias,
+        "distribucion_categorias_n": distribucion_categorias_n,
+        # 1 fila = 1 hogar del panel emparejado, con su categoria de transicion
+        # (consecutivo = id estable de ola 1) -- usado por
+        # eda_transicion_covariables.py para caracterizar los 4 grupos con
+        # covariables externas (region, DMSP, etc.) que no viven en `pobreza`.
+        "panel_categorias": panel[cols_panel].copy(),
     }
 
 
@@ -561,31 +587,61 @@ def graf_incidencia_jefe(tabla_sexo: pd.DataFrame, tabla_edad: pd.DataFrame, tab
     _guardar(fig, f"05_incidencia_jefe_hogar_{ANO_POR_OLA[ola]}.png")
 
 
-def graf_transiciones(resumenes: list) -> None:
-    """Distribucion de categorias de transicion (nunca/siempre pobre, entra/sale) por periodo."""
+def graf_transiciones_generico(resumenes: list, titulo: str, nombre_archivo: str) -> None:
+    """Distribucion de categorias de transicion (nunca/siempre pobre,
+    entra/sale) por periodo -- version generica, reusada tanto para pobreza
+    monetaria (`graf_transiciones`, wrapper mas abajo) como para IPM
+    (`build_matriz_transicion_ipm.py`, que la importa directamente en vez
+    de duplicar esta logica de graficacion).
+
+    UN solo grafico, barras en escala ABSOLUTA (numero de hogares del panel
+    emparejado, `distribucion_categorias_n` de `construir_matriz_transicion`)
+    -- el alto de cada barra ya refleja el tamano real del panel en cada
+    periodo (relevante al comparar monetaria, con paneles de ~3,000-3,200
+    hogares en el ejercicio de modelos, contra el panel completo de
+    transicion, ~6,900-8,200). Cada segmento se etiqueta con AMBOS valores,
+    `n (pct%)`, para poder leer el porcentaje directamente sobre la misma
+    barra sin necesitar un panel aparte -- pedido explicito del usuario
+    (2026-09-02: ``una gráfica de absolutos que se pueda leer en la misma
+    los porcentajes'')."""
     categorias = ["Nunca pobre", "Sale de la pobreza", "Entra en pobreza", "Siempre pobre"]
     colores = [PALETA["azul"], PALETA["aguamarina"], PALETA["naranja"], PALETA["rojo"]]
 
     periodos = [f"{ANO_POR_OLA[r['ola_inicial']]}-{ANO_POR_OLA[r['ola_final']]}" for r in resumenes]
-    matriz = np.array([
+    matriz_n = np.array([
+        [r["distribucion_categorias_n"].get(cat, 0) for cat in categorias] for r in resumenes
+    ])
+    matriz_pct = np.array([
         [r["distribucion_categorias"].get(cat, 0.0) for cat in categorias] for r in resumenes
     ])
 
-    fig, ax = plt.subplots(figsize=(6.5, 4.2))
+    fig, ax = plt.subplots(figsize=(6.5, 5.2))
     base = np.zeros(len(periodos))
+    umbral = 0.03 * matriz_n.sum(axis=1).max()
     for i, (cat, color) in enumerate(zip(categorias, colores)):
-        valores = matriz[:, i]
-        ax.bar(periodos, valores, bottom=base, color=color, label=cat, width=0.55)
-        for j, v in enumerate(valores):
-            if v > 3:
-                ax.text(j, base[j] + v / 2, f"{v:.1f}%", ha="center", va="center", fontsize=8, color="white")
-        base += valores
+        valores_n = matriz_n[:, i]
+        valores_pct = matriz_pct[:, i]
+        ax.bar(periodos, valores_n, bottom=base, color=color, label=cat, width=0.55)
+        for j, (n_val, pct_val) in enumerate(zip(valores_n, valores_pct)):
+            if n_val > umbral:
+                ax.text(j, base[j] + n_val / 2, f"{int(n_val):,}\n({pct_val:.1f}%)",
+                        ha="center", va="center", fontsize=8, color="white")
+        base += valores_n
 
-    ax.set_ylabel("% de hogares (panel emparejado)")
-    ax.set_ylim(0, 100)
-    ax.set_title("Matriz de transicion de pobreza monetaria entre olas\n(Lopez-Calva y Ortiz-Juarez, 2014)")
+    ax.set_ylabel("Número de hogares (panel emparejado)")
+    ax.set_title(titulo)
     ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=4, fontsize=8)
-    _guardar(fig, "06_transiciones_pobreza.png")
+    _guardar(fig, nombre_archivo)
+
+
+def graf_transiciones(resumenes: list) -> None:
+    """Wrapper de `graf_transiciones_generico` para pobreza monetaria --
+    mantiene el nombre/firma originales para no romper `graficar_resultados`."""
+    graf_transiciones_generico(
+        resumenes,
+        titulo="Matriz de transicion de pobreza monetaria entre olas\n(Lopez-Calva y Ortiz-Juarez, 2014)",
+        nombre_archivo="06_transiciones_pobreza.png",
+    )
 
 
 def graf_robustez_transiciones(resumenes: list, sin_excepcional: list, sin_ayudas: dict) -> None:

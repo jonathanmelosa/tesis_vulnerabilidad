@@ -15,18 +15,24 @@ NO vuelve a correr RandomizedSearchCV (costoso) -- reutiliza el
 `balanceo_elegido` y `mejores_params` YA encontrados en
 `registro_modelos_fbeta2_cv10.csv` (busqueda robusta, folds=10/iter=30),
 reconstruye el pipeline exacto y hace UN solo fit por combinacion
-(semilla=RANDOM_STATE=42) para obtener las probabilidades de test. Los
-`hiperparametros` guardados en el registro incluyen una clave decorativa
-extra por algoritmo (`scale_pos_weight`/`class_weight`, strings
-descriptivos, no aptos para `set_params`) -- se filtran, quedandose solo
-con las claves `modelo__*` que si son parametros validos del pipeline.
+(semilla=RANDOM_STATE=42) para obtener las probabilidades de test.
+
+CORREGIDO (2026-09-02): la version anterior tenia una lista
+`ALGOS = {...}` hardcodeada con solo 3 de 5 algoritmos (XGBoost,
+HistGradientBoosting, Logistica) -- el mismo patron que dejo a Random
+Forest y LightGBM invisibles bajo IPM hasta que el usuario pregunto
+explicitamente por que faltaban (ver `diagnostico_bootstrap_ipm.py`).
+Se corrige aqui de la misma forma: los algoritmos a procesar se DERIVAN
+de `registro_modelos_fbeta2_cv10.csv`
+(`algoritmos_presentes_en_registro`, en `algoritmos_suite.py`), no de
+una lista mantenida a mano.
 
 QUE HACE
 
-    1. Para XGBoost, HistGradientBoosting y Logistica regularizada, en
-       A/AgeoDMSP y B/BgeoDMSP (6 pares), reconstruye el modelo ganador
-       (mismo balanceo/hiperparametros que la corrida robusta) y predice
-       probabilidad en el conjunto de prueba correspondiente.
+    1. Para cada algoritmo presente en el registro, en A/AgeoDMSP y
+       B/BgeoDMSP, reconstruye el modelo ganador (mismo balanceo/
+       hiperparametros que la corrida robusta) y predice probabilidad
+       en el conjunto de prueba correspondiente.
     2. Bootstrap pareado: 2000 remuestras con reemplazo de los hogares de
        test, AUC-ROC de ambas especificaciones sobre la MISMA remuestra en
        cada iteracion, delta = AUC(con DMSP-OLS) - AUC(sin).
@@ -42,36 +48,23 @@ COMO CORRER
     cd src/05_model && python -u diagnostico_bootstrap_dmsp.py
 """
 
-import json
-
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
 import modelo_utils as mu
-import modelo_histgradientboosting as m_hgb
-import modelo_logistica_regularizada as m_log
-import modelo_xgboost as m_xgb
+from algoritmos_suite import (
+    algoritmos_presentes_en_registro,
+    filtrar_params_modelo,
+    preparar_x_y,
+    resolver_algoritmo,
+)
 
 REGISTRO = mu.RESULTADOS_DIR / "registro_modelos_fbeta2_cv10.csv"
 N_BOOT = 2000
 RNG = np.random.default_rng(mu.RANDOM_STATE)
 
-ALGOS = {
-    "XGBoost": "XGBoost",
-    "HistGradientBoosting (sklearn)": "HistGradientBoosting",
-    "Logistica regularizada (elastic net, benchmark)": "Logistica",
-}
 PARES = [("A", "AgeoDMSP"), ("B", "BgeoDMSP")]
-
-
-def filtrar_params_modelo(hiperparametros_json: str) -> dict:
-    """Las claves guardadas en `hiperparametros` incluyen una entrada
-    decorativa extra (scale_pos_weight/class_weight, string descriptivo)
-    ademas de los parametros reales del pipeline (prefijo `modelo__`) --
-    solo estas ultimas son validas para `set_params`."""
-    d = json.loads(hiperparametros_json)
-    return {k: v for k, v in d.items() if k.startswith("modelo__")}
 
 
 def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame):
@@ -79,25 +72,10 @@ def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame):
     balanceo = fila["balanceo_elegido"]
     params = filtrar_params_modelo(fila["hiperparametros"])
 
-    if algoritmo_raw == "XGBoost":
-        train, test = mu.cargar_datos(espec)
-        x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
-        x_test, y_test, _ = mu.preparar_arboles_nativos(test)
-        x_train, x_test = mu.alinear_columnas_categoricas(x_train, x_test, cat_cols)
-        pipe = m_xgb.construir_pipeline(x_train, y_train, balanceo)
-    elif algoritmo_raw == "HistGradientBoosting (sklearn)":
-        train, test = mu.cargar_datos(espec)
-        x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
-        x_test, y_test, _ = mu.preparar_arboles_nativos(test)
-        x_train, x_test = mu.alinear_columnas_categoricas(x_train, x_test, cat_cols)
-        pipe = m_hgb.construir_pipeline(balanceo)
-    else:  # Logistica
-        train, test = mu.cargar_datos(espec)
-        x_train, y_train = mu.preparar_xy_crudo(train)
-        x_test, y_test = mu.preparar_xy_crudo(test)
-        x_train, x_test = x_train.align(x_test, join="inner", axis=1)
-        pipe = m_log.construir_pipeline(x_train, balanceo)
+    train, test = mu.cargar_datos(espec)
+    x_train, y_train, x_test, y_test, _ = preparar_x_y(algoritmo_raw, train, test)
 
+    pipe = resolver_algoritmo(algoritmo_raw)["construir_pipeline_fn"](x_train, y_train, balanceo, mu.RANDOM_STATE)
     if params:
         pipe.set_params(**params)
     pipe.fit(x_train, y_train)
@@ -122,10 +100,19 @@ def bootstrap_delta_auc(y: np.ndarray, proba_base: np.ndarray, proba_geo: np.nda
 
 def main() -> None:
     registro = pd.read_csv(REGISTRO)
+    algoritmos_crudos = algoritmos_presentes_en_registro(REGISTRO)
+    print(f"Algoritmos detectados en {REGISTRO.name}: {algoritmos_crudos}")
     filas = []
 
-    for algoritmo_raw, nombre in ALGOS.items():
+    for algoritmo_raw in algoritmos_crudos:
+        nombre = resolver_algoritmo(algoritmo_raw)["nombre_bonito"]
         for base, geo in PARES:
+            existe_base = ((registro.algoritmo == algoritmo_raw) & (registro.especificacion == base)).any()
+            existe_geo = ((registro.algoritmo == algoritmo_raw) & (registro.especificacion == geo)).any()
+            if not (existe_base and existe_geo):
+                print(f"\n=== {nombre} -- {base} vs {geo} === OMITIDO: falta alguna de las dos filas en el registro")
+                continue
+
             print(f"\n=== {nombre} -- {base} vs {geo} ===")
             proba_base, y_base = entrenar_y_predecir(algoritmo_raw, base, registro)
             proba_geo, y_geo = entrenar_y_predecir(algoritmo_raw, geo, registro)

@@ -1,15 +1,20 @@
 """
 Genera y persiste las probabilidades de test (con metadatos por hogar) de
-los 12 modelos ya calibrados en `registro_modelos_fbeta2_cv10.csv` (3
+los modelos ya calibrados en `registro_modelos_fbeta2_cv10.csv` (5
 algoritmos x A/AgeoDMSP/B/BgeoDMSP) -- artefacto compartido para el
-bootstrap con clustering por comunidad y el analisis de heterogeneidad
-pedidos por el usuario (2026-08-28), asi que ambos reusan las mismas
-predicciones sin reentrenar dos veces.
+bootstrap con clustering por comunidad y el analisis de heterogeneidad,
+asi que ambos reusan las mismas predicciones sin reentrenar dos veces.
 
 NO vuelve a correr RandomizedSearchCV -- reutiliza `balanceo_elegido` y
 `mejores_params` ya encontrados (busqueda robusta, folds=10/iter=30, ver
 `diagnostico_bootstrap_dmsp.py` para el mismo patron), UN solo fit por
 combinacion (semilla=RANDOM_STATE=42).
+
+CORREGIDO (2026-09-02): la version anterior tenia `ALGOS = {...}`
+hardcodeado con solo 3 de 5 algoritmos -- mismo patron que se corrigio en
+`generar_predicciones_test_ipm.py`. Los algoritmos a procesar se DERIVAN
+de `registro_modelos_fbeta2_cv10.csv`
+(`algoritmos_presentes_en_registro`, en `algoritmos_suite.py`).
 
 Metadatos guardados por hogar (para heterogeneidad y clustering):
 `consecutivo`, `consecutivo_c` (comunidad -- 8888888 = sin identificar,
@@ -32,35 +37,26 @@ COMO CORRER
     cd src/05_model && python -u generar_predicciones_test_dmsp.py
 """
 
-import json
 from typing import Optional
 
 import pandas as pd
 
 import modelo_utils as mu
-import modelo_histgradientboosting as m_hgb
-import modelo_logistica_regularizada as m_log
-import modelo_xgboost as m_xgb
+from algoritmos_suite import (
+    algoritmos_presentes_en_registro,
+    filtrar_params_modelo,
+    preparar_x_y,
+    resolver_algoritmo,
+)
 
 REGISTRO = mu.RESULTADOS_DIR / "registro_modelos_fbeta2_cv10.csv"
 OUT_DIR = mu.RESULTADOS_DIR
-
-ALGOS = {
-    "XGBoost": "XGBoost",
-    "HistGradientBoosting (sklearn)": "HistGradientBoosting",
-    "Logistica regularizada (elastic net, benchmark)": "Logistica",
-}
 PARES = [("A", "AgeoDMSP"), ("B", "BgeoDMSP")]
 
 METADATA_COLS = [
     "consecutivo", "consecutivo_c", "zona", "brecha_lp_ingreso",
     "estrato_verificado_hogar", "n_servicios_publicos_hogar", "n_bienes_durables_hogar",
 ]
-
-
-def filtrar_params_modelo(hiperparametros_json: str) -> dict:
-    d = json.loads(hiperparametros_json)
-    return {k: v for k, v in d.items() if k.startswith("modelo__")}
 
 
 def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame, metadata_extra: Optional[pd.DataFrame] = None):
@@ -77,22 +73,8 @@ def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame, 
         assert metadata_extra is not None, f"faltan columnas {faltantes} y no hay metadata_extra para completarlas"
         test_raw = test_raw.merge(metadata_extra[["consecutivo"] + faltantes], on="consecutivo", how="left")
 
-    if algoritmo_raw == "XGBoost":
-        x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
-        x_test, y_test, _ = mu.preparar_arboles_nativos(test_raw)
-        x_train, x_test = mu.alinear_columnas_categoricas(x_train, x_test, cat_cols)
-        pipe = m_xgb.construir_pipeline(x_train, y_train, balanceo)
-    elif algoritmo_raw == "HistGradientBoosting (sklearn)":
-        x_train, y_train, cat_cols = mu.preparar_arboles_nativos(train)
-        x_test, y_test, _ = mu.preparar_arboles_nativos(test_raw)
-        x_train, x_test = mu.alinear_columnas_categoricas(x_train, x_test, cat_cols)
-        pipe = m_hgb.construir_pipeline(balanceo)
-    else:
-        x_train, y_train = mu.preparar_xy_crudo(train)
-        x_test, y_test = mu.preparar_xy_crudo(test_raw)
-        x_train, x_test = x_train.align(x_test, join="inner", axis=1)
-        pipe = m_log.construir_pipeline(x_train, balanceo)
-
+    x_train, y_train, x_test, y_test, _ = preparar_x_y(algoritmo_raw, train, test_raw)
+    pipe = resolver_algoritmo(algoritmo_raw)["construir_pipeline_fn"](x_train, y_train, balanceo, mu.RANDOM_STATE)
     if params:
         pipe.set_params(**params)
     pipe.fit(x_train, y_train)
@@ -106,6 +88,8 @@ def entrenar_y_predecir(algoritmo_raw: str, espec: str, registro: pd.DataFrame, 
 
 def main() -> None:
     registro = pd.read_csv(REGISTRO)
+    algoritmos_crudos = algoritmos_presentes_en_registro(REGISTRO)
+    print(f"Algoritmos detectados en {REGISTRO.name}: {algoritmos_crudos}")
 
     # Metadata de referencia (Modelo A, mismos hogares que B/AgeoDMSP/BgeoDMSP)
     # para completar columnas derivadas de ingreso que Modelo B no trae.
@@ -113,7 +97,14 @@ def main() -> None:
 
     for base, geo in PARES:
         piezas = []
-        for algoritmo_raw, nombre in ALGOS.items():
+        for algoritmo_raw in algoritmos_crudos:
+            nombre = resolver_algoritmo(algoritmo_raw)["nombre_bonito"]
+            existe_base = ((registro.algoritmo == algoritmo_raw) & (registro.especificacion == base)).any()
+            existe_geo = ((registro.algoritmo == algoritmo_raw) & (registro.especificacion == geo)).any()
+            if not (existe_base and existe_geo):
+                print(f"=== {nombre} -- {base}/{geo} === OMITIDO: falta alguna de las dos filas en el registro")
+                continue
+
             print(f"=== {nombre} -- {base} ===")
             m_base = entrenar_y_predecir(algoritmo_raw, base, registro, metadata_ref)
             print(f"=== {nombre} -- {geo} ===")
