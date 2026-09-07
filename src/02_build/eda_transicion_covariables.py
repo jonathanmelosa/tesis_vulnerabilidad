@@ -86,6 +86,7 @@ UMBRAL_CI_V = 0.05
 N_BOOT = 300
 UMBRAL_REDUNDANCIA = 0.70  # |rho| de Spearman para colapsar variables casi-colineales
 N_VARIABLES_OBJETIVO = 11  # ademas de DMSP (10-12, decision del usuario) -> 12 en tabla final
+MAX_POR_MODULO = 3  # diversidad tematica (decision del usuario 2026-09-04)
 
 
 def cargar_peso_longitudinal_por_consecutivo(df: pd.DataFrame) -> pd.DataFrame:
@@ -170,11 +171,24 @@ def perfilar_transicion(panel_categorias: pd.DataFrame, region: pd.Series, dmsp:
         observed=False,
     ).round(1)
 
+    # Agregado por region (SIN desagregar por categoria) -- insumo del mapa
+    # esquematico: 1 valor de DMSP por region, para posicionar cada "burbuja"
+    # de region independientemente del color (grupo dominante).
+    dmsp_por_region = df.groupby("region", observed=False).apply(
+        lambda g: pd.Series({
+            "dmsp_media_ponderada": _media_ponderada(g),
+            "dmsp_mediana": g["dmsp_stable_lights"].median(),
+            "n_hogares": len(g),
+        }),
+        include_groups=False,
+    )
+
     return {
         "region_x_categoria_pct": region_x_categoria_pct,
         "region_x_categoria_n": region_x_categoria_n,
         "dmsp_por_categoria": dmsp_por_categoria,
         "dmsp_region_x_categoria": dmsp_region_x_categoria,
+        "dmsp_por_region": dmsp_por_region,
         "n_sin_peso": n_sin_peso,
         "n_sin_region": n_sin_region,
         "n_sin_dmsp": n_sin_dmsp,
@@ -361,8 +375,8 @@ def deduplicar_por_correlacion(ranking_robusto: pd.DataFrame, covariables: pd.Da
 def seleccionar_variables_finales(ranking: pd.DataFrame, covariables: pd.DataFrame, tipos_modulo: dict) -> list:
     """De las variables robustas y no-redundantes, arma la seleccion final:
     fuerza DMSP, y completa hasta N_VARIABLES_OBJETIVO priorizando efecto
-    pero evitando repetir un mismo `modulo` mas de 2 veces (diversidad
-    tematica, ver metodologia acordada)."""
+    pero evitando repetir un mismo `modulo` mas de MAX_POR_MODULO veces
+    (diversidad tematica, decision del usuario 2026-09-04: 3 por modulo)."""
     robustas = ranking[ranking["robusto"]].copy()
     sin_redundancia = deduplicar_por_correlacion(robustas, covariables)
 
@@ -373,13 +387,75 @@ def seleccionar_variables_finales(ranking: pd.DataFrame, covariables: pd.DataFra
         if var == VARIABLE_OBLIGATORIA or var in seleccion:
             continue
         modulo = tipos_modulo.get(var, "Otro")
-        if conteo_modulo.get(modulo, 0) >= 2 and len(seleccion) < N_VARIABLES_OBJETIVO:
+        if conteo_modulo.get(modulo, 0) >= MAX_POR_MODULO and len(seleccion) < N_VARIABLES_OBJETIVO:
             continue  # da preferencia a otros modulos mientras haya cupo
         seleccion.append(var)
         conteo_modulo[modulo] = conteo_modulo.get(modulo, 0) + 1
         if len(seleccion) >= N_VARIABLES_OBJETIVO + 1:  # +1 por DMSP
             break
     return seleccion
+
+
+def construir_tabla_comparativa(
+    covariables: pd.DataFrame, tipos: dict, panel: pd.DataFrame, seleccion: list, ranking: pd.DataFrame
+) -> pd.DataFrame:
+    """Tabla compacta final: 1 fila por variable seleccionada, con su valor
+    ponderado por grupo de transicion.
+
+    Numerica: media ponderada por `peso_longitudinal` (en unidades
+    originales -- se decidio no estandarizar la tabla de presentacion, el
+    z-score solo se uso internamente para el ranking).
+
+    Categorica/Booleana: en vez de desplegar TODOS los niveles (rompe la
+    compacidad), se reporta el nivel que mas separa a los 4 grupos --
+    definido automaticamente como el de mayor rango (max-min) de % de fila
+    entre grupos -- junto con el nombre de ese nivel, para que quede
+    transparente y reproducible cual categoria se esta mostrando.
+    """
+    df = panel.merge(covariables, left_on="consecutivo", right_index=True, how="left")
+    grupo, peso = df["categoria"], df["peso_longitudinal"]
+    filas = []
+    for var in seleccion:
+        tipo = tipos.get(var, "Numerica")
+        valores = df[var]
+        match = ranking.loc[ranking["variable"] == var, "efecto"]
+        efecto = float(match.iloc[0]) if len(match) else float("nan")
+
+        if tipo == "Numerica":
+            # Proporciones 0/1 mal clasificadas como Numerica en el
+            # inventario (ej. tiene_deuda_hogar, pct_adultos_alfabetizados):
+            # se muestran en % (x100) para que queden en la misma escala que
+            # las filas Categorica/Booleana de la tabla.
+            valores_no_nulos = valores.dropna()
+            es_proporcion = len(valores_no_nulos) > 0 and valores_no_nulos.between(0, 1).all()
+            escala = 100 if es_proporcion else 1
+            etiqueta = "(media, %)" if es_proporcion else "(media)"
+            medias = {}
+            for cat in CATEGORIAS_ORDEN:
+                mask = (grupo == cat) & valores.notna() & peso.notna()
+                medias[cat] = np.average(valores[mask], weights=peso[mask]) * escala if mask.sum() else float("nan")
+            filas.append({"variable": var, "tipo": tipo, "nivel_mostrado": etiqueta, "efecto": efecto, **medias})
+        else:
+            tmp = pd.DataFrame({"v": valores.astype(object), "g": grupo, "w": peso}).dropna()
+            tabla_pesos = tmp.pivot_table(index="v", columns="g", values="w", aggfunc="sum", fill_value=0, observed=False)
+            pct_col = tabla_pesos.div(tabla_pesos.sum(axis=0), axis=1) * 100  # % de fila (grupo) en cada nivel
+            if tipo == "Booleana":
+                # Solo 2 niveles (True/False), el rango es identico para
+                # ambos -- se muestra siempre el lado "True" (la condicion
+                # nombrada, ej. "% pobre por gasto"), mas natural de leer
+                # que su complemento.
+                nivel = True
+            else:
+                rango = pct_col.max(axis=1) - pct_col.min(axis=1)
+                nivel = rango.idxmax()
+            fila_nivel = pct_col.loc[nivel]
+            filas.append({
+                "variable": var, "tipo": tipo, "nivel_mostrado": str(nivel), "efecto": efecto,
+                **{cat: fila_nivel.get(cat, float("nan")) for cat in CATEGORIAS_ORDEN},
+            })
+
+    tabla = pd.DataFrame(filas).sort_values("efecto", ascending=False).reset_index(drop=True)
+    return tabla[["variable", "tipo", "nivel_mostrado", "efecto"] + CATEGORIAS_ORDEN]
 
 
 def main() -> None:
@@ -425,6 +501,7 @@ def main() -> None:
         perfil["dmsp_por_categoria"].reindex(CATEGORIAS_ORDEN).to_csv(
             TABLES_DIR / f"dmsp_por_categoria_{nombre}.csv"
         )
+        perfil["dmsp_por_region"].to_csv(TABLES_DIR / f"dmsp_por_region_{nombre}.csv")
 
         excluir = COLS_LABEL_MONETARIA if nombre == "monetaria" else set()
         panel = resultado["panel_categorias"]
@@ -442,6 +519,12 @@ def main() -> None:
         pd.Series(seleccion, name="variable").to_csv(
             TABLES_DIR / f"seleccion_final_{nombre}.csv", index=False
         )
+
+        tabla_comparativa = construir_tabla_comparativa(covariables, tipos, panel, seleccion, ranking)
+        print(f"\n--- Tabla comparativa final ({nombre}) ---")
+        with pd.option_context("display.max_rows", 20, "display.width", 140, "display.precision", 1):
+            print(tabla_comparativa.to_string(index=False))
+        tabla_comparativa.to_csv(TABLES_DIR / f"tabla_comparativa_{nombre}.csv", index=False)
 
     print(f"\nGuardado en: {TABLES_DIR}")
 

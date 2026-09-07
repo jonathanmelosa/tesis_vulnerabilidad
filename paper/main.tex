@@ -1568,6 +1568,166 @@ más móvil) --una limitación que se retoma más abajo.
   \label{fig:atricion}
 \end{figure}
 
+\subsection{Caracterización de los grupos de transición}
+\label{subsec:caracterizacion_grupos}
+
+Para complementar la matriz de transición de la Sección~\ref{subsec:transiciones}
+con una lectura descriptiva de qué diferencia a los cuatro grupos --no
+solo cuántos hogares hay en cada uno--, se seleccionaron las covariables
+que más los separan mediante un ranking por tamaño de efecto ($\eta^2$ de
+rangos para variables continuas, V de Cramér corregida por sesgo para
+categóricas/binarias, ambos ponderados por el factor de expansión
+longitudinal), filtrado por robustez bootstrap y depurado de redundancia
+por correlación. La iluminación nocturna (DMSP) se incluyó en todos los
+casos por ser una variable central de esta tesis, independientemente de
+su posición en el ranking.
+
+\paragraph{Limitación de cobertura geográfica.} La variable \texttt{region}
+de ELCA en realidad combina dos muestras distintas bajo el mismo nombre:
+Atlántica, Oriental, Central, Pacífica y Bogotá son \emph{exclusivamente
+urbanas} (cabeceras), mientras que Atlántica Media, Cundi-Boyacense, Eje
+Cafetero y Centro-Oriente son \emph{exclusivamente rurales}, restringidas
+a cuatro microrregiones campesinas específicas (verificado por cruce
+\texttt{region}$\times$\texttt{zona}, sin ningún caso mixto). En
+consecuencia, \emph{Pacífica} en las Figuras~\ref{fig:mapa_transicion_monetaria}
+y~\ref{fig:mapa_transicion_ipm} no representa a la región Pacífica del
+país sino solo a su muestra urbana (ej. Cali), y el diseño rural de ELCA
+no incluye en absoluto al Chocó rural ni a La Guajira --las zonas de
+mayor pobreza persistente del país--. Por eso el bajo nivel de pobreza y
+el DMSP relativamente alto que muestra \emph{Pacífica} en ambas
+figuras no deben leerse como evidencia sobre el Pacífico rural: reflejan
+una muestra urbana no representativa de esa subregión, y los datos de
+ELCA simplemente no permiten caracterizar los bolsones de pobreza
+extrema del país. Las etiquetas de las figuras distinguen
+\emph{(urbano)}/\emph{(rural)} para hacer esta limitación visible.
+
+\paragraph{Pobreza monetaria.} La Tabla~\ref{tab:covariables_transicion_monetaria}
+y la Figura~\ref{fig:mapa_transicion_monetaria} muestran que la brecha al
+umbral de pobreza y la zona de residencia son las covariables que más
+separan a los cuatro grupos en conjunto: los hogares siempre pobres son
+mayoritariamente rurales (69\%) y su ingreso está muy por debajo de la
+línea de pobreza, mientras que los nunca pobres son mayoritariamente
+urbanos (79\%) y su ingreso casi triplica esa línea. El grupo que
+\textbf{entra a la pobreza} --el grupo de interés de esta tesis-- es el
+que menos se ajusta a esta gradación simple: en 2010, \emph{antes} de
+caer, no se veía como un hogar en riesgo. Tenía la mayor proporción de
+jefes de hogar asalariados de los cuatro grupos (62\%, por encima incluso
+del 58\% de los nunca pobres, y muy por encima del 52\% de quienes
+salieron de la pobreza), un gasto per cápita más cercano al de los nunca
+pobres que al de quienes salen (\$247 mil frente a \$210 mil), y la menor
+dependencia de redes de conocidos para conseguir trabajo (62\%, la más
+baja de los cuatro grupos, frente al 69\% de quienes salen). En varios
+indicadores socioeconómicos convencionales de 2010, este grupo era casi
+indistinguible de los hogares que nunca cayeron en pobreza --el hallazgo
+central que motiva la tesis: la vulnerabilidad no se identifica solo a
+partir del perfil socioeconómico estático de un hogar. Donde sí se
+diferencia con claridad de los nunca pobres es en la zona de residencia
+(45\% rural frente a 21\%) y, de forma marcada, en la iluminación
+nocturna (36.4 frente a 50.1) --la brecha de DMSP entre \emph{entra} y
+\emph{nunca pobre} es una de las pocas señales sistemáticas y observables
+externamente (sin depender de lo que el hogar reporte de sí mismo) que
+distinguen a este grupo antes de que caiga, lo que justifica su uso como
+covariable predictiva. La iluminación nocturna, para los cuatro grupos,
+sigue un gradiente monótono y pronunciado (21.6 $\to$ 32.6 $\to$ 36.4
+$\to$ 50.1) que reproduce casi exactamente el ordenamiento de bienestar.
+Espacialmente (Figura~\ref{fig:mapa_transicion_monetaria}), la pobreza
+persistente se concentra en las microrregiones rurales andinas
+(Cundi-Boyacense, Centro-Oriente y Atlántica Media, 64--66\% de hogares
+siempre pobres, DMSP por debajo de 9), mientras Bogotá concentra la mayor
+proporción de hogares nunca pobres (70\%, DMSP=63).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../outputs/figures/eda_transicion_covariables/mapa_transicion_regiones_monetaria.png}
+  \caption{Grupo de transición dominante por región e iluminación
+  nocturna (DMSP), pobreza monetaria, 2010$\to$2013.}
+  \label{fig:mapa_transicion_monetaria}
+\end{figure}
+
+\input{tables/tab_covariables_transicion_monetaria.tex}
+
+\paragraph{Pobreza multidimensional (IPM).} El mismo ejercicio
+(Tabla~\ref{tab:covariables_transicion_ipm},
+Figura~\ref{fig:mapa_transicion_ipm}) muestra un patrón aún más marcado en
+las privaciones de vivienda y educación: piso de tierra (61\% en siempre
+pobres frente a 5\% en nunca pobres) y jefe de hogar sin ningún nivel
+educativo (42\% frente a 2\%) son las covariables --junto con la zona
+rural-- que más separan a los grupos en conjunto. A diferencia de lo
+observado bajo pobreza monetaria, aquí el grupo que \textbf{entra a la
+pobreza} sí muestra señales de vulnerabilidad claramente visibles
+\emph{antes} de la transición, y ya se parece más a los hogares
+persistentemente pobres que a los nunca pobres en varias covariables de
+vivienda: 20\% vive en piso de tierra (frente a apenas 5\% de los nunca
+pobres), solo 34\% tiene acueducto público (frente a 64\%), y el jefe de
+hogar trabaja como jornalero en 25\% de los casos (frente a 6\% entre los
+nunca pobres). También arrastra una carga de pobreza monetaria previa
+mayor que el grupo que logra salir: 68\% ya era pobre por gasto en 2010
+(pobre por ingreso y por gasto, ambas seleccionadas de forma independiente
+por el ranking), frente a 58\% de quienes salen --sugiriendo que, bajo la
+óptica multidimensional, la entrada a la pobreza es menos un evento
+repentino y más la continuación de privaciones que ya venían acumulándose.
+Esto contrasta con el panorama monetario, donde quienes entran partían de
+un perfil socioeconómico mucho más parecido al de los nunca pobres. La
+iluminación nocturna conserva el mismo gradiente monótono
+(13.8 $\to$ 16.7 $\to$ 23.0 $\to$ 40.7) y, también aquí, separa con
+claridad a quienes entran (23.0) de los nunca pobres (40.7), aun cuando
+ambos grupos comparten cierto parecido en alfabetización de adultos
+(92\% frente a 98\%). Los niveles de DMSP son, en general, más bajos que
+en monetaria para los grupos pobres, indicando que la privación
+multidimensional persistente ocurre en zonas aún más oscuras/rurales que
+la pobreza monetaria persistente. Espacialmente, el patrón muestra una
+concentración de \emph{nunca pobres} aún mayor que en monetaria: Bogotá
+(95\%) y Pacífica (90\%) casi no registran hogares siempre pobres por
+IPM, a diferencia de lo que se observa bajo la definición monetaria
+(Sección anterior).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../outputs/figures/eda_transicion_covariables/mapa_transicion_regiones_ipm.png}
+  \caption{Grupo de transición dominante por región e iluminación
+  nocturna (DMSP), pobreza multidimensional (IPM), 2010$\to$2013.}
+  \label{fig:mapa_transicion_ipm}
+\end{figure}
+
+\input{tables/tab_covariables_transicion_ipm.tex}
+
+\paragraph{Síntesis: quiénes son los hogares que entran a la pobreza.}
+Este grupo --el que define la vulnerabilidad estudiada en esta tesis--
+tiene un perfil que depende de cómo se defina la pobreza, y esa diferencia
+es en sí misma un hallazgo relevante. Bajo pobreza \textbf{monetaria}, la
+entrada a la pobreza es difícil de anticipar con el perfil socioeconómico
+de 2010: quienes entran tienen, si acaso, mejores indicadores laborales y
+de gasto que quienes logran salir, y se parecen mucho a los hogares que
+nunca fueron pobres --consistentes con un choque de ingreso más que con
+una condición preexistente--. Bajo pobreza \textbf{multidimensional}, en
+cambio, quienes entran ya arrastraban privaciones de vivienda, servicios
+y ocupación visibles antes de la transición, más parecidas a las de los
+hogares siempre pobres --consistente con una acumulación gradual de
+privaciones más que con un choque puntual--. Lo que sí se mantiene en
+ambas definiciones es que la iluminación nocturna separa con claridad a
+quienes entran de los nunca pobres (monetaria: 36.4 frente a 50.1; IPM:
+23.0 frente a 40.7), incluso en el caso monetario donde casi ninguna otra
+covariable estática lo logra --el argumento más directo, a partir de esta
+caracterización descriptiva, para incorporar DMSP como covariable
+geoespacial en los modelos predictivos de la Sección~\ref{subsec:desempeno}.
+
+\paragraph{Comparación entre definiciones.} De las 11 covariables
+seleccionadas (además de DMSP) para cada definición, 6 son comunes a
+ambas (zona, material de piso, educación del jefe, servicio sanitario,
+ocupación del jefe y DMSP) y 6 son exclusivas de cada una --monetaria
+aporta variables estrictamente monetarias y de activos (brecha a la LP,
+gasto, deuda formal, espacios públicos), mientras IPM aporta variables de
+acceso a servicios y capital humano (obtención de agua, alfabetización,
+tenencia de vivienda) y, de forma notable, la propia pobreza monetaria de
+2010 como predictor--. Esto sugiere que ambas definiciones comparten un
+núcleo estructural (vivienda, educación, ocupación) pero capturan
+dimensiones adicionales distintas y complementarias. La diferencia más
+sustantiva está en la magnitud del contraste espacial: bajo IPM, las
+regiones urbanas (Bogotá, Pacífica, Central) muestran una proporción de
+hogares nunca pobres considerablemente mayor que bajo pobreza monetaria,
+consistente con que el acceso a servicios básicos se expandió más rápido
+que la reducción de la pobreza por ingresos en esas zonas.
+
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
 
