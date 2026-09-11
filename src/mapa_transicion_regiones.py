@@ -34,10 +34,10 @@ los datos no respaldan. Las coordenadas de cada burbuja en
 cada region (no un centroide calculado), documentadas como tal en el
 titulo de la figura.
 
-INPUTS
-    outputs/tables/eda_transicion_covariables/region_x_categoria_{nombre}.csv
+INPUTS (transicion 2010->2013, la unica que este mapa visualiza por ahora)
+    outputs/tables/eda_transicion_covariables/region_x_categoria_{nombre}_2010_2013.csv
     outputs/tables/eda_transicion_covariables/region_x_categoria_n... (ver nota)
-    outputs/tables/eda_transicion_covariables/dmsp_por_region_{nombre}.csv
+    outputs/tables/eda_transicion_covariables/dmsp_por_region_{nombre}_2010_2013.csv
     data/interim/geo_referencia/gadm41_COL_0.shp (contorno nacional, GADM 4.1,
         descargado de geodata.ucdavis.edu -- solo el nivel 0/pais, sin
         subdivisiones, para dar contexto visual)
@@ -124,11 +124,11 @@ ETIQUETA_REGION = {
 
 
 def cargar_datos_region(nombre: str) -> pd.DataFrame:
-    pct = pd.read_csv(TABLES_DIR / f"region_x_categoria_{nombre}.csv", index_col=0)
+    pct = pd.read_csv(TABLES_DIR / f"region_x_categoria_{nombre}_2010_2013.csv", index_col=0)
     # n_hogares por region no se guardo en un CSV aparte; se toma de
     # dmsp_por_region_{nombre}.csv, que ya trae n_hogares junto al DMSP
     # agregado (ver eda_transicion_covariables.py::perfilar_transicion).
-    dmsp = pd.read_csv(TABLES_DIR / f"dmsp_por_region_{nombre}.csv", index_col=0)
+    dmsp = pd.read_csv(TABLES_DIR / f"dmsp_por_region_{nombre}_2010_2013.csv", index_col=0)
 
     datos = pct.copy()
     datos["grupo_dominante"] = datos[CATEGORIAS_ORDEN].idxmax(axis=1)

@@ -1568,19 +1568,24 @@ más móvil) --una limitación que se retoma más abajo.
   \label{fig:atricion}
 \end{figure}
 
-\subsection{Caracterización de los grupos de transición}
+\subsection{Perfil de los hogares vulnerables}
 \label{subsec:caracterizacion_grupos}
 
-Para complementar la matriz de transición de la Sección~\ref{subsec:transiciones}
-con una lectura descriptiva de qué diferencia a los cuatro grupos --no
-solo cuántos hogares hay en cada uno--, se seleccionaron las covariables
-que más los separan mediante un ranking por tamaño de efecto ($\eta^2$ de
-rangos para variables continuas, V de Cramér corregida por sesgo para
-categóricas/binarias, ambos ponderados por el factor de expansión
-longitudinal), filtrado por robustez bootstrap y depurado de redundancia
-por correlación. La iluminación nocturna (DMSP) se incluyó en todos los
-casos por ser una variable central de esta tesis, independientemente de
-su posición en el ranking.
+Esta sección construye un perfil detallado del grupo que define la vulnerabilidad
+estudiada en esta tesis: los hogares que \textbf{entran en pobreza} entre 2010 y
+2013 --no pobres en la ola inicial, pobres en la siguiente--, contrastado contra
+los otros tres grupos de la matriz de transición (Sección~\ref{subsec:transiciones}).
+Se seleccionaron todas las covariables individualmente robustas frente a esta
+tipología de 4 grupos (tamaño de efecto --$\eta^2$ de rangos para variables
+numéricas, V de Cramér sesgo-corregida para categóricas/booleanas, ambos
+ponderados por el factor de expansión longitudinal-- superior a 0.10, con
+intervalo de confianza bootstrap de 300 réplicas que no cruza cero), sin
+colapsar las que están correlacionadas entre sí --a diferencia de una versión
+preliminar de esta sección, aquí se opta por mostrar covariables redundantes
+juntas cuando miden el mismo fenómeno, en vez de ocultarlas--. El resultado son
+40 variables para pobreza monetaria, organizadas en 9 categorías temáticas: las
+de mayor número de variables se presentan en tabla, y las de 1 a 3 variables en
+gráfico (línea y valor real por grupo de transición).
 
 \paragraph{Limitación de cobertura geográfica.} La variable \texttt{region}
 de ELCA en realidad combina dos muestras distintas bajo el mismo nombre:
@@ -1601,36 +1606,155 @@ ELCA simplemente no permiten caracterizar los bolsones de pobreza
 extrema del país. Las etiquetas de las figuras distinguen
 \emph{(urbano)}/\emph{(rural)} para hacer esta limitación visible.
 
-\paragraph{Pobreza monetaria.} La Tabla~\ref{tab:covariables_transicion_monetaria}
-y la Figura~\ref{fig:mapa_transicion_monetaria} muestran que la brecha al
-umbral de pobreza y la zona de residencia son las covariables que más
-separan a los cuatro grupos en conjunto: los hogares siempre pobres son
-mayoritariamente rurales (69\%) y su ingreso está muy por debajo de la
-línea de pobreza, mientras que los nunca pobres son mayoritariamente
-urbanos (79\%) y su ingreso casi triplica esa línea. El grupo que
-\textbf{entra a la pobreza} --el grupo de interés de esta tesis-- es el
-que menos se ajusta a esta gradación simple: en 2010, \emph{antes} de
-caer, no se veía como un hogar en riesgo. Tenía la mayor proporción de
-jefes de hogar asalariados de los cuatro grupos (62\%, por encima incluso
-del 58\% de los nunca pobres, y muy por encima del 52\% de quienes
-salieron de la pobreza), un gasto per cápita más cercano al de los nunca
-pobres que al de quienes salen (\$247 mil frente a \$210 mil), y la menor
-dependencia de redes de conocidos para conseguir trabajo (62\%, la más
-baja de los cuatro grupos, frente al 69\% de quienes salen). En varios
-indicadores socioeconómicos convencionales de 2010, este grupo era casi
-indistinguible de los hogares que nunca cayeron en pobreza --el hallazgo
-central que motiva la tesis: la vulnerabilidad no se identifica solo a
-partir del perfil socioeconómico estático de un hogar. Donde sí se
-diferencia con claridad de los nunca pobres es en la zona de residencia
-(45\% rural frente a 21\%) y, de forma marcada, en la iluminación
-nocturna (36.4 frente a 50.1) --la brecha de DMSP entre \emph{entra} y
-\emph{nunca pobre} es una de las pocas señales sistemáticas y observables
-externamente (sin depender de lo que el hogar reporte de sí mismo) que
-distinguen a este grupo antes de que caiga, lo que justifica su uso como
-covariable predictiva. La iluminación nocturna, para los cuatro grupos,
-sigue un gradiente monótono y pronunciado (21.6 $\to$ 32.6 $\to$ 36.4
-$\to$ 50.1) que reproduce casi exactamente el ordenamiento de bienestar.
-Espacialmente (Figura~\ref{fig:mapa_transicion_monetaria}), la pobreza
+\paragraph{Ingreso y gasto.} El hogar vulnerable típico tenía en 2010 un
+ingreso per cápita de \$269.036 mensuales (1.58 veces la línea de pobreza),
+más de cuatro veces el del hogar que permanece pobre (\$65.310, 0.42 veces
+la LP) pero menos de la mitad del que nunca cae (\$633.275, 3.26 veces la
+LP). El patrón en gasto es más plano: \$246.658 frente a \$661.906 en el
+hogar nunca pobre --una brecha proporcionalmente menor que en ingreso--,
+consistente con que el gasto amortigua mejor un choque transitorio que el
+ingreso reportado del mismo periodo.
+
+\input{tables/tab_perfil_ingreso_y_gasto_monetaria.tex}
+
+\paragraph{Zona de residencia.} El 44.7\% de los hogares vulnerables (bajo
+pobreza monetaria) vive en zona rural, un punto intermedio entre el hogar
+que nunca cae (20.9\%) y el siempre pobre (69.0\%) --la zona rural por sí
+sola no distingue con fuerza a quien está en riesgo de quien no lo está,
+a diferencia de lo que ocurre bajo la definición multidimensional (ver más
+adelante, donde la cifra equivalente es 67.2\%)--.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_zona_de_residencia_monetaria.png}
+  \caption{Zona de residencia por grupo de transición, pobreza monetaria (2010$\to$2013).}
+  \label{fig:perfil_zona_monetaria}
+\end{figure}
+
+\paragraph{Vivienda: materiales y servicios.} Las ocho variables de este
+grupo --material de piso, combustible de cocina, servicio sanitario,
+recolección de basura, obtención de agua, tipo de vivienda, material de
+paredes y tenencia-- se mueven de forma casi idéntica entre los cuatro
+grupos, lo que confirma que miden un mismo fenómeno subyacente (calidad de
+la vivienda) desde ángulos distintos. El hogar vulnerable está a medio
+camino en todas: 35\% tiene piso de baldosa o similar (14\% en siempre
+pobre, 59\% en nunca pobre), 55\% tiene inodoro conectado a alcantarillado
+(26\% frente a 79\%), y 58\% tiene acueducto público (31\% frente a 79\%).
+La excepción es tenencia de vivienda: el hogar vulnerable tiene una tasa de
+usufructo (27.6\%) más cercana a la del hogar siempre pobre (33.2\%) que a
+la del nunca pobre (15.1\%), sugiriendo una situación de tenencia menos
+consolidada incluso antes de caer.
+
+\input{tables/tab_perfil_vivienda_materiales_y_servicios_monetaria.tex}
+
+\paragraph{Vivienda: hacinamiento.} El hogar vulnerable paga en promedio
+\$239.624 de arriendo (frente a \$144.197 en siempre pobre y \$354.234 en
+nunca pobre) y tiene 1.49 personas por cuarto (2.13 en siempre pobre, 1.11
+en nunca pobre) --un gradiente claro y monótono en las tres variables de
+este grupo--.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_vivienda_hacinamiento_monetaria.png}
+  \caption{Hacinamiento y arriendo por grupo de transición, pobreza monetaria (2010$\to$2013).}
+  \label{fig:perfil_hacinamiento_monetaria}
+\end{figure}
+
+\paragraph{Activos del hogar.} El patrón más marcado de esta categoría es el
+acceso a internet: solo 13.4\% de los hogares vulnerables lo tiene, frente
+a 45.7\% de los que nunca caen --una brecha más amplia, proporcionalmente,
+que la de ingreso--. El índice de riqueza (PCA) del hogar vulnerable
+(0.21) ya está por encima del promedio de la muestra, más cerca del hogar
+que sale de la pobreza (-0.02) que del que nunca cae (1.06), y el número de
+bienes durables (6.3) y de servicios públicos con los que cuenta (3.65)
+son consistentemente intermedios.
+
+\input{tables/tab_perfil_activos_del_hogar_monetaria.tex}
+
+\paragraph{Educación y empleo del jefe de hogar.} Este es el grupo de
+variables donde el hogar vulnerable se parece \emph{menos} a un perfil
+gradual y \emph{más} al hogar que nunca cae: 62.3\% de los jefes de hogar
+vulnerables son asalariados --más que en cualquier otro grupo, incluido el
+nunca pobre (57.9\%)--, y su nivel educativo (47.4\% con solo primaria
+básica) es prácticamente igual al del hogar que sale de la pobreza
+(48.6\%) y muy distinto del siempre pobre (59.3\%). La cotización a pensión
+es la excepción parcial: el hogar vulnerable cotiza más que el que
+permanece pobre pero bastante menos que el que nunca cae (jefe: 23.9\%
+frente a 42.8\%; hogar: 17.9\% frente a 38.4\%) --aun así, mucho más cerca
+del hogar que sale de la pobreza (21.3\% y 15.8\%, respectivamente) que del
+que nunca cayó--. Este es el hallazgo central de la Sección~\ref{subsec:transiciones}
+confirmado covariable por covariable: bajo pobreza monetaria, quien entra
+en pobreza no se distingue por un perfil laboral o educativo deteriorado,
+sino que se parece al hogar que nunca cayó hasta el momento mismo de la
+transición.
+
+\input{tables/tab_perfil_educacion_y_empleo_del_jefe_monetaria.tex}
+
+\paragraph{Programas sociales y deuda.} El hogar vulnerable recibe menos
+apoyo estatal que el hogar siempre pobre pero más que el que nunca cae:
+22.8\% es beneficiario de Familias en Acción (53.3\% en siempre pobre, 7.5\%
+en nunca pobre) y 31.2\% de algún programa social (60.5\% frente a 15.0\%)
+--coherente con una focalización que en 2010 ya identificaba correctamente
+a los hogares en riesgo, aunque no evitó que una parte de ellos cayera--.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_programas_sociales_y_deuda_monetaria.png}
+  \caption{Programas sociales por grupo de transición, pobreza monetaria (2010$\to$2013).}
+  \label{fig:perfil_programas_monetaria}
+\end{figure}
+
+\paragraph{Composición del hogar.} El hogar vulnerable tiene en promedio
+0.79 niños menores de 12 años y una razón de dependencia demográfica de
+0.56 --ambas cifras intermedias entre siempre pobre (1.45 niños, razón
+0.93) y nunca pobre (0.57 niños, razón 0.43)--, sin ningún patrón que lo
+distinga marcadamente de un gradiente simple por nivel de bienestar.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_composicion_del_hogar_monetaria.png}
+  \caption{Composición del hogar por grupo de transición, pobreza monetaria (2010$\to$2013).}
+  \label{fig:perfil_composicion_monetaria}
+\end{figure}
+
+\paragraph{Geoespacial: iluminación nocturna.} La luz nocturna del hogar
+vulnerable (36.4, escala DMSP-OLS 0-63) separa con más claridad del hogar
+que nunca cae (50.1) que la mayoría de las covariables de encuesta
+convencionales, pese a no depender de lo que el hogar reporte de sí mismo
+--el argumento central para su inclusión como covariable geoespacial,
+desarrollado en la Sección~\ref{subsec:marginal}--.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_geoespacial_monetaria.png}
+  \caption{Iluminación nocturna (DMSP) por grupo de transición, pobreza monetaria (2010$\to$2013).}
+  \label{fig:perfil_geoespacial_monetaria}
+\end{figure}
+
+\paragraph{Otras fuentes geoespaciales (exploratorio).} ALOS PALSAR (radar)
+y Landsat 5 TM (NDVI) muestran el mismo gradiente que DMSP-OLS para el
+radar --el hogar vulnerable (-7.54 dB) queda entre el siempre pobre (-8.46)
+y el nunca pobre (-6.49)--, pero un patrón \emph{invertido} para la
+vegetación: el NDVI es más alto en el hogar siempre pobre (0.46) que en el
+nunca pobre (0.32), con el vulnerable en un punto intermedio (0.41)
+--consistente con que las zonas de mayor pobreza en esta muestra son más
+rurales y, por tanto, más verdes, mientras que las zonas de mayor
+bienestar están más urbanizadas--. A diferencia de DMSP-OLS, estas dos
+variables no forman parte del universo de covariables sometido al filtro
+de robustez de esta sección (Sección~\ref{subsec:marginal} explica por qué
+se evaluaron con una metodología exploratoria distinta, sin holdout real
+en la ola de prueba); esta figura es puramente descriptiva.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_otras_fuentes_geoespaciales_monetaria.png}
+  \caption{ALOS PALSAR y Landsat 5 TM (NDVI) por grupo de transición,
+  pobreza monetaria (2010$\to$2013). Ejercicio exploratorio, no sometido
+  al mismo filtro de robustez que DMSP-OLS.}
+  \label{fig:perfil_otras_geo_monetaria}
+\end{figure}
+
+Espacialmente, el mismo patrón se confirma a nivel de región: la pobreza
 persistente se concentra en las microrregiones rurales andinas
 (Cundi-Boyacense, Centro-Oriente y Atlántica Media, 64--66\% de hogares
 siempre pobres, DMSP por debajo de 9), mientras Bogotá concentra la mayor
@@ -1644,42 +1768,37 @@ proporción de hogares nunca pobres (70\%, DMSP=63).
   \label{fig:mapa_transicion_monetaria}
 \end{figure}
 
-\input{tables/tab_covariables_transicion_monetaria.tex}
+\paragraph{Pobreza multidimensional (IPM): síntesis y comparación.} El
+mismo ejercicio se repitió para pobreza multidimensional (36 variables
+robustas, Anexo~\ref{apx:tablas}) y muestra un patrón
+cualitativamente distinto al monetario: bajo IPM, quien entra en pobreza sí
+muestra señales de privación claramente visibles \emph{antes} de la
+transición --20\% vive en piso de tierra (frente a 5\% de los nunca
+pobres), solo 34\% tiene acceso a acueducto público (frente a 64\%), y
+67.2\% vive en zona rural, más de 30 puntos por encima del 36.5\% del hogar
+nunca pobre--, más parecido al hogar siempre pobre que al que nunca cayó.
+Esto es consistente con la Sección~\ref{subsec:transiciones}: bajo la
+óptica multidimensional, la entrada a pobreza es menos un evento repentino
+y más la continuación de privaciones que ya venían acumulándose.
 
-\paragraph{Pobreza multidimensional (IPM).} El mismo ejercicio
-(Tabla~\ref{tab:covariables_transicion_ipm},
-Figura~\ref{fig:mapa_transicion_ipm}) muestra un patrón aún más marcado en
-las privaciones de vivienda y educación: piso de tierra (61\% en siempre
-pobres frente a 5\% en nunca pobres) y jefe de hogar sin ningún nivel
-educativo (42\% frente a 2\%) son las covariables --junto con la zona
-rural-- que más separan a los grupos en conjunto. A diferencia de lo
-observado bajo pobreza monetaria, aquí el grupo que \textbf{entra a la
-pobreza} sí muestra señales de vulnerabilidad claramente visibles
-\emph{antes} de la transición, y ya se parece más a los hogares
-persistentemente pobres que a los nunca pobres en varias covariables de
-vivienda: 20\% vive en piso de tierra (frente a apenas 5\% de los nunca
-pobres), solo 34\% tiene acueducto público (frente a 64\%), y el jefe de
-hogar trabaja como jornalero en 25\% de los casos (frente a 6\% entre los
-nunca pobres). También arrastra una carga de pobreza monetaria previa
-mayor que el grupo que logra salir: 68\% ya era pobre por gasto en 2010
-(pobre por ingreso y por gasto, ambas seleccionadas de forma independiente
-por el ranking), frente a 58\% de quienes salen --sugiriendo que, bajo la
-óptica multidimensional, la entrada a la pobreza es menos un evento
-repentino y más la continuación de privaciones que ya venían acumulándose.
-Esto contrasta con el panorama monetario, donde quienes entran partían de
-un perfil socioeconómico mucho más parecido al de los nunca pobres. La
-iluminación nocturna conserva el mismo gradiente monótono
-(13.8 $\to$ 16.7 $\to$ 23.0 $\to$ 40.7) y, también aquí, separa con
-claridad a quienes entran (23.0) de los nunca pobres (40.7), aun cuando
-ambos grupos comparten cierto parecido en alfabetización de adultos
-(92\% frente a 98\%). Los niveles de DMSP son, en general, más bajos que
-en monetaria para los grupos pobres, indicando que la privación
-multidimensional persistente ocurre en zonas aún más oscuras/rurales que
-la pobreza monetaria persistente. Espacialmente, el patrón muestra una
-concentración de \emph{nunca pobres} aún mayor que en monetaria: Bogotá
-(95\%) y Pacífica (90\%) casi no registran hogares siempre pobres por
-IPM, a diferencia de lo que se observa bajo la definición monetaria
-(Sección anterior).
+De las 40 variables del perfil monetario y las 36 del perfil IPM, 27 son
+\textbf{comunes a ambas definiciones} --zona, todas las variables de
+vivienda y materiales, ingreso y gasto per cápita, educación y ocupación
+del jefe, tenencia y hacinamiento, riqueza (PCA), bienes durables,
+servicios públicos e iluminación nocturna--: el núcleo estructural de la
+vulnerabilidad no depende de cómo se mida la pobreza. Las 13 variables
+\textbf{exclusivas de monetaria} son mayoritariamente financieras y de
+protección social específicas (activos financieros, beneficiario de
+programas, estrato, número de hijos, arriendo, acceso a internet). Las 11
+\textbf{exclusivas de IPM} incluyen, de forma reveladora, la pobreza
+monetaria del propio hogar en 2010 (\texttt{pobre\_ingreso},
+\texttt{pobre\_extremo\_ingreso}, \texttt{pobre\_gasto},
+\texttt{pobre\_extremo\_gasto} figuran como covariables robustas para
+predecir la transición \emph{multidimensional}), junto con alfabetización
+de adultos y cuidado infantil por terceros --sugiere que la pobreza
+monetaria previa es, en sí misma, uno de los mejores predictores de caer en
+pobreza multidimensional, mientras que lo inverso no se sostiene con la
+misma fuerza--.
 
 \begin{figure}[H]
   \centering
@@ -1688,46 +1807,6 @@ IPM, a diferencia de lo que se observa bajo la definición monetaria
   nocturna (DMSP), pobreza multidimensional (IPM), 2010$\to$2013.}
   \label{fig:mapa_transicion_ipm}
 \end{figure}
-
-\input{tables/tab_covariables_transicion_ipm.tex}
-
-\paragraph{Síntesis: quiénes son los hogares que entran a la pobreza.}
-Este grupo --el que define la vulnerabilidad estudiada en esta tesis--
-tiene un perfil que depende de cómo se defina la pobreza, y esa diferencia
-es en sí misma un hallazgo relevante. Bajo pobreza \textbf{monetaria}, la
-entrada a la pobreza es difícil de anticipar con el perfil socioeconómico
-de 2010: quienes entran tienen, si acaso, mejores indicadores laborales y
-de gasto que quienes logran salir, y se parecen mucho a los hogares que
-nunca fueron pobres --consistentes con un choque de ingreso más que con
-una condición preexistente--. Bajo pobreza \textbf{multidimensional}, en
-cambio, quienes entran ya arrastraban privaciones de vivienda, servicios
-y ocupación visibles antes de la transición, más parecidas a las de los
-hogares siempre pobres --consistente con una acumulación gradual de
-privaciones más que con un choque puntual--. Lo que sí se mantiene en
-ambas definiciones es que la iluminación nocturna separa con claridad a
-quienes entran de los nunca pobres (monetaria: 36.4 frente a 50.1; IPM:
-23.0 frente a 40.7), incluso en el caso monetario donde casi ninguna otra
-covariable estática lo logra --el argumento más directo, a partir de esta
-caracterización descriptiva, para incorporar DMSP como covariable
-geoespacial en los modelos predictivos de la Sección~\ref{subsec:desempeno}.
-
-\paragraph{Comparación entre definiciones.} De las 11 covariables
-seleccionadas (además de DMSP) para cada definición, 6 son comunes a
-ambas (zona, material de piso, educación del jefe, servicio sanitario,
-ocupación del jefe y DMSP) y 6 son exclusivas de cada una --monetaria
-aporta variables estrictamente monetarias y de activos (brecha a la LP,
-gasto, deuda formal, espacios públicos), mientras IPM aporta variables de
-acceso a servicios y capital humano (obtención de agua, alfabetización,
-tenencia de vivienda) y, de forma notable, la propia pobreza monetaria de
-2010 como predictor--. Esto sugiere que ambas definiciones comparten un
-núcleo estructural (vivienda, educación, ocupación) pero capturan
-dimensiones adicionales distintas y complementarias. La diferencia más
-sustantiva está en la magnitud del contraste espacial: bajo IPM, las
-regiones urbanas (Bogotá, Pacífica, Central) muestran una proporción de
-hogares nunca pobres considerablemente mayor que bajo pobreza monetaria,
-consistente con que el acceso a servicios básicos se expandió más rápido
-que la reducción de la pobreza por ingresos en esas zonas.
-
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
 
@@ -2266,6 +2345,24 @@ robustez territorial de los hallazgos.
 % Robusteces, descriptivos adicionales, mapas,
 % curvas ROC por modelo, etc.
 % Las tablas del apéndice NO cuentan en el límite de 35 pp.
+
+\subsection{Perfil completo de covariables, pobreza multidimensional (IPM)}
+\label{apx:perfil_ipm}
+
+Complemento de la Sección~\ref{subsec:caracterizacion_grupos}: perfil
+completo de covariables robustas frente a la transición
+2010$\to$2013 bajo pobreza multidimensional (mismo criterio de inclusión
+que en pobreza monetaria -- efecto$>$0.10 con bootstrap, sin deduplicar
+por correlación), una tabla por categoría temática.
+
+\input{tables/tab_perfil_ingreso_y_gasto_ipm.tex}
+\input{tables/tab_perfil_zona_de_residencia_ipm.tex}
+\input{tables/tab_perfil_vivienda_materiales_y_servicios_ipm.tex}
+\input{tables/tab_perfil_vivienda_hacinamiento_ipm.tex}
+\input{tables/tab_perfil_activos_del_hogar_ipm.tex}
+\input{tables/tab_perfil_educacion_y_empleo_del_jefe_ipm.tex}
+\input{tables/tab_perfil_composicion_del_hogar_ipm.tex}
+\input{tables/tab_perfil_geoespacial_ipm.tex}
 
 \section{Detalles de construcción de variables geoespaciales}
 \label{apx:geo}

@@ -197,6 +197,22 @@ def cargar_pesos_muestrales(df: pd.DataFrame, llave: pd.Series) -> pd.DataFrame:
     pobreza monetaria via `cargar_pesos_ingreso_robustez`, y por IPM en
     `eda_transicion_covariables.py` -- misma logica, sin las reclasificaciones
     de robustez de ingreso que solo aplican a pobreza monetaria).
+
+    Caveat observado en validacion (2026-09-10, no bloquea, queda como
+    observacion): `peso_longitudinal` (`fexhog_2010`) se documenta como
+    "anclado a la ola 1, constante en las olas 2 y 3", pero para 43 de
+    6,911 hogares (0.6%, verificado 1 a 1, sin division de hogar) el valor
+    de `fexhog_2010` difiere ligeramente entre su fila de ola 2 y su fila
+    de ola 3 en `HOGAR_PATH` (diferencia maxima ~3.5 unidades) -- verificado
+    que la discrepancia ya esta en la fuente (HOGAR_PATH), no es un
+    artefacto de esta funcion ni de `_llave_compuesta` (0 colisiones de
+    llave en 27,932 filas). Probable recalibracion/redondeo distinto del
+    factor de expansion entre los archivos de pesos publicados por ola de
+    la ELCA. Efecto en cualquier analisis ponderado que use
+    `peso_longitudinal`: inmaterial (0.6% de los hogares, magnitud minima
+    frente al peso tipico), pero cualquier resultado se calcula con el
+    valor de la fila de la ola que se este usando en ese momento (ola 2 o
+    ola 3 segun el caso), no con un valor "canonico" unico por hogar.
     """
     hogar = pd.read_parquet(HOGAR_PATH)[
         ["consecutivo", "ola", "llave", "llave_n16", "fexhog", "fexhog_2013", "fexhog_2010"]

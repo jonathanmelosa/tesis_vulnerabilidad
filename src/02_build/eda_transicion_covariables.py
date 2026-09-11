@@ -1,19 +1,35 @@
 """
-Caracterizacion de los 4 grupos de transicion de pobreza (2010->2013),
-pobreza monetaria e IPM, para la seccion de la tesis sobre diferencias en
+Caracterizacion de los 4 grupos de transicion de pobreza, pobreza
+monetaria e IPM, para la seccion de la tesis sobre diferencias en
 covariables entre poblaciones de estudio.
+
+Corre sobre AMBAS transiciones disponibles en el panel ELCA (ver
+TRANSICIONES mas abajo): 2010->2013 (ola 1 -> ola 2) y 2013->2016 (ola
+2 -> ola 3), para poder comparar si el perfil de "quien entra a pobreza"
+se repite en un periodo distinto (decision del usuario 2026-09-10: correr
+la Parte A -- misma metodologia, poblacion de la 2a transicion tratada de
+forma independiente, igual que ya lo hacen los modelos de ML -- antes de
+la Parte B, seguimiento de los mismos hogares en las 3 olas).
+
+Nomenclatura de archivos: TODOS los outputs (incluidos los de la
+transicion 2010->2013 que antes no llevaban sufijo) ahora incluyen el
+sufijo de transicion (`_2010_2013` / `_2013_2016`), decision explicita
+del usuario para mantener el patron simetrico -- esto obliga a actualizar
+las referencias en `mapa_transicion_regiones.py` y
+`tabla_covariables_transicion.py`, ya hecho en el mismo commit que este
+cambio.
 
 Grupos (Lopez-Calva y Ortiz-Juarez 2014, Tabla 3, ya implementados en
 `construir_matriz_transicion` de build_pobreza_desagregaciones.py):
 Siempre pobre / Sale de la pobreza / Entra en pobreza / Nunca pobre.
 
-ETAPA 1 de este script (la unica implementada por ahora, pendiente de
-validacion con el usuario antes de construir el ranking de covariables y
-el mapa): agregacion de los 4 grupos por `region` (unica variable
-geografica valida en ELCA -- `id_dpto`/`id_mpio` son "identificador falso"
-segun el diccionario oficial de la encuesta, ver docs/decisions.md linea
-739 y elca_2010_unido.pdf HR4/HR5) y perfil de iluminacion nocturna
-(dmsp_stable_lights, ola 2010) por grupo.
+DMSP-OLS por transicion: la variable geoespacial insignia se toma SIEMPRE
+de la ola BASE de cada transicion (2010 para 2010->2013, 2013 para
+2013->2016) -- DMSP-OLS fue descontinuado despues de 2013 (reemplazado
+por VIIRS), asi que 2016 no tiene cobertura, pero eso no afecta a ninguna
+de las dos transiciones porque ninguna usa 2016 como ola BASE (ver
+`cargar_dmsp_por_consecutivo`, coberturas verificadas: 100% en 2010 y en
+2013, 0% en 2016).
 
 Ponderacion: `peso_longitudinal` (fexhog_2010) para AMBAS definiciones de
 pobreza, calculado aqui para IPM reusando `cargar_pesos_muestrales`
@@ -23,15 +39,27 @@ IPM sean comparables en la seccion de comparacion. Los MODELOS de ML no
 usan estos pesos (confirmado: no hay peso/fexhog/sample_weight en
 src/05_model/); son exclusivos de este analisis descriptivo.
 
+Comparacion entre periodos (funcion `comparar_periodos`, nueva): para
+cada definicion de pobreza, junta el tamano de efecto de cada variable
+seleccionada en al menos una de las dos transiciones, marcando si fue
+seleccionada en ambas -- output autonomo, no requiere recalculo manual
+fuera de este script.
+
 INPUTS
     data/processed/pobreza_monetaria_elca_longitudinal.parquet
     data/processed/ipm_multidimensional_elca_longitudinal.parquet
     data/processed/hogar_elca_longitudinal_clean.parquet (region, pesos)
-    data/processed/SALE_13082026/variables_geoespaciales_unificadas.parquet (DMSP ola 2010)
+    data/processed/SALE_13082026/variables_geoespaciales_unificadas.parquet (DMSP)
+    data/processed/benchmark_consolidado_elca_longitudinal.parquet (covariables)
 
-OUTPUTS
-    outputs/tables/eda_transicion_covariables/region_x_categoria_{monetaria,ipm}.csv
-    outputs/tables/eda_transicion_covariables/dmsp_por_categoria_{monetaria,ipm}.csv
+OUTPUTS (por transicion x definicion, `outputs/tables/eda_transicion_covariables/`)
+    region_x_categoria_{monetaria,ipm}_{sufijo}.csv
+    dmsp_por_categoria_{monetaria,ipm}_{sufijo}.csv
+    dmsp_por_region_{monetaria,ipm}_{sufijo}.csv
+    ranking_covariables_{monetaria,ipm}_{sufijo}.csv
+    seleccion_final_{monetaria,ipm}_{sufijo}.csv
+    tabla_comparativa_{monetaria,ipm}_{sufijo}.csv
+    comparacion_periodos_{monetaria,ipm}.csv (comparacion entre las 2 transiciones)
 
 COMO CORRER
     cd src/02_build && python eda_transicion_covariables.py
@@ -63,9 +91,37 @@ TABLES_DIR = PROJECT_ROOT / "outputs" / "tables" / "eda_transicion_covariables"
 
 CATEGORIAS_ORDEN = ["Siempre pobre", "Sale de la pobreza", "Entra en pobreza", "Nunca pobre"]
 
-# Variable insignia de la tesis -- entra SIEMPRE a la seleccion final, sin
-# importar su posicion en el ranking estadistico (decision del usuario).
-VARIABLE_OBLIGATORIA = "dmsp_stable_lights"
+# Las 2 transiciones disponibles en el panel ELCA de 3 olas. `ola_ini`/
+# `ola_fin` van a `construir_matriz_transicion` (ya parametrizada por
+# ola); `anio_dmsp` es el anio de la fuente geoespacial que corresponde a
+# la ola BASE de cada transicion (ver docstring del modulo).
+TRANSICIONES = [
+    {"ola_ini": 1, "ola_fin": 2, "anio_dmsp": 2010, "sufijo": "2010_2013"},
+    {"ola_ini": 2, "ola_fin": 3, "anio_dmsp": 2013, "sufijo": "2013_2016"},
+]
+
+# Variables que entran SIEMPRE a la seleccion final, sin importar su
+# posicion en el ranking estadistico (decision del usuario):
+#   - dmsp_stable_lights: variable insignia de la tesis.
+#   - total_choques_hogar: NO pasa el umbral de robustez en 3 de las 4
+#     combinaciones transicion x definicion (ver ranking_covariables_*.csv),
+#     pero muestra una brecha "Entra en pobreza" > "Nunca pobre" CONSISTENTE
+#     en las 4 (choques_medias_grupo_*.csv, +0.14/+0.05/+0.26/+0.30) -- la
+#     hipotesis de trabajo (2026-09-10) es que el eta^2 sobre rangos no esta
+#     bien calibrado para esta variable de conteo sesgada/con muchos ceros,
+#     no que la señal no exista.
+#   - afrontamiento_erosivo_hogar / afrontamiento_protector_hogar: como
+#     "formas de enfrentar el choque" (vender activos/endeudarse vs.
+#     ahorros/redes de apoyo), decision explicita del usuario de incluirlas
+#     pese a que su direccion es INCONSISTENTE entre transiciones
+#     (choques_dirigido_*.csv) -- a diferencia de total_choques_hogar, esto
+#     se documenta como hallazgo exploratorio/ruidoso, no como patron
+#     confirmado (celdas de "Entra en pobreza" chicas, n=254-343, porque
+#     solo aplican a hogares que tuvieron algun choque).
+VARIABLES_OBLIGATORIAS = [
+    "dmsp_stable_lights", "total_choques_hogar",
+    "afrontamiento_erosivo_hogar", "afrontamiento_protector_hogar",
+]
 
 COLS_ID = {"consecutivo", "consecutivo_c", "ola", "llave", "llave_n16", "llave_compuesta"}
 # Columnas que son (casi) el propio label de pobreza monetaria en la ola
@@ -85,11 +141,17 @@ UMBRAL_CI_ETA2 = 0.005  # piso de "no ruido" para el limite inferior del bootstr
 UMBRAL_CI_V = 0.05
 N_BOOT = 300
 UMBRAL_REDUNDANCIA = 0.70  # |rho| de Spearman para colapsar variables casi-colineales
-N_VARIABLES_OBJETIVO = 11  # ademas de DMSP (10-12, decision del usuario) -> 12 en tabla final
+N_VARIABLES_OBJETIVO = 20  # ademas de DMSP -> 21 en tabla final (subido de 11 el 2026-09-10,
+# decision del usuario, para que quepan variables robustas del modulo "Ninos" que el cupo
+# anterior dejaba fuera solo por prioridad de otros modulos con efecto aun mayor, no por
+# falta de senal -- ver ranking_covariables_*.csv, columna 'robusto'. Subido de 14 a 20 el
+# mismo dia, mismo usuario, tras verificar que ampliar el cupo puede desplazar variables ya
+# seleccionadas -- no es una operacion puramente aditiva, ver interaccion con MAX_POR_MODULO
+# en `seleccionar_variables_finales`)
 MAX_POR_MODULO = 3  # diversidad tematica (decision del usuario 2026-09-04)
 
 
-def cargar_peso_longitudinal_por_consecutivo(df: pd.DataFrame) -> pd.DataFrame:
+def cargar_peso_longitudinal_por_consecutivo(df: pd.DataFrame, ola_fin: int) -> pd.DataFrame:
     """
     Equivalente a `cargar_pesos_muestrales` pero para dataframes SIN
     `llave`/`llave_n16` (caso de `ipm_multidimensional_elca_longitudinal.parquet`
@@ -99,30 +161,59 @@ def cargar_peso_longitudinal_por_consecutivo(df: pd.DataFrame) -> pd.DataFrame:
     excluye los hogares con `consecutivo` duplicado (division) ANTES de leer
     `peso_col`, asi que una fila duplicada temporal con el mismo peso no
     afecta el resultado.
+
+    `ola_fin`: ola final de la transicion en curso (2 o 3) -- el factor de
+    expansion se toma de esa ola, practica estandar para paneles
+    longitudinales (ya usada por `construir_matriz_transicion`).
     """
     hogar = pd.read_parquet(HOGAR_PATH, columns=["consecutivo", "ola", "fexhog_2010"])
-    hogar_ola_fin = hogar[hogar["ola"] != 1].drop_duplicates(subset=["consecutivo", "ola"])
+    hogar_ola_fin = hogar[hogar["ola"] == ola_fin].drop_duplicates(subset=["consecutivo", "ola"])
     df["peso_longitudinal"] = df.merge(
         hogar_ola_fin, on=["consecutivo", "ola"], how="left", validate="many_to_one"
     )["fexhog_2010"].to_numpy()
     return df
 
 
-def cargar_region_por_consecutivo() -> pd.Series:
-    """`region` de ola 1 (2010), indexada por `consecutivo` -- unica variable
-    geografica valida en ELCA (ver docstring del modulo)."""
+def _excluir_hogares_divididos(df: pd.DataFrame, ola_base: int) -> pd.DataFrame:
+    """Excluye TODAS las filas de un `consecutivo` que aparece mas de una
+    vez en la ola base (hogar dividido entre olas) -- misma regla exacta
+    que usan los modelos predictivos ya publicados
+    (`build_benchmark_train_test.py`, `construir_transicion`:
+    `ini[~ini["consecutivo"].duplicated(keep=False)]`), aplicada aqui por
+    igual a region, DMSP y covariables para que la Seccion 5.2 hable de la
+    MISMA poblacion base que los modelos, no de una definida por una regla
+    distinta (decision del usuario 2026-09-10, tras detectar que la
+    version anterior de esta funcion usaba "hogar principal" en vez de
+    "excluir hogar completo"). Ola 1 nunca tiene duplicados (no aplica)."""
+    return df[~df["consecutivo"].duplicated(keep=False)]
+
+
+def cargar_region_por_consecutivo(ola_base: int) -> pd.Series:
+    """`region` de la ola BASE de la transicion (1=2010, 2=2013), indexada
+    por `consecutivo` -- unica variable geografica valida en ELCA (ver
+    docstring del modulo). Hogares divididos excluidos via
+    `_excluir_hogares_divididos` (ver esa funcion)."""
     hogar = pd.read_parquet(HOGAR_PATH, columns=["consecutivo", "ola", "region"])
-    hogar_ola1 = hogar[hogar["ola"] == 1]
-    return hogar_ola1.set_index("consecutivo")["region"]
+    hogar_ola = _excluir_hogares_divididos(hogar[hogar["ola"] == ola_base], ola_base)
+    assert not hogar_ola["consecutivo"].duplicated().any(), f"consecutivo debe ser unico en ola {ola_base}"
+    return hogar_ola.set_index("consecutivo")["region"]
 
 
-def cargar_dmsp_por_consecutivo() -> pd.Series:
-    """dmsp_stable_lights de ola 2010, indexada por `consecutivo` (100% de
-    cobertura en esta ola, ver eda_variables_modelo.py)."""
+def cargar_dmsp_por_consecutivo(anio_base: int) -> pd.Series:
+    """dmsp_stable_lights del anio BASE de la transicion (2010 o 2013 --
+    100% de cobertura en ambas, ver eda_variables_modelo.py; 2016 no
+    aplica porque ninguna transicion lo usa como ola base, ver docstring
+    del modulo), indexada por `consecutivo`. Hogares divididos excluidos
+    via `_excluir_hogares_divididos` (438 consecutivos en 2013 -- ver esa
+    funcion; verificado 2026-09-10 que ninguno de esos 438 sobrevive de
+    todas formas el filtro de division de `construir_matriz_transicion`
+    sobre la tabla de pobreza/IPM, asi que este filtro no mueve el
+    resultado del panel de transicion, solo mantiene esta funcion
+    consistente con las demas)."""
     geo = pd.read_parquet(GEO_PATH, columns=["consecutivo", "ola", "dmsp_stable_lights"])
-    geo_2010 = geo[geo["ola"] == 2010]
-    assert not geo_2010["consecutivo"].duplicated().any(), "consecutivo debe ser unico en ola 2010"
-    return geo_2010.set_index("consecutivo")["dmsp_stable_lights"]
+    geo_base = _excluir_hogares_divididos(geo[geo["ola"] == anio_base], anio_base)
+    assert not geo_base["consecutivo"].duplicated().any(), f"consecutivo debe ser unico en ola {anio_base}"
+    return geo_base.set_index("consecutivo")["dmsp_stable_lights"]
 
 
 def perfilar_transicion(panel_categorias: pd.DataFrame, region: pd.Series, dmsp: pd.Series) -> dict:
@@ -206,14 +297,18 @@ def cargar_tipos_variables() -> dict:
     return tipos
 
 
-def cargar_covariables_ola1(dmsp: pd.Series) -> pd.DataFrame:
-    """Universo de covariables candidatas: consolidado ML (ola 2010) + DMSP
-    (no vive en el consolidado, se agrega aparte). Indexado por consecutivo,
-    1 fila = 1 hogar -- mismo insumo (antes del filtro no-pobre-en-base) que
-    usan los modelos de ML, para que el ranking hable de las MISMAS
-    covariables que ya se evaluan en el modelado."""
+def cargar_covariables_ola_base(dmsp: pd.Series, ola_base: int) -> pd.DataFrame:
+    """Universo de covariables candidatas: consolidado ML (ola BASE de la
+    transicion) + DMSP (no vive en el consolidado, se agrega aparte).
+    Indexado por consecutivo, 1 fila = 1 hogar -- mismo insumo (antes del
+    filtro no-pobre-en-base) que usan los modelos de ML, para que el
+    ranking hable de las MISMAS covariables que ya se evaluan en el
+    modelado. Hogares divididos excluidos via `_excluir_hogares_divididos`
+    (532 consecutivos en ola 2, 732 en ola 3 -- misma regla exacta que
+    `build_benchmark_train_test.py` aplica al mismo consolidado)."""
     consolidado = pd.read_parquet(CONSOLIDADO_PATH)
-    base = consolidado[consolidado["ola"] == 1].set_index("consecutivo")
+    base = _excluir_hogares_divididos(consolidado[consolidado["ola"] == ola_base], ola_base)
+    base = base.set_index("consecutivo")
     base = base.drop(columns=[c for c in COLS_ID if c in base.columns], errors="ignore")
     base["dmsp_stable_lights"] = dmsp
     return base
@@ -374,24 +469,25 @@ def deduplicar_por_correlacion(ranking_robusto: pd.DataFrame, covariables: pd.Da
 
 def seleccionar_variables_finales(ranking: pd.DataFrame, covariables: pd.DataFrame, tipos_modulo: dict) -> list:
     """De las variables robustas y no-redundantes, arma la seleccion final:
-    fuerza DMSP, y completa hasta N_VARIABLES_OBJETIVO priorizando efecto
-    pero evitando repetir un mismo `modulo` mas de MAX_POR_MODULO veces
-    (diversidad tematica, decision del usuario 2026-09-04: 3 por modulo)."""
+    fuerza VARIABLES_OBLIGATORIAS (ver esa constante), y completa hasta
+    N_VARIABLES_OBJETIVO priorizando efecto pero evitando repetir un mismo
+    `modulo` mas de MAX_POR_MODULO veces (diversidad tematica, decision del
+    usuario 2026-09-04: 3 por modulo)."""
     robustas = ranking[ranking["robusto"]].copy()
     sin_redundancia = deduplicar_por_correlacion(robustas, covariables)
 
-    seleccion = [VARIABLE_OBLIGATORIA]
+    seleccion = list(VARIABLES_OBLIGATORIAS)
     conteo_modulo = {}
     for _, fila in sin_redundancia.sort_values("efecto", ascending=False).iterrows():
         var = fila["variable"]
-        if var == VARIABLE_OBLIGATORIA or var in seleccion:
+        if var in VARIABLES_OBLIGATORIAS or var in seleccion:
             continue
         modulo = tipos_modulo.get(var, "Otro")
         if conteo_modulo.get(modulo, 0) >= MAX_POR_MODULO and len(seleccion) < N_VARIABLES_OBJETIVO:
             continue  # da preferencia a otros modulos mientras haya cupo
         seleccion.append(var)
         conteo_modulo[modulo] = conteo_modulo.get(modulo, 0) + 1
-        if len(seleccion) >= N_VARIABLES_OBJETIVO + 1:  # +1 por DMSP
+        if len(seleccion) >= N_VARIABLES_OBJETIVO + len(VARIABLES_OBLIGATORIAS):
             break
     return seleccion
 
@@ -458,73 +554,115 @@ def construir_tabla_comparativa(
     return tabla[["variable", "tipo", "nivel_mostrado", "efecto"] + CATEGORIAS_ORDEN]
 
 
+def comparar_periodos(
+    ranking_a: pd.DataFrame, seleccion_a: list, sufijo_a: str,
+    ranking_b: pd.DataFrame, seleccion_b: list, sufijo_b: str,
+) -> pd.DataFrame:
+    """Compara el tamano de efecto y la seleccion de una misma definicion
+    de pobreza entre las 2 transiciones -- responde la pregunta de la
+    Parte A: ¿el perfil de "quien entra a pobreza" es estable entre
+    2010->2013 y 2013->2016, o es especifico de un periodo?
+
+    Incluye toda variable seleccionada en AL MENOS una de las dos
+    transiciones (union de ambas listas de 12), con su efecto en cada
+    periodo (NaN si no paso el ranking de ese periodo) y si fue
+    seleccionada en cada uno."""
+    efecto_a = dict(zip(ranking_a["variable"], ranking_a["efecto"]))
+    efecto_b = dict(zip(ranking_b["variable"], ranking_b["efecto"]))
+    variables = sorted(set(seleccion_a) | set(seleccion_b))
+
+    filas = []
+    for var in variables:
+        sel_a = var in seleccion_a
+        sel_b = var in seleccion_b
+        filas.append({
+            "variable": var,
+            f"efecto_{sufijo_a}": efecto_a.get(var, float("nan")),
+            f"efecto_{sufijo_b}": efecto_b.get(var, float("nan")),
+            f"seleccionada_{sufijo_a}": sel_a,
+            f"seleccionada_{sufijo_b}": sel_b,
+            "en_ambas": sel_a and sel_b,
+        })
+    tabla = pd.DataFrame(filas)
+    orden = tabla[[f"efecto_{sufijo_a}", f"efecto_{sufijo_b}"]].max(axis=1)
+    return tabla.assign(_orden=orden).sort_values("_orden", ascending=False).drop(columns="_orden").reset_index(drop=True)
+
+
 def main() -> None:
     TABLES_DIR.mkdir(parents=True, exist_ok=True)
-    region = cargar_region_por_consecutivo()
-    dmsp = cargar_dmsp_por_consecutivo()
-    covariables = cargar_covariables_ola1(dmsp)
-    tipos = cargar_tipos_variables()
     inv = pd.read_csv(INVENTARIO_PATH)
     tipos_modulo = dict(zip(inv["variable"], inv["modulo"]))
     tipos_modulo["dmsp_stable_lights"] = "Geoespacial"
     tipos_modulo.setdefault("zona", "Vivienda")
+    tipos = cargar_tipos_variables()
 
-    pobreza = pd.read_parquet(POBREZA_PATH)
-    llave_pobreza = _llave_compuesta(pobreza)
-    cargar_pesos_muestrales(pobreza, llave_pobreza)
-    resultado_monetaria = construir_matriz_transicion(
-        pobreza, 1, 2, col_pobre="pobre_ingreso", peso_col="peso_longitudinal"
-    )
+    # resultados[nombre_pobreza][sufijo_transicion] = {"ranking":..., "seleccion":...}
+    resultados = {"monetaria": {}, "ipm": {}}
 
-    ipm = pd.read_parquet(IPM_PATH)
-    cargar_peso_longitudinal_por_consecutivo(ipm)
-    resultado_ipm = construir_matriz_transicion(
-        ipm, 1, 2, col_pobre="pobre_ipm", peso_col="peso_longitudinal"
-    )
+    for transicion in TRANSICIONES:
+        ola_ini, ola_fin = transicion["ola_ini"], transicion["ola_fin"]
+        anio_dmsp, sufijo = transicion["anio_dmsp"], transicion["sufijo"]
 
-    for nombre, resultado in [("monetaria", resultado_monetaria), ("ipm", resultado_ipm)]:
-        perfil = perfilar_transicion(resultado["panel_categorias"], region, dmsp)
-        print(f"\n=== {nombre.upper()} (n panel={perfil['n_total']}) ===")
-        print(f"Sin peso_longitudinal: {perfil['n_sin_peso']} | sin region: {perfil['n_sin_region']} | sin DMSP: {perfil['n_sin_dmsp']}")
-        print("\nDistribucion de categoria por region (% fila, ponderado):")
-        print(perfil["region_x_categoria_pct"].reindex(columns=CATEGORIAS_ORDEN))
-        print("\nN hogares por region x categoria (sin ponderar):")
-        print(perfil["region_x_categoria_n"].reindex(columns=CATEGORIAS_ORDEN))
-        print("\nDMSP por categoria (media ponderada / mediana / n):")
-        print(perfil["dmsp_por_categoria"].reindex(CATEGORIAS_ORDEN))
-        print("\nDMSP mediana por region x categoria:")
-        print(perfil["dmsp_region_x_categoria"].reindex(columns=CATEGORIAS_ORDEN))
+        region = cargar_region_por_consecutivo(ola_ini)
+        dmsp = cargar_dmsp_por_consecutivo(anio_dmsp)
+        covariables = cargar_covariables_ola_base(dmsp, ola_ini)
 
-        perfil["region_x_categoria_pct"].reindex(columns=CATEGORIAS_ORDEN).to_csv(
-            TABLES_DIR / f"region_x_categoria_{nombre}.csv"
-        )
-        perfil["dmsp_por_categoria"].reindex(CATEGORIAS_ORDEN).to_csv(
-            TABLES_DIR / f"dmsp_por_categoria_{nombre}.csv"
-        )
-        perfil["dmsp_por_region"].to_csv(TABLES_DIR / f"dmsp_por_region_{nombre}.csv")
-
-        excluir = COLS_LABEL_MONETARIA if nombre == "monetaria" else set()
-        panel = resultado["panel_categorias"]
-        ranking = rankear_covariables(covariables, tipos, panel, excluir)
-        seleccion = seleccionar_variables_finales(ranking, covariables, tipos_modulo)
-
-        print(f"\n--- Ranking de covariables ({nombre}), top 20 ---")
-        with pd.option_context("display.max_rows", 20, "display.width", 120):
-            print(ranking.head(20).to_string(index=False))
-        print(f"\nCandidatas robustas (pasan umbral y CI): {ranking['robusto'].sum()} de {len(ranking)}")
-        print(f"\nSeleccion final ({len(seleccion)} variables, incluye {VARIABLE_OBLIGATORIA}):")
-        print(seleccion)
-
-        ranking.to_csv(TABLES_DIR / f"ranking_covariables_{nombre}.csv", index=False)
-        pd.Series(seleccion, name="variable").to_csv(
-            TABLES_DIR / f"seleccion_final_{nombre}.csv", index=False
+        pobreza = pd.read_parquet(POBREZA_PATH)
+        llave_pobreza = _llave_compuesta(pobreza)
+        cargar_pesos_muestrales(pobreza, llave_pobreza)
+        resultado_monetaria = construir_matriz_transicion(
+            pobreza, ola_ini, ola_fin, col_pobre="pobre_ingreso", peso_col="peso_longitudinal"
         )
 
-        tabla_comparativa = construir_tabla_comparativa(covariables, tipos, panel, seleccion, ranking)
-        print(f"\n--- Tabla comparativa final ({nombre}) ---")
-        with pd.option_context("display.max_rows", 20, "display.width", 140, "display.precision", 1):
-            print(tabla_comparativa.to_string(index=False))
-        tabla_comparativa.to_csv(TABLES_DIR / f"tabla_comparativa_{nombre}.csv", index=False)
+        ipm = pd.read_parquet(IPM_PATH)
+        cargar_peso_longitudinal_por_consecutivo(ipm, ola_fin)
+        resultado_ipm = construir_matriz_transicion(
+            ipm, ola_ini, ola_fin, col_pobre="pobre_ipm", peso_col="peso_longitudinal"
+        )
+
+        for nombre, resultado in [("monetaria", resultado_monetaria), ("ipm", resultado_ipm)]:
+            perfil = perfilar_transicion(resultado["panel_categorias"], region, dmsp)
+            print(f"\n=== {nombre.upper()} {sufijo} (n panel={perfil['n_total']}) ===")
+            print(f"Sin peso_longitudinal: {perfil['n_sin_peso']} | sin region: {perfil['n_sin_region']} | sin DMSP: {perfil['n_sin_dmsp']}")
+            print("\nDMSP por categoria (media ponderada / mediana / n):")
+            print(perfil["dmsp_por_categoria"].reindex(CATEGORIAS_ORDEN))
+
+            perfil["region_x_categoria_pct"].reindex(columns=CATEGORIAS_ORDEN).to_csv(
+                TABLES_DIR / f"region_x_categoria_{nombre}_{sufijo}.csv"
+            )
+            perfil["dmsp_por_categoria"].reindex(CATEGORIAS_ORDEN).to_csv(
+                TABLES_DIR / f"dmsp_por_categoria_{nombre}_{sufijo}.csv"
+            )
+            perfil["dmsp_por_region"].to_csv(TABLES_DIR / f"dmsp_por_region_{nombre}_{sufijo}.csv")
+
+            excluir = COLS_LABEL_MONETARIA if nombre == "monetaria" else set()
+            panel = resultado["panel_categorias"]
+            ranking = rankear_covariables(covariables, tipos, panel, excluir)
+            seleccion = seleccionar_variables_finales(ranking, covariables, tipos_modulo)
+
+            print(f"\nCandidatas robustas (pasan umbral y CI): {ranking['robusto'].sum()} de {len(ranking)}")
+            print(f"Seleccion final ({len(seleccion)} variables, incluye {VARIABLES_OBLIGATORIAS}): {seleccion}")
+
+            ranking.to_csv(TABLES_DIR / f"ranking_covariables_{nombre}_{sufijo}.csv", index=False)
+            pd.Series(seleccion, name="variable").to_csv(
+                TABLES_DIR / f"seleccion_final_{nombre}_{sufijo}.csv", index=False
+            )
+
+            tabla_comparativa = construir_tabla_comparativa(covariables, tipos, panel, seleccion, ranking)
+            tabla_comparativa.to_csv(TABLES_DIR / f"tabla_comparativa_{nombre}_{sufijo}.csv", index=False)
+
+            resultados[nombre][sufijo] = {"ranking": ranking, "seleccion": seleccion}
+
+    sufijo_a, sufijo_b = TRANSICIONES[0]["sufijo"], TRANSICIONES[1]["sufijo"]
+    for nombre in ("monetaria", "ipm"):
+        comparacion = comparar_periodos(
+            resultados[nombre][sufijo_a]["ranking"], resultados[nombre][sufijo_a]["seleccion"], sufijo_a,
+            resultados[nombre][sufijo_b]["ranking"], resultados[nombre][sufijo_b]["seleccion"], sufijo_b,
+        )
+        print(f"\n--- Comparacion entre periodos ({nombre}) ---")
+        with pd.option_context("display.max_rows", 30, "display.width", 160, "display.precision", 3):
+            print(comparacion.to_string(index=False))
+        comparacion.to_csv(TABLES_DIR / f"comparacion_periodos_{nombre}.csv", index=False)
 
     print(f"\nGuardado en: {TABLES_DIR}")
 

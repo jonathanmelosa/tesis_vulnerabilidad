@@ -3,7 +3,8 @@ tabla_covariables_transicion.py
 =====================================
 Genera la tabla compacta de covariables por grupo de transicion de
 pobreza (Panel B de la pagina de resultados, una tabla por definicion de
-pobreza) a partir de `tabla_comparativa_{monetaria,ipm}.csv`, ya
+pobreza) a partir de `tabla_comparativa_{monetaria,ipm}_2010_2013.csv`
+(transicion 2010->2013, la unica publicada en el documento por ahora), ya
 producida por `src/02_build/eda_transicion_covariables.py` (ranking +
 seleccion de 12 covariables, incluyendo DMSP obligatoria). Este script NO
 recalcula nada, solo formatea/traduce esas 12 filas a una tabla LaTeX
@@ -19,7 +20,7 @@ Formato de valores por variable (`ESPECIFICACION_VARIABLE` mas abajo):
     monetarias, mas legible en la tabla).
 
 INPUTS
-    outputs/tables/eda_transicion_covariables/tabla_comparativa_{monetaria,ipm}.csv
+    outputs/tables/eda_transicion_covariables/tabla_comparativa_{monetaria,ipm}_2010_2013.csv
 
 OUTPUTS
     paper/tables/tab_covariables_transicion_{monetaria,ipm}.tex
@@ -116,7 +117,7 @@ def main() -> None:
         ("ipm", "Covariables por grupo de transición de pobreza multidimensional -- IPM (2010$\\to$2013).", "tab:covariables_transicion_ipm"),
     ]
     for nombre, caption, label in especificaciones:
-        tabla = pd.read_csv(TABLES_DIR / f"tabla_comparativa_{nombre}.csv")
+        tabla = pd.read_csv(TABLES_DIR / f"tabla_comparativa_{nombre}_2010_2013.csv")
         tex = generar_tex(tabla, caption, label)
         ruta = OUTPUT_DIR / f"tab_covariables_transicion_{nombre}.tex"
         ruta.write_text(tex + "\n", encoding="utf-8")
