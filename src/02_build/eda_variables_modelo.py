@@ -448,7 +448,39 @@ def tabla_y_figura_correlacion(df: pd.DataFrame, inv: pd.DataFrame) -> pd.DataFr
     fig.colorbar(im, ax=ax, shrink=0.7, label="Correlacion de Pearson")
     ax.set_title(f"Matriz de correlacion de variables numericas ({len(orden)} vars)\ncirculos: |r| > 0.7")
     savefig(fig, "04_matriz_correlacion.png")
+
+    figura_top_correlaciones(tabla_pares)
     return tabla_pares
+
+
+def figura_top_correlaciones(tabla_pares: pd.DataFrame) -> None:
+    """Barras horizontales con los pares de variables mas correlacionados
+    (|r|>0.7, mismo umbral y tabla que la matriz completa). A diferencia
+    de la matriz 159x159 -- ilegible por el numero de etiquetas -- aqui
+    cada barra es un par identificable, ordenado por |r|, coloreado por
+    signo y anotado con el modulo tematico de origen."""
+    pares = tabla_pares.sort_values("r", key=lambda s: s.abs(), ascending=True).reset_index(drop=True)
+    etiquetas = [f"{r.variable_1}  –  {r.variable_2}" for r in pares.itertuples()]
+    colores = ["#C44E52" if r < 0 else "#4C72B0" for r in pares["r"]]
+
+    fig, ax = plt.subplots(figsize=(9, 0.32 * len(pares) + 1.5))
+    ax.barh(range(len(pares)), pares["r"], color=colores)
+    ax.set_yticks(range(len(pares)))
+    ax.set_yticklabels(etiquetas, fontsize=8)
+    ax.axvline(0, color="black", linewidth=0.8)
+    ax.set_xlim(-1, 1)
+    ax.set_xlabel("Correlacion de Pearson (r)")
+    for i, (r, n) in enumerate(zip(pares["r"], pares["n_conjunto"])):
+        offset = 0.02 if r >= 0 else -0.02
+        ha = "left" if r >= 0 else "right"
+        ax.annotate(f"{r:.2f}", xy=(r, i), xytext=(offset, 0), textcoords="offset points",
+                    va="center", ha=ha, fontsize=7)
+    ax.set_title(
+        f"Pares de variables mas correlacionados ({len(pares)} pares con |r| > 0.7, "
+        f"n conjunto ≥ {MIN_N_CORR})"
+    )
+    savefig(fig, "04b_top_correlaciones.png")
+    print(f"Guardado 04b_top_correlaciones.png ({len(pares)} pares)")
 
 
 # ── 5. Perfil de hogares ────────────────────────────────────────────────

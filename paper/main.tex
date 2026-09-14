@@ -439,7 +439,7 @@ transición.
 
 Es en esta brecha donde esta investigación busca contribuir, evaluando si
 la incorporación de variables del entorno físico y económico local derivadas 
-de imágenes de Google Street View a los datos longitudinales de la ELCA 
+de fuentes geoespaciales públicas a los datos longitudinales de la ELCA 
 permite mejorar la identificación de hogares en riesgo de caer en pobreza 
 en Colombia. Es importante señalar que, en
 contextos de política pública, la predicción es valiosa incluso en
@@ -469,7 +469,9 @@ La fuente primaria de datos es la Encuesta Longitudinal Colombiana de la
 Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres 
 olas: 2010, 2013 y 2016, en zonas urbana y rural. La ELCA se organiza en
 en módulos temáticos: hogar, personas, niños, comunidades
-y choques, además de los módulos de activos y gasto. El
+y choques, además de los módulos de activos y gasto. Existen dos olas más
+disponibles para 2019 y 2022, que administra el DANE. No obstante, por cuestiones
+de tiempo no se utilizaron en el marco de esta investigación. El
 identificador de hogar cambia de nombre entre olas
 (\texttt{consecutivo}$\to$\texttt{llave}$\to$\texttt{llave\_n16}). Para los
 análisis realizados en esta tesis, se usan exclusivamente coincidencias uno a
@@ -527,8 +529,7 @@ geoespacial para al menos dos olas: 2010 es la ola para la que se entrenan los m
 predicen la transición a la pobreza —el ejercicio central de esta
 tesis—, mientras que la transición 2013$\to$2016 se usa después para
 determinar el poder predictivo de esas mismas variables fuera de
-muestra (Sección~\ref{subsec:outcome}). Cualquier fuente que no ofrezca
-datos reales y contemporáneos a estas olas no sirve al propósito de esta investigación.
+muestra (Sección~\ref{subsec:outcome}).
 
 Inicialmente, se priorizó la utilización de imágenes de 
 Google Street View, sin embargo, su cobertura es limitada en 
@@ -556,7 +557,7 @@ La Figura~\ref{fig:cobertura_temporal_fuentes} resume, para las siete
 fuentes evaluadas, su ventana de disponibilidad, verificada contra
 la documentación oficial de cada catálogo: Copernicus/ESA, NOAA, JAXA,
 USGS, Google Earth Engine Data Catalog, y, para DMSP-OLS, ALOS PALSAR y
-Landsat 5 TM, contra consultas reales de las coordenadas de los 9{,}573 
+Landsat 5 TM, contra consultas reales de las coordenadas de los 
 hogares en las tres olas de la ELCA (2010, 2013, 2016). 
 El patrón diagonal marca cobertura
 real confirmada sobre hogares del proyecto; el resto se revisó cobertura de
@@ -577,8 +578,8 @@ catálogo sin realizar consultas de los hogares disponibles (Sentinel-2, VIIRS).
 El resultado de la corrida de producción, ya completa sobre las tres, es
 asimétrico. DMSP-OLS cubre el 100\% de los hogares tanto en 2010 como en
 2013; es la única de las
-tres con esa cobertura completa en dos olas, lo que además la deja lista
-para aportar directamente a la evaluación del poder predictivo en la
+tres con esa cobertura completa en dos olas, lo que permite usarla
+para la evaluación del poder predictivo en la
 transición 2013$\to$2016. ALOS PALSAR cubre el 100\% de los hogares en
 2010, pero tiene un hueco de información confirmado en el catálogo de JAXA entre 2011 y
 2014 —no tiene ninguna cobertura de 2013—. Landsat 5 TM cubre solo 65.5\%
@@ -586,80 +587,10 @@ de los hogares en 2010 (6{,}269 de 9{,}573; el resto pierde el año
 completo por nubosidad persistente, una limitación del sensor
 óptico) y, pese a que su fecha formal de salida (junio de 2013)
 sugeriría cobertura parcial de esa ola, una consulta directa al catálogo
-de Google Earth Engine confirmó que el sensor dejó de adquirir escenas
-utilizables antes de esa fecha, no hay ninguna imagen real de Landsat 5
+de Google Earth Engine confirmó que el sensor dejó de adquirir información
+utilizable antes de esa fecha, no hay ninguna imagen real de Landsat 5
 en 2012 ni en 2013, en ningún punto del planeta. Las tres se incorporan
-al proyecto porque, para la ola 2010, el objetivo de esta tesis, son las
-únicas fuentes que ofrecen información geoespacial real, no proxy.
-
-\subsubsection{Qué mide cada fuente y qué variables se construyen}
-\label{subsubsec:estado_acumulado}
-
-La sección anterior explica \emph{por qué} se añadieron DMSP-OLS,
-ALOS PALSAR y Landsat 5 TM al proyecto. Esta subsección explica \emph{qué}
-miden físicamente estas tres fuentes, \emph{qué} variables se construyen
-a partir de ellas, y \emph{qué} representan esas variables como
-proxy de las condiciones del hogar y su entorno.
-
-Cada fuente geoespacial de este proyecto entrega, para cada hogar y cada ola, 
-un valor que describe el entorno en
-\emph{un momento}: una fotografía, un panorama de radar, una imagen
-óptica, un mes de luz nocturna. Eso responde a la pregunta ``¿cómo se ve
-el entorno de este hogar en la ola $t$?'', pero no responde una pregunta
-distinta y potencialmente igual de relevante para predecir una
-\emph{transición}: ``¿el entorno de este hogar se venía deteriorando o
-mejorando en los años previos a la ola $t$?''. Dos hogares pueden verse
-igual de urbanizados en el momento exacto de la encuesta y, sin embargo,
-tener trayectorias muy distintas —uno estable desde hace una década, otro
-en medio de una expansión reciente y desordenada— que una sola fotografía
-del momento no distingue, pero que sí sería visible si se compara ese
-momento contra los años inmediatamente anteriores. Por esta razón, con DMSP-OLS se
-construyen, para cada hogar, tres familias de
-variables, con tres preguntas distintas detrás de cada una:
-
-\begin{itemize}
-  \item \textbf{Estado} — ``¿cómo se ve el entorno justo en el año de la
-  ola?'' Un solo valor, del año exacto (2010).
-  \item \textbf{Ventana acumulada} — ``¿cómo venía cambiando el entorno en
-  los tres años previos a la ola (incluido el año de la ola)?'' Estadísticos
-  —media, desviación estándar, mínimo, máximo, rango, coeficiente de
-  variación, tendencia (pendiente de una recta ajustada a los 3 años), y
-  el \emph{crecimiento acumulado} (variación relativa entre el primer y
-  el último año de la ventana)— calculados sobre 2008-2010.
-\end{itemize}
-
-La Figura~\ref{fig:diagrama_estado_acumulado} ilustra las tres olas sobre la
-misma línea de tiempo. Es importante no confundirlas: la ventana
-acumulada de la ola 2010 (2008-2010) y la de la ola 2013 (2011-2013) no
-se traslapan —cada una describe el proceso \emph{previo a su propia
-ola}—, mientras que el cambio entre olas es una comparación distinta,
-entre los dos puntos de estado. Un hogar puede tener, por ejemplo, una
-ventana acumulada con tendencia fuertemente positiva antes de 2010 (se
-venía iluminando/urbanizando rápido) y aun así un cambio entre olas
-pequeño si el nivel de 2013 no se alejó mucho del de 2010 —son preguntas
-distintas y las tres se conservan por separado en el panel final, nunca
-se promedian entre sí.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.92\textwidth]{figures/fig_diagrama_estado_acumulado.png}
-  \caption{Las tres familias de variables construidas para DMSP-OLS, ilustradas sobre la línea
-  de tiempo real de las ventanas usadas.}
-  \label{fig:diagrama_estado_acumulado}
-\end{figure}
-
-Es importante mencionar la siguiente limitación compartida por las tres familias de variables: el
-supuesto de que el hogar vivía en la misma dirección durante toda la
-ventana acumulada. Como no existe una coordenada del hogar anterior a la
-primera ola en que aparece en la ELCA, se usa la
-coordenada registrada en la ola correspondiente (2010 o 2013) para
-extraer \emph{todos} los años de esa ventana —es decir, para un hogar que
-sí vivía ahí en 2008-2010, la ventana acumulada de la ola 2010 describe
-correctamente su entorno; si el hogar se mudó a esa dirección poco antes
-de la encuesta de 2010, la ventana acumulada describe el entorno de un
-lugar donde el hogar puede no haber vivido durante toda la ventana. Este
-supuesto no se puede verificar con los datos disponibles y se menciona 
-como limitación explícita de estas variables.
+al proyecto.
 
 La Tabla~\ref{tab:variables_pedagogico} resume, para las tres fuentes
 nuevas, el mecanismo físico de medición, el nombre de las variables
@@ -697,27 +628,6 @@ que se les da en este estudio.
   \end{tabular}
 \end{table}
 
- A continuación se presenta un ejemplo numérico explicativo de las ideas expresadas en la tabla \ref{tab:variables_pedagogico}. Supóngase un hogar
-urbano cuyo entorno, medido por DMSP-OLS, tuvo \texttt{stable\_lights}
-(en una escala de 0 a 63) de 10 en 2008, 12 en 2009 y 15 en 2010,
-y de 16, 18 y 20 en 2011, 2012 y 2013 respectivamente. Para la ola 2010:
-el \emph{estado} es 15 (el valor de 2010); la \emph{ventana acumulada}
-tiene media $\approx$12.3, tendencia $+2.5$ unidades/año (el entorno se
-iluminaba de forma sostenida) y \emph{crecimiento acumulado} de
-$(15-10)/10=50\%$ en los 3 años previos a la ola. Para la ola 2013: el
-estado es 20, y la ventana acumulada 2011-2013 tiene tendencia $+2.0$
-unidades/año. El \emph{cambio entre olas} es $(20-15)/15\approx 33\%$
-—un número distinto a cualquiera de los crecimientos acumulados
-anteriores, porque mide el salto completo de 3 años entre dos puntos, no
-la tendencia dentro de la ventana de ninguna de las dos olas por
-separado—. Las tres cifras (50\%, 33\%, y las tendencias de $+2.5$ y
-$+2.0$) son consistentes entre sí en este ejemplo (todas indican
-iluminación creciente), pero no tienen por qué coincidir en magnitud, y
-en un hogar real perfectamente podrían apuntar en direcciones distintas
-—p. ej. una ventana acumulada con tendencia negativa justo antes de una
-ola, seguida de una recuperación fuerte hacia la ola siguiente—, lo cual
-es, precisamente, el tipo de información que una sola fotografía o un
-solo panorama no puede capturar.
 
 \subsection{Estadísticas descriptivas}
 \label{subsec:desc}
@@ -768,84 +678,6 @@ de hogares que cumplen esa condición.
 \end{table}
 
 
-
-\subsubsection{Estadísticas descriptivas de las fuentes geoespaciales}
-\label{subsubsec:desc_geo}
-
-A diferencia de los módulos de la encuesta ELCA, las tres fuentes
-geoespaciales que sobrevivieron el análisis de cobertura (DMSP-OLS, ALOS PALSAR, Landsat 5 TM;
-Sección~\ref{subsubsec:estado_acumulado}) no cubren las mismas olas entre
-sí (Sección~\ref{subsec:geo}): ALOS PALSAR y Landsat 5 TM no tienen
-ninguna observación real en 2013 ni 2016, y aunque DMSP-OLS sí tiene
-datos reales completos en 2013, esta tabla se restringe a la ola 2010, 
-la única en la que las tres fuentes coexisten.
-
-Para cada fuente se reporta su variable de \emph{estado} insignia —la
-misma que cada pipeline identifica como variable clave en su propio
-reporte de control de calidad— y la \emph{tendencia} de su ventana
-acumulada de 3 años (Sección~\ref{subsubsec:estado_acumulado}). La
-Tabla~\ref{tab:geo_descriptivos_2010} resume los resultados.
-
-\begin{table}[H]
-  \centering
-  \caption{Estadísticas descriptivas de las variables insignia de DMSP-OLS,
-  ALOS PALSAR y Landsat 5 TM, ola 2010 ($n=9{,}573$ hogares con coordenada
-  válida en esa ola).}
-  \label{tab:geo_descriptivos_2010}
-  \small
-  \resizebox{\textwidth}{!}{%
-  \begin{tabular}{llrrrrrr}
-    \toprule
-    \textbf{Fuente} & \textbf{Variable} & \textbf{n} & \textbf{Cobertura (\%)} & \textbf{Media} & \textbf{Std} & \textbf{Mín} & \textbf{Máx} \\
-    \midrule
-    DMSP-OLS & Estado (\texttt{stable\_lights}) & 9{,}573 & 100.0 & 33.74 & 25.76 & 0.00 & 63.00 \\
-    DMSP-OLS & Ventana acum. (tendencia) & 9{,}573 & 100.0 & 6.11 & 6.39 & $-4.49$ & 18.07 \\
-    \addlinespace
-    ALOS PALSAR & Estado (\texttt{hh\_db}) & 9{,}573 & 100.0 & $-7.32$ & 2.91 & $-15.42$ & 5.94 \\
-    ALOS PALSAR & Ventana acum. (tendencia) & 9{,}573 & 100.0 & 0.04 & 0.37 & $-3.19$ & 1.79 \\
-    \addlinespace
-    Landsat 5 TM & Estado (\texttt{ndvi}) & 6{,}269 & 65.5 & 0.41 & 0.17 & $-0.08$ & 1.12 \\
-    Landsat 5 TM & Ventana acum. (tendencia) & 3{,}660 & 38.2 & $-0.04$ & 0.11 & $-0.66$ & 0.38 \\
-    \bottomrule
-  \end{tabular}%
-  }
-  \begin{minipage}{0.95\textwidth}
-    \vspace{4pt}
-    \footnotesize \textit{Nota:} ``Estado'' es el valor de la variable
-    insignia en el año exacto de la ola (2010); ``ventana acumulada
-    (tendencia)'' es la pendiente de esa misma variable sobre 2008--2010
-    (Sección~\ref{subsubsec:estado_acumulado}). Fuente: cálculos propios 
-    con base en ELCA 2010 y consultas a Google Earth Engine.
-  \end{minipage}
-\end{table}
-
-Los cuatro histogramas de la Figura~\ref{fig:geo_distribuciones_2010}
-muestran, para la ola 2010, la forma completa de la distribución detrás de
-las medias y desviaciones de la Tabla~\ref{tab:geo_descriptivos_2010}.
-\texttt{stable\_lights} de DMSP-OLS es marcadamente bimodal: una masa
-grande de hogares saturados en el tope de la escala (63, típico de zonas
-urbanas densamente iluminadas) y una cola larga de valores bajos (entornos
-rurales u oscuros), consistente con que esta variable separa bien
-urbano/rural (Sección~\ref{subsubsec:perfil_hogares}). La tendencia
-acumulada de DMSP-OLS también es bimodal, con un grupo concentrado cerca
-de cero (entorno estable en los tres años previos a 2010) y otro grupo
-alrededor de 15--18 (entornos que se iluminaban muy rápido). ALOS PALSAR
-(\texttt{hh\_db}) y Landsat 5 (\texttt{ndvi}) tienen formas unimodales más
-suaves, sin la bimodalidad marcada de las luces nocturnas.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_variables_modelo/06_distribuciones_geoespaciales_2010.png}
-  \caption{Distribución de las variables insignia de las tres fuentes
-  geoespaciales, ola 2010. La cobertura reportada aquí (97.2\% para
-  DMSP-OLS/ALOS PALSAR, 63.6\% para Landsat 5) se calcula sobre el total de
-  9{,}853 hogares del panel en esa ola, no solo sobre los 9{,}573 con
-  coordenada válida —de ahí la diferencia frente al 100\%/65.5\% de la
-  Tabla~\ref{tab:geo_descriptivos_2010}, que usa como base justamente esos
-  9{,}573—. Fuente: cálculos propios.}
-  \label{fig:geo_distribuciones_2010}
-\end{figure}
-
 \subsubsection{Composición del panel y atrición}
 \label{subsubsec:atricion}
 
@@ -860,7 +692,7 @@ hogares urbanos de 2010 se pierden hacia 2013, frente a solo 5.8\% de los
 rurales), lo opuesto a la intuición de que la atrición rural sería mayor
 por dificultad de rastreo geográfico —probablemente porque la ELCA invierte
 más esfuerzo de rastreo en hogares rurales, dado que son la población de
-interés original de la encuesta. Por esta razón, se utilizarán técnicas de 
+interés original de la encuesta. Por esta razón, en este estudio se utilizan técnicas de 
 balanceo para compensar este sesgo.
 
 \begin{figure}[H]
@@ -897,7 +729,7 @@ cinco módulos de la ELCA ya auditados en la
 Tabla~\ref{tab:cobertura_modulos} —excluyendo de ese conteo
 \texttt{consecutivo\_c}, que es la llave de unión al módulo Comunidades,
 no una covariable— y las 4 restantes son las variables
-geoespaciales (Sección~\ref{subsubsec:desc_geo}). La
+geoespaciales. La
 Figura~\ref{fig:inventario_modulos} desagrega ese total por módulo y por
 tipo de dato. Personas (57) y Hogar/vivienda/activos (56) concentran más
 de la mitad del inventario —consistente con que son los módulos que se
@@ -917,126 +749,17 @@ de la vivienda) y 5 booleanas (los indicadores de pobreza monetaria).
   \label{fig:inventario_modulos}
 \end{figure}
 
-\subsubsection{Comportamiento por ola y cambios en el periodo}
-\label{subsubsec:cambios_olas}
-
-Para ilustrar cómo se comportan estas variables en el tiempo, se
-seleccionó un indicador clave por tema (uno por módulo, más las dos
-variables DMSP-OLS con cobertura en más de una ola) y se calculó su media
-en cada ola. La Figura~\ref{fig:distribuciones_por_ola} muestra la
-distribución de cada uno, y la Figura~\ref{fig:tendencias_indicadores}
-resume la evolución de esas medias indexando la ola 2010 a 100. El tipo de
-gráfico en la Figura~\ref{fig:distribuciones_por_ola} se elige según la
-forma de cada variable, no es el mismo para las 13: un boxplot sobre una
-variable binaria o sobre una tasa con más de la mitad de los hogares en el
-techo (afiliación a salud, asistencia escolar) colapsa en una caja plana o
-en un rectángulo sin información —por eso esas dos se muestran como barra
-con la media anotada, y las dos variables categóricas de pocas categorías
-(si tuvo algún choque, percepción de inseguridad) se muestran como barras
-apiladas con la participación de cada categoría—; el resto, con
-variación continua real, sí se beneficia del boxplot convencional.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_variables_modelo/02_distribuciones_clave_por_ola.png}
-  \caption{Distribución de 13 indicadores clave por ola: boxplot (mediana,
-  rango intercuartílico, sin atípicos) para las variables con variación
-  continua; barra con la media anotada para las tasas concentradas en el
-  techo (afiliación a salud, asistencia escolar); barras apiladas con la
-  participación de cada categoría para las variables categóricas de pocas
-  categorías (choque, percepción de inseguridad). \texttt{dmsp\_stable\_lights}
-  y su tendencia acumulada solo tienen dato real en 2010 y 2013. Fuente: cálculos propios.}
-  \label{fig:distribuciones_por_ola}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.75\textwidth]{../outputs/figures/eda_variables_modelo/03_tendencias_indicadores_clave.png}
-  \caption{Evolución de la media de 13 indicadores clave a través de las
-  olas, indexada a 2010 = 100. Fuente: cálculos propios.}
-  \label{fig:tendencias_indicadores}
-\end{figure}
-
-Tres cambios se destacan como sustantivos, no ruido muestral. Primero, el
-ingreso real per cápita del hogar sube 37.2\% entre 2010 y 2016
-(\$224{,}479 a \$308{,}042, pesos reales deflactados) y la brecha frente a
-la línea de pobreza (\texttt{brecha\_lp\_ingreso}) sube 41.9\% en el mismo
-periodo (de 1.24 a 1.75 veces la LP). Es decir, los hogares del panel se
-enriquecieron en términos absolutos y relativos a lo largo de la década,
-lo cual es consistente con la caída de la incidencia de pobreza
-documentada en la Sección~\ref{subsec:transiciones}. Segundo, el hacinamiento
-(\texttt{personas\_por\_cuarto\_hogar}) cae 15.7\% (de 1.65 a 1.39
-personas por cuarto) y la razón de dependencia demográfica cae 11.1\% (de
-0.72 a 0.64) —ambos coherentes con una transición demográfica en curso
-(menos niños por adulto) y con mejoras en la vivienda—. Tercero, el índice
-de riqueza (\texttt{riqueza\_pca\_hogar}, un componente principal
-estandarizado sobre el panel completo) pasa de negativo (-0.19 en 2010) a
-positivo (0.14 en 2016), señal adicional de acumulación de activos del
-hogar en el periodo.
-
-Un cuarto cambio requiere una advertencia metodológica: \texttt{tuvo\_algun\_choque\_hogar} salta de 34.6\% en
-2010 a 75.0\% en 2016 (+117\%). Este salto es causado por cambios en la 
-encuesta y no un cambio real en la exposición de los
-hogares a choques negativos. El
-cuestionario de choques de 2010 enumera
-explícitamente 18 categorías posibles y \emph{ninguna} corresponde a
-desastre natural —la categoría de inundación/avalancha/sequía/temblor se
-agregó en el cuestionario de 2013, probablemente porque el de 2010
-ya estaba diseñado antes de que la Ola Invernal 2010--2011 se agravara—, y
-dos categorías de abandono del hogar que sí existían en 2010 se eliminaron
-del cuestionario a partir de 2013. Ambos cambios inflan el
-conteo de tipos de choque disponibles en 2013 y 2016 frente a 2010,
-independientemente de la exposición real de los hogares. No toda la información de
-Choques es universal por diseño: los tipos de choque agropecuario
-(pérdida de animales, plagas/pérdida de cosecha) se preguntan
-exclusivamente a hogares rurales, y las variables de impacto económico y
-estrategia de afrontamiento solo aplican, correctamente, a hogares que
-reportaron al menos un choque. Con esas dos salvedades de la encuesta
-identificadas, el resto de
-indicadores (ocupación, afiliación a salud, asistencia escolar,
-percepción de inseguridad comunitaria, luces nocturnas DMSP-OLS) se
-mueven menos de 10\% en cualquiera de las dos sub-transiciones, es decir,
-son relativamente estables en el periodo.
-
-\subsubsection{Perfil de los hogares analizados}
-\label{subsubsec:perfil_hogares}
-
-La Figura~\ref{fig:perfil_hogares} cruza los mismos indicadores clave
-—agregados sobre las tres olas— por zona (urbano/rural) y por condición de
-pobreza monetaria por ingreso, para caracterizar directamente a los
-hogares que entran al modelo. La brecha urbano/rural es amplia en ingreso
-(\$372{,}522 urbano vs. \$137{,}530 rural, 2.7 veces) y aún más marcada en
-la variable geoespacial insignia: \texttt{dmsp\_stable\_lights} promedia
-54.0 en hogares urbanos frente a 8.2 en rurales —una razón de 6.6 veces,
-la brecha relativa más grande de todo el perfil, y evidencia de que esta
-variable geoespacial captura la división urbano/rural con más nitidez que
-cualquier variable de la encuesta—. Los hogares pobres (por ingreso)
-tienen en promedio \$89{,}277 de ingreso per cápita real frente a
-\$454{,}845 de los no pobres (5.1 veces), un índice de riqueza negativo
-(-0.77 vs.\ 0.69) y menor nivel educativo del jefe de hogar (2.18 vs.\
-3.21 en la escala ordinal) y menor tasa de ocupación (60.1\% vs.\ 71.5\%)
-—un perfil de privación consistente y no contradictorio entre las
-distintas fuentes de información (encuesta y satélite).
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_variables_modelo/05_perfil_hogares_zona_pobreza.png}
-  \caption{Perfil de hogares: media de 15 indicadores clave por zona
-  (urbano/rural) y por condición de pobreza monetaria por ingreso, pooled
-  sobre las tres olas. Fuente: cálculos propios.}
-  \label{fig:perfil_hogares}
-\end{figure}
-
 \subsubsection{Correlación entre covariables y riesgo de multicolinealidad}
 \label{subsubsec:correlacion}
 
-La Figura~\ref{fig:matriz_correlacion} muestra la matriz de correlación de
-Pearson de las 159 variables numéricas del consolidado —incluidas las 4
-geoespaciales—, agrupadas por módulo. Para evitar correlaciones espurias
-por pocas observaciones conjuntas no-nulas (un riesgo real dado que varios
-módulos tienen cobertura parcial, Tabla~\ref{tab:cobertura_modulos}), solo
-se reportan como ``altas'' los pares con $|r|>0.7$ calculados sobre al
-menos 500 observaciones conjuntas; con ese filtro se identifican 35 pares.
+Para evaluar el riesgo de multicolinealidad se calculó la correlación de
+Pearson entre las 159 variables numéricas del consolidado —incluidas las
+4 geoespaciales—. Para evitar correlaciones espurias por pocas
+observaciones conjuntas no-nulas (un riesgo real dado que varios módulos
+tienen cobertura parcial, Tabla~\ref{tab:cobertura_modulos}), solo se
+reportan como ``altas'' los pares con $|r|>0.7$ calculados sobre al menos
+500 observaciones conjuntas; con ese filtro se identifican los 35 pares
+de la Figura~\ref{fig:top_correlaciones}.
 
 La inmensa mayoría son redundancias esperadas por construcción, no
 hallazgos: la versión nominal y real del ingreso/gasto per cápita
@@ -1077,12 +800,16 @@ Sección~\ref{subsec:marginal}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.98\textwidth]{../outputs/figures/eda_variables_modelo/04_matriz_correlacion.png}
-  \caption{Matriz de correlación de Pearson de las 159 variables numéricas
-  del dataset consolidado, agrupadas por módulo. Los círculos marcan pares
-  con $|r|>0.7$ calculados sobre al menos 500 observaciones conjuntas
-  no-nulas. Fuente: cálculos propios.}
-  \label{fig:matriz_correlacion}
+  \includegraphics[width=0.85\textwidth]{../outputs/figures/eda_variables_modelo/04b_top_correlaciones.png}
+  \caption{Pares de variables con correlación de Pearson $|r|>0.7$
+  (calculados sobre al menos 500 observaciones conjuntas no-nulas),
+  ordenados por magnitud de la correlación. La mayoría corresponde a
+  redundancias esperables (medidas nominal vs.\ real de un mismo
+  concepto, o un indicador individual y su agregado a nivel de hogar);
+  la más relevante para este trabajo es la de \texttt{dmsp\_stable\_lights}
+  con \texttt{lp}, \texttt{li} y \texttt{n\_servicios\_publicos\_hogar}, que
+  se retoma en la Sección~\ref{subsec:marginal}. Fuente: cálculos propios.}
+  \label{fig:top_correlaciones}
 \end{figure}
 
 % ============================================================
@@ -1102,12 +829,13 @@ Sección~\ref{subsec:marginal}.
 \label{subsec:outcome}
 
 Siguiendo a \textcite{lopezCalva2011,lopezCalva2014}, se construyen
-matrices de transición de pobreza monetaria cruzando el estado de pobreza
+matrices de transición de pobreza monetaria e IPM cruzando el estado de pobreza
 de un hogar en la ola inicial $t$ (filas) contra su estado en la ola
 siguiente $t+1$ (columnas), usando el ingreso per cápita del hogar contra
 la línea de pobreza (LP) oficial del DANE, específica por año y zona
 (urbana/rural). El análisis empírico se restringe a la submuestra de
-hogares que se encuentran por encima de la LP en el periodo inicial $t$. 
+hogares que se encuentran por encima de la LP en el periodo inicial $t$, es decir, 
+los que inicialmente no eran pobres y que posteriormente caen en pobreza. 
 Sobre esta población se define la variable dependiente binaria:
 
 \begin{equation}
@@ -1119,20 +847,20 @@ Sobre esta población se define la variable dependiente binaria:
   \label{eq:outcome}
 \end{equation}
 
-\noindent El objetivo es estimar la probabilidad condicional de caer en
+\noindent El objetivo entonces es estimar la probabilidad condicional de caer en
 pobreza en el periodo siguiente dada la información observada en $t$
 (Ecuación~\ref{eq:modelo_base}). El emparejamiento de hogares entre olas
 usa exclusivamente coincidencias uno a uno del identificador de hogar
 (Sección~\ref{subsec:elco}); los hogares que se dividieron entre olas se
 excluyen de la construcción de la variable de resultado por no tener un
-estado inicial y final únicos. Las matrices de transición resultantes,
-su interpretación, y los cinco ejercicios de robustez realizados sobre
-esta construcción (ponderación muestral, especificación del ingreso,
-sensibilidad al umbral de pobreza, atrición del panel) se presentan en la
+estado inicial y final únicos. Las matrices de transición resultantes, y
+su interpretación se presentan en la
 Sección~\ref{subsec:transiciones}.
 
 \subsection{Especificación de modelos}
 \label{subsec:modelos}
+La estrategia empírica se establece mediante la siguiente especificación 
+de modelo:
 
 % Ecuación del modelo base
 \begin{equation}
@@ -1146,7 +874,7 @@ observadas en el periodo $t$ (Sección~\ref{subsec:elco}) y $F(\cdot)$ es
 la función que relaciona esas características con la probabilidad de
 transición, aproximada de manera distinta según el algoritmo. Se estiman
 y comparan cinco algoritmos, agrupados en dos familias según cómo tratan
-las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
+las variables categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
 
 \begin{itemize}
   \item \textbf{Regresión logística regularizada (benchmark).} $F(\cdot)$
@@ -1154,8 +882,8 @@ las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
   penalizando su magnitud con una combinación de regularización L1 y L2
   (\emph{elastic net}), cuya fuerza ($C$) y mezcla ($l_1\_ratio$) se
   eligen por validación cruzada en vez de fijarse \emph{a priori} como
-  Lasso o Ridge puro. Es el algoritmo designado como referencia por ser
-  interpretable, con coeficientes de signo económicamente interpretable, 
+  Lasso o Ridge. Es el algoritmo designado como referencia por ser
+  interpretable, 
   y por servir de punto de comparación antes de
   justificar el uso de un modelo más complejo.
   \item \textbf{Random Forest.} Promedio de árboles de decisión
@@ -1167,15 +895,13 @@ las categóricas y los datos faltantes (Sección~\ref{subsec:desbalance}):
   implementaciones de \emph{gradient boosting} de árboles. Este algoritmo
   es sobresaliente por su balance entre desempeño e interpretabilidad, 
   y uno de los más usados en la literatura de focalización de pobreza 
-  \parencite{mcbride2018}--, que difieren en el algoritmo de construcción del histograma de particiones
-  (\emph{level-wise} en XGBoost y HistGradientBoosting,
-  \emph{leaf-wise} en LightGBM) y en el mecanismo de regularización. Las
+  \parencite{mcbride2018}--. Los
   tres manejan de forma nativa tanto los datos faltantes como las
   variables categóricas, sin necesidad de imputación ni de
   \emph{one-hot encoding} (Sección~\ref{subsec:desbalance}).
 \end{itemize}
 
-Para evaluar el aporte relativo del nivel de ingreso/gasto del hogar
+Para evaluar el aporte del nivel de ingreso/gasto del hogar
 --el predictor más informativo bajo el enfoque de vulnerabilidad de
 \textcite{chaudhuri2002}, que compara qué tan cerca está un hogar del
 umbral de pobreza, se estima cada uno de los cinco algoritmos bajo dos
@@ -1183,19 +909,24 @@ especificaciones de covariables: el \textbf{Modelo A} incluye el ingreso y
 gasto per cápita real del hogar en el periodo base y la brecha frente a la
 Línea de Pobreza (LP), de escala-invariante por lo que se mantiene constante
 a lo largo del tiempo; el \textbf{Modelo B}
-excluye estas cuatro columnas y usa exclusivamente covariables no
+excluye estas cuatro variables y usa exclusivamente covariables no
 monetarias (ej. demografía, educación, activos, vivienda, choques,
 comunidad). Este ejercicio, diez modelos en total (cinco algoritmos por
 dos especificaciones) establece además el marco de referencia frente al
 cual se evaluará, en una etapa posterior de este proyecto, si las
 variables geoespaciales aportan más donde la brecha a la LP ya no
-distingue bien (hogares cerca del umbral) que en general.
+distingue bien (hogares cerca del umbral) que en general. 
+
+Finalmente, se establecieron dos variables objetivo para evaluar 
+la robustez de los hallazgos: la transición hacia la 
+pobreza monetaria y la transición 
+hacia la pobreza multidimensional (IPM). 
 
 \subsection{Validación fuera de muestra y métricas}
 \label{subsec:validacion}
 
 La estimación usa las dos primeras olas de la ELCA como base de
-entrenamiento (transición 2010 a2013: covariables de 2010, resultado
+entrenamiento (transición 2010 a 2013: covariables de 2010, resultado
 observado en 2013) y la tercera ola como conjunto de prueba, completamente
 independiente, para evaluar el desempeño predictivo fuera de muestra
 (transición 2013 a 2016: covariables de 2013, resultado observado en
@@ -1209,10 +940,7 @@ hiperparámetros de cada algoritmo (mediante \texttt{RandomizedSearchCV},
 particiones, optimizando AUC-ROC) se realiza estrictamente dentro del
 periodo de entrenamiento (2010 a2013); el conjunto de prueba
 (2013 a 2016) no se toca hasta la evaluación final reportada en la
-Sección~\ref{subsec:desempeno}. Como ejercicios de robustez adicionales,
-planeados pero aún no ejecutados, se contempla invertir los roles de
-entrenamiento y prueba (\emph{backtest}) y agrupar ambas transiciones con
-validación cruzada agrupada por hogar (Sección~\ref{subsec:limitaciones}).
+Sección~\ref{subsec:desempeno}.
 
 El desempeño se reporta mediante AUC-ROC como métrica principal, principalmente porque no
 depende de un umbral de clasificación arbitrario, además, recall, precision y
