@@ -3798,3 +3798,227 @@ dimension como version final (confirmado con el usuario).
 Output: `src/04_features/build_ipm_multidimensional.py` (nuevo),
 `data/processed/ipm_multidimensional_elca_longitudinal.parquet` (nuevo).
 lineas_pobreza_2012_2018_enph/lineas_20122018.csv`.
+
+## 2026-09-11/12: Mapa territorial con coordenadas reales (sala de la universidad) -- diseño, privacidad, y correccion de fuente DMSP
+
+**Contexto**: para complementar el analisis por `region` (unica variable
+geografica valida en la copia de este proyecto, ver
+`mapa_transicion_regiones.py`), el usuario puede acceder en la sala de
+computo de la universidad a la base de ELCA con codigo de municipio real.
+Como en la sala no hay forma de depurar codigo ("no puedo probar nada"),
+se construyo un script autocontenido y un paquete portable (ver mas abajo)
+que el usuario lleva ya probado.
+
+**1. DIVIPOLA -> coordenadas directas (pivote sobre la marcha)**. La
+primera version del script cruzaba por codigo DIVIPOLA (`id_mpio`) contra
+una tabla oficial de coordenadas por municipio (necesario porque GADM
+nivel 2 no trae el codigo, `CC_2` vacio en las 1,119 filas). El usuario
+reporto que los codigos DIVIPOLA de la base de la universidad "no son
+consistentes", pero que SI tiene latitud/longitud por hogar en esa misma
+base. Se rediseño el script para leer coordenadas directas (nombres de
+columna configurables en CONFIG, default `lat_decimal`/`lon_decimal` --
+misma convencion que `00_construir_panel_coordenadas.py` del pipeline de
+Google Street View) en vez de cruzar por codigo -- mas preciso (posicion
+exacta del hogar, no centroide de municipio) y evita el problema de
+formato/consistencia del codigo por completo.
+
+Script final: `src/mapa_territorial_transicion_divipola.py`. Paquete
+portable con SOLO lo que hace falta (script + carpeta `datos/` de ~20MB:
+los parquets de pobreza/IPM/hogares, shapefiles de pais/departamento, y
+el fondo DMSP precomputado) en
+`entregable_sala_mapa_territorial/` -- NO se lleva el repositorio
+completo. Verificado end-to-end con coordenadas simuladas dentro del
+rango de Colombia (100% de cruce) y con la validacion de columnas
+fallando correctamente cuando el nombre no coincide.
+
+**2. Riesgo de privacidad detectado y resuelto: puntos individuales ->
+agregacion espacial**. El usuario pregunto si la coordenada de un hogar
+se podia recuperar solo con la imagen del mapa. Respuesta tecnica: SI,
+aproximadamente -- el mapa es una transformacion afin simple (extension
+geografica conocida + tamaño de figura, ambos publicos en el codigo), asi
+que invertir un pixel a coordenada da una precision de ~1km, suficiente
+para ubicar aproximadamente el municipio/vereda de un hogar especifico
+(riesgo real dado que ELCA tiene acuerdos de confidencialidad sobre
+hogares individuales). Se evaluaron mitigaciones (jitter aleatorio --
+insuficiente en zonas rurales dispersas, donde un radio de jitter que
+protege en ciudad no protege en una microrregion con pocos municipios) y
+se opto por AGREGACION ESPACIAL: nunca se grafica un punto individual,
+solo un patron por zona calculado sobre densidad suavizada de varios
+hogares. Esto elimina el riesgo de raiz (no hay pixel que corresponda a
+un hogar especifico).
+
+**3. Iteracion de estilo de la agregacion** (validado en un artifact de
+prueba, iteraciones v1-v10, no en el repo por ser un artifact web): color
+solido por grupo dominante -> mezcla de color por proporcion (RECHAZADO:
+zonas con 2-3 grupos parejos daban tonos cafe/gris indistinguibles) ->
+trama (patron de lineas) en vez de relleno de color (evita competir
+visualmente con la paleta "inferno" del fondo) -> trama monocroma
+(blanco puro, sin color) -> contorno de pais/departamento reforzado
+(blanco solido, mucho mas grueso) -> recorte estricto al poligono real
+de Colombia via `shapely.vectorized.contains` (el difuminado gaussiano se
+expandia hacia Venezuela/Panama/oceano sin este recorte, reportado por el
+usuario) -> margen minimo de separacion: "dominante" ahora exige que el
+grupo mas denso supere al segundo por >=12 puntos de proporcion, si no la
+celda queda sin trama (antes se forzaba un "ganador" con solo 30% de los
+datos; con el margen, ~43% de las celdas de Colombia quedan sin dominante
+claro en la prueba con datos reales). Version final (validacion de
+estilo, con proporciones REALES por region pero posicion aun simulada,
+ver docstring): `src/graf_mapa_territorial_tramas.py`.
+
+**Pendiente sin resolver**: hoy "sin trama" significa dos cosas distintas
+que se ven igual (sin datos cerca vs. datos parejos sin dominante claro)
+-- el usuario lo señalo, propuesta pendiente de decidir: dejar
+transparente donde no hay datos y usar una trama neutra/tenue donde si
+hay datos pero repartidos.
+
+**4. Correccion de la fuente del fondo DMSP (Zenodo -> Google Earth
+Engine)**. La primera version del fondo de brillo usaba el dataset
+alternativo de Zenodo ("CCNL 1992-2013", DOI 10.5281/zenodo.6644980)
+porque la descarga directa de NOAA/EOG redirige a login (verificado con
+curl). El usuario señalo, correctamente, que `dmsp_stable_lights` (la
+variable que usa el RESTO de la tesis) nunca se descargo de ahi -- se
+extrajo via Google Earth Engine (coleccion
+`NOAA/DMSP-OLS/NIGHTTIME_LIGHTS`, banda `stable_lights`, satelite F18,
+ver `prompts/prompt_dmsp_ols_pipeline.md`), que es de acceso publico con
+cuenta de servicio (sin el login que bloqueaba la descarga directa). Se
+corrigio para usar la MISMA fuente exacta (nuevo script
+`src/02_build/eda_dmsp_nacional_gee.py`, reutiliza las credenciales de
+GEE ya creadas para `sentinel1_pipeline/`), eliminando la advertencia de
+"no intercambiable" (Zenodo llegaba a ~0-128, otro procesamiento del
+mismo sensor; GEE da la escala correcta 0-63). `eda_dmsp_fondo_mapa.py`
+actualizado para leer el nuevo raster;
+`eda_dmsp_nacional_municipios.py` (el script de Zenodo, con muestreo por
+municipio en vez de raster continuo) queda marcado como SUPERADO en su
+docstring, sin borrar por trazabilidad. Pendiente: el usuario debe correr
+`eda_dmsp_nacional_gee.py` con sus credenciales para regenerar
+`fondo_dmsp_colombia_2010.npz` con la escala corregida (no se pudo
+ejecutar en esta sesion, requiere credenciales que solo tiene el
+usuario).
+
+Output: `src/mapa_territorial_transicion_divipola.py` (reescrito, coordenadas
+directas), `entregable_sala_mapa_territorial/` (paquete portable, nuevo,
+luego ELIMINADO -- ver addendum 2026-09-12 mas abajo), `src/graf_mapa_territorial_tramas.py`
+(nuevo, validacion de estilo), `src/02_build/eda_dmsp_nacional_gee.py` (nuevo),
+`src/02_build/eda_dmsp_fondo_mapa.py` (actualizado, nueva fuente),
+`src/02_build/eda_dmsp_nacional_municipios.py` (marcado como superado).
+
+### Addendum 2026-09-12 — Ejecucion real de eda_dmsp_nacional_gee.py: permiso denegado en getDownloadURL, resuelto con mosaico de sampleRectangle
+
+Al correr `eda_dmsp_nacional_gee.py` con las credenciales reales de GEE
+(reutilizadas de `sentinel1_pipeline/`), la conexion y la busqueda de la
+imagen (`F182010`) funcionaron, pero `Image.getDownloadURL()` fallo con
+`PERMISSION_DENIED: earthengine.thumbnails.create` sobre el proyecto de
+Cloud. Se verifico que es un problema de PERMISOS de la cuenta de
+servicio, no de tamano de la region solicitada (fallo identico con un
+area de prueba de solo 2km de radio). En cambio, `Image.sampleRectangle()`
+y `Image.reduceRegion()` SI funcionaron sin problema (permiso distinto,
+de lectura de pixeles en vez de generacion de descarga/thumbnail).
+
+Se reescribio la extraccion para pedir el raster en un MOSAICO de tiles
+via `sampleRectangle` (limite verificado: 262,144 pixeles por llamada) y
+ensamblarlo localmente con numpy antes de escribir el GeoTIFF final con
+rasterio -- Colombia completa (1,860 x 2,196 pixeles a la resolucion
+nativa de 120 pixeles/grado, verificada empiricamente) se cubre con ~20
+tiles de 480x480, en menos de 1 minuto. Bug encontrado y corregido en el
+primer intento de ensamblaje: `sampleRectangle` siempre devuelve un punto
+de muestra extra en el borde derecho/inferior de cada tile (N celdas
+pedidas -> N+1 puntos) -- ese punto extra se debe descartar SIEMPRE
+(tambien en el ultimo tile del mosaico, no solo en los intermedios), o el
+ensamblaje falla por desbordar el ancho/alto total del arreglo destino.
+
+Resultado verificado: `dmsp_nacional_gee_2010.tif` con rango 0-63 exacto
+(coincide con `dmsp_stable_lights`, confirmando que la fuente/banda/
+satelite es la correcta). `fondo_dmsp_colombia_2010.npz` regenerado con
+este raster. `src/graf_mapa_territorial_tramas.py` re-corrido con el
+fondo corregido -- visualmente muy similar al de Zenodo (mismo sensor,
+mismo patron), pero ahora con la escala numerica correcta y sin la
+advertencia de "no intercambiable".
+
+**Nota aparte (mismo dia)**: el usuario reporto que el paquete portable
+anterior (`entregable_sala_mapa_territorial/`) "no funciono" en la sala
+("el script no corrio / dio error", sin mas detalle disponible aun) y
+pidio eliminarlo del proyecto -- se elimino la carpeta completa. El
+script fuente (`src/mapa_territorial_transicion_divipola.py`) y los
+scripts de apoyo se conservan sin cambios; el paquete portable debe
+regenerarse (y corregirse el error, una vez se conozca cual fue) antes de
+volver a llevarlo a la sala.
+
+### Addendum 2026-09-12 (cont.) — Hallazgo critico: ni el codigo DIVIPOLA ni las coordenadas de la base de la universidad son reales; pivote final a graf_mapa_territorial_tramas.py
+
+El usuario aclaro la causa real del error reportado en la sala: **los
+codigos DIVIPOLA de la base de la universidad tampoco corresponden a los
+verdaderos, y tampoco se pudieron usar coordenadas exactas por el diseño
+de anonimizacion de la encuesta**. Esto invalida de raiz el enfoque de
+`mapa_territorial_transicion_divipola.py` (y el paquete portable
+asociado, ya eliminado) -- NO es un bug de codigo: el insumo que ese
+script asume (un identificador geografico real a nivel de hogar) no
+existe en NINGUN entorno, ni siquiera en la sala restringida de la
+universidad. `region` sigue siendo el unico nivel geografico disponible
+en la ELCA, confirmando lo ya documentado en `mapa_transicion_regiones.py`.
+
+Se decidio (confirmado con el usuario) que `graf_mapa_territorial_tramas.py`
+-- construido originalmente como "validacion de estilo" -- pasa a ser el
+analisis territorial FINAL utilizable, ya que usa exactamente el nivel de
+agregacion (region) que realmente existe, con proporciones reales por
+region y posicion simulada dentro de cada region (declarado explicitamente
+en la figura). `mapa_territorial_transicion_divipola.py` y sus scripts de
+apoyo (`eda_dmsp_nacional_gee.py`, etc.) se conservan en el repo por si en
+el futuro aparece una fuente con identificador geografico real, pero no
+son la ruta a seguir con los datos actuales.
+
+**Investigacion de alternativas de encoding** (pedido explicito del
+usuario: revisar tecnicas cartograficas establecidas, no solo iterar
+color): se investigaron y probaron 2 alternativas al mapa de "grupo
+dominante por celda" -- (A) *small multiples* (un mini-mapa por grupo,
+tecnica de Tufte) y (B) *glifo/dona por region* estilo Minard (1858),
+dado que en realidad solo hay 9 regiones reales, no miles de hogares
+posicionables. Ambas fueron descartadas por el usuario porque no dejaban
+ver el HALLAZGO que queria comunicar: la relacion MONOTONICA entre grupo
+de transicion e iluminacion DMSP (Siempre pobre < Sale < Entra < Nunca
+pobre, en media Y mediana, en monetaria E IPM -- ver
+`dmsp_por_categoria_{monetaria,ipm}_2010_2013.csv`). Para ese hallazgo
+especifico se construyo un grafico de barras horizontal simple
+(`src/graf_dmsp_monotonico_categoria.py`, estilo claro/paleta estandar de
+la tesis, NO el estilo oscuro del mapa) -- un mapa no es el vehiculo
+correcto para una relacion estadistica ordenada entre 4 categorias y una
+variable continua.
+
+**Hallazgo metodologico importante sobre el mapa de "grupo dominante"**:
+se confirmo con los datos reales que "Entra en pobreza" y "Sale de la
+pobreza" NUNCA son el grupo dominante (mayoria relativa, argmax simple
+SIN margen) en ninguna de las 9 regiones -- Bogota/Central/Oriental/
+Pacifica siempre los gana "Nunca pobre", el resto siempre "Siempre
+pobre". Esto NO es un problema de color/contraste (se probo con paletas
+calidas y frias, con el mismo resultado): es que esos 2 grupos son
+minoria en las 9 regiones. Se le presento este hallazgo al usuario junto
+con 2 alternativas (glifo/composicion completa vs. mantener argmax
+simple aceptando que 2 de 4 grupos no apareceran nunca en el mapa de
+dominante) -- el usuario confirmo preferir argmax SIN margen minimo
+(quedandose con la posibilidad de que Entra/Sale aparezcan en alguna
+celda si llegan a ser localmente el mas grande de los 4, aunque sin
+mayoria absoluta), en vez de exigir margen minimo (que los excluye
+siempre) o cambiar a un encoding de composicion completa.
+
+**Bug de opacidad encontrado y corregido** (en una variante con manchas
+difuminadas de color solido en vez de trama, exploratoria): la opacidad
+se escalaba por densidad relativa al PICO NACIONAL, lo que apagaba casi
+por completo zonas perifericas de regiones rurales dispersas (sur de
+Pacifica, borde de Centro-Oriente) AUNQUE si tuvieran un dominante
+valido segun la mascara -- corregido a opacidad uniforme (binaria, solo
+suavizada en el borde) donde hay un dominante valido, igual que ya hacia
+la trama.
+
+**Version final confirmada por el usuario**: trama CON COLOR por grupo
+(no monocroma), SIN margen minimo (MARGEN_MINIMO=0.0), recortada al
+poligono de Colombia, sobre el fondo DMSP con la fuente GEE corregida.
+`src/graf_mapa_territorial_tramas.py` actualizado a esta configuracion
+como version final (antes: monocroma + margen 0.12, etiquetado como
+"validacion de estilo"). Docstring actualizado para reflejar que ya no
+es una validacion sino el analisis territorial definitivo con los datos
+disponibles.
+
+Output: `src/graf_dmsp_monotonico_categoria.py` (nuevo, hallazgo
+monotonico DMSP), `src/graf_mapa_territorial_tramas.py` (actualizado a
+version final: color + sin margen), `outputs/figures/eda_transicion_covariables/dmsp_monotonico_categoria.png`
+(nuevo), `outputs/figures/mapa_territorial_divipola/prueba_estilo_tramas_regional.png`
+(regenerado, version final).
