@@ -107,7 +107,7 @@ def graf_auc_por_algoritmo(registro: pd.DataFrame) -> None:
     _guardar(fig, "01_auc_roc_por_algoritmo.png")
 
 
-def graf_metricas_umbral(registro: pd.DataFrame) -> None:
+def graf_metricas_umbral(registro: pd.DataFrame, ylim_max: float = 0.9) -> None:
     """Recall y precision medios (al umbral elegido por CV, 5 semillas) por
     algoritmo, especificacion A."""
     sub = registro[registro["especificacion"] == "A"].set_index("algoritmo").reindex(ORDEN_ALGORITMOS)
@@ -125,7 +125,7 @@ def graf_metricas_umbral(registro: pd.DataFrame) -> None:
         ax.annotate(f"{p:.2f}", (x[i] + ancho / 2, p), textcoords="offset points", xytext=(0, 8), ha="center", fontsize=8, color=INK_SECUNDARIO)
     ax.set_xticks(x)
     ax.set_xticklabels([NOMBRES_CORTOS[a] for a in ORDEN_ALGORITMOS], fontsize=9)
-    ax.set_ylim(0, 0.9)
+    ax.set_ylim(0, ylim_max)
     ax.set_ylabel("Proporción (media, 5 semillas)")
     ax.set_title("Recall y precision al umbral elegido por validación cruzada (Modelo A)")
     ax.legend(frameon=False, loc="upper right", fontsize=8.5)

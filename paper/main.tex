@@ -112,8 +112,8 @@ de los modelos en datos temporalmente posteriores a aquellos utilizados
 para su entrenamiento, aproximándose a su capacidad para anticipar 
 transiciones futuras hacia la pobreza. Los modelos se estiman con y sin 
 variables monetarias del hogar. El modelo base, que es lo que se reporta 
-en esta versión del documento, alcanza un AUC-ROC entre 0.727 y 0.764 
-según el algoritmo, con una brecha de apenas 0.008–0.031 entre la 
+en esta versión del documento, alcanza un AUC-ROC entre 0.731 y 0.767
+según el algoritmo, con una brecha de apenas 0.008–0.028 entre la
 especificación que incluye ingreso/gasto del hogar y la que no lo hace, 
 lo que sugiere que las covariables no monetarias capturan una fracción 
 sustancial del poder predictivo típicamente atribuido al ingreso. La 
@@ -934,19 +934,37 @@ independiente, para evaluar el desempeño predictivo fuera de muestra
 real de un sistema de focalización, solo existe la ola base al momento de
 predecir, y es, siguiendo a \textcite{mcbride2018}, la validación más
 exigente para un modelo de este tipo porque prueba generalización ante un
-régimen económico distinto al de entrenamiento. El ajuste de
-hiperparámetros de cada algoritmo (mediante \texttt{RandomizedSearchCV},
-15 combinaciones aleatorias, validación cruzada estratificada de 3
-particiones, optimizando AUC-ROC) se realiza estrictamente dentro del
-periodo de entrenamiento (2010 a2013); el conjunto de prueba
-(2013 a 2016) no se toca hasta la evaluación final reportada en la
-Sección~\ref{subsec:desempeno}.
+régimen económico distinto al de entrenamiento.
+
+Dentro de ese periodo de entrenamiento (2010 a 2013) --nunca sobre el
+conjunto de prueba-- cada algoritmo pasa por una búsqueda de
+hiperparámetros: en vez de fijar a mano valores como la profundidad de los
+árboles o la tasa de aprendizaje, \texttt{RandomizedSearchCV} propone 30
+combinaciones aleatorias dentro de un rango razonable para cada
+hiperparámetro (Sección~\ref{subsec:modelos}) y evalúa cada una con
+validación cruzada estratificada de 10 particiones: el conjunto de
+entrenamiento se divide en 10 bloques del mismo tamaño y manteniendo la
+proporción de hogares que entran a la pobreza en cada uno
+(\emph{estratificada}), se entrena 10 veces dejando un bloque distinto por
+fuera cada vez y evaluando sobre ese bloque no visto, y se promedian las
+10 evaluaciones. Ese promedio castiga a las combinaciones que memorizan
+particularidades del conjunto de entrenamiento en vez de aprender un
+patrón que generaliza, sin gastar el conjunto de prueba, que solo se toca
+una vez, al final. Se eligen los 30 hiperparámetros por costo
+computacional --evaluar más combinaciones exhaustivamente (\emph{grid
+search}) sobre 5 algoritmos $\times$ 4 especificaciones $\times$ 3
+estrategias de balanceo (Sección~\ref{subsec:desbalance}) no era viable en
+tiempo razonable--; la métrica que decide qué combinación gana esa
+búsqueda es AUC-ROC, por la misma razón que se usa como métrica principal
+de desempeño (párrafo siguiente).
 
 El desempeño se reporta mediante AUC-ROC como métrica principal, principalmente porque no
 depende de un umbral de clasificación arbitrario, además, recall, precision y
-F1 como métricas de referencia al umbral de clasificación elegido
+F1 como métricas de referencia al umbral de clasificación elegido por F$_2$
 (Sección~\ref{subsec:desbalance}), junto con la matriz de confusión
-completa. El foco del análisis está en comparar el desempeño relativo
+completa; F1 se sigue reportando por ser la referencia más estándar en la
+literatura, aunque no es la métrica que decide dónde queda el umbral. El
+foco del análisis está en comparar el desempeño relativo
 entre los cinco algoritmos y entre las especificaciones A y B, más que en
 declarar un único ``mejor'' modelo a partir de diferencias de AUC-ROC que,
 como se documenta en la Sección~\ref{subsec:desempeno}, resultan pequeñas
@@ -986,11 +1004,29 @@ muestra, y que distintas estrategias de balanceo calibran las
 probabilidades de forma distinta, por lo que comparar recall/precision/F1
 a un umbral fijo entre estrategias no es una comparación válida. La
 solución adoptada fue elegir el umbral de clasificación de cada modelo por
-validación cruzada (maximizando F1 sobre las probabilidades
-\emph{out-of-fold}) en lugar de fijarlo en 0.5 --el AUC-ROC, que no
-depende de umbral, sigue siendo el criterio que decide la estrategia de
-balanceo y los hiperparámetros; el umbral solo determina cómo se reportan
-las métricas restantes.
+validación cruzada, igual que los hiperparámetros: sobre las
+probabilidades \emph{out-of-fold} (10 particiones) se evalúa una grilla de 
+umbrales entre 0.02 y 0.98 y se
+elige el que maximiza una métrica que combina recall y precision --el
+AUC-ROC, que no depende de umbral, y sigue siendo el criterio que decide la
+estrategia de balanceo y los hiperparámetros en el paso anterior; el
+umbral solo determina cómo se reportan recall, precision y F1 una vez el
+modelo ya está fijo.
+
+La métrica elegida para esa búsqueda de umbral es F$_2$ (F-beta con
+$\beta=2$) en vez del F1 convencional. F1 es la media armónica de recall y
+precision con el mismo peso para ambos, una elección razonable cuando un
+falso negativo (un hogar que sí cae en pobreza y el modelo no marca como
+riesgo) y un falso positivo (un hogar que el modelo marca como riesgo y no
+cae) son igual de costosos. En un sistema de focalización de política
+social eso no es cierto: dejar sin detectar a un hogar que va a entrar en
+pobreza tiene un costo --no recibe el apoyo que necesitaría-- mayor que
+incluir de más a un hogar que no cae, que en el peor caso implica un gasto
+de focalización mal dirigido pero no la ausencia de una protección que sí
+hacía falta. F$_2$ formaliza esa prioridad ponderando el recall el doble
+que la precision al elegir el umbral, de modo que el modelo se ajusta para
+dejar pasar menos casos reales de entrada a la pobreza, a costa de marcar
+como riesgo a más hogares que finalmente no caen.
 
 Para los algoritmos sin soporte de datos faltantes (regresión
 logística y Random Forest), la imputación de valores faltantes, que en
@@ -1029,9 +1065,16 @@ listas de variables más importantes entre el Modelo A y el Modelo B
 (Sección~\ref{subsec:desempeno}) es la primera aproximación a la pregunta
 de qué información no monetaria es más predictiva de la transición a la
 pobreza, antes de la incorporación de las variables geoespaciales
-(Sección~\ref{subsec:limitaciones}). El uso de valores SHAP para una
-descomposición más fina y comparable entre algoritmos, contemplado en la
-propuesta original de este trabajo, queda como tarea pendiente.
+(Sección~\ref{subsec:limitaciones}). Como estas medidas no comparten
+unidad entre algoritmos (impureza vs.\ coeficiente estandarizado vs.\
+caída de AUC-ROC), se complementan con valores SHAP (\emph{SHapley
+Additive exPlanations}) para los cinco algoritmos sobre los Modelos A y
+B, que sí son comparables en una misma escala --la contribución promedio,
+en valor absoluto, de cada variable a la predicción de cada hogar-- y que
+además satisfacen aditividad (la suma de los SHAP values de un hogar
+reconstruye exactamente su predicción) y consistencia (si un modelo pasa
+a depender más de una variable, su SHAP value nunca puede bajar). Los
+resultados se presentan en la Sección~\ref{subsec:desempeno}.
 
 % ============================================================
 % SECCIÓN 5 — RESULTADOS            TARGET: 9–10 páginas
@@ -1046,255 +1089,72 @@ propuesta original de este trabajo, queda como tarea pendiente.
 \section{Resultados}
 \label{sec:resultados}
 
-\subsection{Dinámica de transiciones a la pobreza en la ELCO}
+\subsection{Dinámica de transiciones a la pobreza en la ELCA}
 \label{subsec:transiciones}
 
-Esta sección analiza la dinámica de la pobreza monetaria en el panel ELCA
-2010--2013--2016 en dos niveles. Primero, la incidencia y las matrices de
-transición entre olas consecutivas, siguiendo la metodología oficial del
-DANE (ingreso per cápita nominal del hogar contra la línea de pobreza --LP--
-y la línea de pobreza extrema --LI-- nominales de su año y zona) y la
-clasificación en cuatro categorías de transición de \textcite{lopezCalva2014}
-(nunca pobre, siempre pobre, sale de la pobreza, entra en pobreza). Segundo,
-un conjunto de cinco ejercicios de robustez diseñados específicamente para
-evaluar qué tan sensible es la variable de resultado de esta tesis --la
-transición a la pobreza-- a decisiones metodológicas de la construcción del
-ingreso y a la definición del panel. Los detalles de construcción de cada
-variable, verificados contra los diccionarios de la encuesta y los archivos
-crudos, están documentados exhaustivamente en el repositorio del proyecto
-(\texttt{docs/decisions.md}); aquí se presentan los resultados y su
-interpretación para la tesis.
+Esta sección caracteriza las transiciones entre estados de pobreza en el
+panel ELCA 2010--2013--2016, bajo las dos definiciones de esta tesis
+--monetaria por ingreso (LP del DANE) e IPM (Sección~\ref{subsec:outcome})--,
+según las cuatro categorías de \textcite{lopezCalva2014} (nunca/siempre
+pobre, sale/entra en pobreza). Incidencia, FGT y cinco ejercicios de
+robustez frente a decisiones de construcción del ingreso y
+representatividad muestral --incluida la atrición del panel por perfil de
+hogar-- se documentan en el Apéndice~\ref{apx:transiciones_robustez}.
 
-\subsubsection{Incidencia de pobreza y matrices de transición}
-\label{subsubsec:incidencia_transicion}
+Las matrices de transición (Tabla~\ref{tab:matriz_transicion}) cruzan el
+estado inicial (filas) contra el final (columnas), en \% de fila, para
+hogares con emparejamiento 1 a 1 entre olas (excluye 511 hogares
+divididos en 2010--2013 y 1{,}190 en 2013--2016).
 
-La Figura~\ref{fig:incidencia_ingreso_gasto} muestra la incidencia de
-pobreza monetaria (P0) por ingreso y por gasto para las tres olas. La
-pobreza por ingreso --la medida oficial-- cae de 60.7\% en 2010 a 52.4\% en
-2013 y a 42.4\% en 2016, una reducción acumulada de 18.3 puntos
-porcentuales en seis años. La pobreza por gasto, construida como medida de
-robustez (Sección~\ref{sec:datos}), es sistemáticamente más alta que la de
-ingreso en las tres olas (47.6\%, 40.9\% y 33.4\% en sentido estricto es más
-\emph{baja}, no más alta, que la de ingreso en los tres puntos del panel:
-la brecha ingreso-gasto es de 13.1, 11.5 y 9.0 puntos porcentuales
-respectivamente, siempre a favor de una menor incidencia medida por gasto).
-Ambas series comparten la misma tendencia decreciente y la misma
-desaceleración del ritmo de reducción entre 2013--2016 frente a
-2010--2013, lo que sugiere que la caída de la pobreza en el periodo no es
-un artefacto de la medida de bienestar elegida.
+\input{tables/tab_matriz_transicion_combinada.tex}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.75\textwidth]{../outputs/figures/pobreza/01_incidencia_ingreso_vs_gasto.png}
-  \caption{Incidencia de pobreza monetaria (P0) por ingreso y por gasto,
-  contra la línea de pobreza (LP), 2010--2016.}
-  \label{fig:incidencia_ingreso_gasto}
-\end{figure}
+Bajo pobreza monetaria la persistencia es alta pero decrece: 70.3\% de los
+pobres en 2010 seguían pobres en 2013, cae a 61.8\% entre 2013 y 2016 (la
+salida condicional sube de 29.7\% a 38.2\%); la persistencia en la
+no-pobreza mejora de 76.6\% a 80.1\%. Bajo IPM entrar es menos frecuente
+(12.1\% y 9.7\%, frente a 23.4\% y 19.9\% en monetaria) pero también lo es
+salir (45.5\% y 47.7\%, frente a 29.7\%--38.2\% en monetaria)
+--consistente con que el IPM mide privaciones estructurales (vivienda,
+educación, servicios) que cambian más lento que el ingreso corriente en
+cualquiera de las dos direcciones.
 
-La Figura~\ref{fig:fgt_trio} descompone la pobreza por ingreso en sus tres
-componentes de Foster-Greer-Thorbecke: incidencia (P0), brecha (P1) y
-severidad (P2). La brecha --qué tan lejos está el ingreso promedio de los
-pobres respecto a la LP, como fracción de la LP-- cae de 32.2\% a 22.0\% y a
-16.1\% entre 2010 y 2016; la severidad --que pondera más a los hogares más
-alejados de la LP, sensible a la desigualdad entre los pobres-- cae de
-22.3\% a 12.4\% y a 8.3\%. La caída proporcional de P1 y P2 es más rápida
-que la de P0 en ambos periodos, lo que indica que la reducción de la
-pobreza no solo trajo hogares desde justo debajo de la LP hacia arriba,
-sino que también mejoró la situación relativa de los hogares que
-permanecieron pobres.
+Las Figuras~\ref{fig:sankey_2010_2013} y~\ref{fig:sankey_2013_2016}
+traducen la matriz monetaria a flujos entre las cuatro categorías de
+\textcite{lopezCalva2014}: en 2010--2013 dominan los \emph{siempre
+pobres} (43.9\%) sobre los \emph{nunca pobres} (28.8\%); en 2013--2016 el
+orden se invierte (37.0\% vs.\ 33.3\%). En ambos periodos la salida
+(18.6\%, 20.6\%) casi duplica la entrada (8.8\%, 9.2\%): la pobreza
+monetaria se redujo de forma neta, no solo se redistribuyó entre hogares.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{../outputs/figures/pobreza/02_fgt_incidencia_brecha_severidad.png}
-  \caption{Indicadores FGT de pobreza por ingreso contra la LP: incidencia
-  (P0), brecha (P1) y severidad (P2), por ola.}
-  \label{fig:fgt_trio}
-\end{figure}
-
-Las matrices de transición cruzan el estado de pobreza inicial (filas)
-contra el estado final (columnas), en porcentaje de fila, únicamente para
-hogares con emparejamiento uno a uno vía \texttt{consecutivo} entre olas
-(los hogares que se dividen entre una ola y la siguiente --511 casos en
-2010--2013 y 1{,}190 en 2013--2016, contando ambos lados del
-emparejamiento-- se excluyen de la matriz por no tener un estado inicial y
-final inequívoco). La Tabla~\ref{tab:matriz_transicion} presenta ambas
-matrices.
-
-\begin{table}[H]
-  \centering
-  \caption{Matrices de transición de pobreza monetaria por ingreso
-  (\% de fila, panel emparejado 1 a 1)}
-  \label{tab:matriz_transicion}
-  \begin{tabular}{llcc}
-    \toprule
-    \textbf{Periodo} & \textbf{Estado inicial} & \textbf{No pobre (final)} & \textbf{Pobre (final)} \\
-    \midrule
-    \multirow{2}{*}{2010 $\rightarrow$ 2013 ($n=8{,}218$)}
-      & No pobre & 76.6\% & 23.4\% \\
-      & Pobre    & 29.7\% & 70.3\% \\
-    \addlinespace
-    \multirow{2}{*}{2013 $\rightarrow$ 2016 ($n=6{,}911$)}
-      & No pobre & 80.1\% & 19.9\% \\
-      & Pobre    & 38.2\% & 61.8\% \\
-    \bottomrule
-  \end{tabular}
-  \begin{minipage}{0.85\textwidth}
-    \vspace{4pt}
-    \footnotesize \textit{Nota:} $n$ = hogares con emparejamiento 1 a 1;
-    excluye 511 (2010--2013) y 1{,}190 (2013--2016) casos de hogares que se
-    dividieron entre olas. Fuente: cálculos propios con base en ELCA
-    2010, 2013, 2016.
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.82\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2010_2013.png}
+    \caption{2010$\to$2013 ($n=8{,}218$).}
+    \label{fig:sankey_2010_2013}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.82\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2013_2016.png}
+    \caption{2013$\to$2016 ($n=6{,}911$).}
+    \label{fig:sankey_2013_2016}
   \end{minipage}
-\end{table}
-
-Dos patrones se destacan. Primero, la persistencia en la pobreza es alta
-pero decrece con el tiempo: 70.3\% de los hogares pobres en 2010 seguían
-pobres en 2013, y esa persistencia baja a 61.8\% entre 2013 y 2016 --es
-decir, la probabilidad de salir de la pobreza condicional en ser pobre
-aumentó de 29.7\% a 38.2\% entre periodos--. Segundo, la persistencia en la
-no pobreza también mejora (de 76.6\% a 80.1\%), y el riesgo de entrar en
-pobreza condicional en no ser pobre cae de 23.4\% a 19.9\%. Ambos
-movimientos son consistentes con la caída de la incidencia agregada
-documentada en la Figura~\ref{fig:incidencia_ingreso_gasto}.
-
-La Figura~\ref{fig:transiciones_categorias} traduce estas matrices a las
-cuatro categorías de \textcite{lopezCalva2014}. En 2010--2013, 43.9\% de
-los hogares del panel emparejado son \emph{siempre pobres}, 28.8\%
-\emph{nunca pobres}, 18.6\% \emph{salen} de la pobreza y 8.8\%
-\emph{entran} en ella. En 2013--2016 el panorama cambia de categoría
-dominante: \emph{nunca pobre} pasa a ser la categoría más grande (37.0\%,
-superando por primera vez a \emph{siempre pobre}, que cae a 33.3\%), sale
-20.6\% y entra 9.2\%. En los dos periodos la tasa de salida casi duplica a
-la tasa de entrada, consistente con una economía en la que la pobreza
-monetaria se redujo de manera neta, no solo se redistribuyó entre hogares.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.7\textwidth]{../outputs/figures/pobreza/06_transiciones_pobreza.png}
-  \caption{Distribución de categorías de transición de pobreza monetaria
-  (Lopez-Calva y Ortiz-Juarez, 2014) entre olas consecutivas.}
-  \label{fig:transiciones_categorias}
+  \caption*{Transición de pobreza monetaria por ingreso entre categorías
+  de \textcite{lopezCalva2014}, panel emparejado 1 a 1.}
 \end{figure}
 
-\subsubsection{Ejercicios de robustez}
-\label{subsubsec:robustez}
+Un ejercicio adicional sigue a los mismos hogares (no pobres en la ola
+base) a lo largo de las tres olas para distinguir entradas transitorias de
+persistentes (Tabla~\ref{tab:trayectorias_3olas}). Bajo pobreza monetaria,
+24.1\% de los no pobres en 2010 entra en pobreza en algún momento; algo
+más de la mitad sale de nuevo antes de 2016 (14.0 puntos, ``transitorio'')
+y el resto se queda (10.1 puntos, ``persistente''). Bajo IPM la entrada
+total es menor (12.2\%) y se reparte parecido (8.2 transitoria, 4.0
+persistente). En ambas definiciones, más de la mitad de quienes entran en
+pobreza no quedan atrapados dentro de la ventana de seis años observada.
 
-La variable de interés de esta tesis es precisamente la transición a la
-pobreza, por lo que conviene preguntarse qué tan sensibles son las cifras
-de la Sección~\ref{subsubsec:incidencia_transicion} a decisiones de
-construcción del ingreso, a la representatividad muestral, y al error de
-medición cerca del umbral de pobreza. Se implementaron cinco ejercicios de
-robustez con este propósito.
-
-\paragraph{Ponderación muestral.} Ninguno de los resultados anteriores
-usaba factores de expansión: son proporciones \emph{muestrales}, no
-estimaciones poblacionales. Se identificaron y verificaron contra los
-diccionarios de cada ola los factores de expansión a nivel de hogar
-(\texttt{fexhog}, \texttt{fexhog\_2013}, ambos transversales, y
-\texttt{fexhog\_2010}, el factor longitudinal anclado a la muestra base de
-2010, disponible en las olas 2 y 3). Ponderar cambia la incidencia
-agregada de forma moderada: 60.7\%~$\rightarrow$~60.4\% en 2010,
-52.4\%~$\rightarrow$~48.6\% en 2013 (la brecha más grande de las tres
-olas, casi 4 puntos), y 42.4\%~$\rightarrow$~41.8\% en 2016. En las
-matrices de transición, ponderar por el factor longitudinal mueve la
-categoría \emph{siempre pobre} de 43.9\% a 42.7\% en 2010--2013, y de
-33.3\% a 32.9\% en 2013--2016, mientras que \emph{nunca pobre} sube de
-37.0\% a 38.6\% en el segundo periodo. La dirección del efecto es
-consistente en ambos periodos (la muestra sin ponderar sobrerrepresenta
-levemente la persistencia en la pobreza), pero la magnitud es pequeña
-frente a los otros ejercicios de robustez de esta sección.
-
-\paragraph{Ingreso sin componentes excepcionales.} Seis componentes del
-ingreso total del hogar (venta de inmueble, venta de negocio, herencias,
-pólizas, venta de otros activos, y otros ingresos no clasificados) son
-eventos retrospectivos de doce meses --no flujos mensuales sostenidos--
-prorrateados como ingreso mensual para sumarlos al resto del ingreso. Un
-hogar que vendió una propiedad puede aparecer como si hubiera
-\emph{salido} de la pobreza sin que su capacidad de ingreso sostenible
-haya cambiado, lo cual es un riesgo directo para la variable de interés de
-esta tesis. Reclasificando la pobreza con el ingreso total menos estos
-seis componentes y repitiendo las matrices de transición, el efecto sobre
-la distribución de categorías es pequeño: \emph{siempre pobre} pasa de
-43.9\% a 44.4\% en 2010--2013 y de 33.3\% a 33.8\% en 2013--2016;
-\emph{nunca pobre} se mueve menos de medio punto porcentual en ambos
-periodos. Se concluye que el ingreso excepcional no es, a nivel agregado,
-un motor importante de las transiciones observadas, aunque puede seguir
-siendo relevante para hogares individuales específicos.
-
-\paragraph{Ingreso sin ayudas en dinero.} La pregunta de ayudas en dinero
-(\texttt{ing\_ayudas}) nunca se hizo a los hogares rurales en la ola 2010
---un hueco de diseño del cuestionario, no una no-respuesta al azar, según
-se verificó contra tres fuentes independientes (columnas del archivo
-crudo, diccionario específico rural, y comparación con el diccionario
-urbano)--, lo que subestima mecánicamente el ingreso rural de 2010 frente
-al de 2013 y 2016, donde la pregunta sí existe. Para dimensionar el efecto
-de esta fuente de ingreso sobre las transiciones, se reclasificó la
-pobreza excluyendo \texttt{ing\_ayudas} de las tres olas y se repitió la
-matriz 2010$\rightarrow$2013. El efecto es el más grande de los cuatro
-ejercicios de reclasificación del ingreso: \emph{siempre pobre} sube de
-43.9\% a 46.8\%, y \emph{nunca pobre} baja de 28.8\% a 27.2\%. Esto es
-consistente con que las ayudas en dinero son una fuente de ingreso más
-extendida en la población (no un evento raro como el ingreso excepcional),
-por lo que su presencia o ausencia mueve la clasificación de más hogares.
-
-\paragraph{Sensibilidad a la banda alrededor de la línea de pobreza.}
-Clasificar pobre/no pobre con un corte estricto contra la LP puede generar
-``transiciones'' que son, en realidad, ruido de muestreo o error de
-medición del ingreso cerca del umbral. Para cuantificar esta sensibilidad
-se reclasificó la pobreza usando LP$\times$0.9 y LP$\times$1.1 (una banda
-de $\pm$10\%) y se repitieron las matrices de transición
-(Figura~\ref{fig:sensibilidad_banda}). El resultado es la fuente de
-variación más grande de todos los ejercicios de robustez: \emph{siempre
-pobre} oscila entre 38.6\% (LP$-$10\%) y 49.1\% (LP$+$10\%) en
-2010--2013 (frente a 43.9\% en la línea base), y entre 27.8\% y 38.6\% en
-2013--2016 (frente a 33.3\%) --una banda de aproximadamente 10 puntos
-porcentuales en ambos periodos, más del doble del efecto de excluir el
-ingreso excepcional o las ayudas en dinero--. Esta es evidencia de que una
-parte sustancial de la variación en los resultados de transición depende
-de la ubicación exacta del umbral oficial, algo que debe tenerse presente
-al interpretar el desempeño de los modelos predictivos de la
-Sección~\ref{sec:resultados}: un modelo que clasifica erróneamente a
-hogares cerca del umbral puede estar capturando ruido de medición del
-ingreso más que un patrón estructural de vulnerabilidad.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/08_sensibilidad_banda.png}
-  \caption{Sensibilidad de la distribución de categorías de transición a
-  una banda $\pm$10\% alrededor de la línea de pobreza oficial.}
-  \label{fig:sensibilidad_banda}
-\end{figure}
-
-La Figura~\ref{fig:robustez_transiciones} resume conjuntamente los tres
-ejercicios de reclasificación del ingreso (línea base, sin ingreso
-excepcional, sin ayudas en dinero) frente a la especificación oficial.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/07_robustez_transiciones.png}
-  \caption{Robustez de la distribución de categorías de transición a
-  especificaciones alternativas del ingreso del hogar.}
-  \label{fig:robustez_transiciones}
-\end{figure}
-
-\paragraph{Atrición del panel.} Además de los hogares excluidos de las
-matrices de transición por dividirse entre olas, se midió la atrición
-\emph{pura}: hogares de la ola inicial cuyo \texttt{consecutivo} no
-aparece en absoluto en la ola siguiente, ni como emparejamiento uno a uno
-ni como escisión (Figura~\ref{fig:atricion}). La atrición es de 11.4\% en
-ambos periodos (1{,}124 de 9{,}853 hogares base entre 2010 y 2013; 994 de
-8{,}729 entre 2013 y 2016). La consistencia entre periodos es tranquilizadora
-en términos de diseño muestral, pero no se investigó si esta atrición es
-aleatoria o está concentrada en algún perfil de hogar (rural, más pobre,
-más móvil) --una limitación que se retoma más abajo.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.55\textwidth]{../outputs/figures/pobreza/09_atricion_panel.png}
-  \caption{Atrición total del panel entre olas consecutivas (hogares que
-  no aparecen en absoluto en la ola siguiente).}
-  \label{fig:atricion}
-\end{figure}
+\input{tables/tab_trayectorias_3olas.tex}
 
 \subsection{Perfil de los hogares vulnerables}
 \label{subsec:caracterizacion_grupos}
@@ -1604,7 +1464,9 @@ y \ref{subsec:desbalance}).
   \centering
   \caption{Desempeño de los cinco algoritmos, holdout temporal
   (train 2010$\to$2013, test 2013$\to$2016). Media $\pm$ intervalo de
-  confianza al 95\% sobre 5 semillas del ajuste final}
+  confianza al 95\% sobre 5 semillas del ajuste final. Umbral elegido
+  por CV maximizando F-beta ($\beta=2$), CV\_FOLDS=10,
+  N\_ITER\_BUSQUEDA=30.}
   \label{tab:desempeno_modelos}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -1612,43 +1474,41 @@ y \ref{subsec:desbalance}).
     \toprule
     \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Recall} & \textbf{F1} \\
     \midrule
-    Random Forest              & A & balanced  & 0.48 & 0.764 & [0.763, 0.764] & 0.732 & 0.473 \\
-    XGBoost                    & A & ninguno   & 0.26 & 0.763 & [0.761, 0.764] & 0.710 & 0.467 \\
-    LightGBM                   & A & balanced  & 0.53 & 0.757 & [0.757, 0.757] & 0.681 & 0.466 \\
-    HistGradientBoosting       & A & ninguno   & 0.24 & 0.754 & [0.754, 0.754] & 0.736 & 0.457 \\
-    Logística regularizada     & A & balanced  & 0.46 & 0.747 & [0.747, 0.747] & 0.752 & 0.438 \\
+    XGBoost                    & A & ninguno   & 0.11 & 0.767 & [0.766, 0.769] & 0.949 & 0.413 \\
+    Random Forest              & A & ninguno   & 0.14 & 0.766 & [0.765, 0.767] & 0.926 & 0.426 \\
+    HistGradientBoosting       & A & balanced  & 0.32 & 0.763 & [0.763, 0.763] & 0.909 & 0.432 \\
+    LightGBM                   & A & ninguno   & 0.10 & 0.758 & [0.758, 0.758] & 0.903 & 0.428 \\
+    Logística regularizada     & A & balanced  & 0.37 & 0.747 & [0.747, 0.747] & 0.883 & 0.426 \\
     \addlinespace
-    Logística regularizada     & B & balanced  & 0.48 & 0.739 & [0.739, 0.739] & 0.697 & 0.435 \\
-    Random Forest              & B & balanced  & 0.48 & 0.739 & [0.738, 0.740] & 0.675 & 0.442 \\
-    HistGradientBoosting       & B & ninguno   & 0.23 & 0.734 & [0.734, 0.734] & 0.662 & 0.437 \\
-    XGBoost                    & B & ninguno   & 0.27 & 0.734 & [0.732, 0.735] & 0.665 & 0.442 \\
-    LightGBM                   & B & ninguno   & 0.25 & 0.727 & [0.727, 0.727] & 0.692 & 0.436 \\
+    Random Forest              & B & balanced  & 0.31 & 0.742 & [0.741, 0.744] & 0.892 & 0.416 \\
+    XGBoost                    & B & ninguno   & 0.13 & 0.742 & [0.742, 0.743] & 0.940 & 0.395 \\
+    Logística regularizada     & B & balanced  & 0.35 & 0.739 & [0.739, 0.739] & 0.890 & 0.414 \\
+    HistGradientBoosting       & B & ninguno   & 0.14 & 0.735 & [0.735, 0.735] & 0.879 & 0.418 \\
+    LightGBM                   & B & ninguno   & 0.15 & 0.731 & [0.731, 0.731] & 0.909 & 0.403 \\
     \bottomrule
   \end{tabular}
   \begin{minipage}{0.95\textwidth}
     \vspace{4pt}
     \footnotesize \textit{Nota:} umbral elegido por validación cruzada
-    maximizando F1 en cada semilla (Sección~\ref{subsec:desbalance}), no
-    fijo en 0.5; se reporta el promedio de las 5 semillas. El IC95\% de
-    AUC-ROC captura únicamente la aleatoriedad propia del procedimiento de
-    ajuste (remuestreo interno del algoritmo) sobre el mismo conjunto de
-    prueba, con balanceo e hiperparámetros ya fijados
-    (Sección~\ref{subsec:desempeno}) -- es nulo o casi nulo para
-    HistGradientBoosting, LightGBM y la regresión logística porque, con
-    los hiperparámetros elegidos, su ajuste es determinístico dado el
-    conjunto de entrenamiento. HistGradientBoosting usa aquí
-    \texttt{RandomizedSearchCV} con 8 iteraciones, el mismo presupuesto de
-    búsqueda de la Sección~\ref{subsec:marginal} (reducido de 15 por costo
-    computacional al ampliarse la comparación a las especificaciones
-    geoespaciales) --una corrida anterior con 15 iteraciones había dado
-    AUC-ROC 0.759 (Modelo A) y 0.740 (Modelo B), documentada en
-    \texttt{docs/decisions.md} (entrada 2026-08-10); la diferencia frente a
-    los valores aquí reportados (0.754/0.734) es ruido del procedimiento de
-    ajuste, no un cambio en los datos ni en el modelo (ver discusión de
-    magnitud comparable en la Sección~\ref{subsec:marginal}). Fuente:
-    cálculos propios,
-    \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv},
-    generados por \texttt{src/tabla\_desempeno\_modelos.py}.
+    maximizando F$_2$ en cada semilla (Sección~\ref{subsec:desbalance}), no
+    fijo en 0.5; se reporta el promedio de las 5 semillas. El umbral es
+    considerablemente más bajo que en una búsqueda equivalente por F1 --al
+    pesar el recall el doble, F$_2$ empuja el punto de corte hacia abajo
+    para dejar pasar más casos de entrada a la pobreza, a costa de más
+    falsos positivos (columna Recall, sistemáticamente sobre 0.88, frente a
+    un F1 más moderado). El IC95\% de AUC-ROC captura únicamente la
+    aleatoriedad propia del procedimiento de ajuste (remuestreo interno del
+    algoritmo) sobre el mismo conjunto de prueba, con balanceo e
+    hiperparámetros ya fijados -- es nulo o casi nulo para
+    HistGradientBoosting, LightGBM y la regresión logística porque, con los
+    hiperparámetros elegidos, su ajuste es determinístico dado el conjunto
+    de entrenamiento, mientras que Random Forest y XGBoost sí tienen una
+    variabilidad pequeña pero no nula heredada de su remuestreo
+    \emph{bootstrap}/submuestreo interno. Fuente: cálculos propios,
+    \texttt{data/processed/benchmark\_resultados/registro\_modelos\_fbeta2\_cv10.csv},
+    generados por
+    \texttt{src/05\_model/modelo\_fbeta2\_cv10\_comparacion.py} y
+    \texttt{src/tabla\_desempeno\_modelos\_fbeta2\_cv10.py}.
   \end{minipage}
 \end{table}
 
@@ -1662,53 +1522,58 @@ y \ref{subsec:desbalance}).
 \end{figure}
 
 Tres patrones se destacan. Primero, los cinco algoritmos quedan en un
-rango relativamente estrecho de AUC-ROC (0.727--0.764 en total, apenas
-0.747--0.764 dentro del Modelo A), con los tres \emph{gradient boosting} y
-Random Forest apenas por encima de la regresión logística regularizada
-(Figura~\ref{fig:auc_algoritmos}). Reentrenar el modelo final de cada
-algoritmo con 5 semillas aleatorias (Sección~\ref{subsec:desbalance})
---manteniendo fijos el balanceo y los hiperparámetros ya elegidos-- muestra
-que HistGradientBoosting, LightGBM y la regresión logística son
-prácticamente determinísticos bajo los hiperparámetros elegidos (desviación
-estándar del AUC-ROC $\approx$0 entre semillas), mientras que Random
-Forest y XGBoost sí tienen una variabilidad pequeña pero no nula
-(desviación estándar de 0.0005 y 0.0011, respectivamente), heredada del
-remuestreo \emph{bootstrap} y del submuestreo de observaciones/columnas
-que sus hiperparámetros óptimos activan. Con esa variabilidad, la ventaja
-de Random Forest (AUC-ROC 0.764) sobre XGBoost (0.763) en el Modelo A es
-marginal y sus intervalos de confianza casi se traslapan; la de ambos
-sobre LightGBM (0.757) y, más aún, sobre HistGradientBoosting (0.754) es
-algo más clara. Es importante notar
-que este intervalo de confianza mide únicamente la aleatoriedad del propio
+rango relativamente estrecho de AUC-ROC (0.731--0.767 en total, apenas
+0.747--0.767 dentro del Modelo A), con XGBoost, Random Forest y
+HistGradientBoosting apenas por encima de LightGBM y de la regresión
+logística regularizada (Figura~\ref{fig:auc_algoritmos}). Reentrenar el
+modelo final de cada algoritmo con 5 semillas aleatorias
+(Sección~\ref{subsec:desbalance}) --manteniendo fijos el balanceo y los
+hiperparámetros ya elegidos-- muestra que HistGradientBoosting, LightGBM y
+la regresión logística son prácticamente determinísticos bajo los
+hiperparámetros elegidos (desviación estándar del AUC-ROC $\approx$0
+entre semillas), mientras que Random Forest y XGBoost sí tienen una
+variabilidad pequeña pero no nula (desviación estándar entre 0.0006 y
+0.0011 según especificación), heredada del remuestreo \emph{bootstrap} y
+del submuestreo de observaciones/columnas que sus hiperparámetros óptimos
+activan. Con esa variabilidad, la ventaja de XGBoost (AUC-ROC 0.767) sobre
+Random Forest (0.766) en el Modelo A es marginal y sus intervalos de
+confianza se traslapan por completo; la de ambos sobre HistGradientBoosting
+(0.763) y LightGBM (0.758) es algo más clara. Es importante notar que este
+intervalo de confianza mide únicamente la aleatoriedad del propio
 procedimiento de ajuste sobre el mismo conjunto de prueba, no la
 incertidumbre muestral de la estimación del AUC-ROC en sí --una
 comparación formal entre algoritmos requeriría una prueba pareada (por
 ejemplo, de DeLong) sobre las predicciones del mismo conjunto de prueba,
 no realizada en este documento--. Con esa salvedad, la evidencia sigue sin
 señalar un algoritmo que domine de forma inequívoca a los demás. Segundo,
-el ranking cambia según la métrica: la regresión logística tiene el mayor
-recall del Modelo A (0.752), seguida por HistGradientBoosting
-(0.736), ambos a costa de más falsos positivos, mientras que Random
-Forest tiene el mayor F1 en ambas especificaciones (0.473 en A, 0.442 en
-B). Esto sugiere que, más que declarar un ``mejor'' algoritmo único, la
-elección final debería depender de las preferencias de la institución que
-use el modelo para focalización --priorizar recall implica aceptar más
-errores de inclusión a cambio de menos errores de exclusión--.
+el ranking cambia según la métrica pero de forma más consistente que el
+AUC-ROC: XGBoost tiene el mayor recall en ambas especificaciones (0.949 en
+A, 0.940 en B), a costa de la menor precision de la tabla, mientras que
+HistGradientBoosting tiene el mayor F1 en ambas especificaciones (0.432 en
+A, 0.418 en B), el balance más favorable entre recall y precision bajo el
+umbral elegido por F$_2$. Esto sugiere que, más que declarar un ``mejor''
+algoritmo único, la elección final debería depender de las preferencias de
+la institución que use el modelo para focalización --priorizar recall
+implica aceptar más errores de inclusión a cambio de menos errores de
+exclusión--.
 
 Tercero, y más relevante para la pregunta de investigación de esta tesis:
 la brecha de AUC-ROC entre el Modelo A (con ingreso/gasto) y el Modelo B
-(sin ellos) es de 0.008 a 0.031 según el algoritmo (mínima en la
-regresión logística, máxima en LightGBM), mucho menor de lo que
-predeciría un enfoque de vulnerabilidad puramente monetario
+(sin ellos) es de 0.008 a 0.028 según el algoritmo (mínima en la
+regresión logística, máxima en HistGradientBoosting), mucho menor de lo
+que predeciría un enfoque de vulnerabilidad puramente monetario
 \parencite{chaudhuri2002}. Esto indica que las covariables no monetarias
 --educación, activos del hogar, vivienda, choques, características de la
 comunidad-- capturan una fracción sustancial del poder predictivo que
 aporta la brecha al umbral de pobreza, no son redundantes con ella. La
 Figura~\ref{fig:recall_precision} muestra recall y precision (media, 5
-semillas) al umbral elegido para el Modelo A: el patrón de mayor recall en
-la regresión logística y HistGradientBoosting frente a mayor precision en
-Random Forest y XGBoost se mantiene incluso tras corregir por el umbral de
-clasificación.
+semillas) al umbral elegido para el Modelo A: XGBoost y Random Forest
+destacan con el mayor recall (0.949 y 0.926) pero también la menor
+precision de los cinco (0.264 y 0.277), mientras que HistGradientBoosting,
+LightGBM y la regresión logística quedan más agrupados, con recall algo
+menor (0.883 a 0.909) y precision algo mayor (0.280 a 0.283) -- el mismo
+patrón de intercambio entre recall y precision se mantiene incluso tras
+corregir por el umbral de clasificación.
 
 \begin{figure}[H]
   \centering
@@ -1721,15 +1586,25 @@ clasificación.
 Las Figuras~\ref{fig:importancia_rf} y~\ref{fig:coef_logistica} muestran
 las variables más importantes de Random Forest y los mayores coeficientes
 --en valor absoluto, en unidades estandarizadas-- de la regresión
-logística, ambos para el Modelo A. En Random Forest, el ingreso per cápita
-real y la brecha a la LP dominan claramente (consistente con
-\textcite{chaudhuri2002}), seguidos por el índice de riqueza precalculado
-de la ELCA (\texttt{riqueza\_pca\_hogar}) y el número de bienes durables
-del hogar. En la regresión logística, en cambio, el nivel educativo máximo
-del hogar tiene el mayor coeficiente en valor absoluto, por encima incluso
-de la brecha a la LP y el ingreso real --con signo negativo, consistente
-con que más educación reduce la probabilidad de caer en pobreza--, seguido
-por el número de bienes durables y de servicios públicos del hogar. Esta
+logística, ambos para el Modelo A y ya bajo la metodología final (umbral
+por F$_2$, \texttt{CV\_FOLDS=10}, \texttt{N\_ITER\_BUSQUEDA=30}): en vez
+de repetir la búsqueda de hiperparámetros --ya decidida y registrada en
+\texttt{registro\_modelos\_fbeta2\_cv10.csv}--
+\texttt{modelo\_fbeta2\_cv10\_importancia.py} reconstruye el pipeline
+ganador exacto de cada algoritmo/especificación a partir de esa fila y lo
+reentrena una única vez sobre todo el conjunto de entrenamiento; el
+resultado es determinista (mismo \texttt{RANDOM\_STATE=42}, sin búsqueda
+aleatoria de por medio) y el propio script verifica, cada vez que corre,
+que reproduce exactamente el CSV de la corrida anterior. En Random Forest,
+el índice de riqueza precalculado de la ELCA (\texttt{riqueza\_pca\_hogar})
+y el ingreso per cápita real dominan claramente (consistente con
+\textcite{chaudhuri2002}), seguidos de cerca por la brecha a la LP, el
+gasto per cápita real y el número de bienes durables del hogar. En la
+regresión logística, en cambio, el nivel educativo máximo del hogar tiene
+el mayor coeficiente en valor absoluto, por encima incluso de la brecha a
+la LP y el ingreso real --con signo negativo, consistente con que más
+educación reduce la probabilidad de caer en pobreza--, seguido por el
+número de bienes durables y de servicios públicos del hogar. Esta
 diferencia entre algoritmos --qué variable ``domina'' según se mida por
 reducción de impureza o por magnitud de coeficiente estandarizado-- es en
 sí misma evidencia de que la importancia de variables no es una propiedad
@@ -1752,14 +1627,57 @@ resultados de esta naturaleza.
   \label{fig:coef_logistica}
 \end{figure}
 
-En el Modelo B (sin ingreso/gasto), tanto Random Forest como la regresión
-logística ubican el índice de riqueza precalculado y el nivel educativo
-máximo del hogar entre las dos variables más importantes, seguidos por el
-número de bienes durables, de servicios públicos y --solo en la regresión
-logística-- la tasa de cotización a pensión del hogar, un proxy de
-formalidad laboral. Estas variables son consistentes con los determinantes
-de pobreza documentados en la literatura y no sugieren que el modelo esté
-capturando relaciones espurias.
+En el Modelo B (sin ingreso/gasto), Random Forest ubica el índice de
+riqueza precalculado y el número de bienes durables del hogar como las dos
+variables más importantes, seguidas por el nivel educativo máximo del
+hogar; la regresión logística, en cambio, ubica el nivel educativo máximo
+del hogar primero, seguido por el número de bienes durables y de servicios
+públicos y --solo en la regresión logística-- la tasa de cotización a
+pensión del hogar, un proxy de formalidad laboral. Estas variables son
+consistentes con los determinantes de pobreza documentados en la
+literatura y no sugieren que el modelo esté capturando relaciones
+espurias.
+
+Los valores SHAP (\texttt{src/05\_model/diagnostico\_shap\_ab.py},
+reconstruyendo el pipeline ganador de cada algoritmo/especificación ya
+registrado, sin repetir la búsqueda de hiperparámetros) confirman el
+patrón anterior y permiten además compararlo en una misma escala entre
+los cinco algoritmos. En el Modelo B, \texttt{riqueza\_pca\_hogar} y
+\texttt{nivel\_educ\_max\_hogar} quedan siempre entre las dos variables
+más importantes en los cinco algoritmos --la primera domina en
+HistGradientBoosting y Random Forest, la segunda en LightGBM, Logística y
+XGBoost--, seguidas casi siempre por \texttt{n\_bienes\_durables\_hogar}
+en tercer lugar. En el Modelo A el acuerdo es más parcial: LightGBM,
+XGBoost, Logística y Random Forest coinciden en que
+\texttt{ingreso\_percapita\_hogar\_real}, \texttt{nivel\_educ\_max\_hogar},
+\texttt{riqueza\_pca\_hogar} y \texttt{brecha\_lp\_ingreso} son las cuatro
+variables más importantes (en distinto orden entre sí), pero
+HistGradientBoosting es una excepción notable: su variable más importante
+es \texttt{pct\_adultos\_alfabetizados} (SHAP medio 0.394, más del doble
+que la segunda), que no aparece entre las 8 primeras de ningún otro
+algoritmo. Esto no invalida la lectura general --las variables de riqueza,
+ingreso y educación siguen dominando en 4 de 5 algoritmos--, pero es un
+recordatorio de que ``la variable más importante'' puede depender de cómo
+un algoritmo específico particiona la información, no solo del contenido
+informativo de la variable en sí.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/shap_beeswarm_xgboost_A.png}
+  \caption{Valores SHAP, XGBoost, Modelo A (holdout de prueba
+  2013$\to$2016). Cada punto es un hogar; el color indica el valor de la
+  variable (rojo = alto, azul = bajo) y la posición horizontal su
+  contribución a la probabilidad predicha de entrar en pobreza.}
+  \label{fig:shap_xgboost_a}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/shap_beeswarm_xgboost_B.png}
+  \caption{Valores SHAP, XGBoost, Modelo B (sin ingreso/gasto), holdout
+  de prueba 2013$\to$2016.}
+  \label{fig:shap_xgboost_b}
+\end{figure}
 
 \subsection{Contribución marginal de las variables geoespaciales}
 \label{subsec:marginal}
@@ -1769,10 +1687,9 @@ con datos reales tanto en la ola de entrenamiento (2010) como en la de
 prueba (2013), Sección~\ref{subsec:geo}-- mejora el desempeño del
 benchmark cuando se agrega a las covariables de la ELCA, bajo el mismo
 holdout temporal, balanceo de clases y selección de umbral ya usados en
-la Sección~\ref{subsec:desempeno}. Se reentrenaron los tres algoritmos
-con mejor desempeño en esa comparación (XGBoost, HistGradientBoosting,
-Logística regularizada) agregando a los Modelos A y B las 23 variables
-DMSP-OLS de estado y ventana acumulada (Sección~\ref{subsubsec:estado_acumulado}) --
+la Sección~\ref{subsec:desempeno}. Se reentrenaron los cinco algoritmos de
+esa comparación agregando a los Modelos A y B las 23 variables DMSP-OLS de
+estado y ventana acumulada (Sección~\ref{subsubsec:estado_acumulado}) --
 en el código y en los archivos de resultados esta comparación se
 identifica como \texttt{A}/\texttt{AgeoDMSP} y \texttt{B}/\texttt{BgeoDMSP};
 aquí se usa la forma expandida ``A'' / ``A + DMSP-OLS'' por legibilidad.
@@ -1783,45 +1700,58 @@ que recall/precision/F1 a un umbral de probabilidad, que no reflejan
 ninguna restricción real de cobertura. Aun así, para no dejar una lectura
 incompleta, la Tabla~\ref{tab:marginal_dmsp} también reporta esas tres
 métricas al umbral de clasificación ya elegido por validación cruzada
-(Sección~\ref{subsec:desbalance}): \emph{recall} es la fracción de hogares
-que sí cayeron en pobreza y el modelo efectivamente marcó como riesgo
-(cuánto de la pobreza real se captura); \emph{precision} es la fracción de
-los hogares marcados como riesgo que efectivamente cayeron en pobreza
-(cuánta de la alarma es acertada, no falsa alarma); \emph{F1} resume ambas
-en un solo número (su media armónica), útil para comparar sin tener que
-decidir de antemano si importa más no dejar pobres sin detectar (recall) o
-no gastar recursos de focalización en quien no los necesita (precision).
+maximizando F$_2$ (Sección~\ref{subsec:desbalance}): \emph{recall} es la
+fracción de hogares que sí cayeron en pobreza y el modelo efectivamente
+marcó como riesgo (cuánto de la pobreza real se captura); \emph{precision}
+es la fracción de los hogares marcados como riesgo que efectivamente
+cayeron en pobreza (cuánta de la alarma es acertada, no falsa alarma);
+\emph{F1} resume ambas en un solo número (su media armónica) y se reporta
+como referencia estándar, aunque --a diferencia del umbral, elegido por
+F$_2$-- no es la métrica que decide dónde queda el punto de corte.
 
 \begin{table}[H]
   \centering
-  \caption{AUC-ROC, precisión en el decil de mayor riesgo, y métricas al
-  umbral elegido por CV, con y sin DMSP-OLS, holdout temporal (train
-  2010$\to$2013, test 2013$\to$2016).}
+  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin
+  DMSP-OLS, holdout temporal (train 2010$\to$2013, test 2013$\to$2016).
+  Umbral elegido por CV maximizando F-beta ($\beta=2$), con
+  CV\_FOLDS=10 y N\_ITER\_BUSQUEDA=30.}
   \label{tab:marginal_dmsp}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
   \resizebox{\textwidth}{!}{%
-  \begin{tabular}{llccccccc}
+  \begin{tabular}{llcccccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
+    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
     \midrule
-    XGBoost                  & A               & 0.763 & [0.761, 0.764] & 0.485 & [0.471, 0.499] & 0.710 & 0.349 & 0.467 \\
-    XGBoost                  & A + DMSP-OLS    & 0.762 & [0.761, 0.762] & 0.484 & [0.479, 0.489] & 0.718 & 0.344 & 0.465 \\
+    Random Forest            & A               & 0.766 & [0.765, 0.767] & 0.486 & [0.476, 0.495] & 0.138 & 0.926 & 0.277 & 0.426 \\
+    Random Forest            & A + DMSP-OLS    & 0.763 & [0.762, 0.764] & 0.481 & [0.470, 0.493] & 0.264 & 0.938 & 0.271 & 0.420 \\
     \addlinespace
-    HistGradientBoosting     & A               & 0.754 & [0.754, 0.754] & 0.491 & [0.491, 0.491] & 0.736 & 0.332 & 0.457 \\
-    HistGradientBoosting     & A + DMSP-OLS    & 0.755 & [0.755, 0.755] & 0.491 & [0.491, 0.491] & 0.692 & 0.345 & 0.458 \\
+    XGBoost                  & A               & 0.767 & [0.766, 0.769] & 0.505 & [0.496, 0.514] & 0.112 & 0.949 & 0.264 & 0.413 \\
+    XGBoost                  & A + DMSP-OLS    & 0.765 & [0.764, 0.766] & 0.501 & [0.488, 0.515] & 0.118 & 0.937 & 0.272 & 0.421 \\
     \addlinespace
-    Logística regularizada   & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] & 0.752 & 0.310 & 0.438 \\
-    Logística regularizada   & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] & 0.753 & 0.311 & 0.439 \\
+    LightGBM                 & A               & 0.758 & [0.758, 0.758] & 0.516 & [0.516, 0.516] & 0.096 & 0.903 & 0.281 & 0.428 \\
+    LightGBM                 & A + DMSP-OLS    & 0.752 & [0.752, 0.752] & 0.497 & [0.497, 0.497] & 0.102 & 0.902 & 0.277 & 0.424 \\
     \addlinespace
-    XGBoost                  & B               & 0.734 & [0.732, 0.735] & 0.488 & [0.482, 0.494] & 0.665 & 0.332 & 0.442 \\
-    XGBoost                  & B + DMSP-OLS    & 0.732 & [0.729, 0.734] & 0.475 & [0.466, 0.484] & 0.781 & 0.302 & 0.435 \\
+    HistGradientBoosting     & A               & 0.763 & [0.763, 0.763] & 0.512 & [0.512, 0.512] & 0.324 & 0.909 & 0.283 & 0.432 \\
+    HistGradientBoosting     & A + DMSP-OLS    & 0.763 & [0.763, 0.763] & 0.500 & [0.500, 0.500] & 0.312 & 0.912 & 0.281 & 0.429 \\
     \addlinespace
-    HistGradientBoosting     & B               & 0.734 & [0.734, 0.734] & 0.484 & [0.484, 0.484] & 0.662 & 0.326 & 0.437 \\
-    HistGradientBoosting     & B + DMSP-OLS    & 0.735 & [0.735, 0.735] & 0.475 & [0.475, 0.475] & 0.663 & 0.340 & 0.449 \\
+    Logística regularizada   & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] & 0.372 & 0.883 & 0.280 & 0.426 \\
+    Logística regularizada   & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] & 0.370 & 0.883 & 0.281 & 0.426 \\
     \addlinespace
-    Logística regularizada   & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] & 0.697 & 0.317 & 0.435 \\
-    Logística regularizada   & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] & 0.698 & 0.315 & 0.434 \\
+    Random Forest            & B               & 0.742 & [0.741, 0.744] & 0.508 & [0.497, 0.520] & 0.306 & 0.892 & 0.272 & 0.416 \\
+    Random Forest            & B + DMSP-OLS    & 0.739 & [0.737, 0.741] & 0.492 & [0.482, 0.502] & 0.266 & 0.925 & 0.255 & 0.399 \\
+    \addlinespace
+    XGBoost                  & B               & 0.742 & [0.742, 0.743] & 0.495 & [0.487, 0.503] & 0.126 & 0.940 & 0.250 & 0.395 \\
+    XGBoost                  & B + DMSP-OLS    & 0.740 & [0.740, 0.741] & 0.495 & [0.491, 0.499] & 0.128 & 0.929 & 0.254 & 0.399 \\
+    \addlinespace
+    LightGBM                 & B               & 0.731 & [0.731, 0.731] & 0.487 & [0.487, 0.487] & 0.148 & 0.909 & 0.259 & 0.403 \\
+    LightGBM                 & B + DMSP-OLS    & 0.737 & [0.737, 0.737] & 0.481 & [0.481, 0.481] & 0.126 & 0.888 & 0.271 & 0.415 \\
+    \addlinespace
+    HistGradientBoosting     & B               & 0.735 & [0.735, 0.735] & 0.494 & [0.494, 0.494] & 0.142 & 0.879 & 0.275 & 0.418 \\
+    HistGradientBoosting     & B + DMSP-OLS    & 0.736 & [0.736, 0.736] & 0.487 & [0.487, 0.487] & 0.142 & 0.880 & 0.275 & 0.419 \\
+    \addlinespace
+    Logística regularizada   & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] & 0.350 & 0.890 & 0.270 & 0.414 \\
+    Logística regularizada   & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] & 0.350 & 0.888 & 0.273 & 0.417 \\
     \bottomrule
   \end{tabular}%
   }
@@ -1829,70 +1759,63 @@ no gastar recursos de focalización en quien no los necesita (precision).
     \vspace{4pt}
     \footnotesize \textit{Nota:} recall, precision y F1 se miden al umbral
     de clasificación ya elegido para cada algoritmo/especificación por
-    validación cruzada (Sección~\ref{subsec:desbalance}, sin re-elegirlo al
-    agregar DMSP-OLS). Fuente: cálculos propios,
-    \texttt{data/processed/benchmark\_resultados/registro\_modelos.csv},
-    generados por \texttt{src/tabla\_marginal\_dmsp.py} sobre resultados de
-    \texttt{src/05\_model/modelo\_\{xgboost,}
-    \texttt{histgradientboosting,logistica\_regularizada\}.py} corridos
-    sobre \texttt{modelo\_\{A,B,AgeoDMSP,BgeoDMSP\}\_2010\_2013/2013\_2016.parquet}
-    (construidos por \texttt{construir\_pipeline\_geo\_dmsp.py}).
-    \texttt{RandomizedSearchCV} con 8 iteraciones (reducido de 15 por
-    costo computacional tras rehacer la búsqueda para 10
-    especificaciones distintas -- ver ablation más abajo); se verificó
-    que el resultado de XGBoost y Logística regularizada es prácticamente
-    idéntico al obtenido con 15 iteraciones, y que el de
-    HistGradientBoosting varía en el tercer decimal, dentro del orden de
-    magnitud del efecto que se busca detectar (ver discusión siguiente).
+    validación cruzada maximizando F$_2$ (Sección~\ref{subsec:desbalance},
+    sin re-elegirlo al agregar DMSP-OLS). Fuente: cálculos propios,
+    \texttt{data/processed/benchmark\_resultados/registro\_modelos\_fbeta2\_cv10.csv},
+    generados por
+    \texttt{src/05\_model/modelo\_fbeta2\_cv10\_comparacion.py} (XGBoost,
+    HistGradientBoosting, Logística regularizada) y sus variantes
+    \texttt{modelo\_fbeta2\_cv10\_comparacion\_rf\_lgbm.py} (Random Forest,
+    LightGBM) sobre
+    \texttt{modelo\_\{A,B,AgeoDMSP,BgeoDMSP\}\_2010\_2013/2013\_2016.parquet}
+    (construidos por \texttt{construir\_pipeline\_geo\_dmsp.py}), y
+    formateados por \texttt{src/tabla\_marginal\_dmsp\_fbeta2\_cv10.py}.
   \end{minipage}
 \end{table}
 
 \textbf{Resultado: agregar DMSP-OLS no mejora de forma económicamente
-significativa el desempeño en ningún algoritmo.} En XGBoost y Logística
-regularizada el AUC-ROC y \texttt{precision\_top10} se mantienen iguales
-o caen ligeramente al agregar DMSP-OLS, en las cuatro comparaciones de la
-Tabla~\ref{tab:marginal_dmsp}. HistGradientBoosting es la única excepción
---AUC-ROC sube de 0.754 a 0.755 (Modelo A) y de 0.734 a 0.735 (Modelo
-B)--, pero esa mejora (+0.001 y +0.0015) es del mismo orden de magnitud
-que la variación que produjo, por sí sola, reducir el presupuesto de
-búsqueda de hiperparámetros de 15 a 8 iteraciones (el AUC de
-HistGradientBoosting-A pasó de 0.759 a 0.754 solo por ese cambio, sin
-tocar los datos) -- no es una mejora que se pueda distinguir del ruido
-propio del procedimiento de ajuste, y \texttt{precision\_top10} no mejora
-en ninguno de los dos casos. Antes de interpretar la ausencia de mejora
-como ausencia de señal, se descartó explícitamente la explicación de
-sobreajuste: se comparó, para cada algoritmo, la brecha entre el AUC de
-validación cruzada (calculado solo sobre entrenamiento) y el AUC de
-prueba real, con y sin DMSP-OLS -- si agregar columnas geoespaciales
-infla artificialmente el ajuste de entrenamiento sin generalizar, esa
-brecha debería ensancharse. No fue el caso: el mayor cambio observado fue
-de +0.004 (XGBoost, Modelo B), muy por debajo del umbral de alerta (0.03)
-definido \emph{ex ante}. La ausencia de mejora no es, entonces, un
-problema de sobreajuste del modelo.
+significativa el desempeño en ningún algoritmo.} El AUC-ROC se mantiene
+igual o cae ligeramente al agregar DMSP-OLS en 8 de las 10 comparaciones
+algoritmo/especificación de la Tabla~\ref{tab:marginal_dmsp} (caídas de
+0.001 a 0.006). Las dos excepciones son cambios pequeños y en direcciones
+opuestas entre sí --HistGradientBoosting-B sube de 0.735 a 0.736 (+0.001)
+y LightGBM-B, el mayor cambio positivo de toda la tabla, sube de 0.731 a
+0.737 (+0.006)--, del mismo orden de magnitud que la variabilidad entre
+semillas del propio ajuste (Tabla~\ref{tab:desempeno_modelos}) y, sobre
+todo, sin acompañamiento en \texttt{precision\_top10}: esta métrica, más
+relevante para un programa de focalización de capacidad fija, cae o se
+mantiene igual en las 10 comparaciones sin una sola excepción --incluida
+LightGBM-B (0.487 $\to$ 0.481)--, la señal más clara de que agregar
+DMSP-OLS no mejora la capacidad de priorizar correctamente al grupo de
+mayor riesgo. Antes de interpretar la ausencia de mejora como ausencia de
+señal, se descartó explícitamente la explicación de sobreajuste: se
+comparó, para cada algoritmo, la brecha entre el AUC de validación cruzada
+(calculado solo sobre entrenamiento) y el AUC de prueba real, con y sin
+DMSP-OLS (\texttt{comparar\_auc\_cv\_vs\_test\_fbeta2\_cv10.py}) -- si
+agregar columnas geoespaciales infla artificialmente el ajuste de
+entrenamiento sin generalizar, esa brecha debería ensancharse. No fue el
+caso: el mayor cambio observado fue de $+0.008$ (LightGBM, Modelo A, el
+mismo par con la mayor caída de AUC-ROC de toda la tabla), muy por debajo
+del umbral de alerta (0.03) definido \emph{ex ante}. La ausencia de
+mejora no es, entonces, un problema de sobreajuste del modelo.
 
-Recall, precision y F1 confirman la misma conclusión en 5 de las 6
-comparaciones algoritmo/especificación: se mueven menos de 0.02 en
-cualquier dirección al agregar DMSP-OLS, ruido de ajuste más que señal.
-La excepción clara es \textbf{XGBoost, Modelo B}: el recall sube de 0.665
-a 0.781 (+0.116, el mayor cambio de toda la tabla) y la precision cae de
-0.332 a 0.302, con F1 prácticamente plano (0.442 $\to$ 0.435) porque ambos
-movimientos se compensan. La causa no es un cambio de comportamiento del
-modelo sino del umbral que la validación cruzada eligió para cada
-especificación: 0.268 sin DMSP-OLS vs. 0.216 con DMSP-OLS --el umbral más
-bajo hace que el modelo marque más hogares como riesgo, capturando más
-verdaderos positivos (sube recall) a costa de más falsos positivos (baja
-precision)--. Es, otra vez, una consecuencia del procedimiento de
-selección de umbral (Sección~\ref{subsec:desbalance}), no evidencia de que
-DMSP-OLS cambie la capacidad predictiva del modelo; el AUC-ROC de este
-mismo par (0.734 $\to$ 0.732), que no depende de umbral, se mantiene
-esencialmente igual. HistGradientBoosting-A muestra un patrón más pequeño
-en la misma dirección (recall 0.736 $\to$ 0.692, precision 0.332 $\to$
-0.345, F1 estable en 0.457--0.458), y HistGradientBoosting-B tiene el
-mayor cambio de F1 de la tabla (0.437 $\to$ 0.449, +0.012) aunque tampoco
-económicamente significativo. Ningún caso invierte la conclusión general:
-DMSP-OLS reordena marginalmente qué hogares específicos caen a cada lado
-del umbral, sin mejorar la capacidad de discriminación subyacente del
-modelo.
+Recall, precision y F1 se mueven poco al agregar DMSP-OLS --menos de 0.02
+en cualquier dirección en la inmensa mayoría de las comparaciones-- porque
+el umbral elegido por F$_2$ ya empuja el recall a valores altos (0.88 a
+0.95) en las diez filas de la tabla, dejando poco margen para que un
+cambio de umbral mueva mucho la aguja. El cambio más grande es en
+\textbf{Random Forest, Modelo B}: el recall sube de 0.892 a 0.925
+(+0.033) y la precision cae de 0.272 a 0.255, con F1 cayendo de 0.416 a
+0.399 --el umbral que la validación cruzada eligió también baja, de 0.306
+sin DMSP-OLS a 0.266 con DMSP-OLS, el mecanismo habitual: un umbral más
+bajo marca más hogares como riesgo, sube el recall a costa de la
+precision--. Es, otra vez, una consecuencia del procedimiento de selección
+de umbral (Sección~\ref{subsec:desbalance}), no evidencia de que DMSP-OLS
+cambie la capacidad predictiva del modelo; el AUC-ROC de este mismo par
+(0.742 $\to$ 0.739), que no depende de umbral, apenas se mueve. Ningún
+caso invierte la conclusión general: DMSP-OLS reordena marginalmente qué
+hogares específicos caen a cada lado del umbral, sin mejorar la capacidad
+de discriminación subyacente del modelo.
 
 \paragraph{Por qué DMSP-OLS no aporta: redundancia, no ausencia de
 señal.} Tomada sola, \texttt{dmsp\_stable\_lights} sí correlaciona con la
@@ -1962,7 +1885,17 @@ públicos ni bienes del hogar?} Si la redundancia con
 explica la ausencia de mejora, DMSP-OLS debería aportar más en un
 escenario donde esas dos preguntas no estuvieran disponibles --el caso
 realista de datos administrativos sin encuesta de hogar rica, o de una
-ola de encuesta futura sin ese módulo--. Se reentrenaron los tres
+ola de encuesta futura sin ese módulo--. Este ejercicio de \emph{ablation}
+--a diferencia de la Tabla~\ref{tab:marginal_dmsp}-- todavía usa el umbral
+de clasificación por F1 y la búsqueda de hiperparámetros con
+\texttt{CV\_FOLDS=3}/\texttt{N\_ITER\_BUSQUEDA=8} de la corrida original
+(Sección~\ref{subsec:desbalance}), no la versión robusta por F$_2$ con
+\texttt{CV\_FOLDS=10}/\texttt{N\_ITER\_BUSQUEDA=30} adoptada para las
+Tablas~\ref{tab:desempeno_modelos} y~\ref{tab:marginal_dmsp} --no se ha
+vuelto a correr bajo ese criterio--, así que sus cifras de AUC-ROC no son
+directamente comparables punto a punto con las de esas dos tablas, aunque
+la lógica del ejercicio (redundancia vs.\ aporte incremental) no depende
+de esa elección. Se reentrenaron los tres
 algoritmos eliminando esas dos columnas de los Modelos A y B (``A sin
 riqueza'' / ``B sin riqueza'' en lo que sigue; \texttt{Anoriq}/\texttt{Bnoriq}
 en el código) y de sus versiones con DMSP-OLS agregado (``A sin riqueza +
@@ -2047,17 +1980,18 @@ entrada a la pobreza --la variable de interés de esta tesis-- de 23.4\%
 entre 2010--2013 y de 19.9\% entre 2013--2016, con una tasa de salida que
 casi duplica a la de entrada en ambos periodos. Segundo, los cinco
 algoritmos evaluados alcanzan un desempeño similar entre sí (AUC-ROC entre
-0.727 y 0.764, con intervalos de confianza sobre 5 semillas del ajuste
+0.731 y 0.767, con intervalos de confianza sobre 5 semillas del ajuste
 final que en la mayoría de los casos son nulos o casi nulos, ver
 Sección~\ref{subsec:desempeno}), sin que ninguno domine claramente a los
 demás. El patrón ni siquiera es consistente entre especificaciones: en el
 Modelo A los tres \emph{gradient boosting} y Random Forest superan a la
-regresión logística regularizada, pero en el Modelo B XGBoost y LightGBM
-caen por debajo de ella, y solo HistGradientBoosting y Random Forest se
-mantienen al mismo nivel o por encima. Tercero, y más importante para el
+regresión logística regularizada, pero en el Modelo B ese orden se rompe a
+la mitad --Random Forest y XGBoost se mantienen por encima de la
+logística, mientras que HistGradientBoosting y LightGBM caen por debajo de
+ella--. Tercero, y más importante para el
 diseño de la etapa siguiente de esta tesis, la brecha de desempeño entre
 el modelo que incluye ingreso/gasto del hogar y el que no los incluye es
-sorprendentemente pequeña (0.008--0.031 en AUC-ROC según el algoritmo):
+sorprendentemente pequeña (0.008--0.028 en AUC-ROC según el algoritmo):
 las covariables no monetarias
 --educación, activos, vivienda, choques, características de la
 comunidad-- explican una fracción sustancial del poder predictivo que, bajo
@@ -2082,11 +2016,11 @@ características más fáciles de observar o de actualizar administrativamente
 de esa señal. Segundo, la comparación entre algoritmos
 (Sección~\ref{subsec:desempeno}) muestra que la elección del algoritmo
 correcto depende de la función de pérdida que le importa al hacedor de
-política: HistGradientBoosting maximiza el recall --relevante si el costo
+política: XGBoost maximiza el recall --relevante si el costo
 de no detectar un hogar que va a caer en pobreza (error de exclusión) es
 mucho mayor que el de incluir por error a uno que no cae (error de
-inclusión)--, mientras que XGBoost y Random Forest ofrecen mejor precision
-al mismo nivel de AUC-ROC. Un sistema real debería fijar explícitamente esa
+inclusión)--, mientras que HistGradientBoosting ofrece mejor precision y el
+mejor balance entre ambas (mayor F1) al mismo nivel de AUC-ROC. Un sistema real debería fijar explícitamente esa
 preferencia antes de elegir el modelo, en vez de optimizar únicamente por
 AUC-ROC. Estas implicaciones se profundizarán, y se contrastarán contra el
 aporte específico de las fuentes geoespaciales, una vez completada la
@@ -2127,6 +2061,193 @@ robustez territorial de los hallazgos.
 % Robusteces, descriptivos adicionales, mapas,
 % curvas ROC por modelo, etc.
 % Las tablas del apéndice NO cuentan en el límite de 35 pp.
+
+\subsection{Incidencia, FGT y robustez de las transiciones de pobreza monetaria}
+\label{apx:transiciones_robustez}
+
+Complemento de la Sección~\ref{subsec:transiciones}: incidencia agregada
+de pobreza monetaria por ingreso y por gasto, su descomposición
+Foster-Greer-Thorbecke (FGT), y cinco ejercicios diseñados para evaluar
+qué tan sensible es la variable de transición a la pobreza --la variable
+de interés de esta tesis-- a decisiones de construcción del ingreso, a la
+representatividad muestral y al error de medición cerca del umbral de
+pobreza.
+
+\subsubsection{Incidencia y descomposición FGT}
+\label{apx:incidencia_fgt}
+
+La Figura~\ref{fig:incidencia_ingreso_gasto} muestra la incidencia de
+pobreza monetaria (P0) por ingreso y por gasto para las tres olas. La
+pobreza por ingreso --la medida oficial-- cae de 60.7\% en 2010 a 52.4\% en
+2013 y a 42.4\% en 2016, una reducción acumulada de 18.3 puntos
+porcentuales en seis años. La pobreza por gasto, construida como medida de
+robustez (Sección~\ref{sec:datos}), es sistemáticamente más \emph{baja}
+que la de ingreso en los tres puntos del panel (47.6\%, 40.9\% y 33.4\%):
+la brecha ingreso-gasto es de 13.1, 11.5 y 9.0 puntos porcentuales
+respectivamente, siempre a favor de una menor incidencia medida por gasto.
+Ambas series comparten la misma tendencia decreciente y la misma
+desaceleración del ritmo de reducción entre 2013--2016 frente a
+2010--2013, lo que sugiere que la caída de la pobreza en el periodo no es
+un artefacto de la medida de bienestar elegida.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{../outputs/figures/pobreza/01_incidencia_ingreso_vs_gasto.png}
+  \caption{Incidencia de pobreza monetaria (P0) por ingreso y por gasto,
+  contra la línea de pobreza (LP), 2010--2016.}
+  \label{fig:incidencia_ingreso_gasto}
+\end{figure}
+
+La Figura~\ref{fig:fgt_trio} descompone la pobreza por ingreso en sus tres
+componentes FGT: incidencia (P0), brecha (P1) y severidad (P2). La brecha
+--qué tan lejos está el ingreso promedio de los pobres respecto a la LP,
+como fracción de la LP-- cae de 32.2\% a 22.0\% y a 16.1\% entre 2010 y
+2016; la severidad --que pondera más a los hogares más alejados de la LP,
+sensible a la desigualdad entre los pobres-- cae de 22.3\% a 12.4\% y a
+8.3\%. La caída proporcional de P1 y P2 es más rápida que la de P0 en
+ambos periodos, lo que indica que la reducción de la pobreza no solo trajo
+hogares desde justo debajo de la LP hacia arriba, sino que también mejoró
+la situación relativa de los hogares que permanecieron pobres.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../outputs/figures/pobreza/02_fgt_incidencia_brecha_severidad.png}
+  \caption{Indicadores FGT de pobreza por ingreso contra la LP: incidencia
+  (P0), brecha (P1) y severidad (P2), por ola.}
+  \label{fig:fgt_trio}
+\end{figure}
+
+\subsubsection{Ejercicios de robustez}
+\label{subsubsec:robustez}
+
+Se implementaron cinco ejercicios de robustez sobre las cifras de
+transición de la Sección~\ref{subsec:transiciones}: ponderación muestral,
+dos reclasificaciones del ingreso, sensibilidad al umbral de pobreza, y
+atrición del panel.
+
+\paragraph{Ponderación muestral.} Ninguno de los resultados de la
+Sección~\ref{subsec:transiciones} usaba factores de expansión: son
+proporciones \emph{muestrales}, no estimaciones poblacionales. Se
+identificaron y verificaron contra los diccionarios de cada ola los
+factores de expansión a nivel de hogar (\texttt{fexhog},
+\texttt{fexhog\_2013}, ambos transversales, y \texttt{fexhog\_2010}, el
+factor longitudinal anclado a la muestra base de 2010, disponible en las
+olas 2 y 3). Ponderar cambia la incidencia agregada de forma moderada:
+60.7\%~$\rightarrow$~60.4\% en 2010, 52.4\%~$\rightarrow$~48.6\% en 2013
+(la brecha más grande de las tres olas, casi 4 puntos), y
+42.4\%~$\rightarrow$~41.8\% en 2016. En las matrices de transición,
+ponderar por el factor longitudinal mueve la categoría \emph{siempre
+pobre} de 43.9\% a 42.7\% en 2010--2013, y de 33.3\% a 32.9\% en
+2013--2016, mientras que \emph{nunca pobre} sube de 37.0\% a 38.6\% en el
+segundo periodo. La dirección del efecto es consistente en ambos periodos
+(la muestra sin ponderar sobrerrepresenta levemente la persistencia en la
+pobreza), pero la magnitud es pequeña frente a los otros ejercicios de
+robustez de esta sección.
+
+\paragraph{Ingreso sin componentes excepcionales.} Seis componentes del
+ingreso total del hogar (venta de inmueble, venta de negocio, herencias,
+pólizas, venta de otros activos, y otros ingresos no clasificados) son
+eventos retrospectivos de doce meses --no flujos mensuales sostenidos--
+prorrateados como ingreso mensual para sumarlos al resto del ingreso. Un
+hogar que vendió una propiedad puede aparecer como si hubiera
+\emph{salido} de la pobreza sin que su capacidad de ingreso sostenible
+haya cambiado, lo cual es un riesgo directo para la variable de interés de
+esta tesis. Reclasificando la pobreza con el ingreso total menos estos
+seis componentes y repitiendo las matrices de transición, el efecto sobre
+la distribución de categorías es pequeño: \emph{siempre pobre} pasa de
+43.9\% a 44.4\% en 2010--2013 y de 33.3\% a 33.8\% en 2013--2016;
+\emph{nunca pobre} se mueve menos de medio punto porcentual en ambos
+periodos. Se concluye que el ingreso excepcional no es, a nivel agregado,
+un motor importante de las transiciones observadas, aunque puede seguir
+siendo relevante para hogares individuales específicos.
+
+\paragraph{Ingreso sin ayudas en dinero.} La pregunta de ayudas en dinero
+(\texttt{ing\_ayudas}) nunca se hizo a los hogares rurales en la ola 2010
+--un hueco de diseño del cuestionario, no una no-respuesta al azar, según
+se verificó contra tres fuentes independientes (columnas del archivo
+crudo, diccionario específico rural, y comparación con el diccionario
+urbano)--, lo que subestima mecánicamente el ingreso rural de 2010 frente
+al de 2013 y 2016, donde la pregunta sí existe. Para dimensionar el efecto
+de esta fuente de ingreso sobre las transiciones, se reclasificó la
+pobreza excluyendo \texttt{ing\_ayudas} de las tres olas y se repitió la
+matriz 2010$\rightarrow$2013. El efecto es el más grande de los cuatro
+ejercicios de reclasificación del ingreso: \emph{siempre pobre} sube de
+43.9\% a 46.8\%, y \emph{nunca pobre} baja de 28.8\% a 27.2\%. Esto es
+consistente con que las ayudas en dinero son una fuente de ingreso más
+extendida en la población (no un evento raro como el ingreso excepcional),
+por lo que su presencia o ausencia mueve la clasificación de más hogares.
+
+\paragraph{Sensibilidad a la banda alrededor de la línea de pobreza.}
+Clasificar pobre/no pobre con un corte estricto contra la LP puede generar
+``transiciones'' que son, en realidad, ruido de muestreo o error de
+medición del ingreso cerca del umbral. Para cuantificar esta sensibilidad
+se reclasificó la pobreza usando LP$\times$0.9 y LP$\times$1.1 (una banda
+de $\pm$10\%) y se repitieron las matrices de transición
+(Figura~\ref{fig:sensibilidad_banda}). El resultado es la fuente de
+variación más grande de todos los ejercicios de robustez: \emph{siempre
+pobre} oscila entre 38.6\% (LP$-$10\%) y 49.1\% (LP$+$10\%) en
+2010--2013 (frente a 43.9\% en la línea base), y entre 27.8\% y 38.6\% en
+2013--2016 (frente a 33.3\%) --una banda de aproximadamente 10 puntos
+porcentuales en ambos periodos, más del doble del efecto de excluir el
+ingreso excepcional o las ayudas en dinero--. Esta es evidencia de que una
+parte sustancial de la variación en los resultados de transición depende
+de la ubicación exacta del umbral oficial, algo que debe tenerse presente
+al interpretar el desempeño de los modelos predictivos de la
+Sección~\ref{sec:resultados}: un modelo que clasifica erróneamente a
+hogares cerca del umbral puede estar capturando ruido de medición del
+ingreso más que un patrón estructural de vulnerabilidad.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/08_sensibilidad_banda.png}
+  \caption{Sensibilidad de la distribución de categorías de transición a
+  una banda $\pm$10\% alrededor de la línea de pobreza oficial.}
+  \label{fig:sensibilidad_banda}
+\end{figure}
+
+La Figura~\ref{fig:robustez_transiciones} resume conjuntamente los tres
+ejercicios de reclasificación del ingreso (línea base, sin ingreso
+excepcional, sin ayudas en dinero) frente a la especificación oficial.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/07_robustez_transiciones.png}
+  \caption{Robustez de la distribución de categorías de transición a
+  especificaciones alternativas del ingreso del hogar.}
+  \label{fig:robustez_transiciones}
+\end{figure}
+
+\paragraph{Atrición del panel.} Además de los hogares excluidos de las
+matrices de transición por dividirse entre olas, se midió la atrición
+\emph{pura}: hogares de la ola inicial cuyo \texttt{consecutivo} no
+aparece en absoluto en la ola siguiente, ni como emparejamiento uno a uno
+ni como escisión (Figura~\ref{fig:atricion}). La atrición total es de
+11.4\% en ambos periodos (1{,}124 de 9{,}853 hogares base entre 2010 y
+2013; 994 de 8{,}729 entre 2013 y 2016). Esa cifra agregada sí se
+desagregó por perfil de hogar (\texttt{src/02\_build/eda\_hogares\_panel.py},
+\texttt{analizar\_attrition()}): la atrición \textbf{no es aleatoria},
+se concentra sistemáticamente en hogares urbanos y de estrato más alto.
+Por zona, la tasa de pérdida es 2.8 veces mayor en zona urbana que en
+zona rural en 2010--2013 (16.2\% vs. 5.8\%) y 1.7 veces mayor en
+2013--2016 (14.1\% vs. 8.2\%); por estrato socioeconómico, la pérdida
+crece monótonamente de 8.9\% en estrato 1 a 26.0\% en estrato 4 en
+2010--2013. Por región, Bogotá tiene la mayor pérdida (24.9\%) y
+Centro-Oriente la menor (3.1\%). El patrón es consistente con que los
+hogares urbanos y de mayor estrato son más móviles (cambian de vivienda
+con más frecuencia), lo que dificulta su relocalización entre olas del
+panel --no con una atrición concentrada en los hogares más pobres, que de
+hecho es la más baja de las cuatro categorías de estrato--. No se
+investigó si, controlando por zona/estrato/región, la atrición está además
+asociada al estado de pobreza mismo del hogar (una limitación que se
+retoma en la Sección~\ref{subsec:limitaciones}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{../outputs/figures/pobreza/09_atricion_panel.png}
+  \caption{Atrición total del panel entre olas consecutivas (hogares que
+  no aparecen en absoluto en la ola siguiente).}
+  \label{fig:atricion}
+\end{figure}
 
 \subsection{Perfil completo de covariables, pobreza multidimensional (IPM)}
 \label{apx:perfil_ipm}

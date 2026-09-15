@@ -112,7 +112,14 @@ def entrenar(algoritmo_raw: str, espec: str, registro: pd.DataFrame):
 
 
 def calcular_shap(algoritmo_raw: str, pipe, x_train: pd.DataFrame, x_test: pd.DataFrame, cat_cols: list):
-    """Calcula SHAP values y devuelve (shap_values, nombres_variables).
+    """Calcula SHAP values y devuelve (shap_values, nombres_variables,
+    x_test_shap) -- x_test_shap es la matriz EXACTA que el explainer usa
+    (nativa para arbol_nativo, o la salida del preprocesador para
+    preprocesador_clasico) y hace falta ademas de shap_values/nombres
+    para graficar (shap.summary_plot necesita el valor de cada variable,
+    no solo su nombre y su shap value) -- devuelta aqui en vez de
+    recalculada por cada script que grafica, para no duplicar esta
+    logica de transformacion por familia de algoritmo.
 
     Familia `arbol_nativo` (XGBoost/HistGB/LightGBM): `shap.TreeExplainer`
     sobre el estimador directamente, con las mismas columnas nativas
@@ -172,7 +179,7 @@ def calcular_shap(algoritmo_raw: str, pipe, x_train: pd.DataFrame, x_test: pd.Da
     if np.ndim(shap_values) == 3:  # (n, features, clases) -- clase positiva
         shap_values = shap_values[:, :, 1]
 
-    return shap_values, nombres
+    return shap_values, nombres, x_test_shap
 
 
 def main() -> None:
@@ -213,7 +220,7 @@ def main() -> None:
             print(f"\n=== {nombre_algo} -- {target} ({espec}) ===")
             pipe, x_train, x_test, y_test, cat_cols = entrenar(algoritmo_raw, espec, registro)
             print(f"  Calculando SHAP sobre {x_test.shape[0]} hogares de test...")
-            shap_values, nombres = calcular_shap(algoritmo_raw, pipe, x_train, x_test, cat_cols)
+            shap_values, nombres, _ = calcular_shap(algoritmo_raw, pipe, x_train, x_test, cat_cols)
 
             importancia_media = pd.Series(np.abs(shap_values).mean(axis=0), index=nombres).sort_values(ascending=False)
             ranking = importancia_media.rank(ascending=False)

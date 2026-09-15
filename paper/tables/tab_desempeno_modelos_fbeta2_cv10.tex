@@ -1,0 +1,27 @@
+\begin{table}[H]
+  \centering
+  \caption{Desempeño de los cinco algoritmos, holdout temporal
+  (train 2010$\to$2013, test 2013$\to$2016). Media $\pm$ intervalo de
+  confianza al 95\% sobre 5 semillas del ajuste final. Umbral elegido
+  por CV maximizando F-beta ($\beta=2$), CV\_FOLDS=10,
+  N\_ITER\_BUSQUEDA=30.}
+  \label{tab:desempeno_modelos}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llcccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Recall} & \textbf{F1} \\
+    \midrule
+    XGBoost                    & A & ninguno   & 0.11 & 0.767 & [0.766, 0.769] & 0.949 & 0.413 \\
+    Random Forest              & A & ninguno   & 0.14 & 0.766 & [0.765, 0.767] & 0.926 & 0.426 \\
+    HistGradientBoosting       & A & balanced  & 0.32 & 0.763 & [0.763, 0.763] & 0.909 & 0.432 \\
+    LightGBM                   & A & ninguno   & 0.10 & 0.758 & [0.758, 0.758] & 0.903 & 0.428 \\
+    Logística regularizada     & A & balanced  & 0.37 & 0.747 & [0.747, 0.747] & 0.883 & 0.426 \\
+    \addlinespace
+    Random Forest              & B & balanced  & 0.31 & 0.742 & [0.741, 0.744] & 0.892 & 0.416 \\
+    XGBoost                    & B & ninguno   & 0.13 & 0.742 & [0.742, 0.743] & 0.940 & 0.395 \\
+    Logística regularizada     & B & balanced  & 0.35 & 0.739 & [0.739, 0.739] & 0.890 & 0.414 \\
+    HistGradientBoosting       & B & ninguno   & 0.14 & 0.735 & [0.735, 0.735] & 0.879 & 0.418 \\
+    LightGBM                   & B & ninguno   & 0.15 & 0.731 & [0.731, 0.731] & 0.909 & 0.403 \\
+    \bottomrule
+  \end{tabular}

@@ -1,0 +1,32 @@
+\begin{table}[H]
+  \centering
+  \caption{Matrices de transición de pobreza, monetaria por ingreso vs.
+  IPM (\% de fila, panel emparejado 1 a 1). Estado inicial en filas,
+  estado final en columnas.}
+  \label{tab:matriz_transicion}
+  \footnotesize
+  \begin{tabular}{ll cc cc}
+    \toprule
+    & & \multicolumn{2}{c}{\textbf{Monetaria}} & \multicolumn{2}{c}{\textbf{IPM}} \\
+    \textbf{Periodo} & \textbf{Estado inicial} & \textbf{No pobre} & \textbf{Pobre} & \textbf{No pobre} & \textbf{Pobre} \\
+    \midrule
+    \multirow{2}{*}{2010 $\rightarrow$ 2013} & No pobre & 76.6\% & 23.4\% & 87.9\% & 12.1\% \\
+     & Pobre & 29.7\% & 70.3\% & 54.5\% & 45.5\% \\
+    \addlinespace
+    \multirow{2}{*}{2013 $\rightarrow$ 2016} & No pobre & 80.1\% & 19.9\% & 90.3\% & 9.7\% \\
+     & Pobre & 38.2\% & 61.8\% & 52.3\% & 47.7\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} $n=8{,}218$ (2010$\to$2013) y $n=6{,}911$
+    (2013$\to$2016) hogares con emparejamiento 1 a 1 -- idéntico universo para
+    monetaria e IPM (mismo panel, solo cambia la clasificación de pobreza);
+    excluye 511 (2010--2013) y 1{,}190 (2013--2016) casos de hogares que se
+    dividieron entre olas. Fuente: cálculos propios con base en ELCA 2010,
+    2013, 2016, generados por \texttt{src/tabla\_matriz\_transicion\_combinada.py}
+    sobre \texttt{outputs/tables/pobreza/transicion\_\{pct,conteo\}\_\{,ipm\_\}ola*.csv}
+    (\texttt{src/04\_features/build\_pobreza\_desagregaciones.py},
+    \texttt{build\_matriz\_transicion\_ipm.py}).
+  \end{minipage}
+\end{table}
