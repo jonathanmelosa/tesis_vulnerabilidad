@@ -15,6 +15,27 @@ arbitrario por modulo. Se excluyen 2 duplicados exactos
 las 4 categorias -- se conserva la version "_real", deflactada, la misma
 que usan los modelos de ML).
 
+EXTENSION 2026-09-15 (pedido explicito del usuario, tras revisar con el
+asesor de tesis por que la seleccion quedo en 40 y no en mas variables):
+se agregan 13 variables adicionales que NO pasan el umbral de 0.10, pero
+que superan un criterio mas estricto que "robusto" a secas -- estas 13
+son "robusto=True" Y efecto>0.05 EN LAS DOS TRANSICIONES POR SEPARADO
+(2010->2013 Y 2013->2016, verificado contra
+`ranking_covariables_monetaria_2013_2016.csv`), es decir, su señal no es
+un artefacto de un solo periodo. De las 18 variables candidatas que
+pasaban efecto>0.05 solo en 2010->2013, se descartaron 5 cuyo efecto cae
+por debajo de 0.05 (o deja de ser robusto) en 2013->2016: `tiene_deuda_hogar`,
+`tvip_puntaje_directo_hogar`, `tasa_ahorro_hogar`,
+`pct_ninos_control_pediatrico`, y sobre todo
+`pct_ninos_no_estudia_razon_economica` (efecto 0.076 -> 0.011, deja de
+ser robusto en el segundo periodo -- la señal del primer periodo era,
+aparentemente, ruido de esa muestra). Se verifico ademas que ninguna de
+las 13 correlaciona por encima de |rho|=0.70 (Spearman) con ninguna de
+las 40 variables ya seleccionadas (la maxima observada es 0.43, entre
+`n_espacios_publicos_comunidad` y `dmsp_stable_lights`) -- no son
+redundantes con el nucleo existente. Resultado: 53 variables en total
+(40 + 13) para la version final de la tesis.
+
 Reutiliza `construir_tabla_comparativa` (misma funcion que genera la
 tabla oficial de la tesis) para los valores reales por grupo -- no
 recalcula nada nuevo, solo aplica un `seleccion` mas amplio.
@@ -62,6 +83,19 @@ INVENTARIO_PATH = PROJECT_ROOT / "outputs" / "tables" / "eda_variables_modelo" /
 UMBRAL_EFECTO = 0.10
 DUPLICADOS_EXACTOS = ["ingreso_percapita_hogar", "gasto_percapita_hogar"]  # se prefiere la version "_real"
 
+# 13 variables adicionales (ver docstring, "EXTENSION 2026-09-15"): robustas
+# y con efecto>0.05 en AMBAS transiciones, no redundantes (|rho|<0.70) con
+# ninguna de las 40 ya seleccionadas por UMBRAL_EFECTO.
+VARIABLES_ESTABLES_AMPLIADAS = [
+    "tasa_afiliacion_pension_hogar", "tasa_afiliacion_salud_laboral_hogar",
+    "afiliado_pension_jefe", "afiliado_salud_laboral_jefe",
+    "deuda_formal_hogar", "deuda_informal_hogar",
+    "tiene_escritura_vivienda_hogar", "financio_credito_formal_vivienda_hogar",
+    "tiene_vehiculo_hogar",
+    "pct_ninos_cuidado_terceros_hogar", "pct_ninos_apoyo_alimentario_escolar",
+    "n_espacios_publicos_comunidad", "tiene_transporte_publico_comunidad",
+]
+
 # Categoria tematica y sub-panel por unidad -- asignado a mano a partir
 # del `modulo` del inventario y de la unidad real de cada variable
 # (revisado con `construir_tabla_comparativa`: "(media)" vs "(media, %)"
@@ -107,6 +141,20 @@ CATEGORIA = {
     "cotiza_pension_jefe": ("Educación y empleo del jefe", "% del grupo"),
     "n_ninos_12": ("Composición del hogar", "Número (conteo)"),
     "razon_dependencia_demografica": ("Composición del hogar", "Razón de dependencia"),
+    # -- Extensión 2026-09-15 (VARIABLES_ESTABLES_AMPLIADAS, ver docstring) --
+    "tasa_afiliacion_pension_hogar": ("Educación y empleo del jefe", "% del grupo"),
+    "tasa_afiliacion_salud_laboral_hogar": ("Educación y empleo del jefe", "% del grupo"),
+    "afiliado_pension_jefe": ("Educación y empleo del jefe", "% del grupo"),
+    "afiliado_salud_laboral_jefe": ("Educación y empleo del jefe", "% del grupo"),
+    "deuda_formal_hogar": ("Programas sociales y deuda", "% del grupo"),
+    "deuda_informal_hogar": ("Programas sociales y deuda", "% del grupo"),
+    "tiene_escritura_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
+    "financio_credito_formal_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
+    "tiene_vehiculo_hogar": ("Activos del hogar", "% del grupo"),
+    "pct_ninos_cuidado_terceros_hogar": ("Composición del hogar", "% del grupo"),
+    "pct_ninos_apoyo_alimentario_escolar": ("Composición del hogar", "% del grupo"),
+    "n_espacios_publicos_comunidad": ("Comunidad", "Número (conteo)"),
+    "tiene_transporte_publico_comunidad": ("Comunidad", "% del grupo"),
 }
 
 
@@ -121,6 +169,28 @@ def calcular_seleccion_2010_2013() -> list:
     ranking = pd.read_csv(TABLES_DIR / "ranking_covariables_monetaria_2010_2013.csv")
     filtradas = ranking[(ranking["robusto"]) & (ranking["efecto"] > UMBRAL_EFECTO)]
     seleccion = [v for v in filtradas["variable"] if v not in DUPLICADOS_EXACTOS]
+
+    # Extensión 2026-09-15: agrega las 13 variables de VARIABLES_ESTABLES_AMPLIADAS
+    # (robustas y efecto>0.05 en AMBAS transiciones, no redundantes con las 40
+    # anteriores -- ver docstring del modulo). Se verifica aqui, en tiempo de
+    # ejecucion, que efectivamente cumplen ese criterio contra el ranking
+    # ACTUAL de las dos transiciones -- si algun dia se recalculan los rankings
+    # con datos nuevos y una de estas 13 deja de cumplirlo, el script falla
+    # ruidosamente en vez de incluirla en silencio.
+    ranking_2013_2016 = pd.read_csv(TABLES_DIR / "ranking_covariables_monetaria_2013_2016.csv")
+    r1 = ranking.set_index("variable")
+    r2 = ranking_2013_2016.set_index("variable")
+    for var in VARIABLES_ESTABLES_AMPLIADAS:
+        ok_1 = var in r1.index and bool(r1.loc[var, "robusto"]) and r1.loc[var, "efecto"] > 0.05
+        ok_2 = var in r2.index and bool(r2.loc[var, "robusto"]) and r2.loc[var, "efecto"] > 0.05
+        if not (ok_1 and ok_2):
+            raise ValueError(
+                f"{var!r} está en VARIABLES_ESTABLES_AMPLIADAS pero ya no cumple "
+                f"robusto+efecto>0.05 en ambas transiciones (revisar rankings actuales)."
+            )
+        if var not in seleccion:
+            seleccion.append(var)
+
     faltantes = set(seleccion) - set(CATEGORIA)
     if faltantes:
         raise ValueError(f"Variables sin categoria asignada en CATEGORIA: {faltantes}")

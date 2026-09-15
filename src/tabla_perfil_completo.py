@@ -100,6 +100,19 @@ ETIQUETAS = {
     "pobre_extremo_ingreso": "Pobre extremo por ingreso (2010)",
     "pobre_gasto": "Pobre por gasto (2010)",
     "pobre_extremo_gasto": "Pobre extremo por gasto (2010)",
+    # -- Extensión 2026-09-15 (VARIABLES_ESTABLES_AMPLIADAS) --
+    "tasa_afiliacion_pension_hogar": "Afiliación a pensión (hogar)",
+    "tasa_afiliacion_salud_laboral_hogar": "Afiliación a salud laboral (hogar)",
+    "afiliado_pension_jefe": "Jefe afiliado a pensión",
+    "afiliado_salud_laboral_jefe": "Jefe afiliado a salud laboral",
+    "deuda_formal_hogar": "Tiene deuda formal",
+    "deuda_informal_hogar": "Tiene deuda informal",
+    "tiene_escritura_vivienda_hogar": "Tiene escritura de la vivienda",
+    "financio_credito_formal_vivienda_hogar": "Financió la vivienda con crédito formal",
+    "tiene_vehiculo_hogar": "Tiene vehículo",
+    "pct_ninos_apoyo_alimentario_escolar": "Niños con apoyo alimentario escolar",
+    "n_espacios_publicos_comunidad": "N.\\textsuperscript{o} de espacios públicos en la comunidad",
+    "tiene_transporte_publico_comunidad": "Comunidad con transporte público",
 }
 
 

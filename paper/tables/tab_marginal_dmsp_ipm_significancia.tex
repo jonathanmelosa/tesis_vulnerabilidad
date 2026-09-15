@@ -1,0 +1,43 @@
+\begin{table}[H]
+  \centering
+  \caption{Contribución marginal de DMSP-OLS bajo pobreza multidimensional
+  (IPM), holdout temporal (train 2010$\to$2013, test 2013$\to$2016). $\Delta$
+  AUC-ROC y su IC95\% son del bootstrap pareado sobre el conjunto de prueba
+  (\texttt{diagnostico\_bootstrap\_ipm.py}); $p$ (hogar) no corrige por
+  correlación intra-comunidad, $p$ (cluster) sí
+  (\texttt{diagnostico\_bootstrap\_cluster\_ipm.py}, 1{,}696 clusters).
+  Filas en \textbf{negrita}: IC95\% no cruza cero. AUC base/+DMSP son la
+  media de 5 semillas (Sección~\ref{subsec:desempeno}); $\Delta$/IC95\%/$p$
+  vienen de un bootstrap sobre una sola semilla (42) del mismo conjunto de
+  prueba, por eso pueden diferir del AUC de 5 semillas en el tercer decimal.}
+  \label{tab:marginal_dmsp_ipm_significancia}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{llccccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Esp.} & \textbf{AUC base} & \textbf{AUC +DMSP} & $\boldsymbol{\Delta}$\textbf{AUC} & \textbf{IC95\%} & \textbf{$p$ (hogar)} & \textbf{$p$ (cluster)} & $\boldsymbol{\Delta}$\textbf{top-10\%} \\
+    \midrule
+    XGBoost                  & A & 0.7254 & 0.7363 & \textbf{+0.0128} & [0.0037, 0.0225] & \textbf{0.006} & 0.004 & +0.022 \\
+    \addlinespace
+    Random Forest            & A & 0.7291 & 0.7291 & +0.0012 & [-0.0062, 0.0084] & 0.754 & -- & +0.004 \\
+    \addlinespace
+    LightGBM                 & A & 0.7414 & 0.7452 & +0.0037 & [-0.0006, 0.0081] & 0.091 & -- & +0.005 \\
+    \addlinespace
+    HistGradientBoosting     & A & 0.7396 & 0.7378 & -0.0018 & [-0.0072, 0.0037] & 0.541 & 0.548 & +0.002 \\
+    \addlinespace
+    Logística regularizada   & A & 0.7300 & 0.7300 & -0.0000 & [-0.0012, 0.0011] & 0.934 & 0.954 & +0.009 \\
+    \addlinespace
+    XGBoost                  & B & 0.7276 & 0.7455 & \textbf{+0.0198} & [0.0096, 0.0296] & \textbf{0.001} & 0.000 & +0.016 \\
+    \addlinespace
+    Random Forest            & B & 0.7350 & 0.7323 & -0.0035 & [-0.0120, 0.0051] & 0.429 & -- & +0.015 \\
+    \addlinespace
+    LightGBM                 & B & 0.7304 & 0.7471 & \textbf{+0.0167} & [0.0076, 0.0258] & \textbf{0.000} & -- & +0.021 \\
+    \addlinespace
+    HistGradientBoosting     & B & 0.7385 & 0.7401 & +0.0016 & [-0.0043, 0.0075] & 0.595 & 0.569 & -0.007 \\
+    \addlinespace
+    Logística regularizada   & B & 0.7296 & 0.7295 & -0.0000 & [-0.0012, 0.0012] & 0.978 & 0.926 & +0.011 \\
+    \bottomrule
+  \end{tabular}%
+  }
+\end{table}

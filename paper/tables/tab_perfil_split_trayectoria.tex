@@ -1,0 +1,23 @@
+\begin{table}[H]
+  \centering
+  \caption{Perfil del hogar vulnerable (``entra en pobreza'', 2010$\to$2013) desagregado por trayectoria a 2016: transitorio ($n=355$, vuelve a salir) vs.\ persistente ($n=255$, se queda pobre). Valores ponderados por grupo; filas superiores, resumen agregado sobre las 53 variables; filas inferiores, ejemplos puntuales donde el promedio agregado (Sección~\ref{subsec:caracterizacion_grupos}) ocultaba una divergencia entre subgrupos.}
+  \label{tab:perfil_split_trayectoria}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrr}
+    \toprule
+    \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Transitorio} & \textbf{Persistente} & \textbf{Nunca} \\
+    \midrule
+    Más cerca de ``sale'' que de ``nunca'' (de 53) & \multicolumn{2}{c}{--} & 39/53 & 44/53 & -- \\
+    Más cerca de ``siempre'' que de ``sale'' (de 53) & \multicolumn{2}{c}{--} & 2/53 & 11/53 & -- \\
+    \addlinespace
+    Jefe asalariado & 34.4\% & 52.2\% & 64.9\% & 61.7\% & 57.9\% \\
+    Tiene deuda informal & 31.6\% & 22.7\% & 17.3\% & 41.9\% & 9.4\% \\
+    Comunidad con transporte público & 54.6\% & 75.4\% & 84.9\% & 78.2\% & 78.2\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} de los 723 hogares que entran en pobreza entre 2010 y 2013, 610 tienen dato de la ola 2016 (113 se pierden por atrición, misma tasa que el resto del panel); de esos 610, 355 (58\%) vuelven a salir de la pobreza para 2016 y 255 (42\%) se quedan pobres. Fuente: cálculos propios, \texttt{perfil\_split\_transitorio\_persistente\_monetaria.csv} (\texttt{src/02\_build/eda\_perfil\_split\_trayectoria.py}).
+  \end{minipage}
+\end{table}

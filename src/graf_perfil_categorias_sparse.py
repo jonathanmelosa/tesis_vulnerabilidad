@@ -49,6 +49,7 @@ CATEGORIAS_SPARSE = [
     "Geoespacial",
     "Programas sociales y deuda",
     "Composición del hogar",
+    "Comunidad",
 ]
 
 ETIQUETAS = {
@@ -62,6 +63,14 @@ ETIQUETAS = {
     "beneficiario_algun_programa_hogar": "Beneficiario de algún programa (%)",
     "n_ninos_12": "N.º de niños en el hogar",
     "razon_dependencia_demografica": "Razón de dependencia demográfica",
+    # -- Extensión 2026-09-15 (VARIABLES_ESTABLES_AMPLIADAS, ver
+    # eda_perfil_completo.py) --
+    "deuda_formal_hogar": "Tiene deuda formal (%)",
+    "deuda_informal_hogar": "Tiene deuda informal (%)",
+    "pct_ninos_cuidado_terceros_hogar": "Niños al cuidado de terceros (%)",
+    "pct_ninos_apoyo_alimentario_escolar": "Niños con apoyo alimentario escolar (%)",
+    "n_espacios_publicos_comunidad": "N.º de espacios públicos en la comunidad",
+    "tiene_transporte_publico_comunidad": "Comunidad con transporte público (%)",
 }
 
 COLOR_LINEA = "#5b6570"
