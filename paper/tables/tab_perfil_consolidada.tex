@@ -1,81 +1,90 @@
-{\footnotesize\setlength{\tabcolsep}{4pt}
-\begin{longtable}{p{0.40\textwidth}rrrr}
-  \caption{Perfil por grupo de transición, pobreza monetaria (2010$\to$2013), las 53 variables robustas. $^{\dagger}$variable donde el hogar vulnerable no queda entre ``sale'' y ``siempre pobre''/``nunca pobre'' como el resto (ver texto).}\label{tab:perfil_consolidada}\\
-    \toprule
-    \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\
-    \midrule
-    \endfirsthead
-    \multicolumn{5}{l}{\footnotesize \textit{(Cuadro~\ref{tab:perfil_consolidada}, continuación)}} \\
-    \toprule
-    \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\
-    \midrule
-    \endhead
-    \bottomrule
-    \multicolumn{5}{r}{\footnotesize \textit{continúa en la página siguiente}} \\
-    \endfoot
-    \bottomrule
-    \endlastfoot
-    \multicolumn{5}{l}{\textit{Educación y empleo del jefe}} \\
-    \quad Educación del jefe: Básica primaria (1 a 5) & 59\% & 49\% & 47\% & 25\% \\
-    \quad Ocupación del jefe: Asalariado$^{\dagger}$ & 34\% & 52\% & 62\% & 58\% \\
-    \quad Consiguió trabajo: Pidiendo ayuda a familiares, amigos o colegas & 66\% & 69\% & 62\% & 54\% \\
-    \quad Registro mercantil del jefe: No lo necesita & 63\% & 49\% & 42\% & 45\% \\
-    \quad Negocio del jefe: De 20 a 49 personas & 9\% & 16\% & 22\% & 25\% \\
-    \quad Máx. nivel educativo del hogar & 2.28 & 2.79 & 2.79 & 4.22 \\
-    \quad Cotización a pensión (hogar) & 5\% & 16\% & 18\% & 38\% \\
-    \quad Nivel educativo del jefe (ordinal) & 2.02 & 2.54 & 2.56 & 3.72 \\
-    \quad Etnia del jefe: Indígena & 12\% & 6\% & 6\% & 4\% \\
-    \quad Jefe cotiza a pensión & 6\% & 21\% & 24\% & 43\% \\
-    \quad Estado civil del jefe: En unión libre & 46\% & 39\% & 43\% & 33\% \\
-    \quad Afiliación a pensión (hogar) & 27\% & 51\% & 48\% & 57\% \\
-    \quad Afiliación a salud laboral (hogar) & 33\% & 55\% & 58\% & 62\% \\
-    \quad Jefe afiliado a salud laboral & 35\% & 53\% & 61\% & 64\% \\
-    \quad Jefe afiliado a pensión & 29\% & 49\% & 51\% & 58\% \\
-    \multicolumn{5}{l}{\textit{Vivienda: materiales y servicios}} \\
-    \quad Material de piso: Baldosa, vinilo, tableta o ladrillo & 14\% & 31\% & 35\% & 59\% \\
-    \quad Combustible de cocina: Leña, madera, carbón de leña & 64\% & 43\% & 32\% & 12\% \\
-    \quad Servicio sanitario: Inodoro conectado a alcantarillado & 26\% & 47\% & 55\% & 79\% \\
-    \quad Recolección de basura: La recogen los servicios de aseo & 31\% & 49\% & 57\% & 80\% \\
-    \quad Obtención de agua: Acueducto público & 31\% & 49\% & 58\% & 79\% \\
-    \quad Tipo de vivienda: Apartamento & 8\% & 18\% & 20\% & 38\% \\
-    \quad Material de paredes: Bloque, ladrillo, piedra, madera pulida & 59\% & 75\% & 81\% & 91\% \\
-    \quad Tenencia de vivienda: En usufructo u otro tipo de tenencia & 33\% & 24\% & 28\% & 15\% \\
-    \quad Financió la vivienda con crédito formal & 13\% & 26\% & 22\% & 43\% \\
-    \quad Tiene escritura de la vivienda & 67\% & 81\% & 80\% & 90\% \\
-    \multicolumn{5}{l}{\textit{Zona de residencia}} \\
-    \quad Vive en zona rural & 69\% & 52\% & 45\% & 21\% \\
-    \multicolumn{5}{l}{\textit{Geoespacial}} \\
-    \quad Iluminación nocturna (DMSP) & 21.6 & 32.6 & 36.4 & 50.1 \\
-    \multicolumn{5}{l}{\textit{Activos del hogar}} \\
-    \quad N.\textsuperscript{o} de bienes durables & 4.58 & 6.00 & 6.30 & 9.10 \\
-    \quad N.\textsuperscript{o} de servicios públicos & 2.50 & 3.30 & 3.65 & 4.80 \\
-    \quad Estrato (verificado) & 1.59 & 2.06 & 2.07 & 2.63 \\
-    \quad Índice de riqueza (PCA) & -0.83 & -0.02 & 0.21 & 1.06 \\
-    \quad Estrato (autorreportado) & 1.60 & 2.07 & 2.05 & 2.58 \\
-    \quad Tiene internet en el hogar & 8\% & 16\% & 13\% & 46\% \\
-    \quad N.\textsuperscript{o} de activos financieros & 0.10 & 0.42 & 0.45 & 0.86 \\
-    \quad Tiene vehículo & 17\% & 25\% & 23\% & 40\% \\
-    \multicolumn{5}{l}{\textit{Vivienda: hacinamiento}} \\
-    \quad Valor del arriendo pagado & 144k & 226k & 240k & 354k \\
-    \quad Personas por cuarto & 2.13 & 1.65 & 1.49 & 1.11 \\
-    \quad Personas por dormitorio & 2.77 & 2.25 & 2.09 & 1.74 \\
-    \multicolumn{5}{l}{\textit{Programas sociales y deuda}} \\
-    \quad Beneficiario de Familias en Acción & 53\% & 29\% & 23\% & 7\% \\
-    \quad N.\textsuperscript{o} de programas sociales & 0.73 & 0.42 & 0.34 & 0.17 \\
-    \quad Beneficiario de algún programa social & 60\% & 37\% & 31\% & 15\% \\
-    \quad Tiene deuda informal$^{\dagger}$ & 32\% & 23\% & 26\% & 9\% \\
-    \quad Tiene deuda formal & 65\% & 75\% & 73\% & 88\% \\
-    \multicolumn{5}{l}{\textit{Composición del hogar}} \\
-    \quad N.\textsuperscript{o} de niños en el hogar & 1.45 & 0.92 & 0.79 & 0.57 \\
-    \quad Razón de dependencia demográfica & 0.93 & 0.67 & 0.56 & 0.43 \\
-    \quad Niños al cuidado de terceros$^{\dagger}$ & 86\% & 94\% & 99\% & 98\% \\
-    \quad Niños con apoyo alimentario escolar & 81\% & 72\% & 70\% & 54\% \\
-    \multicolumn{5}{l}{\textit{Comunidad}} \\
-    \quad N.\textsuperscript{o} de espacios públicos en la comunidad & 1.57 & 1.98 & 2.13 & 2.32 \\
-    \quad Comunidad con transporte público$^{\dagger}$ & 55\% & 75\% & 79\% & 78\% \\
-    \multicolumn{5}{l}{\textit{Ingreso y gasto}} \\
-    \quad Ingreso (veces la línea de pobreza) & 0.42 & 0.55 & 1.58 & 3.26 \\
-    \quad Ingreso per cápita & 65k & 93k & 269k & 633k \\
-    \quad Gasto per cápita & 154k & 210k & 247k & 662k \\
-    \quad Gasto (veces la línea de pobreza) & 0.99 & 1.26 & 1.45 & 3.36 \\
-\end{longtable}}
+\begin{table}[H]
+  \centering
+  \caption{Perfil por grupo de transición, pobreza monetaria (2010$\to$2013), las 53 variables robustas. $^{\dagger}$variable donde el hogar vulnerable no queda entre ``sale'' y ``siempre pobre''/``nunca pobre'' como el resto (ver texto).}
+  \label{tab:perfil_consolidada}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{minipage}[t]{0.49\textwidth}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{p{0.62\linewidth}rrrr}
+      \toprule
+        \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\
+      \midrule
+        \addlinespace\multicolumn{5}{l}{\textbf{Educación y empleo del jefe}} \\
+        \quad Educación del jefe: Básica primaria (1 a 5) & 59\% & 49\% & 47\% & 25\% \\
+        \quad Ocupación del jefe: Asalariado$^{\dagger}$ & 34\% & 52\% & 62\% & 58\% \\
+        \quad Consiguió trabajo: Pidiendo ayuda a familiares, amigos o colegas & 66\% & 69\% & 62\% & 54\% \\
+        \quad Registro mercantil del jefe: No lo necesita & 63\% & 49\% & 42\% & 45\% \\
+        \quad Negocio del jefe: De 20 a 49 personas & 9\% & 16\% & 22\% & 25\% \\
+        \quad Máx. nivel educativo del hogar & 2.28 & 2.79 & 2.79 & 4.22 \\
+        \quad Cotización a pensión (hogar) & 5\% & 16\% & 18\% & 38\% \\
+        \quad Nivel educativo del jefe (ordinal) & 2.02 & 2.54 & 2.56 & 3.72 \\
+        \quad Etnia del jefe: Indígena & 12\% & 6\% & 6\% & 4\% \\
+        \quad Jefe cotiza a pensión & 6\% & 21\% & 24\% & 43\% \\
+        \quad Estado civil del jefe: En unión libre & 46\% & 39\% & 43\% & 33\% \\
+        \quad Afiliación a pensión (hogar) & 27\% & 51\% & 48\% & 57\% \\
+        \quad Afiliación a salud laboral (hogar) & 33\% & 55\% & 58\% & 62\% \\
+        \quad Jefe afiliado a salud laboral & 35\% & 53\% & 61\% & 64\% \\
+        \quad Jefe afiliado a pensión & 29\% & 49\% & 51\% & 58\% \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Vivienda: materiales y servicios}} \\
+        \quad Material de piso: Baldosa, vinilo, tableta o ladrillo & 14\% & 31\% & 35\% & 59\% \\
+        \quad Combustible de cocina: Leña, madera, carbón de leña & 64\% & 43\% & 32\% & 12\% \\
+        \quad Servicio sanitario: Inodoro conectado a alcantarillado & 26\% & 47\% & 55\% & 79\% \\
+        \quad Recolección de basura: La recogen los servicios de aseo & 31\% & 49\% & 57\% & 80\% \\
+        \quad Obtención de agua: Acueducto público & 31\% & 49\% & 58\% & 79\% \\
+        \quad Tipo de vivienda: Apartamento & 8\% & 18\% & 20\% & 38\% \\
+        \quad Material de paredes: Bloque, ladrillo, piedra, madera pulida & 59\% & 75\% & 81\% & 91\% \\
+        \quad Tenencia de vivienda: En usufructo u otro tipo de tenencia & 33\% & 24\% & 28\% & 15\% \\
+        \quad Financió la vivienda con crédito formal & 13\% & 26\% & 22\% & 43\% \\
+        \quad Tiene escritura de la vivienda & 67\% & 81\% & 80\% & 90\% \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Zona de residencia}} \\
+        \quad Vive en zona rural & 69\% & 52\% & 45\% & 21\% \\
+      \bottomrule
+    \end{tabular}}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \resizebox{\linewidth}{!}{%
+    \begin{tabular}{p{0.62\linewidth}rrrr}
+      \toprule
+        \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\
+      \midrule
+        \addlinespace\multicolumn{5}{l}{\textbf{Geoespacial}} \\
+        \quad Iluminación nocturna (DMSP) & 21.6 & 32.6 & 36.4 & 50.1 \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Activos del hogar}} \\
+        \quad N.\textsuperscript{o} de bienes durables & 4.58 & 6.00 & 6.30 & 9.10 \\
+        \quad N.\textsuperscript{o} de servicios públicos & 2.50 & 3.30 & 3.65 & 4.80 \\
+        \quad Estrato (verificado) & 1.59 & 2.06 & 2.07 & 2.63 \\
+        \quad Índice de riqueza (PCA) & -0.83 & -0.02 & 0.21 & 1.06 \\
+        \quad Estrato (autorreportado) & 1.60 & 2.07 & 2.05 & 2.58 \\
+        \quad Tiene internet en el hogar & 8\% & 16\% & 13\% & 46\% \\
+        \quad N.\textsuperscript{o} de activos financieros & 0.10 & 0.42 & 0.45 & 0.86 \\
+        \quad Tiene vehículo & 17\% & 25\% & 23\% & 40\% \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Vivienda: hacinamiento}} \\
+        \quad Valor del arriendo pagado & 144k & 226k & 240k & 354k \\
+        \quad Personas por cuarto & 2.13 & 1.65 & 1.49 & 1.11 \\
+        \quad Personas por dormitorio & 2.77 & 2.25 & 2.09 & 1.74 \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Programas sociales y deuda}} \\
+        \quad Beneficiario de Familias en Acción & 53\% & 29\% & 23\% & 7\% \\
+        \quad N.\textsuperscript{o} de programas sociales & 0.73 & 0.42 & 0.34 & 0.17 \\
+        \quad Beneficiario de algún programa social & 60\% & 37\% & 31\% & 15\% \\
+        \quad Tiene deuda informal$^{\dagger}$ & 32\% & 23\% & 26\% & 9\% \\
+        \quad Tiene deuda formal & 65\% & 75\% & 73\% & 88\% \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Composición del hogar}} \\
+        \quad N.\textsuperscript{o} de niños en el hogar & 1.45 & 0.92 & 0.79 & 0.57 \\
+        \quad Razón de dependencia demográfica & 0.93 & 0.67 & 0.56 & 0.43 \\
+        \quad Niños al cuidado de terceros$^{\dagger}$ & 86\% & 94\% & 99\% & 98\% \\
+        \quad Niños con apoyo alimentario escolar & 81\% & 72\% & 70\% & 54\% \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Comunidad}} \\
+        \quad N.\textsuperscript{o} de espacios públicos en la comunidad & 1.57 & 1.98 & 2.13 & 2.32 \\
+        \quad Comunidad con transporte público$^{\dagger}$ & 55\% & 75\% & 79\% & 78\% \\
+        \addlinespace\multicolumn{5}{l}{\textbf{Ingreso y gasto}} \\
+        \quad Ingreso (veces la línea de pobreza) & 0.42 & 0.55 & 1.58 & 3.26 \\
+        \quad Ingreso per cápita & 65k & 93k & 269k & 633k \\
+        \quad Gasto per cápita & 154k & 210k & 247k & 662k \\
+        \quad Gasto (veces la línea de pobreza) & 0.99 & 1.26 & 1.45 & 3.36 \\
+        \quad & & & & \\
+        \quad & & & & \\
+      \bottomrule
+    \end{tabular}}
+  \end{minipage}
+\end{table}

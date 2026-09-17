@@ -6,7 +6,8 @@ calculado por `src/02_build/eda_perfil_split_trayectoria.py`) en una tabla
 LaTeX compacta para la Seccion 5.1: compara el subgrupo "Entra
 (transitorio)" (vuelve a salir de la pobreza para 2016) contra "Entra
 (persistente)" (se queda pobre), sobre 3 variables ejemplo (formalidad
-laboral, deuda informal, transporte publico comunitario) mas 2 filas de
+laboral, cotizacion a pension, deuda formal/informal, transporte publico
+comunitario) mas 2 filas de
 resumen agregado (cuantas de las 53 variables quedan mas cerca de "sale"
 que de "nunca cae", y mas cerca de "siempre pobre" que de "sale") -- todos
 los numeros se recalculan aqui desde el CSV fuente, no estan hardcodeados.
@@ -31,7 +32,9 @@ OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 
 VARIABLES_EJEMPLO = {
     "categoria_ocupacional_jefe": "Jefe asalariado",
+    "cotiza_pension_jefe": "Jefe cotiza a pensión",
     "deuda_informal_hogar": "Tiene deuda informal",
+    "deuda_formal_hogar": "Tiene deuda formal",
     "tiene_transporte_publico_comunidad": "Comunidad con transporte público",
 }
 

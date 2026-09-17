@@ -4022,3 +4022,140 @@ monotonico DMSP), `src/graf_mapa_territorial_tramas.py` (actualizado a
 version final: color + sin margen), `outputs/figures/eda_transicion_covariables/dmsp_monotonico_categoria.png`
 (nuevo), `outputs/figures/mapa_territorial_divipola/prueba_estilo_tramas_regional.png`
 (regenerado, version final).
+
+## 2026-09-16: Extension a modelo multiclase (4 grupos de transicion) -- motivacion, diagnostico de inconsistencia, y diseno de la corrida robusta
+
+**Origen de la discusion.** El usuario planteo una preocupacion de
+consistencia: la Seccion~\ref{subsec:caracterizacion_grupos} (5.1, perfil
+univariado) contrasta los 4 grupos de la matriz de transicion (nunca
+pobre, sale, entra, siempre pobre), pero el benchmark predictivo de la
+Seccion~\ref{subsec:desempeno} (5.2) es binario. El asesor, por separado,
+sugirio una red neuronal con salida softmax de 4 clases.
+
+**Diagnostico verificado en el codigo (no supuesto).** Se reviso
+`build_benchmark_train_test.py`: el benchmark actual NO mezcla
+"siempre pobre"+"sale"+"nunca pobre" en una sola clase negativa (hipotesis
+inicial, descartada tras leer el codigo) -- filtra la poblacion a
+`pobre_ingreso == False` en la ola base (linea 100) y define
+`Y = pobre_ingreso_fin`. Es decir: el modelo actual entrena exclusivamente
+sobre hogares NO pobres en la ola base, con Y=1 "entra" vs. Y=0 "nunca
+pobre" -- **"sale" y "siempre pobre" no estan en los datos del modelo en
+absoluto**, no estan mal agrupados. Conteos reales verificados sobre
+`benchmark_consolidado_elca_longitudinal.parquet` (matching 1 a 1 por
+`consecutivo`, excluyendo hogares divididos, misma politica que
+`construir_matriz_transicion`):
+
+| Transicion | n total | nunca | sale | entra | siempre |
+|---|---|---|---|---|---|
+| 2010->2013 | 8218 | 2366 (28.8%) | 1525 (18.6%) | 723 (8.8%) | 3604 (43.9%) |
+| 2013->2016 | 6911 | 2556 (37.0%) | 1422 (20.6%) | 635 (9.2%) | 2298 (33.3%) |
+
+(n=723 en 2010->2013 coincide con el numero ya reportado en la Seccion
+5.1 del paper -- confirma que es la misma poblacion base).
+
+**Por que esto SI es una inconsistencia real (no solo esteitica).** El
+hallazgo central de la Seccion 5.1 es que "entra" se parece mucho mas a
+"sale" que a "nunca pobre" (47/53 variables), y que la formalidad laboral
+del jefe rompe ese patron en la direccion opuesta a la esperada. El
+capitulo predictivo (5.2), tal como esta construido, **no puede poner a
+prueba ese hallazgo**: "sale" no esta en los datos que ve el modelo, asi
+que no hay forma de verificar si el efecto de formalidad laboral se
+sostiene controlando por las demas covariables frente al grupo que mas se
+le parece. Esta es la razon sustantiva para extender el modelo, no una
+preferencia arbitraria por "mas clases es mejor".
+
+**Decision: multinomial con los algoritmos ya calibrados, NO red
+neuronal.** Se evaluo la sugerencia del asesor (NN softmax) y se decidio
+NO seguirla tal cual, por consistencia metodologica con lo ya defendido en
+capitulos anteriores y por tamano de muestra (n=8218 en 2010->2013,
+"entra" ~9%). Razones:
+  - XGBoost, LightGBM y HistGradientBoosting soportan `objective`
+    multiclase (softmax) nativamente -- no requieren familia de modelo
+    nueva, solo el parametro de objetivo.
+  - `LogisticRegression` de sklearn soporta `multinomial` nativamente,
+    dando ademas razones de riesgo relativo interpretables por variable
+    (el objeto mas util para el argumento de formalidad laboral, mas
+    interpretable que pesos de una NN).
+  - Con ~700-3600 observaciones por clase y run del binario ya mostrando
+    AUC 0.73-0.76 con las mismas covariables, una NN no tiene evidencia de
+    no-linealidad no capturada por boosting que justifique su complejidad
+    adicional, perdida de interpretabilidad, y mayor riesgo de sobreajuste
+    con este tamano de muestra.
+
+**Que se espera ganar (y que NO se espera).**
+  - SI: razones de riesgo relativo (multinomial logit) para las 4
+    variables marcadas $^\dagger$ en la Tabla~\ref{tab:perfil_consolidada}
+    (formalidad laboral del jefe, deuda informal, cuidado de terceros,
+    transporte comunitario), controlando por las otras ~52 covariables --
+    prueba multivariada del hallazgo univariado.
+  - SI: SHAP multiclase, que permite ver la contribucion de cada variable
+    especificamente a la frontera entra-vs-sale (la que la Seccion 5.1
+    identifica como la relevante), no solo entra-vs-todo.
+  - SI: robustez metodologica ante la critica esperada de revision ("por
+    que el target predictivo ignora 2 de los 4 grupos que la tesis
+    caracteriza").
+  - NO GARANTIZADO: mejor recall/precision para "vulnerable (entra) vs.
+    resto". Al incluir "sale" en el "resto", se agrega a la clase negativa
+    el grupo MAS parecido a "entra" (47/53 variables) -- la frontera de
+    decision se vuelve mas dificil, no mas facil. Es posible que
+    precision/recall bajen respecto al binario actual; eso NO se reporta
+    como "el modelo empeoro" sino como "el modelo resuelve una pregunta
+    mas dificil y mas fiel a la definicion de vulnerabilidad" -- decision
+    explicita del usuario sobre como enmarcar el resultado en el texto,
+    independiente de que el numero suba o baje.
+  - Los resultados van en un registro separado
+    (`registro_modelos_multiclase.csv`), NUNCA comparados cifra a cifra
+    contra `registro_modelos.csv`/`registro_modelos_fbeta2_cv10.csv` --
+    misma convencion ya usada para `registro_modelos_fbeta2_cv10.csv` vs.
+    el original (esquemas de evaluacion distintos, ver docstring de
+    `modelo_utils.py`).
+
+**Alcance de la corrida (decision explicita del usuario: "version
+robusta", incluyendo TODAS las fuentes geoespaciales para no tener que
+volver a correr todo despues).** Se sigue la misma estructura de dos
+pistas que ya usa el benchmark binario:
+  - Pista principal (holdout temporal 2010->2013 / 2013->2016): A4, B4
+    (solo ELCA), A4geoDMSP, B4geoDMSP (+ DMSP-OLS, unica fuente con
+    cobertura real en ambas olas).
+  - Pista exploratoria (CV dentro de 2010->2013, sin holdout -- ALOS
+    PALSAR y Landsat 5 TM solo tienen datos reales en 2010, ver
+    `construir_pipeline_geo3_cv.py`): A4geo3, B4geo3 (+ las 3 fuentes
+    geoespaciales completas).
+  - CV_FOLDS=10, N_ITER_BUSQUEDA=30, SEMILLAS=[42,1,2,3,4] -- identico a
+    `modelo_fbeta2_cv10_comparacion.py` ("version robusta" ya usada y
+    confirmada por el usuario en el benchmark binario).
+
+**Poblacion y variable de resultado (cambio de diseno respecto al
+benchmark binario).** El nuevo build (`build_benchmark_train_test_4clases.py`,
+script NUEVO, NO modifica `build_benchmark_train_test.py`) NO filtra por
+`pobre_ingreso` en la ola base -- usa TODA la poblacion emparejada 1 a 1.
+`Y_grupo` categorica: nunca/entra/sale/siempre (logica identica a
+`construir_matriz_transicion` de `build_pobreza_desagregaciones.py`, para
+consistencia con la Seccion 5.1). Consecuencia: `pobre_ingreso`,
+`pobre_extremo_ingreso`, `pobre_gasto`, `pobre_extremo_gasto` de la ola
+base DEJAN de ser constantes (en el benchmark binario se excluian por
+constantes, no por fuga -- ver docstring de `build_benchmark_train_test.py`)
+y pasan a ser covariables validas y muy informativas (casi determinan la
+particion sale/siempre vs. entra/nunca) -- se agregan al bloque de
+variables monetarias (excluidas de la especificacion B, igual que
+`ingreso_percapita_hogar_real`/`brecha_lp_*`), para mantener la misma
+logica de comparacion "con informacion monetaria de base" vs. "sin ella".
+
+**Paralelizacion y persistencia frente a hibernacion (pedido explicito
+del usuario).** La corrida se lanza en segundo plano
+(`run_in_background`), envuelta en `caffeinate -i` (macOS, evita que el
+sistema entre en reposo/hibernacion mientras el proceso sigue vivo) y con
+salida a un log con timestamps -- para poder seguir trabajando el
+documento en la misma conversacion mientras la corrida avanza, sin
+depender de que la maquina se mantenga despierta manualmente.
+
+**Principio de no-destruccion (confirmado con el usuario):** todo este
+trabajo se hace en archivos NUEVOS -- ningun script, dataset, registro,
+figura o tabla ya existente se modifica, sobrescribe ni borra. El
+benchmark binario (`build_benchmark_train_test.py`,
+`registro_modelos*.csv`, las tablas/figuras ya insertadas en el paper)
+permanece intacto y sigue siendo el analisis reportado en la
+Seccion~\ref{subsec:desempeno} tal como esta hoy; el ejercicio multiclase
+se documenta y reporta como una pieza adicional, autocontenida y
+reproducible de principio a fin (script de datos -> script de modelos ->
+registro propio -> tablas/figuras propias), no como un reemplazo.

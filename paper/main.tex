@@ -877,6 +877,37 @@ seis años observada.
 
 \input{tables/tab_trayectorias_3olas.tex}
 
+\subsection{Selección de covariables para el perfil univariado}
+\label{subsec:seleccion_perfil}
+
+La Sección~\ref{subsec:caracterizacion_grupos} contrasta los cuatro
+grupos de la matriz de transición sobre cerca de 185 covariables
+candidatas de la encuesta. Describirlas todas sin ningún filtro sería
+demasiado confuso: con muestras muy desiguales entre grupos (723 hogares
+"entra" frente a 3.604 "siempre pobre" en 2010--2013), una simple
+comparación de promedios o porcentajes no distingue una diferencia real
+entre grupos de una que aparece por azar de qué hogares fueron
+encuestados. Se necesita entonces una regla explícita para decidir qué
+variables merecen contarse, y qué tan fuerte es esa diferencia --no solo
+si existe--.
+
+La regla, aplicada variable por variable, responde una pregunta simple:
+¿qué tan bien predice el valor de esa única variable a cuál de los cuatro
+grupos pertenece un hogar, en una escala de 0 (no ayuda nada) a 1 (los
+distingue perfectamente)? Esa capacidad se mide con $\eta^2$ (variables
+numéricas) o V de Cramér (categóricas) --la misma pregunta, la fórmula
+adecuada según el tipo de dato--, en su versión corregida por sesgo
+(ambas medidas exageran la asociación en muestras pequeñas, y "entra" es el
+grupo más pequeño) y ponderada por los factores de expansión de la
+encuesta. Una variable entra al perfil solo si esa medida supera 0.05 de
+forma consistente en 300 remuestreos \emph{bootstrap} de los datos, no
+solo en la muestra original: exige que la señal sea repetible, no una
+casualidad de qué hogares puntuales aparecen en la encuesta. De las 185
+candidatas, 53 (monetaria) y 36 (IPM) pasan el filtro. A diferencia de un
+modelo predictivo, las variables que pasan no se colapsan aunque estén
+correlacionadas entre sí: el objetivo aquí es describir, no evitar
+redundancia, y cada variable retenida puede aportar información al perfil.
+
 \subsection{Especificación de modelos}
 \label{subsec:modelos}
 La estrategia empírica se establece mediante la siguiente especificación 
@@ -1130,99 +1161,183 @@ resultados se presentan en la Sección~\ref{subsec:desempeno}.
 \section{Resultados}
 \label{sec:resultados}
 
-Esta sección presenta los resultados en cinco partes. La
-Sección~\ref{subsec:caracterizacion_grupos} perfila al hogar vulnerable
---el que entra en pobreza-- contra los otros tres grupos de la matriz de
-transición, para las 53 (monetaria) y 36 (IPM) covariables más robustas a
-esa tipología. La Sección~\ref{subsec:desempeno} compara el desempeño
-fuera de muestra de los cinco algoritmos bajo las especificaciones con y
-sin ingreso/gasto del hogar. Las Secciones~\ref{subsec:marginal}
-y~\ref{subsec:marginal_ipm} evalúan si agregar DMSP-OLS mejora esa
-predicción, bajo pobreza monetaria e IPM respectivamente, y por qué. La
-Sección~\ref{subsec:heterogeneidad} cierra preguntando si ese efecto
---nulo en promedio bajo monetaria, pequeño bajo IPM-- está parejo en la
-población o se concentra en subgrupos específicos.
+A continuación se presentan los resultados en cinco partes, desde dos metodologías
+distintas, un análisis descriptivo (univariado) y un análisis predictivo (multivariado). La
+Sección~\ref{subsec:caracterizacion_grupos} es un análisis
+\textbf{univariado e inicial}: perfila al hogar vulnerable --el que entra
+en pobreza-- contra los otros tres grupos de la matriz de transición,
+variable por variable (sin controlar por las demás
+covariables), para las 53 (monetaria) y 36 (IPM) covariables que se hallaron como las 
+más robustas para discriminar entre los grupos. Su función es exploratoria y 
+descriptiva: construir la intuición sobre quién es el hogar vulnerable antes de imponerle cualquier
+supuesto de modelo. La Sección~\ref{subsec:desempeno} cambia de
+metodología --pasa a un enfoque \textbf{multivariado}-- y de objetivo:
+ya no describe diferencias marginales entre grupos, sino que busca
+\textbf{predecir} la vulnerabilidad a partir del conjunto de
+covariables, con la mira puesta en generar insumos para una política
+pública diferenciada (focalización de programas de prevención hacia
+quienes el modelo señala en mayor riesgo, distinto de los programas de
+alivio dirigidos a quien ya es pobre). Compara el desempeño fuera de
+muestra de los cinco algoritmos bajo las especificaciones con y sin
+ingreso/gasto del hogar. Es de aclarar, que la importancia de las variables 
+puede variar según el algoritmo utilizado, la especificación del modelo y 
+frente al análisis univariado. Las Secciones~\ref{subsec:marginal}
+y~\ref{subsec:marginal_ipm} y~\ref{subsec:heterogeneidad} se mantienen en
+el mismo objetivo de informar posibles insumos para la política pública, pero revisan la
+utilidad metodológica de otras herramientas bajo ese mismo interés:
+evalúan si agregar DMSP-OLS mejora esa predicción, bajo pobreza monetaria
+e IPM respectivamente y por qué, y si ese efecto --nulo en promedio bajo
+monetaria, pequeño bajo IPM-- es igual en la población o se concentra en
+subgrupos específicos.
 
 \subsection{Perfil de los hogares vulnerables}
 \label{subsec:caracterizacion_grupos}
 
 Esta sección perfila los hogares que \textbf{entran en pobreza} entre 2010
-y 2013 --no pobres en la ola inicial, pobres en la siguiente--, contra los
+y 2013 --no pobres en la ola inicial, pobres en la siguiente-- contra los
 otros tres grupos de la matriz de transición
-(Sección~\ref{subsec:transiciones}), sobre las 53 covariables
-individualmente robustas a esta tipología (efecto --$\eta^2$/V de Cramér
-sesgo-corregida, ponderados-- superior a 0.10,\footnote{40 de 53; las 13
-restantes cumplen efecto$>$0.05 y robustez en \emph{ambas} transiciones por
-separado. Las 40 originales no se sometieron a ese chequeo: 2
-(\texttt{n\_ninos\_12}, \texttt{razon\_dependencia\_demografica}) caen bajo
-0.10 en 2013$\to$2016 (0.105$\to$0.084 y 0.104$\to$0.088), aunque siguen
-robustas.} con bootstrap de 300 réplicas), sin colapsar las
-correlacionadas entre sí, en una sola tabla consolidada
-(Tabla~\ref{tab:perfil_consolidada}).
+(Sección~\ref{subsec:transiciones}), sobre las 53 covariables que
+distinguen de forma confiable a los cuatro grupos entre sí (criterio de
+selección en la Sección~\ref{subsec:seleccion_perfil}),\footnote{40 de 53
+superan 0.10; las 13 restantes cumplen efecto$>$0.05 y robustez en
+\emph{ambas} transiciones por separado. Las 40 originales no se
+sometieron a ese chequeo: 2 (\texttt{n\_ninos\_12},
+\texttt{razon\_dependencia\_demografica}) caen bajo 0.10 en
+2013$\to$2016 (0.105$\to$0.084 y 0.104$\to$0.088), aunque siguen
+robustas.} sin colapsar las correlacionadas entre sí, en una sola tabla
+consolidada (Tabla~\ref{tab:perfil_consolidada}).
 
-Tres hallazgos organizan esta sección. \textbf{Primero,} el hogar
+Hay cuatro hallazgos principales de este análisis. \textbf{Primero,} el hogar
 vulnerable se parece mucho más al que \emph{acaba de salir} de la pobreza
 que al que nunca fue pobre o al que nunca sale de ella: de las 53
 variables, 47 lo ubican numéricamente más cerca de ``sale de la pobreza''
 que de ``nunca pobre'' (en promedio, cerca de cuatro veces más cerca) --
-Tabla~\ref{tab:perfil_consolidada}. Esto es consistente con pensar
+Tabla~\ref{tab:perfil_consolidada}. El patrón se repite, y se refuerza, en
+la transición 2013$\to$2016 (49 de 53 variables más cerca de ``sale''): no
+depende de una sola ola del panel. Tampoco depende de cómo se mida la
+pobreza: el mismo ejercicio repetido bajo pobreza multidimensional (IPM,
+36 variables robustas bajo el mismo criterio de la
+Sección~\ref{subsec:seleccion_perfil}, Anexo~\ref{apx:perfil_ipm})
+confirma el mismo contraste (sale vs.\ nunca) en 29 de 36 variables en
+2010$\to$2013 y 31 de 35 en 2013$\to$2016 -- el patrón es robusto tanto a
+la ola como a la definición de pobreza. Esto es consistente con pensar
 ``entra'' y ``sale'' como las dos caras de
 una misma frontera --hogares que cruzan la línea de pobreza en direcciones
 opuestas, con un perfil similar por estar ambos cerca de ese umbral--, y
 no como dos tipos de hogar distintos.
-
-\textbf{Segundo,} y más importante para el argumento de esta tesis: cuatro
-variables (marcadas $^\dagger$ en la tabla) rompen ese patrón, todas en la
+\textbf{Segundo,} cuatro variables (marcadas $^\dagger$ en la tabla) rompen ese patrón, es decir,
+diferencian mejor a los hogares vulnerables de los demás grupos, todas en la
 misma dirección --el hogar vulnerable queda en el extremo \emph{más
-favorable}, no en el segundo peor--. La más importante es la formalidad
-laboral del jefe, la señal que convencionalmente se usaría para descartar
+favorable}, no en el segundo peor--. La más importante es la \emph{formalidad
+laboral del jefe}, la señal que convencionalmente se usaría para descartar
 riesgo: 62.3\% de los jefes de hogar vulnerables son asalariados, más que
-quien sale (52.2\%) y más que quien nunca cae (57.9\%). Las otras tres son
-menores pero van en la misma dirección: deuda informal (26.0\% frente a
-22.7\%), niños al cuidado de terceros (98.9\% frente a 98.2\%) y
-transporte público comunitario (79.2\% frente a 78.2\%). Si una política
+quien sale (52.2\%) y más que quien nunca cae (57.9\%). En 2013$\to$2016
+esa ventaja frente a quien sale se mantiene (52.3\% frente a 46.9\%), pero
+deja de superar a quien nunca cae (55.3\%). Las otras tres son
+menores pero van en la misma dirección: \emph{deuda informal} (26.0\% frente a
+22.7\% de los que salen), \emph{niños al cuidado de terceros} (98.9\% frente a 98.2\% de los que nunca son pobres) y
+\emph{transporte público comunitario} (79.2\% frente a 78.2\% de los que nunca son pobres).
+Estas tres no se sostienen en 2013$\to$2016: el vulnerable vuelve al orden
+esperado, entre ``sale'' y ``siempre pobre'', en las tres --consistente
+con que su efecto (0.051--0.058) apenas superaba el umbral de robustez,
+un orden de magnitud por debajo del de formalidad laboral (0.393). Si una política
 de focalización usara solo la formalidad laboral del jefe en 2010, habría
 clasificado a los hogares vulnerables como los \emph{menos} necesitados de
 los cuatro grupos --el ejemplo más concreto de por qué un estado
 socioeconómico observado no revela el riesgo futuro de un hogar, y en el
 caso del empleo formal, activamente lo oculta.
 
-\textbf{Tercero,} y no visible en el promedio agregado: el grupo ``entra
-en pobreza'' no es homogéneo. De los 723 hogares que entran entre 2010 y
-2013, 610 tienen dato de 2016: 355 (58\%) vuelven a salir (``transitorio'')
-y 255 (42\%) se quedan pobres (``persistente'',
-Tabla~\ref{tab:perfil_split_trayectoria}). El patrón ``se parece a sale''
-sobrevive en ambos subgrupos (39/53 y 44/53 variables más cerca de
-``sale'' que de ``nunca cae''), pero hay un gradiente hacia el extremo
-crónico que el agregado diluye: persistente queda más cerca de ``siempre
-pobre'' que de ``sale'' en 11/53 variables, transitorio en solo 2/53. La
-divergencia más marcada es la deuda informal: el agregado (26.0\%)
-esconde que transitorio (17.3\%) queda por \emph{debajo} de quien sale
-(22.7\%), mientras persistente (41.9\%) supera a todos los demás grupos,
-incluido el siempre pobre (31.6\%) --separa, dentro del propio grupo
-vulnerable, a quien va a recuperarse rápido de quien va a quedar
-atrapado--.
-
 \input{tables/tab_perfil_consolidada.tex}
+
+\textbf{Tercero,} y no visible en el promedio agregado: el grupo ``entra
+en pobreza'' no es un solo tipo de hogar, sino dos trayectorias distintas
+que el análisis de dos olas (2010$\to$2013) no alcanza a distinguir.
+Siguiendo a esos mismos 723 hogares que entran a probreza - los vulnerables - 
+hasta la tercera ola (610 con dato en
+2016), se pueden separar según qué pasa después: \emph{pobre transitorio} --vuelve a
+salir antes de 2016-- (355 hogares, 58\%) y \emph{pobre persistente} --sigue
+pobre en 2016-- (255 hogares, 42\%; Tabla~\ref{tab:perfil_split_trayectoria}).
+En ambos subgrupos se mantiene el patrón del primer hallazgo: transitorio
+se parece más a ``sale'' que a ``nunca cae'' en 39 de 53 variables, y
+persistente en 44 de 53. Pero el promedio de ``entra'' esconde un
+gradiente que solo aparece al separarlos: "pobre persistente" se acerca al
+extremo ``siempre pobre'' en 11 de esas 53 variables, frente a solo 2 en
+"pobre transitorio" --. Es decir, dentro de quienes entran a pobreza, quien va a quedar atrapados ya se
+parece un poco más al hogar crónicamente pobre, aunque el patrón
+dominante siga siendo el de la frontera con ``sale''--. Al revisar las variables que caracterizan
+a estos grupos, el caso más claro
+es la \emph{deuda informal}: el promedio de ``entra'' (26.0\%) esconde que
+pobre transitorio (17.3\%) queda por \emph{debajo} incluso de ``sale''
+(22.7\%), mientras pobre persistente (41.9\%) supera a los cuatro grupos,
+incluido ``siempre pobre'' (31.6\%) --separa, dentro del propio grupo
+vulnerable, a quien va a recuperarse rápido de quien va a quedar
+atrapado--. Este patrón no es exclusivo de la deuda: \emph{cotizar a pensión} y
+el \emph{acceso a deuda formal} muestran la misma divergencia
+(Tabla~\ref{tab:perfil_split_trayectoria}) --la misma frontera de
+formalidad laboral y financiera que separa a ``entra'' de ``sale'' en el
+Hallazgo 2 reaparece dentro de ``entra''(los vulnerables) para separar a quien se
+recupera (pobre transitorio) de quien queda atrapado (pobre persistente).
+Este gradiente también se confirma bajo IPM: pobre persistente queda más
+cerca de ``siempre pobre'' que de ``sale'' en 11 de 36 variables, frente
+a 5 de 36 en pobre transitorio -- misma dirección, magnitud comparable.
 
 \input{tables/tab_perfil_split_trayectoria.tex}
 
-\paragraph{Geografía.} La luz nocturna del hogar vulnerable (36.4 en
-media, DMSP-OLS 0--63) separa monotónicamente los cuatro grupos, en media
-y mediana, para monetaria e IPM (Figura~\ref{fig:dmsp_monotonico}) --con
-una salvedad: en mediana, ``más cerca de sale'' es mucho más débil bajo
-monetaria (Entra a 20.7 de Sale y 20.9 de Nunca, casi equidistante) aunque
-se mantiene fuerte bajo IPM (2.9 de Sale, 38.4 de Nunca). Además, la
-Sección~\ref{subsec:marginal} muestra que esta separación es en gran parte
-redundante con servicios públicos y bienes durables ya en la encuesta: DMSP
-separa bien, pero aporta poca información nueva.\footnote{ALOS PALSAR
-(radar) sigue el mismo gradiente; Landsat NDVI lo invierte (más verde en
-pobreza persistente, por ruralidad) --exploratorias, sin el mismo filtro
-de robustez.}
+\textbf{Cuarto,} el núcleo del perfil no depende de cómo se mida la
+pobreza: de las 53 variables robustas bajo monetaria y las 36 bajo IPM,
+28 son comunes a ambas definiciones --vivienda, ingreso/gasto, educación
+y ocupación del jefe, riqueza, bienes durables, servicios públicos,
+DMSP-- (Tabla~\ref{tab:perfil_nucleo_comun}). Que más de la mitad de cada
+conjunto coincida, pese a partir de dos definiciones de pobreza y dos
+criterios de selección independientes, sugiere que el perfil del hogar
+vulnerable no es una casualidad de cómo se define ``pobre'', sino una
+estructura más estable detrás de ambas medidas. Las 25 variables
+exclusivas de monetaria son mayoritariamente financieras y comunitarias.
+Las 8 exclusivas de IPM incluyen, de forma reveladora, la pobreza
+monetaria del propio hogar en 2010 (\texttt{pobre\_ingreso} y análogas):
+ser pobre por ingreso en la ola base es, en sí mismo, uno de los mejores
+predictores univariados de caer en pobreza multidimensional después, sin
+que la relación inversa se sostenga con la misma fuerza.
+
+\input{tables/tab_perfil_nucleo_comun.tex}
+
+\paragraph{Fuentes geoespaciales públicas.} La luz nocturna del hogar
+(DMSP-OLS, escala 0--63) separa monotónicamente los cuatro grupos de la
+matriz de transición, tanto en media como en mediana, bajo pobreza monetaria e
+IPM, en la transición 2010$\to$2013 (Figura~\ref{fig:dmsp_monotonico}):
+de ``siempre pobre'' a ``nunca pobre'', el valor típico sube en cada
+paso. Puesto a prueba contra el patrón del Hallazgo 1 (que ``entra en
+pobreza'' (vulnerable) se parece más a ``sale de la pobreza'' que a
+``nunca pobre''), el resultado depende de qué definición de pobreza y
+qué estadístico se use. Bajo IPM la mediana confirma el patrón con
+margen amplio: ``entra en pobreza'' (vulnerable) (10.7) queda a solo 2.9
+puntos de ``sale de la pobreza'' (7.8) y a 38.4 de ``nunca pobre''
+(49.1). Bajo monetaria, en cambio, la mediana en 2010$\to$2013 es mucho
+más débil: ``entra en pobreza'' (vulnerable) (40.6) queda casi
+equidistante entre ``sale de la pobreza'' (19.9, distancia 20.7) y
+``nunca pobre'' (61.5, distancia 20.9). Este resultado débil, sin
+embargo, no se sostiene en la transición 2013$\to$2016 --verificable
+porque DMSP-OLS, a diferencia de ALOS PALSAR y Landsat 5 TM, sí tiene
+cobertura real en ambas olas (Sección~\ref{sec:datos})--: ahí la mediana
+de ``entra en pobreza'' (vulnerable) (21.6) vuelve a quedar mucho más
+cerca de ``sale de la pobreza'' (12.7, distancia 8.9) que de ``nunca
+pobre'' (59.9, distancia 38.3), replicando el Hallazgo 1. La debilidad de
+2010$\to$2013 parece entonces ruido muestral de esa ola, no una excepción
+real al patrón. ALOS PALSAR (radar) sigue el mismo gradiente que DMSP-OLS
+y Landsat NDVI lo invierte (más verde en pobreza persistente, por
+ruralidad), pero ambas fuentes solo tienen datos reales en la ola 2010: a
+diferencia de DMSP-OLS, no es posible poner a prueba si esos patrones se
+sostienen en la transición 2013$\to$2016, así que se reportan como
+exploratorios, con menor respaldo que el resto del perfil. Además, la
+Sección~\ref{subsec:marginal} muestra que la separación de DMSP-OLS es en
+gran parte redundante con servicios públicos y bienes durables ya en la
+encuesta. En otras palabras, DMSP-OLS separa bien y permite distinguir
+entre los grupos, pero aporta poca información nueva porque es información que
+ya se encuentra disponible en la encuesta.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth]{../outputs/figures/eda_transicion_covariables/dmsp_monotonico_categoria.png}
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_transicion_covariables/dmsp_monotonico_categoria.png}
   \caption{Iluminación nocturna (DMSP-OLS) por grupo de transición, media
   y mediana, pobreza monetaria e IPM (2010$\to$2013).}
   \label{fig:dmsp_monotonico}
@@ -1244,41 +1359,11 @@ permite caracterizar esos bolsones, y las etiquetas
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.4\textwidth]{../outputs/figures/mapa_territorial_divipola/prueba_estilo_tramas_regional.png}
+  \includegraphics[width=0.65\textwidth]{../outputs/figures/mapa_territorial_divipola/prueba_estilo_tramas_regional.png}
   \caption{Grupo de transición dominante por región e iluminación
   nocturna (DMSP), pobreza monetaria, 2010$\to$2013.}
   \label{fig:mapa_transicion_monetaria}
 \end{figure}
-
-\paragraph{Pobreza multidimensional (IPM).} El mismo ejercicio para IPM
-(36 variables robustas, Anexo~\ref{apx:tablas}) muestra un patrón
-cualitativamente distinto: quien entra en pobreza sí muestra privación
-visible \emph{antes} de la transición --20\% vive en piso de tierra
-(frente a 5\% de los nunca pobres), 34\% tiene acueducto público (frente a
-64\%), 67.2\% vive en zona rural (frente a 36.5\%)--, más parecido al
-siempre pobre --el espejo del patrón monetario: donde el ingreso ve un
-choque súbito sobre un hogar que se parecía al seguro, la privación
-multidimensional ve la continuación de un deterioro que ya se parecía al
-persistente (Sección~\ref{subsec:transiciones})--. De las 53 variables
-monetarias y las 36 de IPM, 28 son comunes (vivienda, ingreso/gasto,
-educación y ocupación del jefe, riqueza, bienes durables, servicios
-públicos, DMSP): el núcleo estructural no depende de cómo se mida la
-pobreza. Las 25 exclusivas de monetaria son mayoritariamente financieras y
-comunitarias; las 8 de IPM incluyen, de forma reveladora, la pobreza
-monetaria del propio hogar en 2010 (\texttt{pobre\_ingreso} y
-análogas) --es, en sí misma, uno de los mejores predictores de caer en
-pobreza multidimensional, sin que lo inverso se sostenga igual.
-
-\paragraph{Síntesis.} El hogar vulnerable ocupa, en la mayoría de sus
-rasgos, la misma posición relativa que uno que apenas cruzó la línea hacia
-el lado seguro --nada lo señala de antemano--. Por eso importa tanto la
-excepción del empleo formal: en la única dimensión donde más se separa, lo
-hace en la dirección \emph{opuesta} a la que sugeriría una foto fija; y la
-deuda informal muestra que ni siquiera dentro del propio grupo vulnerable
-esa foto distingue a quien va a recuperarse de quien va a quedar atrapado.
-La vulnerabilidad no es un perfil identificable por carencias en un punto
-del tiempo, sino una posición relativa a un umbral que ningún indicador de
-estado revela --y que el más usado para descartarlo, activamente esconde.
 
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
