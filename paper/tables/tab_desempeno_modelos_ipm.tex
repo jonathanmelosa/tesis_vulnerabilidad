@@ -1,0 +1,30 @@
+\begin{table}[H]
+  \centering
+  \caption{Desempeño de los cinco algoritmos bajo pobreza
+  multidimensional (IPM), holdout temporal (train 2010$\to$2013,
+  test 2013$\to$2016). Misma metodología robusta que la
+  Tabla~\ref{tab:desempeno_modelos} (monetaria), covariables
+  idénticas -- único factor que cambia es la variable de
+  resultado. Prec.-top10: precisión entre el 10\% de hogares de
+  mayor riesgo.}
+  \label{tab:desempeno_modelos_ipm}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llcccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{Recall} & \textbf{Precision} & \textbf{Prec.-top10} & \textbf{F1} \\
+    \midrule
+    LightGBM                 & Aipm & 0.11 & 0.741 & 0.670 & 0.184 & 0.263 & 0.288 \\
+    HistGradientBoosting     & Aipm & 0.11 & 0.740 & 0.603 & 0.197 & 0.271 & 0.295 \\
+    Logística regularizada   & Aipm & 0.10 & 0.730 & 0.726 & 0.166 & 0.258 & 0.269 \\
+    Random Forest            & Aipm & 0.31 & 0.729 & 0.645 & 0.183 & 0.253 & 0.285 \\
+    XGBoost                  & Aipm & 0.11 & 0.725 & 0.844 & 0.139 & 0.251 & 0.239 \\
+    \addlinespace
+    HistGradientBoosting     & Bipm & 0.10 & 0.739 & 0.620 & 0.189 & 0.265 & 0.289 \\
+    Random Forest            & Bipm & 0.26 & 0.735 & 0.753 & 0.165 & 0.260 & 0.270 \\
+    LightGBM                 & Bipm & 0.08 & 0.730 & 0.721 & 0.167 & 0.251 & 0.270 \\
+    Logística regularizada   & Bipm & 0.11 & 0.730 & 0.716 & 0.167 & 0.255 & 0.270 \\
+    XGBoost                  & Bipm & 0.09 & 0.728 & 0.901 & 0.130 & 0.258 & 0.228 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

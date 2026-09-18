@@ -1,0 +1,22 @@
+\begin{table}[H]
+  \centering
+  \caption{Matriz de confusión, Modelo A, holdout temporal (test
+  2013$\to$2016, $n=3{,}191$, semilla 42). VN/FP/FN/VP: hogares
+  verdadero negativo, falso positivo, falso negativo y verdadero
+  positivo al umbral de clasificación de la Tabla~\ref{tab:desempeno_modelos}.}
+  \label{tab:matriz_confusion_a}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{VN} & \textbf{FP} & \textbf{FN} & \textbf{VP} & \textbf{\% muestra} & \textbf{\% seguros} \\
+     & & & & & \textbf{marcada} & \textbf{identificados} \\
+    \midrule
+    XGBoost                  & 668 & 1888 & 18 & 617 & 78.5\% & 26.1\% \\
+    Random Forest            & 984 & 1572 & 41 & 594 & 67.9\% & 38.5\% \\
+    HistGradientBoosting     & 1024 & 1532 & 51 & 584 & 66.3\% & 40.1\% \\
+    LightGBM                 & 1202 & 1354 & 74 & 561 & 60.0\% & 47.0\% \\
+    Logística regularizada   & 1112 & 1444 & 74 & 561 & 62.8\% & 43.5\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}

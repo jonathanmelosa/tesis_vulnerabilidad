@@ -56,10 +56,10 @@ def cargar_registro(cfg: dict) -> pd.DataFrame:
 
 def formatear_fila(fila: pd.Series) -> str:
     return (
-        f"    {fila['algoritmo']:<26s} & {fila['especificacion']} & {fila['balanceo_elegido']:<9s} & "
+        f"    {fila['algoritmo']:<26s} & {fila['especificacion']} & "
         f"{fila['umbral_clasificacion_media']:.2f} & {fila['auc_roc_media']:.3f} & "
-        f"[{fila['auc_roc_ci95_low']:.3f}, {fila['auc_roc_ci95_high']:.3f}] & "
-        f"{fila['recall_media']:.3f} & {fila['f1_media']:.3f} \\\\"
+        f"{fila['recall_media']:.3f} & {fila['precision_media']:.3f} & "
+        f"{fila['precision_top10_media']:.3f} & {fila['f1_media']:.3f} \\\\"
     )
 
 
@@ -68,16 +68,16 @@ def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
         r"\begin{table}[H]",
         r"  \centering",
         r"  \caption{Desempeño de los cinco algoritmos, holdout temporal",
-        r"  (train 2010$\to$2013, test 2013$\to$2016). Media $\pm$ intervalo de",
-        r"  confianza al 95\% sobre 5 semillas del ajuste final. Umbral elegido",
-        r"  por CV maximizando F-beta ($\beta=2$), CV\_FOLDS=10,",
-        r"  N\_ITER\_BUSQUEDA=30.}",
+        r"  (train 2010$\to$2013, test 2013$\to$2016). Media sobre 5 semillas",
+        r"  del ajuste final. Umbral elegido por CV maximizando F-beta",
+        r"  ($\beta=2$), CV\_FOLDS=10, N\_ITER\_BUSQUEDA=30.",
+        r"  Precision-top10: precisión entre el 10\% de hogares de mayor riesgo.}",
         r"  \label{tab:desempeno_modelos}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
         r"  \begin{tabular}{llcccccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Recall} & \textbf{F1} \\",
+        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{Recall} & \textbf{Precision} & \textbf{Prec.-top10} & \textbf{F1} \\",
         r"    \midrule",
     ]
     especificaciones = cfg["especificaciones_benchmark"]

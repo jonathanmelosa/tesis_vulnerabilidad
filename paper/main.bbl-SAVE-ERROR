@@ -401,6 +401,46 @@
       \field{type}{IDB Working Paper}
       \field{year}{2023}
     \endentry
+    \entry{davis2006}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=5f9ed160b91c65c59a8d61af7f1e5017}{%
+           family={Davis},
+           familyi={D\bibinitperiod},
+           given={Jesse},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=17a8760845dc1d27d9d632b1d341dd85}{%
+           family={Goadrich},
+           familyi={G\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a70191c945c2170327144b65be800a2e}
+      \strng{fullhash}{a70191c945c2170327144b65be800a2e}
+      \strng{fullhashraw}{a70191c945c2170327144b65be800a2e}
+      \strng{bibnamehash}{a70191c945c2170327144b65be800a2e}
+      \strng{authorbibnamehash}{a70191c945c2170327144b65be800a2e}
+      \strng{authornamehash}{a70191c945c2170327144b65be800a2e}
+      \strng{authorfullhash}{a70191c945c2170327144b65be800a2e}
+      \strng{authorfullhashraw}{a70191c945c2170327144b65be800a2e}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Proceedings of the 23rd International Conference on Machine Learning}
+      \field{series}{ICML '06}
+      \field{title}{The Relationship Between Precision-Recall and ROC Curves}
+      \field{year}{2006}
+      \field{pages}{233\bibrangedash 240}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1145/1143844.1143874
+      \endverb
+    \endentry
     \entry{dercon2002}{article}{}{}
       \name{author}{1}{}{%
         {{un=0,uniquepart=base,hash=a020b273609d91c7520d5ca3dbddfe9e}{%
@@ -1188,6 +1228,47 @@
       \field{year}{2025}
       \field{pages}{1158\bibrangedash 1172}
       \range{pages}{15}
+    \endentry
+    \entry{saito2015}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=0878cb63c98130499e8a134f65d41c69}{%
+           family={Saito},
+           familyi={S\bibinitperiod},
+           given={Takaya},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=60dc389b7245183342f8261b15a87e51}{%
+           family={Rehmsmeier},
+           familyi={R\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{768d060c7634a71068641481ebdd8624}
+      \strng{fullhash}{768d060c7634a71068641481ebdd8624}
+      \strng{fullhashraw}{768d060c7634a71068641481ebdd8624}
+      \strng{bibnamehash}{768d060c7634a71068641481ebdd8624}
+      \strng{authorbibnamehash}{768d060c7634a71068641481ebdd8624}
+      \strng{authornamehash}{768d060c7634a71068641481ebdd8624}
+      \strng{authorfullhash}{768d060c7634a71068641481ebdd8624}
+      \strng{authorfullhashraw}{768d060c7634a71068641481ebdd8624}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{PLOS ONE}
+      \field{number}{3}
+      \field{title}{The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets}
+      \field{volume}{10}
+      \field{year}{2015}
+      \field{pages}{e0118432}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1371/journal.pone.0118432
+      \endverb
     \endentry
     \entry{usmanova2022}{article}{}{}
       \name{author}{4}{}{%
@@ -1626,6 +1707,46 @@
       \field{type}{IDB Working Paper}
       \field{year}{2023}
     \endentry
+    \entry{davis2006}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=5f9ed160b91c65c59a8d61af7f1e5017}{%
+           family={Davis},
+           familyi={D\bibinitperiod},
+           given={Jesse},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=17a8760845dc1d27d9d632b1d341dd85}{%
+           family={Goadrich},
+           familyi={G\bibinitperiod},
+           given={Mark},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a70191c945c2170327144b65be800a2e}
+      \strng{fullhash}{a70191c945c2170327144b65be800a2e}
+      \strng{fullhashraw}{a70191c945c2170327144b65be800a2e}
+      \strng{bibnamehash}{a70191c945c2170327144b65be800a2e}
+      \strng{authorbibnamehash}{a70191c945c2170327144b65be800a2e}
+      \strng{authornamehash}{a70191c945c2170327144b65be800a2e}
+      \strng{authorfullhash}{a70191c945c2170327144b65be800a2e}
+      \strng{authorfullhashraw}{a70191c945c2170327144b65be800a2e}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Proceedings of the 23rd International Conference on Machine Learning}
+      \field{series}{ICML '06}
+      \field{title}{The Relationship Between Precision-Recall and ROC Curves}
+      \field{year}{2006}
+      \field{pages}{233\bibrangedash 240}
+      \range{pages}{8}
+      \verb{doi}
+      \verb 10.1145/1143844.1143874
+      \endverb
+    \endentry
     \entry{dercon2002}{article}{}{}
       \name{author}{1}{}{%
         {{un=0,uniquepart=base,hash=a020b273609d91c7520d5ca3dbddfe9e}{%
@@ -2413,6 +2534,47 @@
       \field{year}{2025}
       \field{pages}{1158\bibrangedash 1172}
       \range{pages}{15}
+    \endentry
+    \entry{saito2015}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=0878cb63c98130499e8a134f65d41c69}{%
+           family={Saito},
+           familyi={S\bibinitperiod},
+           given={Takaya},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=60dc389b7245183342f8261b15a87e51}{%
+           family={Rehmsmeier},
+           familyi={R\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{768d060c7634a71068641481ebdd8624}
+      \strng{fullhash}{768d060c7634a71068641481ebdd8624}
+      \strng{fullhashraw}{768d060c7634a71068641481ebdd8624}
+      \strng{bibnamehash}{768d060c7634a71068641481ebdd8624}
+      \strng{authorbibnamehash}{768d060c7634a71068641481ebdd8624}
+      \strng{authornamehash}{768d060c7634a71068641481ebdd8624}
+      \strng{authorfullhash}{768d060c7634a71068641481ebdd8624}
+      \strng{authorfullhashraw}{768d060c7634a71068641481ebdd8624}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{PLOS ONE}
+      \field{number}{3}
+      \field{title}{The Precision-Recall Plot Is More Informative than the ROC Plot When Evaluating Binary Classifiers on Imbalanced Datasets}
+      \field{volume}{10}
+      \field{year}{2015}
+      \field{pages}{e0118432}
+      \range{pages}{-1}
+      \verb{doi}
+      \verb 10.1371/journal.pone.0118432
+      \endverb
     \endentry
     \entry{usmanova2022}{article}{}{}
       \name{author}{4}{}{%
