@@ -1204,7 +1204,147 @@ e IPM respectivamente y por qué, y si ese efecto --nulo en promedio bajo
 monetaria, pequeño bajo IPM-- es igual en la población o se concentra en
 subgrupos específicos.
 
-\subsection{Perfil de los hogares vulnerables}
+\subsection{Desempeño comparativo de modelos}
+\label{subsec:desempeno}
+
+Antes de comparar el desempeño de los cinco algoritmos, conviene fijar
+brevemente qué mide cada métrica y cómo se relacionan entre sí. El
+AUC-ROC resume la capacidad de un modelo para ordenar correctamente los
+hogares por riesgo, sin depender de ningún umbral de clasificación --es
+la métrica que compara algoritmos entre sí (Sección~\ref{subsec:validacion})--.
+\emph{Recall} y \emph{precision}, en cambio, sí dependen del umbral
+elegido: recall es la fracción de hogares que efectivamente entran en
+pobreza y el modelo marca como riesgo (cuánta pobreza real se captura),
+precision es la fracción de los hogares marcados que efectivamente entran
+(cuánta de la alarma es acertada). Las tres no son independientes entre
+sí: dado un AUC-ROC fijo, mover el umbral de clasificación permite subir
+recall solo a costa de precision, y viceversa --el AUC-ROC actúa como un
+techo que ninguna elección de umbral puede superar, solo desplazar el
+punto donde se cae dentro de esa restricción--. Esta sección se organiza
+en dos partes: primero el desempeño comparado de los cinco algoritmos, y
+luego, apoyándose en esa restricción, un análisis de los errores de
+inclusión y exclusión que resulta inevitable en cualquier instrumento de
+focalización con ese techo de discriminación.
+
+\subsubsection{Desempeño de los modelos}
+\label{subsec:desempeno_modelos}
+
+La Tabla~\ref{tab:desempeno_modelos} presenta el desempeño de los cinco
+algoritmos bajo las dos especificaciones de covariables (Modelo A, con
+ingreso/gasto; Modelo B, sin ellos), evaluado sobre el conjunto de prueba
+completamente fuera de muestra (2013$\to$2016), con la estrategia de
+balanceo de clases y el umbral de clasificación ya elegidos por validación
+cruzada dentro del periodo de entrenamiento (Secciones~\ref{subsec:validacion}
+y \ref{subsec:desbalance}).\footnote{Balanceo elegido por validación
+cruzada: \emph{ninguno} (sin reponderar) en todos los casos, excepto
+HistGradientBoosting y la regresión logística en el Modelo A, y Random
+Forest y la regresión logística en el Modelo B, donde fue \emph{balanced}
+(reponderación de clases).}
+
+\input{tables/tab_desempeno_modelos_fbeta2_cv10.tex}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} umbral elegido por validación cruzada
+    maximizando F$_2$ en cada semilla (Sección~\ref{subsec:desbalance}), no
+    fijo en 0.5; se reporta el promedio de las 5 semillas. El umbral es
+    considerablemente más bajo que en una búsqueda equivalente por F1 --al
+    pesar el recall el doble, F$_2$ empuja el punto de corte hacia abajo
+    para dejar pasar más casos de entrada a la pobreza, a costa de más
+    falsos positivos (columna Recall, sistemáticamente sobre 0.88, frente a
+    un F1 más moderado). Prec.-top10: precisión entre el 10\% de hogares
+    que el modelo señala como de mayor riesgo, la cifra más relevante para
+    un programa de focalización con capacidad fija (Sección~\ref{subsec:validacion}).
+  \end{minipage}
+\end{table}
+
+Frente al desempeño de los modelos, se encontraron dos hallazgos a partir de las diferencias
+puntuales entre los desempeños de los algoritmos y las especificaciones (Tabla~\ref{tab:desempeno_modelos}).
+\textbf{Primero,} el algoritmo elegido
+no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco).
+Bajo IPM el mismo techo aparece, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
+Anexo~\ref{apx:desempeno_ipm}).
+Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no,
+el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces.
+Esto es consistente con la literatura sobre predicción de pobreza
+--AUC-ROC de 0.70--0.80 en \textcite{chaudhuri2002}, 0.73--0.77 en \textcite{mcbride2018}--.
+
+\textbf{Segundo,} la capacidad de identificar vulnerables apenas cambia
+si se excluyen las variables de ingreso/gasto del hogar de las
+covariables que se utilizan en los modelos. La ganancia
+de incluir esa información, que valga mencionar es la más cara de levantar mediante encuesta, 
+y la menos confiable, es marginal (brecha de AUC de 0.008 a 0.028 entre
+el Modelo A y B, mucho menor de lo que predeciría un enfoque de
+vulnerabilidad puramente monetario, \textcite{chaudhuri2002}). Esto no
+implica que el ingreso no importe, anteriormente se estableció que es de las variables
+que más separa a los cuatro grupos de la matriz de transición (Sección~
+\ref{subsec:caracterizacion_grupos})--, sino que su contenido informativo
+ya está sustancialmente capturado por otras variables del núcleo del
+perfil (riqueza, educación, bienes durables; Hallazgo 4,
+Sección~\ref{subsec:caracterizacion_grupos}). Bajo IPM la brecha es aún
+menor, y para Random Forest y XGBoost es negativa --el Modelo B (sin ingreso/gasto) supera al
+A--, lo que descarta que la pequeña brecha en la capacidad discriminante 
+de los modelos bajo la definición de pobreza monetaria se deba a la
+relación mecánica entre ingreso y la definición de pobreza. La
+implicación práctica sigue la misma lógica que sustenta focalizar con
+proxies observables del ingreso en vez de medirlo directamente
+\parencite{mcbride2018}: un instrumento más barato, sin ingreso/gasto
+detallado, rendiría casi lo mismo.
+
+\subsubsection{Análisis de los errores de inclusión y exclusión}
+\label{subsec:errores_inclusion}
+
+Aunque el poder de discriminación (AUC-ROC) es similar entre los cinco
+algoritmos (Sección~\ref{subsec:desempeno_modelos}), el algoritmo y la
+estrategia de elección del umbral sí determinan cuánta capacidad de
+cobertura necesita un eventual programa social que focalice vulnerables
+para no perder casos reales. En este estudio se encontró que ese costo,
+con cualquier algoritmo, ronda entre los 3--4 hogares atendidos por cada
+hogar que realmente lo necesitaba (Tabla~\ref{tab:matriz_confusion_a}): de
+los hogares que efectivamente no entran en pobreza, HistGradientBoosting
+identifica correctamente al 40\%, mientras XGBoost solo al 26\%. En
+términos de las métricas de la Tabla~\ref{tab:desempeno_modelos}, esto
+corresponde a un recall alto (0.88--0.95: casi todos los hogares que
+efectivamente caen quedan marcados) pero una precisión baja (0.25--0.28:
+solo uno de cada 4 marcados efectivamente cae); la precisión en el 10\%
+de mayor riesgo (Prec.-top10, 0.49--0.52) casi duplica la precisión al
+umbral completo, lo que sugiere que concentrar la atención en ese decil
+sería una estrategia de focalización más eficiente que usar el umbral de
+clasificación completo. El comportamiento de recall y precision obedece
+no solo al modelo, sino en parte también a la decisión de diseño: el
+umbral elegido por F$_2$, que pone el doble del peso en la importancia de
+los falsos positivos que en los falsos negativos, determina dónde se cae
+(vulnerable o no vulnerable) dentro del techo que impone el AUC. Lo que sí
+es una restricción, que ninguna combinación de modelo y umbral pueden
+resolver, es que con un AUC-ROC de 0.75 no es posible lograr recall y
+precision altos simultáneamente. Este intercambio es el mismo que la
+literatura de focalización de programas sociales llama errores de
+inclusión y de exclusión (\emph{Type E} y \emph{Type F},
+\textcite{cornia1993}): para un instrumento de focalización dado, reducir
+uno necesariamente aumenta el otro; solo un instrumento con mayor poder de
+discriminación --no un umbral distinto-- puede mover esa frontera.
+
+\input{tables/tab_matriz_confusion_modelo_a.tex}
+
+Queda pendiente, como extensión de este análisis
+(Sección~\ref{subsec:limitaciones}), caracterizar específicamente a los
+hogares que constituyen los errores de inclusión (falsos positivos) --es
+decir, comparar su perfil contra el de los hogares correctamente
+clasificados (verdaderos positivos y verdaderos negativos) usando el
+núcleo de variables ya validado en la Sección~\ref{subsec:determinantes},
+para entender no solo cuántos son sino a quiénes se está incluyendo por
+error--.
+
+\subsection{Determinantes de la vulnerabilidad: perfil e importancia de variables}
+\label{subsec:determinantes}
+
+Esta sección aborda los determinantes de la vulnerabilidad a la pobreza
+desde dos perspectivas complementarias: el perfil univariado de los
+hogares que entran en pobreza --comparándolos con los otros tres grupos
+de la matriz de transición-- y la importancia de esas mismas variables
+una vez se controla por el resto, dentro de los cinco algoritmos de la
+Sección~\ref{subsec:desempeno}.
+
+\subsubsection{Perfil univariado de los hogares vulnerables}
 \label{subsec:caracterizacion_grupos}
 
 Esta sección perfila los hogares que \textbf{entran en pobreza} entre 2010
@@ -1379,225 +1519,225 @@ permite caracterizar esos bolsones, y las etiquetas
   \label{fig:mapa_transicion_monetaria}
 \end{figure}
 
-\subsection{Desempeño comparativo de modelos}
-\label{subsec:desempeno}
+\subsubsection{Importancia de variables e interpretabilidad}
+\label{subsec:importancia_resultados}
 
-La Tabla~\ref{tab:desempeno_modelos} presenta el desempeño de los cinco
-algoritmos bajo las dos especificaciones de covariables (Modelo A, con
-ingreso/gasto; Modelo B, sin ellos), evaluado sobre el conjunto de prueba
-completamente fuera de muestra (2013$\to$2016), con la estrategia de
-balanceo de clases y el umbral de clasificación ya elegidos por validación
-cruzada dentro del periodo de entrenamiento (Secciones~\ref{subsec:validacion}
-y \ref{subsec:desbalance}).\footnote{Balanceo elegido por validación
-cruzada: \emph{ninguno} (sin reponderar) en todos los casos, excepto
-HistGradientBoosting y la regresión logística en el Modelo A, y Random
-Forest y la regresión logística en el Modelo B, donde fue \emph{balanced}
-(reponderación de clases).}
+Esta sección examina qué variables sostienen el poder predictivo
+documentado en la Sección~\ref{subsec:desempeno}, complementando el
+análisis univariado de la Sección~\ref{subsec:caracterizacion_grupos} con
+la pregunta de qué aporta cada variable una vez controlando por las
+demás, usando la importancia por reducción de impureza de Random Forest,
+los coeficientes estandarizados de la regresión logística, y valores SHAP
+que permiten comparar los cinco algoritmos en una misma escala (medidas
+descritas en la Sección~\ref{subsec:interpretabilidad}). Se destacan tres
+hallazgos.
 
-\input{tables/tab_desempeno_modelos_fbeta2_cv10.tex}
+\textbf{Primero,} el desempeño de los cinco algoritmos no depende de que
+todos coincidan en cuál variable individual ``domina'', sino de que
+comparten un núcleo pequeño y estable de variables --la pregunta correcta
+no es qué variable gana en la figura de un solo algoritmo, sino qué
+perfil de variables se repite entre los cinco--. La
+Tabla~\ref{tab:shap_variables_necesarias} cuantifica qué tan pequeño es
+ese núcleo: agregando el SHAP medio de las columnas \emph{one-hot} y de
+indicador de faltante de vuelta a su variable original --de lo contrario
+Random Forest y Logística parecerían necesitar muchas más ``variables''
+que los árboles nativos por un artefacto de codificación (332/328
+columnas expandidas frente a 165/169 variables categóricas nativas), no
+por una diferencia real de concentración de la señal--, entre 14 y 37
+variables (de un total de 165 a 169, mediana de 27) bastan para acumular
+el 80\% del SHAP total en cada una de las diez combinaciones
+algoritmo/especificación, y las diez variables más importantes por sí
+solas capturan entre 44\% y 72\% de esa señal.
+
+\input{tables/tab_shap_variables_necesarias.tex}
+\end{table}
+
+Para delimitar ese núcleo de forma comparable entre los cinco algoritmos
+--sin apoyarse en cuál domina en uno en particular--, se cuenta, para
+cada variable, en cuántas de las diez combinaciones algoritmo/especificación
+queda dentro del 80\% de la masa SHAP acumulada; el núcleo se define como
+las variables que lo logran en al menos 5 de esas 10 combinaciones
+(mayoría simple), el mismo espíritu del umbral de robustez del perfil
+univariado de la Sección~\ref{subsec:caracterizacion_grupos}, aplicado
+aquí a consenso entre algoritmos en vez de a bootstrap de muestra. El
+resultado son 22 variables (Tabla~\ref{tab:shap_nucleo_perfil}),
+organizadas en las mismas categorías temáticas del perfil univariado:
+activos del hogar (6 variables), educación y empleo del jefe (6),
+composición del hogar (5), vivienda --hacinamiento y materiales-- (3),
+y una cada una de programas sociales/deuda y comunidad. Cuatro variables
+aparecen en las 10 combinaciones sin excepción: número de servicios
+públicos, estrato verificado y número de bienes durables (activos del
+hogar), y personas por cuarto (hacinamiento). Este perfil es consistente
+con --y más completo que-- cualquier figura de un solo algoritmo: confirma
+el papel central de riqueza, educación y activos del hogar, pero además
+revela un bloque de variables de composición del hogar (razón de
+dependencia demográfica, condición de los padres de los niños,
+vocabulario infantil) que ninguna figura de un solo algoritmo mostraba,
+precisamente porque ninguno por separado la ubicaba entre sus primeras
+posiciones, pero sí lo hace de forma consistente entre varios algoritmos
+a la vez.
+
+\input{tables/tab_shap_nucleo_perfil.tex}
   \begin{minipage}{0.95\textwidth}
     \vspace{4pt}
-    \footnotesize \textit{Nota:} umbral elegido por validación cruzada
-    maximizando F$_2$ en cada semilla (Sección~\ref{subsec:desbalance}), no
-    fijo en 0.5; se reporta el promedio de las 5 semillas. El umbral es
-    considerablemente más bajo que en una búsqueda equivalente por F1 --al
-    pesar el recall el doble, F$_2$ empuja el punto de corte hacia abajo
-    para dejar pasar más casos de entrada a la pobreza, a costa de más
-    falsos positivos (columna Recall, sistemáticamente sobre 0.88, frente a
-    un F1 más moderado). Prec.-top10: precisión entre el 10\% de hogares
-    que el modelo señala como de mayor riesgo, la cifra más relevante para
-    un programa de focalización con capacidad fija (Sección~\ref{subsec:validacion}).
+    \footnotesize \textit{Nota:} 8 de las 22 variables del núcleo no
+    forman parte del perfil univariado de 53 variables de la
+    Sección~\ref{subsec:caracterizacion_grupos} (marcadas $^\dagger$)
+    --el criterio de selección de esa sección (robustez de
+    $\eta^2$/Cramér's V por bootstrap) es distinto del usado aquí
+    (consenso de importancia SHAP entre algoritmos) y no tienen por qué
+    coincidir.
   \end{minipage}
 \end{table}
 
-Frente al desempeño de los modelos, se encontraron dos hallazgos a partir de las diferencias
-puntuales entre los desempeños de los algoritmos y las especificaciones (Tabla~\ref{tab:desempeno_modelos}).
-\textbf{Primero,} el algoritmo elegido
-no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco). 
-Bajo IPM el mismo techo aparece, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
-Anexo~\ref{apx:desempeno_ipm}).
-Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no, 
-el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces. 
-Esto es consistente con la literatura sobre predicción de pobreza 
---AUC-ROC de 0.70--0.80 en \textcite{chaudhuri2002}, 0.73--0.77 en \textcite{mcbride2018}--.
-No obstante, incluso con una capacidad de discriminación similar, 
-el algoritmo y la estrategia de elección del umbral sí determinan 
-cuánta capacidad de cobertura necesita un eventual programa social 
-que focalice vulnerables para no perder casos reales. En este estudio 
-se encontó que ese costo, con cualquier algoritmo, ronda entre los
-3--4 hogares atendidos por cada hogar que realmente lo necesitaba
-(Tabla~\ref{tab:matriz_confusion_a}): de los hogares que efectivamente no
-entran en pobreza, HistGradientBoosting identifica correctamente al 40\%,
-mientras XGBoost solo al 26\%.
-En términos de las métricas de la Tabla~\ref{tab:desempeno_modelos}, esto
-corresponde a un recall alto (0.88--0.95: casi todos los hogares que
-efectivamente caen quedan marcados) pero una precisión baja (0.25--0.28:
-solo uno de cada 4 marcados efectivamente cae); la precisión en el 10\%
-de mayor riesgo (Prec.-top10, 0.49--0.52) casi duplica la precisión al
-umbral completo, lo que sugiere que concentrar la atención en ese decil
-sería una estrategia de focalización más eficiente que usar el umbral de
-clasificación completo. El comportamiento de recall y precision, 
-obedece no solo al modelo, sino en parte también a la decisión de diseño: el umbral elegido por F$_2$, que pone el doble 
-del peso en la importancia de los falsos positivos que en los falsos negativos, determina dónde
-se cae (vulnerable o no vulnerable) dentro del techo que impone el AUC. 
-Lo que sí es una restricción, que ninguna combinación de modelo y umbral pueden resolver, es que
-con un AUC-ROC de 0.75 no es posible lograr recall y precision altos
-simultáneamente. Este intercambio es el mismo que la literatura de
-focalización de programas sociales llama errores de inclusión y de
-exclusión (\emph{Type E} y \emph{Type F}, \textcite{cornia1993}): para un
-instrumento de focalización dado, reducir uno necesariamente aumenta el
-otro; solo un instrumento con mayor poder de discriminación --no un
-umbral distinto-- puede mover esa frontera.
+Dos matices sobre cómo leer este núcleo. El primero es de conteo: tres de
+las seis variables de la categoría ``Educación y empleo del jefe''
+(máximo nivel educativo del hogar, grado educativo del jefe, nivel
+educativo del jefe en escala ordinal) son distintas codificaciones de
+esencialmente la misma señal --nivel educativo--, no tres fuentes de
+información independientes; contarlas como tres filas del núcleo
+sobrestima cuántas variables sustantivas distintas hay detrás de esa
+categoría. El segundo es de clasificación: ninguna de las diez categorías
+del perfil univariado se ajusta bien a ``tuvo un choque económico en el
+hogar'' --se ubicó en ``Programas sociales y deuda'' por cercanía
+temática (ambas son formas de exposición o protección financiera), pero
+es conceptualmente distinta (un choque sufrido, no un instrumento de
+protección) de lo que esa categoría agrupaba originalmente. Ninguno de
+estos dos matices cambia la lectura general: las métricas de importancia
+usadas tampoco son directamente comparables entre sí --la reducción de
+impureza (Random Forest, XGBoost, LightGBM) tiende a favorecer variables
+continuas o de alta cardinalidad frente a las binarias, independientemente
+de su contenido informativo real, y de las métricas usadas aquí, SHAP es
+la más comparable entre algoritmos, pero ninguna es una vara neutral de
+importancia--, lo que reafirma por qué la lectura correcta para un
+hacedor de política es confiar en el perfil de variables que se repite
+entre algoritmos, no en el orden exacto de una figura particular.
 
-\input{tables/tab_matriz_confusion_modelo_a.tex}
+\textbf{Segundo,} el hallazgo univariado más llamativo del perfil de
+vulnerabilidad --que la formalidad laboral del jefe de hogar señala más
+riesgo, no menos (Hallazgo 2, Sección~\ref{subsec:caracterizacion_grupos})--
+no se refleja en las métricas de importancia multivariada estándar de
+ninguno de los cinco algoritmos: \texttt{categoria\_ocupacional\_jefe}, la
+variable con el mayor efecto univariado de las 53 (0.393), cae a un rango
+de importancia marginal o nula en los cinco algoritmos (posiciones 42 a
+146, de 169 a 332 variables según el algoritmo), y es exactamente cero en
+Random Forest y en la regresión logística para casi todas sus categorías,
+en ambas especificaciones. El mismo patrón se repite con las otras tres
+variables ``contraintuitivas'' del Hallazgo 2: \texttt{pct\_ninos\_
+cuidado\_terceros\_hogar} es prácticamente nula en los cinco algoritmos y
+ambas especificaciones, \texttt{tiene\_transporte\_publico\_comunidad}
+nunca entra al top 30, y \texttt{deuda\_informal\_hogar} es cero exacto en
+Random Forest y Logística y solo moderada (posiciones 36 a 61) en XGBoost
+y HistGradientBoosting bajo el Modelo B. En cambio, un proxy relacionado
+pero distinto --\texttt{tasa\_cotizacion\_pension\_hogar}, formalidad
+medida a nivel de todo el hogar y no solo del jefe-- sí sobrevive con
+fuerza, entre las posiciones 4 y 20 de forma consistente en los cinco
+algoritmos. Esto no contradice ni invalida el Hallazgo 2: la importancia
+multivariada mide contribución marginal dado todo lo demás en el modelo,
+no el efecto univariado bruto, así que si ambas variables miden
+formalidad y están correlacionadas entre sí, el modelo le otorga el
+crédito predictivo a una y deja a la otra sin margen adicional --el mismo
+fenómeno de multicolinealidad del Primer hallazgo, aquí entre dos proxies
+de formalidad--. La desventaja de las variables relacionales frente a las
+económicas tampoco es un accidente estadístico: por naturaleza se miden
+con preguntas binarias de baja varianza en la encuesta, de modo que
+compiten en desventaja estructural, en cualquier métrica de importancia
+basada en varianza explicada o en particiones, contra variables continuas
+de riqueza o ingreso --un sistema de focalización construido solo a
+partir de estos rankings invisibilizaría sistemáticamente la
+vulnerabilidad relacional, no por azar sino por cómo se mide--; vale la
+pena notar, además, que \texttt{pct\_ninos\_cuidado\_terceros\_hogar} es,
+indirectamente, una variable sobre carga de cuidado --típicamente asumida
+por mujeres--, y su práctica invisibilidad en la importancia multivariada
+tiene una lectura de equidad de género que el análisis cuantitativo por
+sí solo no captura. Para el diseño de política esto tiene dos
+implicaciones: el proxy operacional recomendable para un sistema de
+alerta temprana es la tasa de cotización a pensión del hogar y no la
+condición de asalariado del jefe --y es, además, el tipo de dato que ya
+reside en registros administrativos de seguridad social, en el mismo
+espíritu de cruce de fuentes que plantea el CONPES 3877/SISBEN IV
+\parencite{conpes2016}--, pero, en un sentido más general, un hallazgo
+univariado sustantivo y bien documentado puede resultar invisible en un
+gráfico de importancia de variables sin que eso signifique que el
+hallazgo sea falso.
 
-\textbf{Segundo,} la capacidad de identificar vulnerables y el costo que 
-mencionamos anteriormente apenas cambia si se excluyen las variables de ingreso/gasto
-del hogar de las covariables que se utilizan en los modelos. La ganancia 
-de incluir esa información, que valga mencionar es la más cara de levantar mediante encuesta, 
-y la menos confiable, es marginal (brecha de AUC de 0.008 a 0.028 entre
-el Modelo A y B, mucho menor de lo que predeciría un enfoque de
-vulnerabilidad puramente monetario, \textcite{chaudhuri2002}). Esto no
-implica que el ingreso no importe, anteriormente se estableció que es de las variables
-que más separa a los cuatro grupos de la matriz de transición (Sección~
-\ref{subsec:caracterizacion_grupos})--, sino que su contenido informativo
-ya está sustancialmente capturado por otras variables del núcleo del
-perfil (riqueza, educación, bienes durables; Hallazgo 4,
-Sección~\ref{subsec:caracterizacion_grupos}). Bajo IPM la brecha es aún
-menor, y para Random Forest y XGBoost es negativa --el Modelo B (sin ingreso/gasto) supera al
-A--, lo que descarta que la pequeña brecha en la capacidad discriminante 
-de los modelos bajo la definición de pobreza monetaria se deba a la
-relación mecánica entre ingreso y la definición de pobreza. La
-implicación práctica sigue la misma lógica que sustenta focalizar con
-proxies observables del ingreso en vez de medirlo directamente
-\parencite{mcbride2018}: un instrumento más barato, sin ingreso/gasto
-detallado, rendiría casi lo mismo.
+\textbf{Tercero,} que una variable geoespacial aparezca entre las más
+``importantes'' de un modelo no implica que aporte información nueva al
+conjunto de prueba, y la propia comparación entre esta sección y la de
+contribución marginal de DMSP-OLS lo demuestra con un caso concreto: en
+XGBoost sobre el Modelo A con DMSP-OLS,
+\texttt{dmsp\_stable\_lights\_acum\_minimo} es la séptima variable más
+importante de 192 por reducción de impureza, pese a que la
+Sección~\ref{subsec:marginal} ya estableció que agregar DMSP-OLS
+no mejora el AUC-ROC bajo pobreza monetaria en ninguna de las diez
+combinaciones algoritmo/especificación evaluadas (IC95\% cruza cero),
+precisamente por redundancia: la correlación de
+\texttt{dmsp\_stable\_lights} con el resultado cae de $r=-0.214$ a
+$r\approx+0.021$ al controlar por dos preguntas de la propia encuesta
+(servicios públicos y bienes durables del hogar). No es una contradicción
+entre secciones sino el mismo fenómeno de multicolinealidad de los
+hallazgos anteriores visto desde otro ángulo: una variable puede ganarle
+particiones a otras porque mide algo parecido a lo que el modelo ya
+conoce, sin que eso se traduzca en una mejora del poder predictivo fuera
+de muestra. La advertencia metodológica es general, no específica de
+DMSP-OLS: un ranking de importancia --calculado, en el caso de la
+reducción de impureza y de SHAP, sobre el propio conjunto de ajuste--
+nunca equivale a una prueba de contribución marginal fuera de muestra;
+son dos preguntas distintas que este documento sí distingue por diseño
+(Secciones~\ref{subsec:desempeno},~\ref{subsec:importancia_resultados} y~\ref{subsec:marginal_geo}),
+pero que resultan fáciles de confundir si solo se observa una figura de
+importancia sin la comparación de AUC-ROC que la acompaña.
 
-Las Figuras~\ref{fig:importancia_rf} y~\ref{fig:coef_logistica} muestran
-las variables más importantes de Random Forest y los mayores coeficientes
---en valor absoluto, en unidades estandarizadas-- de la regresión
-logística, ambos para el Modelo A y ya bajo la metodología final (umbral
-por F$_2$, \texttt{CV\_FOLDS=10}, \texttt{N\_ITER\_BUSQUEDA=30}): en vez
-de repetir la búsqueda de hiperparámetros --ya decidida y registrada en
-\texttt{registro\_modelos\_fbeta2\_cv10.csv}--
-\texttt{modelo\_fbeta2\_cv10\_importancia.py} reconstruye el pipeline
-ganador exacto de cada algoritmo/especificación a partir de esa fila y lo
-reentrena una única vez sobre todo el conjunto de entrenamiento; el
-resultado es determinista (mismo \texttt{RANDOM\_STATE=42}, sin búsqueda
-aleatoria de por medio) y el propio script verifica, cada vez que corre,
-que reproduce exactamente el CSV de la corrida anterior. En Random Forest,
-el índice de riqueza precalculado de la ELCA (\texttt{riqueza\_pca\_hogar})
-y el ingreso per cápita real dominan claramente (consistente con
-\textcite{chaudhuri2002}), seguidos de cerca por la brecha a la LP, el
-gasto per cápita real y el número de bienes durables del hogar. En la
-regresión logística, en cambio, el nivel educativo máximo del hogar tiene
-el mayor coeficiente en valor absoluto, por encima incluso de la brecha a
-la LP y el ingreso real --con signo negativo, consistente con que más
-educación reduce la probabilidad de caer en pobreza--, seguido por el
-número de bienes durables y de servicios públicos del hogar. Esta
-diferencia entre algoritmos --qué variable ``domina'' según se mida por
-reducción de impureza o por magnitud de coeficiente estandarizado-- es en
-sí misma evidencia de que la importancia de variables no es una propiedad
-única del problema sino que depende parcialmente de cómo cada algoritmo
-particiona la información, un matiz relevante para la interpretación de
-resultados de esta naturaleza.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.75\textwidth]{../outputs/figures/modelos/03_importancia_random_forest_A.png}
-  \caption{Variables más importantes, Random Forest, Modelo A (reducción de impureza).}
-  \label{fig:importancia_rf}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.75\textwidth]{../outputs/figures/modelos/04_coeficientes_logistica_A.png}
-  \caption{Mayores coeficientes en valor absoluto, regresión logística
-  regularizada, Modelo A (unidades estandarizadas).}
-  \label{fig:coef_logistica}
-\end{figure}
-
-En el Modelo B (sin ingreso/gasto), Random Forest ubica el índice de
-riqueza precalculado y el número de bienes durables del hogar como las dos
-variables más importantes, seguidas por el nivel educativo máximo del
-hogar; la regresión logística, en cambio, ubica el nivel educativo máximo
-del hogar primero, seguido por el número de bienes durables y de servicios
-públicos y --solo en la regresión logística-- la tasa de cotización a
-pensión del hogar, un proxy de formalidad laboral. Estas variables son
-consistentes con los determinantes de pobreza documentados en la
-literatura y no sugieren que el modelo esté capturando relaciones
-espurias.
-
-Los valores SHAP (\texttt{src/05\_model/diagnostico\_shap\_ab.py},
-reconstruyendo el pipeline ganador de cada algoritmo/especificación ya
-registrado, sin repetir la búsqueda de hiperparámetros) confirman el
-patrón anterior y permiten además compararlo en una misma escala entre
-los cinco algoritmos. En el Modelo B, \texttt{riqueza\_pca\_hogar} y
-\texttt{nivel\_educ\_max\_hogar} quedan siempre entre las dos variables
-más importantes en los cinco algoritmos --la primera domina en
-HistGradientBoosting y Random Forest, la segunda en LightGBM, Logística y
-XGBoost--, seguidas casi siempre por \texttt{n\_bienes\_durables\_hogar}
-en tercer lugar. En el Modelo A el acuerdo es más parcial: LightGBM,
-XGBoost, Logística y Random Forest coinciden en que
-\texttt{ingreso\_percapita\_hogar\_real}, \texttt{nivel\_educ\_max\_hogar},
-\texttt{riqueza\_pca\_hogar} y \texttt{brecha\_lp\_ingreso} son las cuatro
-variables más importantes (en distinto orden entre sí), pero
-HistGradientBoosting es una excepción notable: su variable más importante
-es \texttt{pct\_adultos\_alfabetizados} (SHAP medio 0.394, más del doble
-que la segunda), que no aparece entre las 8 primeras de ningún otro
-algoritmo. Esto no invalida la lectura general --las variables de riqueza,
-ingreso y educación siguen dominando en 4 de 5 algoritmos--, pero es un
-recordatorio de que ``la variable más importante'' puede depender de cómo
-un algoritmo específico particiona la información, no solo del contenido
-informativo de la variable en sí.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/shap_beeswarm_xgboost_A.png}
-  \caption{Valores SHAP, XGBoost, Modelo A (holdout de prueba
-  2013$\to$2016). Cada punto es un hogar; el color indica el valor de la
-  variable (rojo = alto, azul = bajo) y la posición horizontal su
-  contribución a la probabilidad predicha de entrar en pobreza.}
-  \label{fig:shap_xgboost_a}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.85\textwidth]{../outputs/figures/modelos/shap_beeswarm_xgboost_B.png}
-  \caption{Valores SHAP, XGBoost, Modelo B (sin ingreso/gasto), holdout
-  de prueba 2013$\to$2016.}
-  \label{fig:shap_xgboost_b}
-\end{figure}
+Las dos miradas de esta sección --el perfil univariado y la importancia
+multivariada-- convergen en lo esencial y se complementan en lo que cada
+una no puede ver por sí sola. Ambas identifican el mismo núcleo
+estructural (riqueza, educación, activos y condiciones de vivienda del
+hogar) como el determinante más robusto de la vulnerabilidad, sin
+importar si se mide por asociación univariada o por contribución a la
+predicción de cinco algoritmos distintos --esa coincidencia, lograda por
+dos métodos con supuestos y datos de entrada distintos, es la evidencia
+más fuerte de este documento a favor de ese núcleo--. Donde discrepan es
+igual de informativo: la formalidad laboral del jefe, la variable con el
+efecto univariado más llamativo de todo el perfil (Hallazgo 2),
+prácticamente no aporta a la predicción una vez el modelo ya cuenta con
+el resto de variables del núcleo (Segundo hallazgo de la
+Sección~\ref{subsec:importancia_resultados}). Esto no es una
+contradicción sino una diferencia de propósito: el perfil univariado
+responde qué distingue a un hogar vulnerable en términos descriptivos
+--incluidas señales contraintuitivas valiosas para entender el
+fenómeno--, mientras que la importancia multivariada responde qué hace
+falta, de forma no redundante, para predecirlo --y una señal puede ser
+sustantivamente reveladora sin ser útil para ese segundo objetivo,
+precisamente porque otras variables ya la vuelven redundante--. Para el
+diseño de un instrumento de focalización, la implicación práctica es
+usar cada análisis para lo que sirve: el perfil univariado para entender
+y comunicar el fenómeno, y el núcleo de importancia multivariada
+(Sección~\ref{subsec:importancia_resultados}) para decidir qué variables
+medir si el objetivo es predecir con la menor cantidad de información
+posible.
 
 \subsection{Contribución marginal de las variables geoespaciales}
+\label{subsec:marginal_geo}
+
+Esta sección evalúa, en tres pasos, el aporte de DMSP-OLS --la única de
+las tres fuentes geoespaciales nuevas con datos reales tanto en la ola de
+entrenamiento (2010) como en la de prueba (2013), Sección~\ref{subsec:geo}--
+al desempeño del benchmark: primero su efecto promedio bajo pobreza
+monetaria, luego el mismo ejercicio bajo pobreza multidimensional (IPM), y
+finalmente si esos promedios esconden heterogeneidad relevante para el
+diseño de una política de focalización.
+
+\subsubsection{Bajo pobreza monetaria}
 \label{subsec:marginal}
 
-Esta subsección evalúa si DMSP-OLS --la única de las tres fuentes nuevas
-con datos reales tanto en la ola de entrenamiento (2010) como en la de
-prueba (2013), Sección~\ref{subsec:geo}-- mejora el desempeño del
-benchmark cuando se agrega a las covariables de la ELCA, bajo el mismo
-holdout temporal, balanceo de clases y selección de umbral ya usados en
-la Sección~\ref{subsec:desempeno}. Se reentrenaron los cinco algoritmos de
-esa comparación agregando a los Modelos A y B las 23 variables DMSP-OLS de
-estado y ventana acumulada (Sección~\ref{subsec:geo}) --
-en el código y en los archivos de resultados esta comparación se
-identifica como \texttt{A}/\texttt{AgeoDMSP} y \texttt{B}/\texttt{BgeoDMSP};
-aquí se usa la forma expandida ``A'' / ``A + DMSP-OLS'' por legibilidad.
-Se agrega además \texttt{precision\_top10} --la precisión entre el 10\%
-de hogares que el modelo señala como de mayor riesgo-- porque para un
-programa de focalización con capacidad fija esta cifra es más relevante
-que recall/precision/F1 a un umbral de probabilidad, que no reflejan
-ninguna restricción real de cobertura. Aun así, para no dejar una lectura
-incompleta, la Tabla~\ref{tab:marginal_dmsp} también reporta esas tres
-métricas al umbral de clasificación ya elegido por validación cruzada
-maximizando F$_2$ (Sección~\ref{subsec:desbalance}): \emph{recall} es la
-fracción de hogares que sí cayeron en pobreza y el modelo efectivamente
-marcó como riesgo (cuánto de la pobreza real se captura); \emph{precision}
-es la fracción de los hogares marcados como riesgo que efectivamente
-cayeron en pobreza (cuánta de la alarma es acertada, no falsa alarma);
-\emph{F1} resume ambas en un solo número (su media armónica) y se reporta
-como referencia estándar, aunque --a diferencia del umbral, elegido por
-F$_2$-- no es la métrica que decide dónde queda el punto de corte.
+Se reentrenaron los cinco algoritmos de la Sección~\ref{subsec:desempeno}
+agregando a los Modelos A y B las 23 variables DMSP-OLS de estado y
+ventana acumulada (Sección~\ref{subsec:geo}), bajo el mismo holdout
+temporal, balanceo de clases y selección de umbral ya usados --en el
+código y en los archivos de resultados esta comparación se identifica
+como \texttt{A}/\texttt{AgeoDMSP} y \texttt{B}/\texttt{BgeoDMSP}; aquí se
+usa la forma expandida ``A'' / ``A + DMSP-OLS'' por legibilidad--.
 
 \begin{table}[H]
   \centering
@@ -1609,39 +1749,39 @@ F$_2$-- no es la métrica que decide dónde queda el punto de corte.
   \footnotesize
   \setlength{\tabcolsep}{4pt}
   \resizebox{\textwidth}{!}{%
-  \begin{tabular}{llcccccccc}
+  \begin{tabular}{llcccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
+    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{Precision top-10\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\
     \midrule
-    Random Forest            & A               & 0.766 & [0.765, 0.767] & 0.486 & [0.476, 0.495] & 0.138 & 0.926 & 0.277 & 0.426 \\
-    Random Forest            & A + DMSP-OLS    & 0.763 & [0.762, 0.764] & 0.481 & [0.470, 0.493] & 0.264 & 0.938 & 0.271 & 0.420 \\
+    Random Forest            & A               & 0.766 & 0.486 & 0.138 & 0.926 & 0.277 & 0.426 \\
+    Random Forest            & A + DMSP-OLS    & 0.763 & 0.481 & 0.264 & 0.938 & 0.271 & 0.420 \\
     \addlinespace
-    XGBoost                  & A               & 0.767 & [0.766, 0.769] & 0.505 & [0.496, 0.514] & 0.112 & 0.949 & 0.264 & 0.413 \\
-    XGBoost                  & A + DMSP-OLS    & 0.765 & [0.764, 0.766] & 0.501 & [0.488, 0.515] & 0.118 & 0.937 & 0.272 & 0.421 \\
+    XGBoost                  & A               & 0.767 & 0.505 & 0.112 & 0.949 & 0.264 & 0.413 \\
+    XGBoost                  & A + DMSP-OLS    & 0.765 & 0.501 & 0.118 & 0.937 & 0.272 & 0.421 \\
     \addlinespace
-    LightGBM                 & A               & 0.758 & [0.758, 0.758] & 0.516 & [0.516, 0.516] & 0.096 & 0.903 & 0.281 & 0.428 \\
-    LightGBM                 & A + DMSP-OLS    & 0.752 & [0.752, 0.752] & 0.497 & [0.497, 0.497] & 0.102 & 0.902 & 0.277 & 0.424 \\
+    LightGBM                 & A               & 0.758 & 0.516 & 0.096 & 0.903 & 0.281 & 0.428 \\
+    LightGBM                 & A + DMSP-OLS    & 0.752 & 0.497 & 0.102 & 0.902 & 0.277 & 0.424 \\
     \addlinespace
-    HistGradientBoosting     & A               & 0.763 & [0.763, 0.763] & 0.512 & [0.512, 0.512] & 0.324 & 0.909 & 0.283 & 0.432 \\
-    HistGradientBoosting     & A + DMSP-OLS    & 0.763 & [0.763, 0.763] & 0.500 & [0.500, 0.500] & 0.312 & 0.912 & 0.281 & 0.429 \\
+    HistGradientBoosting     & A               & 0.763 & 0.512 & 0.324 & 0.909 & 0.283 & 0.432 \\
+    HistGradientBoosting     & A + DMSP-OLS    & 0.763 & 0.500 & 0.312 & 0.912 & 0.281 & 0.429 \\
     \addlinespace
-    Logística regularizada   & A               & 0.747 & [0.747, 0.747] & 0.506 & [0.506, 0.506] & 0.372 & 0.883 & 0.280 & 0.426 \\
-    Logística regularizada   & A + DMSP-OLS    & 0.746 & [0.746, 0.746] & 0.500 & [0.500, 0.500] & 0.370 & 0.883 & 0.281 & 0.426 \\
+    Logística regularizada   & A               & 0.747 & 0.506 & 0.372 & 0.883 & 0.280 & 0.426 \\
+    Logística regularizada   & A + DMSP-OLS    & 0.746 & 0.500 & 0.370 & 0.883 & 0.281 & 0.426 \\
     \addlinespace
-    Random Forest            & B               & 0.742 & [0.741, 0.744] & 0.508 & [0.497, 0.520] & 0.306 & 0.892 & 0.272 & 0.416 \\
-    Random Forest            & B + DMSP-OLS    & 0.739 & [0.737, 0.741] & 0.492 & [0.482, 0.502] & 0.266 & 0.925 & 0.255 & 0.399 \\
+    Random Forest            & B               & 0.742 & 0.508 & 0.306 & 0.892 & 0.272 & 0.416 \\
+    Random Forest            & B + DMSP-OLS    & 0.739 & 0.492 & 0.266 & 0.925 & 0.255 & 0.399 \\
     \addlinespace
-    XGBoost                  & B               & 0.742 & [0.742, 0.743] & 0.495 & [0.487, 0.503] & 0.126 & 0.940 & 0.250 & 0.395 \\
-    XGBoost                  & B + DMSP-OLS    & 0.740 & [0.740, 0.741] & 0.495 & [0.491, 0.499] & 0.128 & 0.929 & 0.254 & 0.399 \\
+    XGBoost                  & B               & 0.742 & 0.495 & 0.126 & 0.940 & 0.250 & 0.395 \\
+    XGBoost                  & B + DMSP-OLS    & 0.740 & 0.495 & 0.128 & 0.929 & 0.254 & 0.399 \\
     \addlinespace
-    LightGBM                 & B               & 0.731 & [0.731, 0.731] & 0.487 & [0.487, 0.487] & 0.148 & 0.909 & 0.259 & 0.403 \\
-    LightGBM                 & B + DMSP-OLS    & 0.737 & [0.737, 0.737] & 0.481 & [0.481, 0.481] & 0.126 & 0.888 & 0.271 & 0.415 \\
+    LightGBM                 & B               & 0.731 & 0.487 & 0.148 & 0.909 & 0.259 & 0.403 \\
+    LightGBM                 & B + DMSP-OLS    & 0.737 & 0.481 & 0.126 & 0.888 & 0.271 & 0.415 \\
     \addlinespace
-    HistGradientBoosting     & B               & 0.735 & [0.735, 0.735] & 0.494 & [0.494, 0.494] & 0.142 & 0.879 & 0.275 & 0.418 \\
-    HistGradientBoosting     & B + DMSP-OLS    & 0.736 & [0.736, 0.736] & 0.487 & [0.487, 0.487] & 0.142 & 0.880 & 0.275 & 0.419 \\
+    HistGradientBoosting     & B               & 0.735 & 0.494 & 0.142 & 0.879 & 0.275 & 0.418 \\
+    HistGradientBoosting     & B + DMSP-OLS    & 0.736 & 0.487 & 0.142 & 0.880 & 0.275 & 0.419 \\
     \addlinespace
-    Logística regularizada   & B               & 0.739 & [0.739, 0.739] & 0.500 & [0.500, 0.500] & 0.350 & 0.890 & 0.270 & 0.414 \\
-    Logística regularizada   & B + DMSP-OLS    & 0.739 & [0.739, 0.739] & 0.494 & [0.494, 0.494] & 0.350 & 0.888 & 0.273 & 0.417 \\
+    Logística regularizada   & B               & 0.739 & 0.500 & 0.350 & 0.890 & 0.270 & 0.414 \\
+    Logística regularizada   & B + DMSP-OLS    & 0.739 & 0.494 & 0.350 & 0.888 & 0.273 & 0.417 \\
     \bottomrule
   \end{tabular}%
   }
@@ -1650,324 +1790,129 @@ F$_2$-- no es la métrica que decide dónde queda el punto de corte.
     \footnotesize \textit{Nota:} recall, precision y F1 se miden al umbral
     de clasificación ya elegido para cada algoritmo/especificación por
     validación cruzada maximizando F$_2$ (Sección~\ref{subsec:desbalance},
-    sin re-elegirlo al agregar DMSP-OLS). Fuente: cálculos propios,
-    \texttt{data/processed/benchmark\_resultados/registro\_modelos\_fbeta2\_cv10.csv},
-    generados por
-    \texttt{src/05\_model/modelo\_fbeta2\_cv10\_comparacion.py} (XGBoost,
-    HistGradientBoosting, Logística regularizada) y sus variantes
-    \texttt{modelo\_fbeta2\_cv10\_comparacion\_rf\_lgbm.py} (Random Forest,
-    LightGBM) sobre
-    \texttt{modelo\_\{A,B,AgeoDMSP,BgeoDMSP\}\_2010\_2013/2013\_2016.parquet}
-    (construidos por \texttt{construir\_pipeline\_geo\_dmsp.py}), y
-    formateados por \texttt{src/tabla\_marginal\_dmsp\_fbeta2\_cv10.py}.
+    sin re-elegirlo al agregar DMSP-OLS). Los intervalos de confianza al
+    95\% (sobre las 5 semillas) no se muestran por espacio: son
+    consistentemente angostos, hasta $\pm0.004$ en AUC-ROC y hasta
+    $\pm0.03$ en precisión top-10\% en el peor caso --ninguno lo
+    suficientemente ancho para cambiar la lectura de las diferencias
+    reportadas. Fuente: cálculos propios.
   \end{minipage}
 \end{table}
 
-\textbf{Resultado: agregar DMSP-OLS no mejora de forma económicamente
-significativa el desempeño en ningún algoritmo.} El AUC-ROC se mantiene
-igual o cae ligeramente al agregar DMSP-OLS en 8 de las 10 comparaciones
-algoritmo/especificación de la Tabla~\ref{tab:marginal_dmsp} (caídas de
-0.001 a 0.006). Las dos excepciones son cambios pequeños y en direcciones
-opuestas entre sí --HistGradientBoosting-B sube de 0.735 a 0.736 (+0.001)
-y LightGBM-B, el mayor cambio positivo de toda la tabla, sube de 0.731 a
-0.737 (+0.006)--, del mismo orden de magnitud que la variabilidad entre
-semillas del propio ajuste (Tabla~\ref{tab:desempeno_modelos}) y, sobre
-todo, sin acompañamiento en \texttt{precision\_top10}: esta métrica, más
-relevante para un programa de focalización de capacidad fija, cae o se
-mantiene igual en las 10 comparaciones sin una sola excepción --incluida
-LightGBM-B (0.487 $\to$ 0.481)--, la señal más clara de que agregar
-DMSP-OLS no mejora la capacidad de priorizar correctamente al grupo de
-mayor riesgo. Antes de interpretar la ausencia de mejora como ausencia de
-señal, se descartó explícitamente la explicación de sobreajuste: se
-comparó, para cada algoritmo, la brecha entre el AUC de validación cruzada
-(calculado solo sobre entrenamiento) y el AUC de prueba real, con y sin
-DMSP-OLS (\texttt{comparar\_auc\_cv\_vs\_test\_fbeta2\_cv10.py}) -- si
-agregar columnas geoespaciales infla artificialmente el ajuste de
-entrenamiento sin generalizar, esa brecha debería ensancharse. No fue el
-caso: el mayor cambio observado fue de $+0.008$ (LightGBM, Modelo A, el
-mismo par con la mayor caída de AUC-ROC de toda la tabla), muy por debajo
-del umbral de alerta (0.03) definido \emph{ex ante}. La ausencia de
-mejora no es, entonces, un problema de sobreajuste del modelo.
+\textbf{Primero,} agregar DMSP-OLS a las covariables de la encuesta no
+mejora el desempeño del benchmark en ningún algoritmo: el AUC-ROC cae o
+se mantiene igual en 8 de las 10 comparaciones algoritmo/especificación
+(Tabla~\ref{tab:marginal_dmsp}), y \texttt{precision\_top10} --la métrica
+más relevante para un programa de focalización de capacidad fija-- cae o
+se mantiene igual en las 10, sin una sola excepción. Se descartó
+sobreajuste como explicación (la brecha entre el AUC de validación
+cruzada y el de prueba no se ensancha al agregar DMSP-OLS) y el mismo
+patrón, con correlaciones aún más débiles, se repite en ALOS PALSAR y
+Landsat 5 TM.\footnote{Se probó además si DMSP-OLS aporta más al eliminar
+de la encuesta las dos preguntas que la vuelven redundante (resultado
+mixto y débil: solo la regresión logística mejora de forma consistente,
+los modelos de árboles no) y si aporta más cerca de la línea de pobreza
+(sin evidencia de eso tampoco, en los tres terciles de cercanía). Ver
+\texttt{src/05\_model/modelo\_ablacion\_sin\_riqueza.py} y
+\texttt{src/05\_model/heterogeneidad\_cerca\_umbral.py}.} La razón es
+redundancia, no ausencia de señal: \texttt{dmsp\_stable\_lights}
+correlaciona con el resultado tan fuerte como variables de riqueza ya en
+la encuesta ($r=-0.214$, comparable a \texttt{estrato\_verificado\_hogar}),
+pero esa correlación colapsa a $r\approx+0.021$ al controlar por dos
+preguntas que la ELCA ya hace (número de servicios públicos y de bienes
+durables del hogar) --las mismas dos variables que dominan el núcleo de
+importancia multivariada (Sección~\ref{subsec:importancia_resultados})--.
 
-Recall, precision y F1 se mueven poco al agregar DMSP-OLS --menos de 0.02
-en cualquier dirección en la inmensa mayoría de las comparaciones-- porque
-el umbral elegido por F$_2$ ya empuja el recall a valores altos (0.88 a
-0.95) en las diez filas de la tabla, dejando poco margen para que un
-cambio de umbral mueva mucho la aguja. El cambio más grande es en
-\textbf{Random Forest, Modelo B}: el recall sube de 0.892 a 0.925
-(+0.033) y la precision cae de 0.272 a 0.255, con F1 cayendo de 0.416 a
-0.399 --el umbral que la validación cruzada eligió también baja, de 0.306
-sin DMSP-OLS a 0.266 con DMSP-OLS, el mecanismo habitual: un umbral más
-bajo marca más hogares como riesgo, sube el recall a costa de la
-precision--. Es, otra vez, una consecuencia del procedimiento de selección
-de umbral (Sección~\ref{subsec:desbalance}), no evidencia de que DMSP-OLS
-cambie la capacidad predictiva del modelo; el AUC-ROC de este mismo par
-(0.742 $\to$ 0.739), que no depende de umbral, apenas se mueve. Ningún
-caso invierte la conclusión general: DMSP-OLS reordena marginalmente qué
-hogares específicos caen a cada lado del umbral, sin mejorar la capacidad
-de discriminación subyacente del modelo.
+Un matiz con implicación práctica: pese a ser redundante en poder
+predictivo, DMSP-OLS es marcadamente más estable en el tiempo que la
+variable de encuesta que la vuelve redundante (correlación test-retest
+2010--2013 de 0.958, frente a 0.600 de bienes durables del hogar)
+--relevante si el argumento no es reemplazar una encuesta vigente sino
+sustituir información desactualizada entre rondas
+(Sección~\ref{subsec:politica})--.
 
-\paragraph{Por qué DMSP-OLS no aporta: redundancia, no ausencia de
-señal.} Tomada sola, \texttt{dmsp\_stable\_lights} sí correlaciona con la
-entrada a pobreza ($r=-0.214$ sobre la muestra de entrenamiento) --una
-magnitud comparable a \texttt{ingreso\_percapita\_hogar\_real}
-($r=-0.211$) o \texttt{estrato\_verificado\_hogar} ($r=-0.215$)--, así
-que no se trata de una variable sin contenido informativo. El problema es
-que esa misma señal ya está capturada, de forma más directa y con mayor
-correlación con el resultado, por variables que la ELCA ya pregunta al
-hogar: \texttt{n\_servicios\_publicos\_hogar} (número de servicios
-públicos del hogar) correlaciona 0.865 con \texttt{dmsp\_stable\_lights}
---ambas miden, en esencia, el mismo fenómeno de electrificación y
-consolidación urbana del entorno-- y a la vez correlaciona más fuerte con
-el resultado ($r=-0.250$) que la propia variable satelital;
-\texttt{n\_bienes\_durables\_hogar} muestra el mismo patrón ($r=0.477$
-con DMSP-OLS, $r=-0.256$ con el resultado). La correlación
-\emph{residualizada} de \texttt{dmsp\_stable\_lights} contra el resultado
---tras controlar por esas dos variables mediante regresión lineal, y
-correlacionar los residuos de ambas contra los residuos del resultado--
-confirma directamente la redundancia: cae de $r=-0.214$ (cruda) a
-$r=+0.021$ (parcial, verificado con dos implementaciones independientes,
-mínimos cuadrados manual y \texttt{sklearn.LinearRegression}) --
-prácticamente todo el poder predictivo de DMSP-OLS ya está contenido en
-esas dos preguntas de la encuesta. Esto no implica que la encuesta mida
-el fenómeno subyacente (electrificación y consolidación urbana del
-entorno) con menos error que el sensor satelital --ambas son medidas
-imperfectas de ese mismo constructo, y comparar su error de medición
-respectivo está fuera del alcance de este ejercicio--; lo que sí muestra
-la correlación residualizada es que, \emph{para este modelo predictivo
-específico}, DMSP-OLS no aporta información incremental una vez que
-\texttt{n\_servicios\_publicos\_hogar} y \texttt{n\_bienes\_durables\_hogar}
-ya están en el panel de covariables. Esto es consistente con la
-regularización elastic net de la
-logística, que puso en cero 21 de las 23 variables DMSP-OLS agregadas
-(Sección~\ref{subsec:geo}), y con la importancia por
-permutación de HistGradientBoosting, donde las variables DMSP-OLS caen en
-un rango de $-0.0009$ a $0.0003$ --indistinguible de ruido una vez
-controlado por el resto del panel.
-
-\paragraph{Redundante en poder predictivo, pero más estable en el
-tiempo.} La sección anterior aclaró que comparar el error de medición
-\emph{transversal} de DMSP-OLS contra el de la encuesta está fuera de
-alcance. Una pregunta distinta y sí verificable con los datos del panel
-es la estabilidad \emph{temporal} de cada medida --qué tanto cambia el
-valor reportado para el mismo hogar entre 2010 y 2013 más allá del
-cambio real esperable--, relevante porque una variable más volátil
-entre olas generaliza peor de un periodo a otro, justo el tipo de
-error que más le costaría a un sistema de alerta temprana. La
-correlación \emph{test-retest} de \texttt{dmsp\_stable\_lights} entre
-2010 y 2013 es 0.958 ($n=7{,}428$), frente a 0.905 de
-\texttt{n\_servicios\_publicos\_hogar} y apenas 0.600 de
-\texttt{n\_bienes\_durables\_hogar} --la variable de encuesta que, junto
-con servicios públicos, explica casi toda la redundancia de DMSP-OLS--;
-el cambio absoluto medio estandarizado confirma el mismo orden (0.11 en
-DMSP-OLS, 0.22 en servicios públicos, 0.61 en bienes durables). Es decir,
-la variable de encuesta que compite con DMSP-OLS en poder predictivo es
-casi el doble de volátil entre olas que la señal satelital. Esto no
-contradice la conclusión de redundancia --dentro de esta muestra y este
-periodo, DMSP-OLS no añade poder predictivo una vez la encuesta ya está
-disponible--, pero sí matiza su alcance práctico: si el argumento es que
-DMSP-OLS puede sustituir información de encuesta cuando esta no está
-actualizada (Sección~\ref{subsec:politica}), su mayor estabilidad
-temporal es evidencia directa a favor de esa función, no solo una
-intuición razonable.
-
-\paragraph{ALOS PALSAR y Landsat 5 TM: mismo patrón, por un mecanismo
-distinto.} Estas dos fuentes no tienen datos reales en la ola de prueba
-(2013, Sección~\ref{subsec:geo}), así que no pueden evaluarse con el
-mismo holdout temporal -- se probaron, junto con DMSP-OLS, en un ejercicio
-exploratorio aparte: Modelo A/B \textbf{con las tres fuentes juntas}
-(DMSP-OLS + ALOS PALSAR + Landsat 5 TM), restringido a la transición
-2010$\to$2013 y evaluado con validación cruzada agrupada por hogar en vez
-de un periodo de prueba separado (\texttt{construir\_pipeline\_geo3\_cv.py}).
-Los resultados de ese ejercicio \textbf{no son comparables cifra a cifra}
-con la Tabla~\ref{tab:marginal_dmsp} --evaluar dentro del mismo periodo
-que el entrenamiento es una prueba más débil que un holdout a otro
-momento-- pero la correlación bruta de sus variables contra el resultado
-confirma el mismo patrón de redundancia que DMSP-OLS: \texttt{alos\_hh\_db}
-correlaciona apenas $r=-0.113$ con la entrada a pobreza (frente a
-$r=-0.250$ de \texttt{n\_servicios\_publicos\_hogar}) y \texttt{l5\_ndvi}
-$r=0.160$ --ambas más débiles que cualquiera de los proxies de riqueza ya
-presentes en la ELCA. La misma correlación residualizada calculada para
-DMSP-OLS, aplicada a \texttt{alos\_hh\_db} y \texttt{l5\_ndvi} controlando
-por las mismas dos variables, también colapsa a valores cercanos a cero
-($r=+0.010$ y $r=+0.011$ respectivamente, frente a $r=-0.113$ y
-$r=+0.160$ crudos). Ninguna de las tres fuentes geoespaciales nuevas
-parece aportar, para este panel de encuesta específico, información que
-la propia ELCA no capture ya de forma más directa.
-
-\paragraph{¿Ayuda DMSP-OLS cuando la encuesta no pregunta por servicios
-públicos ni bienes del hogar?} Si la redundancia con
-\texttt{n\_servicios\_publicos\_hogar} y \texttt{n\_bienes\_durables\_hogar}
-explica la ausencia de mejora, DMSP-OLS debería aportar más en un
-escenario donde esas dos preguntas no estuvieran disponibles --el caso
-realista de datos administrativos sin encuesta de hogar rica, o de una
-ola de encuesta futura sin ese módulo--. Este ejercicio de \emph{ablation}
---a diferencia de la Tabla~\ref{tab:marginal_dmsp}-- todavía usa el umbral
-de clasificación por F1 y la búsqueda de hiperparámetros con
-\texttt{CV\_FOLDS=3}/\texttt{N\_ITER\_BUSQUEDA=8} de la corrida original
-(Sección~\ref{subsec:desbalance}), no la versión robusta por F$_2$ con
-\texttt{CV\_FOLDS=10}/\texttt{N\_ITER\_BUSQUEDA=30} adoptada para las
-Tablas~\ref{tab:desempeno_modelos} y~\ref{tab:marginal_dmsp} --no se ha
-vuelto a correr bajo ese criterio--, así que sus cifras de AUC-ROC no son
-directamente comparables punto a punto con las de esas dos tablas, aunque
-la lógica del ejercicio (redundancia vs.\ aporte incremental) no depende
-de esa elección. Se reentrenaron los tres
-algoritmos eliminando esas dos columnas de los Modelos A y B (``A sin
-riqueza'' / ``B sin riqueza'' en lo que sigue; \texttt{Anoriq}/\texttt{Bnoriq}
-en el código) y de sus versiones con DMSP-OLS agregado (``A sin riqueza +
-DMSP-OLS'' / ``B sin riqueza + DMSP-OLS''; \texttt{AnoriqGeo}/\texttt{BnoriqGeo}).
-El resultado es mixto y, en conjunto, no confirma la hipótesis con
-fuerza: Logística regularizada es el único algoritmo con una mejora
-consistente aunque pequeña (AUC-ROC: ``A sin riqueza'' 0.7457
-$\to$ ``A sin riqueza + DMSP-OLS'' 0.7469; \texttt{precision\_top10}:
-``A sin riqueza'' 0.497 $\to$ ``A sin riqueza + DMSP-OLS'' 0.500, y
-``B sin riqueza'' 0.500 $\to$ ``B sin riqueza + DMSP-OLS'' 0.503);
-XGBoost no mejora en ninguna de las dos comparaciones (``A sin riqueza''
-0.7635 $\to$ ``A sin riqueza + DMSP-OLS'' 0.7615; ``B sin riqueza''
-0.7350 $\to$ ``B sin riqueza + DMSP-OLS'' 0.7341); HistGradientBoosting
-mejora en el Modelo B sin riqueza pero empeora en el Modelo A sin
-riqueza. Que el único algoritmo con mejora consistente
-sea el lineal --el que, por construcción, no puede aprender
-automáticamente combinaciones no lineales de otras variables que
-sustituyan a DMSP-OLS-- es coherente con la explicación de redundancia:
-los modelos de árboles, más flexibles, encuentran sustitutos suficientes
-en el resto del panel incluso sin las dos preguntas eliminadas, mientras
-que el modelo lineal sí gana algo al no tener esa alternativa. El efecto
-es, en cualquier caso, demasiado pequeño y demasiado inconsistente entre
-algoritmos para sostener una recomendación de política a partir de él.
-
-\paragraph{¿Ayuda DMSP-OLS más cerca del umbral de pobreza?} Se dividió
-el conjunto de prueba de XGBoost (Modelo A) en terciles según la
-distancia absoluta a la línea de pobreza en la ola base
-(\texttt{|brecha\_lp\_ingreso|}, \texttt{heterogeneidad\_cerca\_umbral.py}),
-usando los hiperparámetros ya elegidos (sin volver a tunear, para aislar
-el efecto de agregar DMSP-OLS). El cambio en AUC-ROC al agregar DMSP-OLS
-es de $-0.0008$ en el tercil más cercano al umbral ($n=1{,}064$, tasa de
-entrada 32.7\%), $+0.0011$ en el tercil medio ($n=1{,}107$, 19.2\%) y
-$-0.0038$ en el tercil más lejano ($n=1{,}020$, 7.3\%). Aunque la caída
-es técnicamente menor cerca del umbral que lejos de él, el cambio sigue
-siendo negativo o prácticamente nulo en los tres terciles --no hay
-evidencia de que DMSP-OLS ayude de forma sustantiva ni siquiera en el
-subgrupo de hogares donde el ingreso reportado discrimina peor--.
-
-\subsection{Contribución marginal de las variables geoespaciales bajo pobreza multidimensional (IPM)}
+\subsubsection{Bajo pobreza multidimensional (IPM)}
 \label{subsec:marginal_ipm}
 
-El mismo ejercicio de la Sección~\ref{subsec:marginal} --agregar las 23
-variables DMSP-OLS a los Modelos A y B, mismo holdout temporal, mismo
-umbral por F$_2$-- se repitió con \texttt{pobre\_ipm} como variable de
-resultado en vez de la pobreza monetaria (\texttt{registro\_modelos\_
-ipm.csv}, mismas covariables $X$, solo cambia el \emph{target}). A
-diferencia de monetaria, aquí la pregunta de si el cambio de AUC-ROC es
-distinguible de ruido de muestreo se responde con un bootstrap pareado
-sobre el conjunto de prueba (\texttt{diagnostico\_bootstrap\_ipm.py}),
-con una versión adicional que corrige por correlación intra-comunidad
-agrupando el remuestreo por \texttt{id\_comunidad}
-(\texttt{diagnostico\_bootstrap\_cluster\_ipm.py}, 1{,}696 clusters) --el
-error estándar ingenuo por hogar puede subestimar la incertidumbre si
-hogares de una misma comunidad comparten exposición a la misma señal de
-iluminación.
+El mismo ejercicio se repitió con \texttt{pobre\_ipm} como variable de
+resultado en vez de la pobreza monetaria (mismas covariables $X$, solo
+cambia el \emph{target}), evaluando la significancia del cambio de AUC-ROC
+con un bootstrap pareado sobre el conjunto de prueba, con una versión
+adicional que corrige por correlación intra-comunidad agrupando el
+remuestreo por \texttt{id\_comunidad} (1{,}696 clusters) --el error
+estándar ingenuo por hogar puede subestimar la incertidumbre si hogares de
+una misma comunidad comparten exposición a la misma señal de
+iluminación--.
 
 \input{tables/tab_marginal_dmsp_ipm_significancia.tex}
 
-\textbf{Resultado: a diferencia de monetaria, bajo IPM el efecto de
-DMSP-OLS es estadísticamente significativo en 3 de las 10 combinaciones
-algoritmo/especificación --pero sigue siendo económicamente marginal.}
-XGBoost mejora en ambas especificaciones (AUC-ROC $+0.0128$, $p=0.006$ en
-A; $+0.0198$, $p=0.001$ en B) y LightGBM mejora en B ($+0.0167$,
-$p<0.001$); las siete combinaciones restantes --incluidas ambas
-especificaciones de Random Forest, HistGradientBoosting y Logística
-regularizada-- tienen intervalos de confianza que cruzan cero, igual que
-en monetaria. La corrección por clustering comunitario, disponible para
-XGBoost, HistGradientBoosting y Logística, no cambia la conclusión: los
-dos casos significativos de XGBoost lo siguen siendo ($p=0.004$ y
-$p<0.001$ agrupado por comunidad), así que el efecto no es un artefacto
-de tratar como independientes a hogares que en realidad comparten
-información espacial. Aun así, una ganancia de 0.013--0.020 en AUC-ROC es
-pequeña en términos absolutos --del mismo orden que la variabilidad entre
-semillas de un solo algoritmo (Tabla~\ref{tab:desempeno_modelos})-- y
-\texttt{precision\_top10} mejora de forma consistente pero igual de
-modesta ($+0.016$ a $+0.022$ en los dos casos significativos de XGBoost).
-La lectura más defendible no es ``DMSP-OLS no sirve'' ni ``DMSP-OLS
-mejora la predicción'': es que el aporte es real y medible bajo IPM,
-concentrado en un subconjunto de algoritmos, y demasiado pequeño para
-cambiar una decisión de focalización por sí solo --la pregunta de
-\emph{dónde} se concentra ese aporte, más relevante para una
-recomendación de política que su tamaño promedio, se retoma en la
-Sección~\ref{subsec:heterogeneidad}.
+\textbf{Segundo,} bajo IPM el efecto de DMSP-OLS sí es estadísticamente
+significativo, aunque económicamente marginal, en 2 de los 5 algoritmos:
+XGBoost mejora en ambas especificaciones ($+0.013$ a $+0.020$ en AUC-ROC,
+$p\leq0.006$) y LightGBM en el Modelo B ($+0.017$, $p<0.001$), confirmado
+con bootstrap pareado y con una corrección por clustering comunitario que
+descarta que el resultado sea un artefacto de tratar como independientes a
+hogares que comparten señal espacial. Las siete combinaciones restantes no
+son distinguibles de cero. La lectura más defendible no es ``no sirve''
+ni ``mejora la predicción'': el aporte es real bajo IPM, concentrado en un
+subconjunto de algoritmos, y demasiado pequeño para cambiar por sí solo
+una decisión de focalización.
 
-\subsection{Heterogeneidad territorial}
+\subsubsection{Heterogeneidad del efecto de DMSP-OLS}
 \label{subsec:heterogeneidad}
 
-Las Secciones~\ref{subsec:marginal} y~\ref{subsec:marginal_ipm}
-establecen el efecto \emph{promedio} de agregar DMSP-OLS: nulo bajo
-pobreza monetaria, pequeño pero significativo bajo IPM en algunos
-algoritmos. Esta subsección pregunta si ese promedio esconde
-heterogeneidad --si DMSP-OLS ayuda más en subpoblaciones específicas,
-aunque el efecto agregado sea chico o nulo, una pregunta más relevante
-para una recomendación de política que la cifra agregada por sí sola--.
-Se repite el ejercicio de las Secciones anteriores (agregar DMSP-OLS a
-los Modelos A y B, mismos hiperparámetros ya elegidos, sin volver a
-tunear) dentro de cada subgrupo de cuatro ejes de heterogeneidad: zona
-(urbano/rural), cercanía a la línea de pobreza en la ola base (cuartiles
-de $|\texttt{brecha\_lp\_ingreso}|$), estrato socioeconómico verificado, y
-terciles de un índice de riqueza construido con las dos variables de
-encuesta que hacen redundante a DMSP-OLS en el efecto agregado
-(\texttt{n\_servicios\_publicos\_hogar} + \texttt{n\_bienes\_durables\_hogar}
-estandarizadas y sumadas, Sección~\ref{subsec:marginal}) --si la
-redundancia fuera total, el aporte de DMSP-OLS debería ser parejo en los
-tres terciles; si aporta más donde ese índice discrimina peor, sería
-evidencia de que la redundancia no es completa--. Es un ejercicio
-exploratorio (estimaciones puntuales por celda, sin bootstrap específico
-de cada subgrupo): con algunas celdas de unos pocos cientos de hogares,
-sirve para identificar candidatos a investigar con más rigor, no para
-conclusiones definitivas por sí solo.
-
-\input{tables/tab_heterogeneidad_dmsp.tex}
-
-\textbf{Bajo pobreza monetaria, el nulo agregado se sostiene en los
-cuatro ejes:} de 70 celdas algoritmo/grupo/especificación, solo una
-($-0.022$, LightGBM, cuartil más lejano de la LP, Modelo A) supera el
-umbral de $|\Delta \text{AUC}|\geq 0.02$ --y en la dirección negativa--.
-No hay zona, nivel de cercanía al umbral, estrato ni tercil de riqueza
-donde DMSP-OLS aporte de forma sistemática bajo esta definición de
-pobreza.
+Las Secciones~\ref{subsec:marginal} y~\ref{subsec:marginal_ipm} establecen
+el efecto \emph{promedio} de agregar DMSP-OLS. Esta subsección pregunta si
+ese promedio esconde heterogeneidad --si DMSP-OLS ayuda más en
+subpoblaciones específicas-- a lo largo de cuatro ejes: zona
+(urbano/rural), cercanía a la línea de pobreza en la ola base, estrato
+socioeconómico verificado, y terciles de un índice de riqueza construido
+con las dos variables de encuesta que hacen redundante a DMSP-OLS en el
+efecto agregado. Es un ejercicio exploratorio (estimaciones puntuales por
+celda, sin bootstrap específico de cada subgrupo).
 
 \input{tables/tab_heterogeneidad_ipm.tex}
 
-\textbf{Bajo IPM, en cambio, el aporte no está parejo: se concentra en
-zona rural, hogares de menor riqueza aproximada por encuesta, y estratos
-bajos --justo donde el argumento de que la luz nocturna complementa a
-encuestas con menor cobertura o poder discriminante predeciría que
-debería concentrarse.} LightGBM-B es el patrón más claro: $+0.032$ en
-zona rural (frente a $+0.008$ urbano), $+0.030$ en el tercil de riqueza
-menos discriminante (frente a $+0.009$ en el más discriminante), y
-$+0.024$ en Estrato 1 (frente a $-0.003$ en Estrato 3). XGBoost, el otro
-algoritmo con efecto agregado significativo (Sección~\ref{subsec:marginal_ipm}),
-muestra el patrón opuesto en el eje de riqueza --mayor ganancia en el
-tercil \emph{más} discriminante ($+0.033$/$+0.034$)-- por lo que la
-heterogeneidad por riqueza-proxy no es uniforme entre algoritmos, pero sí
-lo es por zona y estrato: en ambos algoritmos con efecto agregado
-significativo, el aporte marginal es mayor o igual en zona rural que en
-zona urbana y decrece con el estrato. Random Forest es la única excepción
-sistemática --su $\Delta$AUC es negativo o nulo en casi todos los
-subgrupos de ambas definiciones de pobreza, consistente con no tener
-efecto agregado significativo en ninguna especificación IPM
-(Tabla~\ref{tab:marginal_dmsp_ipm_significancia})--.
+\textbf{Tercero,} y el hallazgo más concreto a favor del valor de
+DMSP-OLS: el efecto promedio nulo (monetaria) o pequeño (IPM) esconde
+heterogeneidad relevante. Bajo monetaria el nulo se sostiene en los cuatro
+ejes explorados (Tabla~\ref{tab:heterogeneidad_dmsp}, Anexo~\ref{apx:heterogeneidad_dmsp}):
+de 70 celdas algoritmo/grupo/especificación, solo 1
+supera el umbral de cambio relevante ($|\Delta\text{AUC}|\geq0.02$). Bajo
+IPM, en cambio (Tabla~\ref{tab:heterogeneidad_ipm}), el aporte se concentra sistemáticamente en zona rural,
+estratos bajos y hogares peor capturados por el proxy de riqueza de la
+encuesta --justo donde la información de encuesta es más débil--;
+LightGBM-B es el patrón más claro ($+0.032$ en zona rural frente a
+$+0.008$ urbano, $+0.024$ en Estrato 1 frente a $-0.003$ en Estrato 3).
+Random Forest es la única excepción sistemática, sin ganancia en casi
+ningún subgrupo, consistente con no tener efecto agregado significativo en
+ninguna especificación IPM. Esto sugiere que el valor de DMSP-OLS no está
+en sustituir el poder predictivo que ya aporta la encuesta, sino en
+complementarla precisamente donde su cobertura es más débil o menos
+confiable en el tiempo --el escenario de un sistema de focalización con
+información administrativa incompleta o encuestas desactualizadas--. Es un
+ejercicio exploratorio (celdas de unos pocos cientos de hogares, sin
+bootstrap propio); confirmarlo con más rigor queda como agenda de
+investigación (Sección~\ref{subsec:limitaciones}).
 
-Esta heterogeneidad es, hasta ahora, el hallazgo más concreto a favor del
-argumento de esta tesis sobre el valor de DMSP-OLS: no como sustituto del
-poder predictivo que ya aporta la encuesta, sino como fuente
-complementaria cuyo aporte relativo crece precisamente donde la
-información de encuesta es más débil o menos discriminante --rural,
-estratos bajos, hogares peor capturados por el proxy de riqueza--, el
-escenario más parecido al de un sistema de focalización que deba operar
-con información administrativa incompleta o con encuestas desactualizadas
-entre rondas (Sección~\ref{subsec:politica}). Queda como agenda de
-investigación --Sección~\ref{subsec:limitaciones}-- confirmar estos
-patrones con un bootstrap específico por celda antes de tratarlos como
-un resultado robusto.
-
+Traducido al lenguaje de errores de inclusión y exclusión de la
+Sección~\ref{subsec:errores_inclusion}, esta heterogeneidad tiene una
+lectura más concreta: en LightGBM-Modelo B --el algoritmo con el patrón
+más claro-- agregar DMSP-OLS sube el recall (menos errores de exclusión,
+hogares vulnerables que el modelo deja de marcar) en 6.4 puntos
+porcentuales en zona rural y 7.0 puntos en el tercil de riqueza-proxy
+menos discriminante, en ambos casos sin costo en precisión (cambio nulo o
+positivo, $+0.003$ a $+0.004$) --es decir, sin aumentar los errores de
+inclusión--; en las subpoblaciones opuestas (zona urbana, proxy de riqueza
+más discriminante) el recall cae en su lugar ($-5.5$ y $-9.7$ puntos
+respectivamente). El mecanismo no es idéntico en XGBoost, el otro
+algoritmo con efecto agregado significativo: ahí la ganancia de AUC-ROC no
+se traduce de forma consistente en más recall --en el Modelo B el recall
+cae en zona urbana y en el tercil de mayor riqueza pese a que el AUC sube
+en ambos, con la precisión subiendo en su lugar--, lo que sugiere que el
+mecanismo por el cual DMSP-OLS reduce el error de focalización (más
+cobertura vs. más precisión) depende del algoritmo, no solo de la
+subpoblación (\texttt{diagnostico\_heterogeneidad\_ipm.csv}).
 
 % ============================================================
 % SECCIÓN 6 — CONCLUSIONES          TARGET: 3–4 páginas
@@ -2443,6 +2388,17 @@ excepto Random Forest (Aipm y Bipm), donde fue \emph{balanced}
 (reponderación de clases).}
 
 \input{tables/tab_desempeno_modelos_ipm.tex}
+
+\subsection{Heterogeneidad territorial del aporte de DMSP-OLS bajo pobreza monetaria}
+\label{apx:heterogeneidad_dmsp}
+
+Complemento de la Sección~\ref{subsec:heterogeneidad}: el detalle por
+celda (eje de heterogeneidad, grupo, especificación y algoritmo) que
+sostiene la afirmación de que el efecto nulo de DMSP-OLS bajo pobreza
+monetaria se mantiene parejo en los cuatro ejes explorados, sin
+subgrupos donde aporte de forma sistemática.
+
+\input{tables/tab_heterogeneidad_dmsp.tex}
 
 \section{Detalles de construcción de variables geoespaciales}
 \label{apx:geo}

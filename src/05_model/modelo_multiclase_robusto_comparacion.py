@@ -334,11 +334,31 @@ def _log_resumen(r: dict) -> None:
     )
 
 
+# Checkpoint/reanudacion (pedido explicito del usuario, 2026-09-18, tras
+# un crash con exit 137/SIGKILL durante el smoke test): cada combinacion
+# algoritmo/especificacion escribe su fila en REGISTRO_CSV como ULTIMO
+# paso (via registrar_resultado_multiclase, al final de cada iteracion de
+# cada funcion correr_*), asi que esa fila es un marcador fiable de
+# "esta combinacion ya termino, con predicciones e importancia ya
+# guardadas". Si el proceso muere a mitad de camino (OOM, hibernacion,
+# etc.), reiniciar `python -u modelo_multiclase_robusto_comparacion.py`
+# SALTA automaticamente las combinaciones ya presentes en el registro en
+# vez de repetirlas -- no se pierde el trabajo ya hecho, ni se duplica.
+def _ya_completado(algoritmo: str, espec: str) -> bool:
+    if not REGISTRO_CSV.exists():
+        return False
+    registro = pd.read_csv(REGISTRO_CSV, usecols=["algoritmo", "especificacion"])
+    return bool(((registro["algoritmo"] == algoritmo) & (registro["especificacion"] == espec)).any())
+
+
 def correr_arbol_principal(nombre_algoritmo: str, out_subdir: str, pipeline_fn, param_dist: dict, fit_params_fn=None) -> None:
     out_dir = mcu.RESULTADOS_DIR / out_subdir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_PRINCIPAL:
+        if _ya_completado(nombre_algoritmo, espec):
+            log(f"=== {nombre_algoritmo} -- Modelo {espec} -- YA COMPLETADO (checkpoint), se salta ===")
+            continue
         train, test = mcu.cargar_datos_4clases(espec)
         x_train, y_train, cat_cols = mcu.preparar_arboles_nativos_multiclase(train)
         x_test, y_test, _ = mcu.preparar_arboles_nativos_multiclase(test)
@@ -393,6 +413,9 @@ def correr_arbol_cv(nombre_algoritmo: str, out_subdir: str, pipeline_fn, param_d
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_CV:
+        if _ya_completado(nombre_algoritmo, espec):
+            log(f"=== {nombre_algoritmo} -- Modelo {espec} -- YA COMPLETADO (checkpoint), se salta ===")
+            continue
         datos = mcu.cargar_datos_cv_4clases(espec)
         x, y, cat_cols = mcu.preparar_arboles_nativos_multiclase(datos)
 
@@ -445,6 +468,9 @@ def correr_hgb() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_PRINCIPAL:
+        if _ya_completado("HistGradientBoosting (sklearn)", espec):
+            log(f"=== HistGradientBoosting (sklearn) -- Modelo {espec} -- YA COMPLETADO (checkpoint), se salta ===")
+            continue
         train, test = mcu.cargar_datos_4clases(espec)
         x_train, y_train, cat_cols = mcu.preparar_arboles_nativos_multiclase(train)
         x_test, y_test, _ = mcu.preparar_arboles_nativos_multiclase(test)
@@ -488,6 +514,9 @@ def correr_hgb() -> None:
         log(f"=== HistGradientBoosting -- Modelo {espec} -- FIN ===")
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_CV:
+        if _ya_completado("HistGradientBoosting (sklearn)", espec):
+            log(f"=== HistGradientBoosting (sklearn) -- Modelo {espec} -- YA COMPLETADO (checkpoint), se salta ===")
+            continue
         datos = mcu.cargar_datos_cv_4clases(espec)
         x, y, cat_cols = mcu.preparar_arboles_nativos_multiclase(datos)
 
@@ -571,6 +600,9 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train, fa
     estrategia_imputacion = "0 + indicador (numericas), 'Sin dato' + one-hot (categoricas)" + (", estandarizacion" if familia in ("logistica", "nn") else "")
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_PRINCIPAL:
+        if _ya_completado(nombre_algoritmo, espec):
+            log(f"=== {nombre_algoritmo} -- Modelo {espec} -- YA COMPLETADO (checkpoint), se salta ===")
+            continue
         train, test = mcu.cargar_datos_4clases(espec)
         x_train, y_train = mcu.preparar_xy_crudo_multiclase(train)
         x_test, y_test = mcu.preparar_xy_crudo_multiclase(test)
@@ -611,6 +643,9 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train, fa
         log(f"=== {nombre_algoritmo} -- Modelo {espec} -- FIN ===")
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_CV:
+        if _ya_completado(nombre_algoritmo, espec):
+            log(f"=== {nombre_algoritmo} -- Modelo {espec} -- YA COMPLETADO (checkpoint), se salta ===")
+            continue
         datos = mcu.cargar_datos_cv_4clases(espec)
         x, y = mcu.preparar_xy_crudo_multiclase(datos)
 
