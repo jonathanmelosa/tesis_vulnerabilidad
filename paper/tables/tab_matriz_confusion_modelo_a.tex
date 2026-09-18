@@ -1,22 +1,25 @@
 \begin{table}[H]
   \centering
   \caption{Matriz de confusión, Modelo A, holdout temporal (test
-  2013$\to$2016, $n=3{,}191$, semilla 42). VN/FP/FN/VP: hogares
-  verdadero negativo, falso positivo, falso negativo y verdadero
-  positivo al umbral de clasificación de la Tabla~\ref{tab:desempeno_modelos}.}
+  2013$\to$2016, semilla 42), pobreza monetaria ($n=3{,}191$) e
+  IPM ($n=5{,}571$). VN/FP/FN/VP: hogares verdadero negativo, falso
+  positivo, falso negativo y verdadero positivo, al umbral de
+  clasificación de las Tablas~\ref{tab:desempeno_modelos} y
+  \ref{tab:desempeno_modelos_ipm} respectivamente.}
   \label{tab:matriz_confusion_a}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lcccccc}
+  \begin{tabular}{lcccccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{VN} & \textbf{FP} & \textbf{FN} & \textbf{VP} & \textbf{\% muestra} & \textbf{\% seguros} \\
-     & & & & & \textbf{marcada} & \textbf{identificados} \\
+     & \multicolumn{4}{c}{\textbf{Monetaria}} & \multicolumn{4}{c}{\textbf{IPM}} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+    \textbf{Algoritmo} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} \\
     \midrule
-    XGBoost                  & 668 & 1888 & 18 & 617 & 78.5\% & 26.1\% \\
-    Random Forest            & 984 & 1572 & 41 & 594 & 67.9\% & 38.5\% \\
-    HistGradientBoosting     & 1024 & 1532 & 51 & 584 & 66.3\% & 40.1\% \\
-    LightGBM                 & 1202 & 1354 & 74 & 561 & 60.0\% & 47.0\% \\
-    Logística regularizada   & 1112 & 1444 & 74 & 561 & 62.8\% & 43.5\% \\
+    XGBoost                  & 617 & 1888 & 18 & 668 & 491 & 3297 & 51 & 1732 \\
+    Random Forest            & 594 & 1572 & 41 & 984 & 343 & 1493 & 199 & 3536 \\
+    HistGradientBoosting     & 584 & 1532 & 51 & 1024 & 301 & 1124 & 241 & 3905 \\
+    LightGBM                 & 561 & 1354 & 74 & 1202 & 415 & 2052 & 127 & 2977 \\
+    Logística regularizada   & 561 & 1444 & 74 & 1112 & 379 & 1862 & 163 & 3167 \\
     \bottomrule
   \end{tabular}
 \end{table}

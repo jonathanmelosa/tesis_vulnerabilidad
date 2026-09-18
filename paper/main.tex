@@ -1410,48 +1410,68 @@ Forest y la regresión logística en el Modelo B, donde fue \emph{balanced}
   \end{minipage}
 \end{table}
 
-Dos patrones organizan esta comparación, más allá de las diferencias
-puntuales entre algoritmos y especificaciones (Tabla~\ref{tab:desempeno_modelos}).
+Frente al desempeño de los modelos, se encontraron dos hallazgos a partir de las diferencias
+puntuales entre los desempeños de los algoritmos y las especificaciones (Tabla~\ref{tab:desempeno_modelos}).
 \textbf{Primero,} el algoritmo elegido
-no cambia el poder de discriminación (AUC-ROC 0.731--0.767 en los cinco),
-pero sí determina cuánta capacidad de cobertura necesita un programa para
-no perder casos reales --y ese costo, con cualquier algoritmo, ronda los
-3--4 hogares atendidos por cada 1 que realmente lo necesitaba
-(Tabla~\ref{tab:matriz_confusion_a}). La comparación entre algoritmos es
-indicativa, no concluyente: sus intervalos de confianza se traslapan y no
-se corrió una prueba pareada (DeLong) que la haga formal. El costo de
-cobertura sí varía de forma notable entre ellos incluso con AUC casi
-idéntico --HistGradientBoosting identifica correctamente al 40\% de los
-hogares seguros, XGBoost solo al 26\%--, y en parte es una decisión de
-diseño: el umbral elegido por F$_2$, no solo el algoritmo, determina dónde
-se cae dentro del techo que impone el AUC. Lo que sí es una restricción
-real, de la que ninguna combinación de algoritmo y umbral escapa, es que
-con un AUC-ROC de 0.75 no es posible lograr recall y precision altos
-simultáneamente. Bajo IPM el mismo techo aparece, en un rango de AUC
-igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
+no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco). 
+Bajo IPM el mismo techo aparece, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
 Anexo~\ref{apx:desempeno_ipm}).
+Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no, 
+el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces. 
+Esto es consistente con la literatura sobre predicción de pobreza 
+--AUC-ROC de 0.70--0.80 en \textcite{chaudhuri2002}, 0.73--0.77 en \textcite{mcbride2018}--.
+No obstante, incluso con una capacidad de discriminación similar, 
+el algoritmo y la estrategia de elección del umbral sí determinan 
+cuánta capacidad de cobertura necesita un eventual programa social 
+que focalice vulnerables para no perder casos reales. En este estudio 
+se encontó que ese costo, con cualquier algoritmo, ronda entre los
+3--4 hogares atendidos por cada hogar que realmente lo necesitaba
+(Tabla~\ref{tab:matriz_confusion_a}): de los hogares que efectivamente no
+entran en pobreza, HistGradientBoosting identifica correctamente al 40\%,
+mientras XGBoost solo al 26\%.
+En términos de las métricas de la Tabla~\ref{tab:desempeno_modelos}, esto
+corresponde a un recall alto (0.88--0.95: casi todos los hogares que
+efectivamente caen quedan marcados) pero una precisión baja (0.25--0.28:
+solo uno de cada 4 marcados efectivamente cae); la precisión en el 10\%
+de mayor riesgo (Prec.-top10, 0.49--0.52) casi duplica la precisión al
+umbral completo, lo que sugiere que concentrar la atención en ese decil
+sería una estrategia de focalización más eficiente que usar el umbral de
+clasificación completo. El comportamiento de recall y precision, 
+obedece no solo al modelo, sino en parte también a la decisión de diseño: el umbral elegido por F$_2$, que pone el doble 
+del peso en la importancia de los falsos positivos que en los falsos negativos, determina dónde
+se cae (vulnerable o no vulnerable) dentro del techo que impone el AUC. 
+Lo que sí es una restricción, que ninguna combinación de modelo y umbral pueden resolver, es que
+con un AUC-ROC de 0.75 no es posible lograr recall y precision altos
+simultáneamente. Este intercambio es el mismo que la literatura de
+focalización de programas sociales llama errores de inclusión y de
+exclusión (\emph{Type E} y \emph{Type F}, \textcite{cornia1993}): para un
+instrumento de focalización dado, reducir uno necesariamente aumenta el
+otro; solo un instrumento con mayor poder de discriminación --no un
+umbral distinto-- puede mover esa frontera.
 
-\textbf{Segundo,} ese costo apenas cambia si se excluye el ingreso/gasto
-del hogar de las covariables --la ganancia de incluir esa información, la
-más cara de levantar, es marginal (brecha de AUC de 0.008 a 0.028 entre
+\input{tables/tab_matriz_confusion_modelo_a.tex}
+
+\textbf{Segundo,} la capacidad de identificar vulnerables y el costo que 
+mencionamos anteriormente apenas cambia si se excluyen las variables de ingreso/gasto
+del hogar de las covariables que se utilizan en los modelos. La ganancia 
+de incluir esa información, que valga mencionar es la más cara de levantar mediante encuesta, 
+y la menos confiable, es marginal (brecha de AUC de 0.008 a 0.028 entre
 el Modelo A y B, mucho menor de lo que predeciría un enfoque de
 vulnerabilidad puramente monetario, \textcite{chaudhuri2002}). Esto no
-implica que el ingreso no importe --univariadamente es de las variables
+implica que el ingreso no importe, anteriormente se estableció que es de las variables
 que más separa a los cuatro grupos de la matriz de transición (Sección~
 \ref{subsec:caracterizacion_grupos})--, sino que su contenido informativo
-ya está sustancialmente duplicado por otras variables del núcleo del
+ya está sustancialmente capturado por otras variables del núcleo del
 perfil (riqueza, educación, bienes durables; Hallazgo 4,
 Sección~\ref{subsec:caracterizacion_grupos}). Bajo IPM la brecha es aún
-menor, y para Random Forest y XGBoost es negativa --el Modelo B supera al
-A--, lo que descarta que la brecha chica bajo monetaria se deba a la
-relación mecánica entre ingreso y la definición de esa pobreza: ni
-siquiera donde el ingreso no define el resultado ayuda incluirlo. La
+menor, y para Random Forest y XGBoost es negativa --el Modelo B (sin ingreso/gasto) supera al
+A--, lo que descarta que la pequeña brecha en la capacidad discriminante 
+de los modelos bajo la definición de pobreza monetaria se deba a la
+relación mecánica entre ingreso y la definición de pobreza. La
 implicación práctica sigue la misma lógica que sustenta focalizar con
 proxies observables del ingreso en vez de medirlo directamente
 \parencite{mcbride2018}: un instrumento más barato, sin ingreso/gasto
 detallado, rendiría casi lo mismo.
-
-\input{tables/tab_matriz_confusion_modelo_a.tex}
 
 Las Figuras~\ref{fig:importancia_rf} y~\ref{fig:coef_logistica} muestran
 las variables más importantes de Random Forest y los mayores coeficientes

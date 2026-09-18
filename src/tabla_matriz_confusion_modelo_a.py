@@ -1,25 +1,25 @@
 """
 tabla_matriz_confusion_modelo_a.py
 =====================================
-Tabla de matriz de confusión (Modelo A, pobreza monetaria, holdout
-2013->2016) para los cinco algoritmos de la Tabla~\\ref{tab:desempeno_modelos}
--- pedido del usuario (2026-09-17): la Seccion 4 ya promete "la matriz de
-confusion completa" (Seccion~\\ref{subsec:validacion}), pero esa matriz
-nunca aparecia en ningun lado del documento. Usa las celdas ya calculadas
-(semilla 42, misma corrida robusta) en
-`registro_modelos_fbeta2_cv10.csv` -- no se recalcula nada.
+Tabla de matriz de confusión (Modelo A) para los cinco algoritmos,
+comparando pobreza monetaria (Tabla~\\ref{tab:desempeno_modelos}) e IPM
+(Tabla~\\ref{tab:desempeno_modelos_ipm}, Anexo~\\ref{apx:desempeno_ipm})
+lado a lado -- pedido del usuario (2026-09-18): una fila por algoritmo,
+columnas divididas por definición de pobreza. Cumple además la promesa
+ya hecha en la Sección 4 ("se reporta... la matriz de confusión
+completa", Sección~\\ref{subsec:validacion}), que antes no se cumplía en
+ningún lado del documento. Usa las celdas ya calculadas (semilla 42,
+misma corrida robusta) en `registro_modelos_fbeta2_cv10.csv` (monetaria)
+y `registro_modelos_ipm.csv` (IPM) -- no se recalcula nada.
 
-Ademas de VN/FP/FN/VP, calcula dos cifras derivadas que hacen el
-trade-off recall/precision tangible en terminos de un programa de
-focalizacion real:
-  - `pct_muestra_marcada`: (FP+VP)/n_test -- que fraccion de TODA la
-    muestra de prueba el modelo marcaria como "en riesgo".
-  - `pct_seguros_bien_identificados`: VN/(VN+FP) -- que fraccion de los
-    hogares que en realidad NO caen en pobreza el modelo excluye
-    correctamente.
+Solo VN/FP/FN/VP (sin los porcentajes derivados que tenía la versión
+anterior de esta tabla -- esos números ya se citan en prosa en la
+Sección~\\ref{subsec:desempeno} donde hacen falta, y aquí sobrecargaban
+la tabla).
 
 INPUTS
     data/processed/benchmark_resultados/registro_modelos_fbeta2_cv10.csv
+    data/processed/benchmark_resultados/registro_modelos_ipm.csv
 
 OUTPUTS
     paper/tables/tab_matriz_confusion_modelo_a.tex
@@ -33,7 +33,8 @@ from pathlib import Path
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-REGISTRO = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_fbeta2_cv10.csv"
+REGISTRO_MONETARIA = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_fbeta2_cv10.csv"
+REGISTRO_IPM = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_ipm.csv"
 OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 
 NOMBRES_ALGORITMO = {
@@ -44,37 +45,49 @@ NOMBRES_ALGORITMO = {
     "Logistica regularizada (elastic net, benchmark)": "Logística regularizada",
 }
 
+CELDAS = ["tn_semilla42", "fp_semilla42", "fn_semilla42", "tp_semilla42"]
+
+
+def _cargar(ruta: Path, especificacion: str) -> pd.DataFrame:
+    df = pd.read_csv(ruta)
+    df = df[df["especificacion"] == especificacion].copy()
+    df["algoritmo"] = df["algoritmo"].map(NOMBRES_ALGORITMO).fillna(df["algoritmo"])
+    return df.set_index("algoritmo")[CELDAS + ["auc_roc_media"]]
+
 
 def main() -> None:
-    df = pd.read_csv(REGISTRO)
-    df = df[df["especificacion"] == "A"].copy()
-    df["algoritmo"] = df["algoritmo"].map(NOMBRES_ALGORITMO).fillna(df["algoritmo"])
-    df["pct_muestra_marcada"] = (df["fp_semilla42"] + df["tp_semilla42"]) / df["n_test"]
-    df["pct_seguros_identificados"] = df["tn_semilla42"] / (df["tn_semilla42"] + df["fp_semilla42"])
-    df = df.sort_values("auc_roc_media", ascending=False)
+    monetaria = _cargar(REGISTRO_MONETARIA, "A")
+    ipm = _cargar(REGISTRO_IPM, "Aipm")
+
+    orden_algoritmos = monetaria.sort_values("auc_roc_media", ascending=False).index.tolist()
 
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
         r"  \caption{Matriz de confusión, Modelo A, holdout temporal (test",
-        r"  2013$\to$2016, $n=3{,}191$, semilla 42). VN/FP/FN/VP: hogares",
-        r"  verdadero negativo, falso positivo, falso negativo y verdadero",
-        r"  positivo al umbral de clasificación de la Tabla~\ref{tab:desempeno_modelos}.}",
+        r"  2013$\to$2016, semilla 42), pobreza monetaria ($n=3{,}191$) e",
+        r"  IPM ($n=5{,}571$). VN/FP/FN/VP: hogares verdadero negativo, falso",
+        r"  positivo, falso negativo y verdadero positivo, al umbral de",
+        r"  clasificación de las Tablas~\ref{tab:desempeno_modelos} y",
+        r"  \ref{tab:desempeno_modelos_ipm} respectivamente.}",
         r"  \label{tab:matriz_confusion_a}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
-        r"  \begin{tabular}{lcccccc}",
+        r"  \begin{tabular}{lcccccccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{VN} & \textbf{FP} & \textbf{FN} & \textbf{VP} & "
-        r"\textbf{\% muestra} & \textbf{\% seguros} \\",
-        r"     & & & & & \textbf{marcada} & \textbf{identificados} \\",
+        r"     & \multicolumn{4}{c}{\textbf{Monetaria}} & \multicolumn{4}{c}{\textbf{IPM}} \\",
+        r"    \cmidrule(lr){2-5} \cmidrule(lr){6-9}",
+        r"    \textbf{Algoritmo} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} & "
+        r"\textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} \\",
         r"    \midrule",
     ]
-    for _, fila in df.iterrows():
+    for algoritmo in orden_algoritmos:
+        m, i = monetaria.loc[algoritmo], ipm.loc[algoritmo]
         lineas.append(
-            f"    {fila['algoritmo']:<24s} & {int(fila['tn_semilla42'])} & {int(fila['fp_semilla42'])} & "
-            f"{int(fila['fn_semilla42'])} & {int(fila['tp_semilla42'])} & "
-            f"{fila['pct_muestra_marcada']*100:.1f}\\% & {fila['pct_seguros_identificados']*100:.1f}\\% \\\\"
+            f"    {algoritmo:<24s} & {int(m['tp_semilla42'])} & {int(m['fp_semilla42'])} & "
+            f"{int(m['fn_semilla42'])} & {int(m['tn_semilla42'])} & "
+            f"{int(i['tp_semilla42'])} & {int(i['fp_semilla42'])} & "
+            f"{int(i['fn_semilla42'])} & {int(i['tn_semilla42'])} \\\\"
         )
     lineas += [r"    \bottomrule", r"  \end{tabular}", r"\end{table}"]
 

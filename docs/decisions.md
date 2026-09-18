@@ -4159,3 +4159,108 @@ Seccion~\ref{subsec:desempeno} tal como esta hoy; el ejercicio multiclase
 se documenta y reporta como una pieza adicional, autocontenida y
 reproducible de principio a fin (script de datos -> script de modelos ->
 registro propio -> tablas/figuras propias), no como un reemplazo.
+
+## 2026-09-18: Bug critico de fuga de identificadores en el modelo multiclase -- fix, y tres agregados antes de relanzar (red neuronal, guardado de probabilidades, orden de ejecucion)
+
+**Diagnostico.** Al pedir un smoke test de SHAP sobre los modelos ya
+corridos de la suite multiclase (`diagnostico_shap_multiclase.py`), las
+dos variables mas "importantes" en XGBoost/B4 resultaron ser
+`llave_compuesta` (SHAP 0.612) y `consecutivo_c` (SHAP 0.058) -- muy por
+encima de la primera variable sustantiva real (`material_paredes_hogar`,
+0.120). Ambas son identificadores de hogar/cluster (`llave_compuesta`:
+8218/8218 valores unicos; `consecutivo_c`: 790/8218). La causa:
+`modelo_utils_multiclase.py` definia
+`COLS_NO_FEATURE = ["consecutivo", "Y_grupo"]`, omitiendo
+`consecutivo_c` y `llave_compuesta` -- que si estaban correctamente
+excluidos en el `modelo_utils.py` original del benchmark binario
+(verificado explicitamente a pedido del usuario). Consecuencia: TODA la
+corrida multiclase (5 algoritmos x 6 especificaciones, ~2.5 dias de
+computo) uso identificadores cuasi-unicos como covariable -- el modelo no
+aprendio nada generalizable, solo probablemente "memorizo" filas via un
+identificador. Alcance del dano: exclusivamente el ejercicio multiclase.
+La Seccion 5.1 (perfil univariado) y el benchmark binario de la
+Seccion 5.2 (`modelo_utils.py`, `registro_modelos*.csv`) NO se ven
+afectados -- se verifico linea por linea que `COLS_NO_FEATURE` en el
+modulo original SI incluye las 4 columnas de identificador.
+
+**Fix.** `COLS_NO_FEATURE` en `modelo_utils_multiclase.py` se corrige a
+`["consecutivo", "consecutivo_c", "llave_compuesta", "Y_grupo"]`
+(identico al binario). Verificado por conteo de columnas del `x`
+resultante: 167 -> 165. Se elimino del `paper/main.tex` el parrafo
+("Tercero") que reportaba el hallazgo entra-vs-sale del ejercicio
+multiclase contaminado, y se revirtio "tres hallazgos" -> "dos
+hallazgos" en la introduccion de la Seccion~\ref{subsec:caracterizacion_grupos}
+(ese hallazgo se reevaluara con los numeros correctos una vez esta
+corrida termine).
+
+**Tres agregados explicitos del usuario antes de relanzar (no se
+relanza solo con el fix, se aprovecha para completar el pipeline):**
+
+1. **Red neuronal (MLPClassifier) agregada a la suite** (ahora 6
+   algoritmos, no 5): `pipeline_nn`/`PARAM_DIST_NN` en
+   `modelo_multiclase_robusto_comparacion.py`, misma familia de
+   preprocesador que Random Forest/Logistica
+   (`mu.construir_preprocesador(x_train, escalar=True)`).
+   `MLPClassifier.fit()` de sklearn NO acepta `sample_weight` (a
+   diferencia de casi todos los demas estimadores de la libreria) ni
+   tiene `class_weight` en el constructor -- no existe una via nativa
+   para simular la estrategia "balanced" en este algoritmo. Decision
+   explicita del usuario, confirmada tras preguntarle si habia alguna
+   otra forma de revisarlo ("no hay otra opcion para revisar el balanced
+   en el NN"): para la red neuronal se compite unicamente entre
+   "ninguno" y "oversampling" (`BALANCEOS_NN`), sin gastar una busqueda
+   de hiperparametros completa (30 iter x 10 folds) en una estrategia
+   "balanced" que seria identica a "ninguno". Esto requirio agregar un
+   parametro `balanceos` a
+   `mcu.comparar_balanceo_y_tunear_multiclase` (antes hardcodeaba la
+   lista global `BALANCEOS`). Como `MLPClassifier` no tiene `coef_` ni
+   `feature_importances_`, su interpretabilidad se exporta via
+   `permutation_importance` sobre el pipeline completo (incluyendo el
+   preprocesador) aplicado a los datos EN CRUDO -- por eso ese caso
+   indexa por las columnas originales de `x`, no por
+   `get_feature_names_out()` del preprocesador (que describe columnas
+   post-one-hot que no existen en el x que se permuta). Esto llevo a
+   generalizar `_correr_lineal` (antes especifica a Random
+   Forest/Logistica) con un parametro `familia` de tres vias
+   ("arbol"/"logistica"/"nn"), delegado a la nueva funcion
+   `_exportar_interpretabilidad`.
+
+2. **Probabilidades por hogar en las 4 clases, guardadas DENTRO de esta
+   misma corrida** (no como script separado posterior -- pedido
+   explicito del usuario: "recuerda que debe quedar la posibilidad de
+   seguir trabajando contigo y que cuando comencemos a correr los
+   modelos, se deben guardar las probabilidades de los hogares en cada
+   una de las cuatro clases"). Nueva funcion `_guardar_predicciones` en
+   `modelo_multiclase_robusto_comparacion.py`, llamada en los 6 puntos
+   del codigo donde se produce un estimador ya ajustado (arbol nativo
+   principal/CV, HistGB principal/CV, `_correr_lineal` principal/CV) --
+   usa el `resultado["estimador"]` que YA devuelve
+   `comparar_balanceo_y_tunear_multiclase` reentrenado sobre el 100% de
+   train con los mejores hiperparametros (`RandomizedSearchCV(refit=True)`),
+   cero ajustes adicionales. Salida:
+   `.../multiclase/predicciones/{algoritmo}_{especificacion}.parquet`
+   (consecutivo, algoritmo, especificacion, Y_grupo real,
+   prob_nunca_pobre/entra/sale/siempre_pobre). Para las especificaciones
+   *geo3 (sin holdout) las probabilidades son IN-SAMPLE -- mismo matiz ya
+   aplicado a la importancia por permutacion in-sample de HistGB en el
+   benchmark binario CV-only.
+
+3. **Orden de ejecucion: Logistica regularizada al final.** Pedido
+   explicito del usuario dado que, en el benchmark binario, la logistica
+   fue historicamente el algoritmo mas lento e impredecible en tiempo de
+   ejecucion. Orden final en `main()`: XGBoost, LightGBM,
+   HistGradientBoosting, Random Forest, Red neuronal, Logistica
+   regularizada.
+
+**Persistencia frente a hibernacion (reconfirmado).** El usuario pidio
+explicitamente que estos modelos "deben correr sin que se interrumpa el
+proceso por hibernacion del computador" -- se mantiene el mismo patron ya
+usado (`caffeinate -i` envolviendo el proceso en segundo plano, ver
+entrada del 2026-09-16).
+
+**Gate de lanzamiento (pedido explicito del usuario, aun vigente al
+escribir esta entrada):** el usuario planea reiniciar su computador para
+instalar actualizaciones del sistema operativo antes de que se lance esta
+corrida corregida. El relanzamiento (`nohup caffeinate -i python -u
+modelo_multiclase_robusto_comparacion.py ...`) NO debe ejecutarse hasta
+que el usuario confirme explicitamente que el reinicio ya se hizo.

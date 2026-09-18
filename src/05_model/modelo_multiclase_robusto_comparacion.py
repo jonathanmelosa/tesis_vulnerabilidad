@@ -2,14 +2,18 @@
 modelo_multiclase_robusto_comparacion.py
 ===========================================
 
-Suite de comparacion de 5 algoritmos (XGBoost, LightGBM,
-HistGradientBoosting, Random Forest, Logistica regularizada) sobre el
-benchmark de 4 CLASES (nunca_pobre/entra/sale/siempre_pobre,
+Suite de comparacion de 6 algoritmos (XGBoost, LightGBM,
+HistGradientBoosting, Random Forest, Red neuronal (MLPClassifier),
+Logistica regularizada -- en ese orden de ejecucion, Logistica al final
+por ser la mas lenta/impredecible) sobre el benchmark de 4 CLASES
+(nunca_pobre/entra/sale/siempre_pobre,
 `build_benchmark_train_test_4clases.py`), en "version robusta"
 (CV_FOLDS=10, N_ITER_BUSQUEDA=30, SEMILLAS=[42,1,2,3,4] -- identico a
 `modelo_fbeta2_cv10_comparacion.py`, la version robusta ya usada y
 confirmada por el usuario en el benchmark binario). Ver
-docs/decisions.md, "2026-09-16: Extension a modelo multiclase", para la
+docs/decisions.md, "2026-09-16: Extension a modelo multiclase" y la
+entrada del 2026-09-18 sobre el bug de COLS_NO_FEATURE y estos agregados
+(red neuronal, guardado de predicciones, orden de ejecucion), para la
 motivacion, el diagnostico que la origina, y el diseno completo.
 
 NO modifica ni sobrescribe nada del benchmark binario (`modelo_utils.py`,
@@ -21,15 +25,20 @@ NO modifica ni sobrescribe nada del benchmark binario (`modelo_utils.py`,
 Alcance (decision explicita del usuario: incluir TODAS las fuentes
 geoespaciales en esta corrida para no tener que repetirla despues):
   - Pista principal (holdout temporal 2010->2013/2013->2016): A4, B4,
-    A4geoDMSP, B4geoDMSP -- los 5 algoritmos.
+    A4geoDMSP, B4geoDMSP -- los 6 algoritmos.
   - Pista exploratoria (CV dentro de 2010->2013, sin holdout, las 3
     fuentes geoespaciales completas -- DMSP-OLS+ALOS PALSAR+Landsat 5 TM):
-    A4geo3, B4geo3 -- los 5 algoritmos.
+    A4geo3, B4geo3 -- los 6 algoritmos.
 
 Balanceo de clases: identico en estructura al binario (3 estrategias,
 elegidas por AUC-ROC-OVR en CV) -- ver docstring de
 `modelo_utils_multiclase.py` para el detalle de como XGBoost maneja
 "balanced" (sample_weight en vez de class_weight, unico caso especial).
+EXCEPCION: la red neuronal (MLPClassifier) NO soporta class_weight ni
+sample_weight en absoluto -- para ella solo se compite "ninguno" vs.
+"oversampling" (BALANCEOS_NN, ver pipeline_nn), decision explicita del
+usuario (2026-09-18) para no gastar una busqueda de hiperparametros
+completa en una estrategia "balanced" que seria identica a "ninguno".
 
 Salida por algoritmo (bajo
 `data/processed/benchmark_resultados/multiclase/{algoritmo}/`):
@@ -37,11 +46,18 @@ Salida por algoritmo (bajo
     balanced_accuracy, f1_macro/weighted, precision/recall/f1 de "entra",
     auc_ovr_macro, auc_entra_vs_resto, auc_entra_vs_sale,
     precision_top10_entra -- por semilla)
-  - `importancia_variables_modelo_{espec}.csv` (arboles) o
-    `coeficientes_por_clase_modelo_{espec}.csv` (logistica -- un
-    coeficiente por clase y por variable, mas la columna
+  - `importancia_variables_modelo_{espec}.csv` (arboles y NN -- para NN,
+    permutation_importance sobre el pipeline completo, ver
+    `_exportar_interpretabilidad`) o `coeficientes_por_clase_modelo_{espec}.csv`
+    (logistica -- un coeficiente por clase y por variable, mas la columna
     `entra_menos_sale`, el contraste que responde directamente la
     pregunta de la Seccion 5.1 sobre la frontera entra/sale)
+
+Ademas, bajo `.../multiclase/predicciones/{algoritmo}_{espec}.parquet`:
+probabilidades por hogar en las 4 clases (prob_nunca_pobre, prob_entra,
+prob_sale, prob_siempre_pobre), guardadas DENTRO de esta misma corrida
+(pedido explicito del usuario, 2026-09-18) -- ver `_guardar_predicciones`
+para el detalle de que estimador y que muestra se usa en cada pista.
 
 COMO CORRER
 -----------
@@ -65,6 +81,8 @@ from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassif
 from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
 
+from sklearn.neural_network import MLPClassifier
+
 import modelo_utils as mu
 import modelo_utils_multiclase as mcu
 
@@ -73,6 +91,39 @@ N_ITER_BUSQUEDA = 30
 
 REGISTRO_CSV = mcu.REGISTRO_CSV
 REGISTRO_XLSX = mcu.REGISTRO_XLSX
+
+# Probabilidades por hogar (4 clases) -- pedido explicito del usuario
+# (2026-09-18): guardarlas DENTRO de esta misma corrida, no como paso
+# aparte despues. Se guarda 1 parquet por algoritmo/especificacion, con
+# el `resultado["estimador"]` YA AJUSTADO que devuelve
+# `comparar_balanceo_y_tunear_multiclase` (RandomizedSearchCV con
+# refit=True lo reentrena sobre el 100% de x_train con los mejores
+# hiperparametros) -- CERO ajustes adicionales, es pura inferencia sobre
+# ese estimador ya en memoria. Para las especificaciones *geo3 (sin
+# holdout) las probabilidades son IN-SAMPLE (el estimador se ajusto sobre
+# la misma x que aqui se le pide predecir) -- no out-of-fold como las
+# metricas de evaluar_cv_semillas_multiclase -- interpretar con la misma
+# cautela ya aplicada a la importancia por permutacion in-sample de
+# HistGB en el benchmark binario CV-only.
+PREDICCIONES_DIR = mcu.RESULTADOS_DIR / "predicciones"
+
+
+def _guardar_predicciones(algoritmo: str, espec: str, pipe, x_eval, y_eval, consecutivo_eval) -> None:
+    proba = pipe.predict_proba(x_eval)
+    orden = [list(pipe.classes_).index(i) for i in range(len(mcu.CATEGORIAS_Y_GRUPO))]
+    proba = proba[:, orden]
+    salida = pd.DataFrame({
+        "consecutivo": pd.Series(consecutivo_eval).values,
+        "algoritmo": algoritmo,
+        "especificacion": espec,
+        "Y_grupo": [mcu.CATEGORIAS_Y_GRUPO[k] for k in np.asarray(y_eval)],
+    })
+    for k, nombre in enumerate(mcu.CATEGORIAS_Y_GRUPO):
+        salida[f"prob_{nombre}"] = proba[:, k]
+
+    PREDICCIONES_DIR.mkdir(parents=True, exist_ok=True)
+    slug = algoritmo.lower().replace(" ", "_").replace("(", "").replace(")", "").replace(",", "")
+    salida.to_parquet(PREDICCIONES_DIR / f"{slug}_{espec}.parquet", index=False)
 
 OBSERVACIONES_PRINCIPAL = (
     "Benchmark de 4 clases (nunca_pobre/entra/sale/siempre_pobre), "
@@ -240,6 +291,38 @@ def pipeline_log(x_train: pd.DataFrame, balanceo: str, semilla: int = mcu.RANDOM
 
 
 # ---------------------------------------------------------------------
+# Red neuronal (MLPClassifier) -- preprocesador + escalado, igual que
+# Logistica. MLPClassifier.fit() NO acepta sample_weight (a diferencia de
+# casi todos los demas estimadores de sklearn) ni tiene class_weight en el
+# constructor -- no existe una via nativa para "balanced" en este
+# algoritmo. BALANCEOS_NN excluye "balanced": solo compite "ninguno" vs.
+# "oversampling" (decision explicita del usuario, 2026-09-18, para no
+# gastar una busqueda de hiperparametros completa en una estrategia que
+# seria identica a "ninguno").
+# ---------------------------------------------------------------------
+
+BALANCEOS_NN = ["ninguno", "oversampling"]
+
+PARAM_DIST_NN = {
+    "modelo__hidden_layer_sizes": [(32,), (64,), (32, 16), (64, 32), (128, 64)],
+    "modelo__alpha": loguniform(1e-5, 1e-1),
+    "modelo__learning_rate_init": loguniform(1e-4, 1e-2),
+}
+
+
+def pipeline_nn(x_train: pd.DataFrame, balanceo: str, semilla: int = mcu.RANDOM_STATE) -> ImbPipeline:
+    preprocesador = mu.construir_preprocesador(x_train, escalar=True)
+    modelo = MLPClassifier(
+        early_stopping=True, max_iter=2000, random_state=semilla,
+    )
+    pasos = [("prep", preprocesador)]
+    if balanceo == "oversampling":
+        pasos.append(("muestreo", RandomOverSampler(random_state=semilla)))
+    pasos.append(("modelo", modelo))
+    return ImbPipeline(pasos)
+
+
+# ---------------------------------------------------------------------
 # Orquestacion
 # ---------------------------------------------------------------------
 
@@ -279,6 +362,8 @@ def correr_arbol_principal(nombre_algoritmo: str, out_subdir: str, pipeline_fn, 
                 "variable": x_train.columns, "importancia": modelo_final.feature_importances_,
             }).sort_values("importancia", ascending=False)
             importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
+
+        _guardar_predicciones(nombre_algoritmo, espec, pipe, x_test, y_test, test["consecutivo"])
 
         ffn_semilla = (lambda s: fit_params_fn(resultado["balanceo_elegido"], y_train)) if fit_params_fn else None
         multi = mcu.evaluar_multiples_semillas_multiclase(
@@ -330,6 +415,8 @@ def correr_arbol_cv(nombre_algoritmo: str, out_subdir: str, pipeline_fn, param_d
             }).sort_values("importancia", ascending=False)
             importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
 
+        _guardar_predicciones(nombre_algoritmo, espec, pipe, x, y, datos["consecutivo"])
+
         ffn_semilla = (lambda s: fit_params_fn(resultado["balanceo_elegido"], y)) if fit_params_fn else None
         multi = mcu.evaluar_cv_semillas_multiclase(
             construir_pipeline_fn=lambda s: pipeline_fn(resultado["balanceo_elegido"], semilla=s),
@@ -378,6 +465,8 @@ def correr_hgb() -> None:
         }).sort_values("importancia_media", ascending=False)
         importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
 
+        _guardar_predicciones("HistGradientBoosting (sklearn)", espec, pipe, x_test, y_test, test["consecutivo"])
+
         multi = mcu.evaluar_multiples_semillas_multiclase(
             construir_pipeline_fn=lambda s: pipeline_hgb(resultado["balanceo_elegido"], semilla=s),
             mejores_params=resultado["mejores_params"],
@@ -410,6 +499,8 @@ def correr_hgb() -> None:
         )
         log(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-OVR-CV: {resultado['auc_cv_por_balanceo']})")
 
+        _guardar_predicciones("HistGradientBoosting (sklearn)", espec, resultado["estimador"], x, y, datos["consecutivo"])
+
         multi = mcu.evaluar_cv_semillas_multiclase(
             construir_pipeline_fn=lambda s: pipeline_hgb(resultado["balanceo_elegido"], semilla=s),
             mejores_params=resultado["mejores_params"], x=x, y=y, cv_folds=CV_FOLDS,
@@ -430,12 +521,54 @@ def correr_hgb() -> None:
         log(f"=== HistGradientBoosting -- Modelo {espec} (CV) -- FIN ===")
 
 
-def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train) -> None:
-    """Comun a Random Forest y Logistica (preprocesador dependiente de x_train)."""
+def _exportar_interpretabilidad(pipe, x_test_o_x, y_test_o_y, familia: str, out_dir, espec: str) -> None:
+    """familia en {"logistica", "arbol", "nn"} -- Logistica exporta
+    coeficientes, arboles (Random Forest) exportan feature_importances_,
+    ambos indexados por las columnas YA transformadas por "prep"
+    (`get_feature_names_out()`). NN no tiene ninguno de los dos atributos
+    (MLPClassifier) -- se usa permutation_importance sobre el PIPELINE
+    COMPLETO (incluyendo "prep") aplicado a `x_test_o_x` EN CRUDO (sin
+    transformar) -- por eso ese caso indexa por las columnas ORIGINALES de
+    `x_test_o_x`, no por `get_feature_names_out()` (que describe columnas
+    post-one-hot que no existen en el x crudo que se permuta)."""
+    modelo_final = pipe.named_steps["modelo"]
+    if familia == "logistica":
+        nombres_features = pipe.named_steps["prep"].get_feature_names_out()
+        coefs = pd.DataFrame(modelo_final.coef_.T, columns=[f"coef_{mcu.CATEGORIAS_Y_GRUPO[k]}" for k in modelo_final.classes_])
+        coefs.insert(0, "variable", nombres_features)
+        coefs["entra_menos_sale"] = coefs["coef_entra"] - coefs["coef_sale"]
+        coefs = coefs.sort_values("entra_menos_sale", key=np.abs, ascending=False)
+        coefs.to_csv(out_dir / f"coeficientes_por_clase_modelo_{espec}.csv", index=False)
+    elif familia == "arbol":
+        nombres_features = pipe.named_steps["prep"].get_feature_names_out()
+        importancias = pd.DataFrame({
+            "variable": nombres_features, "importancia": modelo_final.feature_importances_,
+        }).sort_values("importancia", ascending=False)
+        importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
+    else:
+        imp = permutation_importance(pipe, x_test_o_x, y_test_o_y, scoring="roc_auc_ovr", n_repeats=10, random_state=mcu.RANDOM_STATE, n_jobs=-1)
+        importancias = pd.DataFrame({
+            "variable": x_test_o_x.columns, "importancia_media": imp.importances_mean, "importancia_std": imp.importances_std,
+        }).sort_values("importancia_media", ascending=False)
+        importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
+
+
+def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train, familia: str = "arbol", balanceos: list = None) -> None:
+    """Comun a Random Forest, Logistica y NN (preprocesador dependiente de
+    x_train). `familia` controla el export de interpretabilidad (ver
+    `_exportar_interpretabilidad`). `balanceos` acota la lista de
+    estrategias a probar (usado por NN, que no soporta "balanced" -- ver
+    pipeline_nn)."""
     out_dir = mcu.RESULTADOS_DIR / out_subdir
     out_dir.mkdir(parents=True, exist_ok=True)
-    es_logistica = nombre_algoritmo.startswith("Logistica")
-    param_dist = PARAM_DIST_LOG if es_logistica else PARAM_DIST_RF
+    balanceos = balanceos or mcu.BALANCEOS
+    if familia == "logistica":
+        param_dist = PARAM_DIST_LOG
+    elif familia == "nn":
+        param_dist = PARAM_DIST_NN
+    else:
+        param_dist = PARAM_DIST_RF
+    estrategia_imputacion = "0 + indicador (numericas), 'Sin dato' + one-hot (categoricas)" + (", estandarizacion" if familia in ("logistica", "nn") else "")
 
     for espec in mcu.ESPECIFICACIONES_4CLASES_PRINCIPAL:
         train, test = mcu.cargar_datos_4clases(espec)
@@ -449,23 +582,13 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train) ->
             construir_pipeline_fn=lambda b: pipeline_fn_train(x_train, b),
             param_distributions_fn=lambda b: param_dist,
             x_train=x_train, y_train=y_train, cv_folds=CV_FOLDS, n_iter_busqueda=N_ITER_BUSQUEDA, verbose=1,
+            balanceos=balanceos,
         )
         log(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-OVR-CV: {resultado['auc_cv_por_balanceo']})")
 
         pipe = resultado["estimador"]
-        modelo_final = pipe.named_steps["modelo"]
-        nombres_features = pipe.named_steps["prep"].get_feature_names_out()
-        if es_logistica:
-            coefs = pd.DataFrame(modelo_final.coef_.T, columns=[f"coef_{mcu.CATEGORIAS_Y_GRUPO[k]}" for k in modelo_final.classes_])
-            coefs.insert(0, "variable", nombres_features)
-            coefs["entra_menos_sale"] = coefs[f"coef_entra"] - coefs[f"coef_sale"]
-            coefs = coefs.sort_values("entra_menos_sale", key=np.abs, ascending=False)
-            coefs.to_csv(out_dir / f"coeficientes_por_clase_modelo_{espec}.csv", index=False)
-        else:
-            importancias = pd.DataFrame({
-                "variable": nombres_features, "importancia": modelo_final.feature_importances_,
-            }).sort_values("importancia", ascending=False)
-            importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
+        _exportar_interpretabilidad(pipe, x_test, y_test, familia, out_dir, espec)
+        _guardar_predicciones(nombre_algoritmo, espec, pipe, x_test, y_test, test["consecutivo"])
 
         multi = mcu.evaluar_multiples_semillas_multiclase(
             construir_pipeline_fn=lambda s: pipeline_fn_train(x_train, resultado["balanceo_elegido"], semilla=s),
@@ -480,7 +603,7 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train) ->
             x_train_shape=x_train.shape, x_test_shape=x_test.shape,
             n_covariables_originales=x_train.shape[1],
             y_train=y_train, y_test=y_test, multi_resultado=multi,
-            estrategia_imputacion="0 + indicador (numericas), 'Sin dato' + one-hot (categoricas)" + (", estandarizacion" if es_logistica else ""),
+            estrategia_imputacion=estrategia_imputacion,
             balanceo_info=resultado, hiperparametros=resultado["mejores_params"],
             observaciones=OBSERVACIONES_PRINCIPAL,
             registro_csv=REGISTRO_CSV, registro_xlsx=REGISTRO_XLSX,
@@ -497,23 +620,13 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train) ->
             construir_pipeline_fn=lambda b: pipeline_fn_train(x, b),
             param_distributions_fn=lambda b: param_dist,
             x_train=x, y_train=y, cv_folds=CV_FOLDS, n_iter_busqueda=N_ITER_BUSQUEDA, verbose=1,
+            balanceos=balanceos,
         )
         log(f"  Balanceo elegido: {resultado['balanceo_elegido']} (AUC-OVR-CV: {resultado['auc_cv_por_balanceo']})")
 
         pipe = resultado["estimador"]
-        modelo_final = pipe.named_steps["modelo"]
-        nombres_features = pipe.named_steps["prep"].get_feature_names_out()
-        if es_logistica:
-            coefs = pd.DataFrame(modelo_final.coef_.T, columns=[f"coef_{mcu.CATEGORIAS_Y_GRUPO[k]}" for k in modelo_final.classes_])
-            coefs.insert(0, "variable", nombres_features)
-            coefs["entra_menos_sale"] = coefs["coef_entra"] - coefs["coef_sale"]
-            coefs = coefs.sort_values("entra_menos_sale", key=np.abs, ascending=False)
-            coefs.to_csv(out_dir / f"coeficientes_por_clase_modelo_{espec}.csv", index=False)
-        else:
-            importancias = pd.DataFrame({
-                "variable": nombres_features, "importancia": modelo_final.feature_importances_,
-            }).sort_values("importancia", ascending=False)
-            importancias.to_csv(out_dir / f"importancia_variables_modelo_{espec}.csv", index=False)
+        _exportar_interpretabilidad(pipe, x, y, familia, out_dir, espec)
+        _guardar_predicciones(nombre_algoritmo, espec, pipe, x, y, datos["consecutivo"])
 
         multi = mcu.evaluar_cv_semillas_multiclase(
             construir_pipeline_fn=lambda s: pipeline_fn_train(x, resultado["balanceo_elegido"], semilla=s),
@@ -527,7 +640,7 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train) ->
             x_train_shape=x.shape, x_test_shape=x.shape,
             n_covariables_originales=x.shape[1],
             y_train=y, y_test=y, multi_resultado=multi,
-            estrategia_imputacion="0 + indicador (numericas), 'Sin dato' + one-hot (categoricas)" + (", estandarizacion" if es_logistica else ""),
+            estrategia_imputacion=estrategia_imputacion,
             balanceo_info=resultado, hiperparametros=resultado["mejores_params"],
             observaciones=OBSERVACIONES_CV,
             registro_csv=REGISTRO_CSV, registro_xlsx=REGISTRO_XLSX,
@@ -538,7 +651,8 @@ def _correr_lineal(nombre_algoritmo: str, out_subdir: str, pipeline_fn_train) ->
 def main() -> None:
     mcu.RESULTADOS_DIR.mkdir(parents=True, exist_ok=True)
     log(f"INICIO suite multiclase robusta: CV_FOLDS={CV_FOLDS}, N_ITER_BUSQUEDA={N_ITER_BUSQUEDA}. "
-        f"5 algoritmos x ({len(mcu.ESPECIFICACIONES_4CLASES_PRINCIPAL)} principal + {len(mcu.ESPECIFICACIONES_4CLASES_CV)} CV) especificaciones.")
+        f"6 algoritmos x ({len(mcu.ESPECIFICACIONES_4CLASES_PRINCIPAL)} principal + {len(mcu.ESPECIFICACIONES_4CLASES_CV)} CV) especificaciones. "
+        f"Orden: XGBoost, LightGBM, HistGradientBoosting, Random Forest, Red neuronal, Logistica regularizada (ultima -- la mas lenta/impredecible).")
 
     log("\n### XGBoost ###")
     correr_arbol_principal("XGBoost", "xgboost", pipeline_xgb, PARAM_DIST_XGB, fit_params_fn=fit_params_xgb)
@@ -552,10 +666,13 @@ def main() -> None:
     correr_hgb()
 
     log("\n### Random Forest ###")
-    _correr_lineal("Random Forest", "random_forest", pipeline_rf)
+    _correr_lineal("Random Forest", "random_forest", pipeline_rf, familia="arbol")
 
-    log("\n### Logistica regularizada (elastic net) ###")
-    _correr_lineal("Logistica regularizada (elastic net, benchmark)", "logistica_regularizada", pipeline_log)
+    log("\n### Red neuronal (MLPClassifier) ###")
+    _correr_lineal("Red neuronal (MLP)", "red_neuronal", pipeline_nn, familia="nn", balanceos=BALANCEOS_NN)
+
+    log("\n### Logistica regularizada (elastic net) -- ultima, la mas lenta/impredecible ###")
+    _correr_lineal("Logistica regularizada (elastic net, benchmark)", "logistica_regularizada", pipeline_log, familia="logistica")
 
     log(f"\nFIN. Registro: {REGISTRO_CSV}")
 

@@ -97,7 +97,7 @@ RESULTADOS_DIR = PROJECT_ROOT / "data" / "processed" / "benchmark_resultados" / 
 REGISTRO_CSV = RESULTADOS_DIR / "registro_modelos_multiclase.csv"
 REGISTRO_XLSX = RESULTADOS_DIR / "registro_modelos_multiclase.xlsx"
 
-COLS_NO_FEATURE = ["consecutivo", "Y_grupo"]
+COLS_NO_FEATURE = ["consecutivo", "consecutivo_c", "llave_compuesta", "Y_grupo"]
 
 CATEGORIAS_Y_GRUPO = ["nunca_pobre", "entra", "sale", "siempre_pobre"]
 GRUPO_A_ENTERO = {g: i for i, g in enumerate(CATEGORIAS_Y_GRUPO)}
@@ -191,17 +191,20 @@ def comparar_balanceo_y_tunear_multiclase(
     n_iter_busqueda: int = mu.N_ITER_BUSQUEDA,
     verbose: int = 0,
     random_state: int = RANDOM_STATE,
+    balanceos: list = BALANCEOS,
 ) -> dict:
     """Identico en estructura a mu.comparar_balanceo_y_tunear, pero
     `scoring=SCORING` ("roc_auc_ovr") y con soporte opcional de
     `fit_params_fn(balanceo) -> dict|None` (usado por XGBoost para pasar
     `modelo__sample_weight` en la estrategia "balanced" -- ver docstring
-    del modulo)."""
+    del modulo). `balanceos` permite acotar la lista (usado por la red
+    neuronal, que no soporta "balanced" -- ver pipeline_nn en
+    modelo_multiclase_robusto_comparacion.py)."""
     resultados = {}
     mejor_balanceo, mejor_score = None, -np.inf
     mejor_estimador, mejor_params = None, {}
 
-    for balanceo in BALANCEOS:
+    for balanceo in balanceos:
         pipeline = construir_pipeline_fn(balanceo)
         param_dist = param_distributions_fn(balanceo)
         cv = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
@@ -228,7 +231,7 @@ def comparar_balanceo_y_tunear_multiclase(
 
     return {
         "balanceo_elegido": mejor_balanceo,
-        "auc_cv_por_balanceo": {b: resultados[b]["auc_cv"] for b in BALANCEOS},
+        "auc_cv_por_balanceo": {b: resultados[b]["auc_cv"] for b in balanceos},
         "mejores_params": mejor_params,
         "estimador": mejor_estimador,
     }
