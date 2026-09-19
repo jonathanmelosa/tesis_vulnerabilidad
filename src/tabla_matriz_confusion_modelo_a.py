@@ -22,7 +22,14 @@ INPUTS
     data/processed/benchmark_resultados/registro_modelos_ipm.csv
 
 OUTPUTS
-    paper/tables/tab_matriz_confusion_modelo_a.tex
+    data/processed/benchmark_resultados/matriz_confusion_modelo_a.csv
+    data/processed/benchmark_resultados/matriz_confusion_modelo_a.xlsx
+        (el resultado combinado en sí, como dato independiente del LaTeX --
+        agregado 2026-09-18 a pedido del usuario: el .tex por si solo no
+        bastaba para que el resultado combinado fuera reproducible como
+        DATO, solo como texto ya formateado)
+    paper/tables/tab_matriz_confusion_modelo_a.tex (formatea el CSV de
+        arriba, no vuelve a leer los registros originales)
 
 COMO CORRER
     python src/tabla_matriz_confusion_modelo_a.py
@@ -35,6 +42,7 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRO_MONETARIA = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_fbeta2_cv10.csv"
 REGISTRO_IPM = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_ipm.csv"
+RESULTADOS_DIR = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
 OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 
 NOMBRES_ALGORITMO = {
@@ -55,11 +63,40 @@ def _cargar(ruta: Path, especificacion: str) -> pd.DataFrame:
     return df.set_index("algoritmo")[CELDAS + ["auc_roc_media"]]
 
 
-def main() -> None:
+def construir_matriz_combinada() -> pd.DataFrame:
+    """El resultado combinado en sí (una fila por algoritmo, columnas
+    VP/FP/FN/VN de monetaria e IPM) -- separado de la generación del
+    LaTeX para poder guardarlo como CSV/Excel, no solo como texto ya
+    formateado."""
     monetaria = _cargar(REGISTRO_MONETARIA, "A")
     ipm = _cargar(REGISTRO_IPM, "Aipm")
-
     orden_algoritmos = monetaria.sort_values("auc_roc_media", ascending=False).index.tolist()
+
+    filas = []
+    for algoritmo in orden_algoritmos:
+        m, i = monetaria.loc[algoritmo], ipm.loc[algoritmo]
+        filas.append({
+            "algoritmo": algoritmo,
+            "vp_monetaria": int(m["tp_semilla42"]), "fp_monetaria": int(m["fp_semilla42"]),
+            "fn_monetaria": int(m["fn_semilla42"]), "vn_monetaria": int(m["tn_semilla42"]),
+            "vp_ipm": int(i["tp_semilla42"]), "fp_ipm": int(i["fp_semilla42"]),
+            "fn_ipm": int(i["fn_semilla42"]), "vn_ipm": int(i["tn_semilla42"]),
+        })
+    return pd.DataFrame(filas)
+
+
+def main() -> None:
+    matriz = construir_matriz_combinada()
+
+    RESULTADOS_DIR.mkdir(parents=True, exist_ok=True)
+    ruta_csv = RESULTADOS_DIR / "matriz_confusion_modelo_a.csv"
+    ruta_xlsx = RESULTADOS_DIR / "matriz_confusion_modelo_a.xlsx"
+    matriz.to_csv(ruta_csv, index=False)
+    matriz.to_excel(ruta_xlsx, index=False, sheet_name="Matriz de confusión Modelo A")
+    print(f"Guardado: {ruta_csv}")
+    print(f"Guardado: {ruta_xlsx}")
+
+    orden_algoritmos = matriz["algoritmo"].tolist()
 
     lineas = [
         r"\begin{table}[H]",
@@ -81,13 +118,12 @@ def main() -> None:
         r"\textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} \\",
         r"    \midrule",
     ]
-    for algoritmo in orden_algoritmos:
-        m, i = monetaria.loc[algoritmo], ipm.loc[algoritmo]
+    for _, fila in matriz.iterrows():
         lineas.append(
-            f"    {algoritmo:<24s} & {int(m['tp_semilla42'])} & {int(m['fp_semilla42'])} & "
-            f"{int(m['fn_semilla42'])} & {int(m['tn_semilla42'])} & "
-            f"{int(i['tp_semilla42'])} & {int(i['fp_semilla42'])} & "
-            f"{int(i['fn_semilla42'])} & {int(i['tn_semilla42'])} \\\\"
+            f"    {fila['algoritmo']:<24s} & {fila['vp_monetaria']} & {fila['fp_monetaria']} & "
+            f"{fila['fn_monetaria']} & {fila['vn_monetaria']} & "
+            f"{fila['vp_ipm']} & {fila['fp_ipm']} & "
+            f"{fila['fn_ipm']} & {fila['vn_ipm']} \\\\"
         )
     lineas += [r"    \bottomrule", r"  \end{tabular}", r"\end{table}"]
 
