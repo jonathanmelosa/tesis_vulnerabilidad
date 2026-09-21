@@ -1325,14 +1325,43 @@ discriminación --no un umbral distinto-- puede mover esa frontera.
 
 \input{tables/tab_matriz_confusion_modelo_a.tex}
 
-Queda pendiente, como extensión de este análisis
-(Sección~\ref{subsec:limitaciones}), caracterizar específicamente a los
-hogares que constituyen los errores de inclusión (falsos positivos) --es
-decir, comparar su perfil contra el de los hogares correctamente
-clasificados (verdaderos positivos y verdaderos negativos) usando el
-núcleo de variables ya validado en la Sección~\ref{subsec:determinantes},
-para entender no solo cuántos son sino a quiénes se está incluyendo por
-error--.
+Se caracterizaron los falsos
+positivos (Modelo A, HistGradientBoosting y XGBoost) comparándolos, en
+las 22 variables del núcleo de importancia multivariada
+(Sección~\ref{subsec:determinantes}), contra los verdaderos negativos
+--hogares que en la realidad tampoco cayeron en pobreza, pero que el
+modelo sí acertó en no marcar--: aislar esta comparación, en vez de
+contrastar contra los verdaderos positivos, evita mezclar la pregunta de
+``qué dispara la alarma del modelo'' con la de ``qué tan parecidos son a
+quien sí cae''. Los falsos positivos ($n=1{,}464$ en HistGradientBoosting,
+$1{,}695$ en XGBoost) resultan sistemáticamente más parecidos a un hogar
+vulnerable que los verdaderos negativos ($n=1{,}092$ y $861$
+respectivamente) en 18 de las 20 variables numéricas del núcleo: menos
+riqueza, menos bienes durables, menor nivel educativo, menos servicios
+públicos, menor estrato, más hacinamiento --no son errores aleatorios del
+modelo, son hogares genuinamente al borde de la línea de pobreza. Los
+valores SHAP confirman, además, que estas mismas variables --no otras
+correlacionadas de fondo-- son las que efectivamente empujan la
+predicción hacia ``riesgo'': para HistGradientBoosting, la brecha más
+grande entre falsos positivos y verdaderos negativos está en
+\texttt{riqueza\_pca\_hogar} y \texttt{nivel\_educ\_max\_hogar}; para
+XGBoost, en \texttt{ingreso\_percapita\_hogar\_real}
+(\emph{diferencia} de SHAP de 0.44, el doble que la segunda variable) y
+\texttt{brecha\_lp\_ingreso} --consistente con que cada algoritmo
+distribuye el mismo núcleo de forma distinta (Sección~\ref{subsec:determinantes}).
+
+Queda una pregunta: si los falsos positivos se ven igual de vulnerables
+que los verdaderos positivos a ojos del modelo, ¿qué distingue a quien
+efectivamente cae de quien no? Comparando choques reportados en la ola de
+destino (2016, posteriores al momento de la predicción y por tanto no
+usados por el modelo) entre verdaderos positivos y falsos positivos, los
+primeros vivieron sistemáticamente más choques durante esa ventana: 3.1
+choques en promedio frente a 2.2 (ambos algoritmos), y 81--82\% tuvo al
+menos un choque frente a 71--72\% de los falsos positivos --consistente
+con el enfoque de vulnerabilidad de \textcite{chaudhuri2002}: el modelo
+identifica correctamente al hogar en el margen, pero quién realiza el
+riesgo depende de una exposición a choques que ningún dato de encuesta
+disponible al momento de la predicción puede anticipar.
 
 \subsection{Determinantes de la vulnerabilidad: perfil e importancia de variables}
 \label{subsec:determinantes}
