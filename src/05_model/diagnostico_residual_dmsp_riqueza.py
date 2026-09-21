@@ -8,18 +8,18 @@ verificar los numeros contra un archivo reproducible. Este script llena
 ese vacio.
 
 Pregunta: la correlacion cruda de dmsp_stable_lights con el outcome,
-¿sigue existiendo una vez que se controla por las dos variables de la
-ELCA que, segun la tesis, la hacen redundante (n_servicios_publicos_hogar
-y n_bienes_durables_hogar)?
+¿sigue existiendo una vez que se controla por las cuatro variables que
+dominan el nucleo de importancia multivariada de la tesis (Seccion
+5.2.2): n_servicios_publicos_hogar, estrato_verificado_hogar,
+n_bienes_durables_hogar y personas_por_cuarto_hogar?
 
 Metodo: correlacion parcial via residuos --
-    1. Regresion lineal de dmsp_stable_lights ~ n_servicios_publicos_hogar
-       + n_bienes_durables_hogar -> residuos_dmsp.
-    2. Regresion lineal de Y ~ n_servicios_publicos_hogar +
-       n_bienes_durables_hogar -> residuos_Y.
+    1. Regresion lineal de dmsp_stable_lights ~ las 4 variables de
+       control -> residuos_dmsp.
+    2. Regresion lineal de Y ~ las 4 variables de control -> residuos_Y.
     3. Correlacion de Pearson entre residuos_dmsp y residuos_Y =
        correlacion parcial de dmsp_stable_lights con Y, controlando por
-       esas dos variables.
+       las 4 variables.
 Se calcula con dos implementaciones independientes (formula cerrada de
 minimos cuadrados con numpy, y sklearn.LinearRegression) para verificar
 que coinciden, tal como afirma la tesis.
@@ -27,8 +27,10 @@ que coinciden, tal como afirma la tesis.
 Muestra: la muestra de entrenamiento (transicion 2010->2013, Modelo A +
 DMSP-OLS), la misma que usan las tablas principales de la tesis --
 data/processed/benchmark_train_test/modelo_AgeoDMSP_2010_2013.parquet.
-Se excluyen filas con NaN en cualquiera de las 3 variables involucradas
-(dmsp_stable_lights tiene 74 NaN en esta muestra; el resto no tiene).
+Se excluyen filas con NaN en cualquiera de las 6 variables involucradas
+(dmsp_stable_lights y estrato_verificado_hogar tienen NaN en esta
+muestra; el resto no tiene) -- ver el mensaje impreso al correr el
+script para el tamaño de muestra resultante.
 
 Output
 ------
@@ -51,12 +53,19 @@ DATA_PATH = PROJECT_ROOT / "data" / "processed" / "benchmark_train_test" / "mode
 OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "benchmark_resultados" / "diagnostico_residual_dmsp_riqueza.csv"
 
 VAR_GEO = "dmsp_stable_lights"
-VARS_RIQUEZA = ["n_servicios_publicos_hogar", "n_bienes_durables_hogar"]
+VARS_RIQUEZA = [
+    "n_servicios_publicos_hogar",
+    "estrato_verificado_hogar",
+    "n_bienes_durables_hogar",
+    "personas_por_cuarto_hogar",
+]
 VAR_OUTCOME = "Y"
 
+# Variables de referencia informal, fuera del set de control de la
+# residualizacion (no forman parte del nucleo de importancia
+# multivariada que motiva este diagnostico).
 VARS_COMPARACION = {
     "ingreso_percapita_hogar_real": "Ingreso per capita real (Modelo A)",
-    "estrato_verificado_hogar": "Estrato verificado del hogar",
 }
 
 
@@ -85,17 +94,27 @@ def residuos_sklearn(objetivo: np.ndarray, predictores: np.ndarray) -> np.ndarra
 def main() -> None:
     df = pd.read_parquet(DATA_PATH)
 
-    # Muestra principal: solo exige no-NaN en las 3 variables centrales del
-    # analisis de redundancia (dmsp, las 2 de riqueza, outcome). NO se filtra
-    # por las variables de referencia (ingreso/estrato), que tienen su propio
-    # patron de faltantes y solo se usan como punto de comparacion informal.
-    cols_nucleo = [VAR_GEO, *VARS_RIQUEZA, VAR_OUTCOME]
+    # Muestra CRUDA: solo exige no-NaN en dmsp y en el outcome -- es la
+    # muestra que sustenta el r=-0.214 ya citado en el texto de la tesis.
+    # Se mantiene deliberadamente separada de la muestra de control (mas
+    # abajo) para no cambiar ese numero solo porque una de las 4
+    # variables de control (estrato_verificado_hogar) tiene NaN.
+    muestra_cruda = df[[VAR_GEO, VAR_OUTCOME]].dropna()
+    n_cruda = len(muestra_cruda)
+    dmsp_cruda = muestra_cruda[VAR_GEO].to_numpy(dtype=float)
+    y_cruda = muestra_cruda[VAR_OUTCOME].to_numpy(dtype=float)
+
+    # Muestra de CONTROL: exige no-NaN en las 6 variables involucradas en
+    # la residualizacion (dmsp, las 4 de control, outcome). Es mas chica
+    # que la cruda porque estrato_verificado_hogar tiene NaN.
+    cols_control = [VAR_GEO, *VARS_RIQUEZA, VAR_OUTCOME]
     n_antes = len(df)
-    muestra = df[cols_nucleo].dropna()
+    muestra = df[cols_control].dropna()
     n_dsp = len(muestra)
-    print(f"Muestra principal (dmsp+riqueza+outcome): {n_dsp:,} hogares de "
-          f"{n_antes:,} (se excluyen {n_antes - n_dsp:,} con NaN en "
-          f"{VAR_GEO} -- las otras 3 columnas no tienen NaN en este parquet).")
+    print(f"Muestra cruda (dmsp+outcome): {n_cruda:,} hogares de {n_antes:,}.")
+    print(f"Muestra de control (dmsp+4 variables de control+outcome): {n_dsp:,} "
+          f"hogares de {n_antes:,} (se excluyen {n_antes - n_dsp:,} con NaN en "
+          f"alguna de: {', '.join(cols_control)}).")
 
     y = muestra[VAR_OUTCOME].to_numpy(dtype=float)
     dmsp = muestra[VAR_GEO].to_numpy(dtype=float)
@@ -103,12 +122,12 @@ def main() -> None:
 
     filas = []
 
-    # --- Correlaciones crudas de referencia (para comparar con el texto
-    # de la tesis: dmsp r=-0.214, ingreso r=-0.211, estrato r=-0.215) ---
-    r_dmsp_y, p_dmsp_y = stats.pearsonr(dmsp, y)
+    # --- Correlacion cruda de referencia (dmsp r=-0.214, sobre su propia
+    # muestra, sin restringir por las variables de control) ---
+    r_dmsp_y, p_dmsp_y = stats.pearsonr(dmsp_cruda, y_cruda)
     filas.append({
         "comparacion": "cruda", "variable": VAR_GEO, "contra": VAR_OUTCOME,
-        "r": r_dmsp_y, "p": p_dmsp_y, "n": n_dsp,
+        "r": r_dmsp_y, "p": p_dmsp_y, "n": n_cruda,
     })
     for var, etiqueta in VARS_COMPARACION.items():
         ref = df[[var, VAR_OUTCOME]].dropna()
@@ -118,21 +137,22 @@ def main() -> None:
             "r": r, "p": p, "n": len(ref),
         })
 
-    # --- Correlacion de dmsp con cada variable de riqueza (para
-    # comparar con el texto: servicios r=0.865, bienes r=0.477) ---
+    # --- Correlacion de dmsp con cada variable de control, y de cada
+    # variable de control con el outcome (sobre la muestra de control) ---
     for var in VARS_RIQUEZA:
         r, p = stats.pearsonr(muestra[var].to_numpy(dtype=float), dmsp)
         filas.append({
-            "comparacion": "cruda (dmsp vs riqueza)", "variable": var, "contra": VAR_GEO,
+            "comparacion": "cruda (dmsp vs control)", "variable": var, "contra": VAR_GEO,
             "r": r, "p": p, "n": n_dsp,
         })
         r_riq_y, p_riq_y = stats.pearsonr(muestra[var].to_numpy(dtype=float), y)
         filas.append({
-            "comparacion": "cruda (riqueza vs outcome)", "variable": var, "contra": VAR_OUTCOME,
+            "comparacion": "cruda (control vs outcome)", "variable": var, "contra": VAR_OUTCOME,
             "r": r_riq_y, "p": p_riq_y, "n": n_dsp,
         })
 
-    # --- Correlacion residualizada (parcial), dos implementaciones ---
+    # --- Correlacion residualizada (parcial), dos implementaciones,
+    # sobre la muestra de control ---
     resid_dmsp_manual = residuos_manual(dmsp, riqueza)
     resid_y_manual = residuos_manual(y, riqueza)
     r_parcial_manual = correlacion_manual(resid_dmsp_manual, resid_y_manual)

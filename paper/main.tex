@@ -15,6 +15,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[spanish, es-nodecimaldot]{babel}
+% El paquete babel-spanish nombra por defecto los flotantes de tipo
+% "table" como "Cuadro", mientras el texto los cita como "Tabla"
+% (convención más usual en este tipo de trabajo). Se unifica en "Tabla".
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
 \usepackage[
   top=2.5cm, bottom=2.5cm,
   left=3cm,  right=2.5cm
@@ -448,7 +452,7 @@ aportan como en su mayor granularidad espacial y frecuencia de
 actualización, lo que las hace especialmente valiosas para actualizar
 sistemas de focalización entre levantamientos de encuestas -- la
 motivación directa de las fuentes geoespaciales que esta tesis busca
-incorporar (sección~\ref{subsec:geo}).
+incorporar (Sección~\ref{subsec:geo}).
 
 \subsection{Síntesis y vacío que llena este trabajo}
 \label{subsec:gap}
@@ -700,11 +704,10 @@ de hogares que cumplen esa condición.
     en Hogar, donde por la magnitud de la compresión hacia variables
     compuestas (61 columnas finales) se reporta en cambio el número de
     candidatas crudas absorbidas, directas o dentro de un compuesto
-    (\texttt{docs/decisions.md}, ``Bloque de features de Hogar''). No
-    incluye llaves de identidad (p. ej. \texttt{consecutivo\_c} en
-    Comunidades). Fuente: cálculos propios con base en ELCA 2010, 2013,
-    2016 y \texttt{docs/variable\_audit/*\_construccion.csv}, generados
-    por \texttt{src/tabla\_cobertura\_modulos.py}.
+    (ver ``Bloque de \emph{features} de Hogar''). No
+    incluye llaves de identidad (p. ej. el consecutivo del hogar en
+    Comunidades). Fuente: cálculos propios con base en ELCA 2010, 2013 y
+    2016.
   \end{minipage}
 \end{table}
 
@@ -1017,8 +1020,7 @@ optimizaciones de preprocesamiento. La métrica que decide qué combinación
 gana esa búsqueda es AUC-ROC. Para verificar que 30 iteraciones no se
 quedan cortas, se extendió la búsqueda a 50 iteraciones para el caso más
 ambiguo de la comparación de balanceo (HistGradientBoosting-A,
-Sección~\ref{subsec:desbalance}, \texttt{diagnostico\_convergencia\_
-busqueda.py}): el mejor puntaje acumulado ya no mejora entre las
+Sección~\ref{subsec:desbalance}): el mejor puntaje acumulado ya no mejora entre las
 iteraciones 20 y 40 (0.7603 en ambas), y gana solo 0.0006 adicional hacia
 la iteración 50 --evidencia de que la búsqueda con 30 iteraciones ya
 opera cerca de su techo para este caso, no de que se haya interrumpido
@@ -1073,8 +1075,7 @@ priori}.
 Esa selección, sin embargo, no siempre es robusta al azar del propio
 particionado de validación cruzada: para HistGradientBoosting-A, repetir
 la comparación de balanceo con 5 semillas distintas de
-\texttt{StratifiedKFold} (\texttt{diagnostico\_estabilidad\_balanceo.py})
-cambia la estrategia ganadora en 3 de 5 corridas --``balanced'' gana con
+\texttt{StratifiedKFold} cambia la estrategia ganadora en 3 de 5 corridas --``balanced'' gana con
 dos semillas, ``ninguno'' con otras dos, y \emph{oversampling} con la
 restante--, con un AUC-CV que varía apenas en el tercer decimal entre
 estrategias dentro de cada semilla (rango de 0.0013 a 0.0022). Esto no
@@ -1262,7 +1263,7 @@ puntuales entre los desempeños de los algoritmos y las especificaciones (Tabla~
 \textbf{Primero,} el algoritmo elegido
 no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco).
 Bajo IPM el mismo techo aparece, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
-Anexo~\ref{apx:desempeno_ipm}).
+Apéndice~\ref{apx:desempeno_ipm}).
 Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no,
 el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces.
 Esto es consistente con la literatura sobre predicción de pobreza
@@ -1400,7 +1401,7 @@ la transición 2013$\to$2016 (49 de 53 variables más cerca de ``sale''): no
 depende de una sola ola del panel. Tampoco depende de cómo se mida la
 pobreza: el mismo ejercicio repetido bajo pobreza multidimensional (IPM,
 36 variables robustas bajo el mismo criterio de la
-Sección~\ref{subsec:seleccion_perfil}, Anexo~\ref{apx:perfil_ipm})
+Sección~\ref{subsec:seleccion_perfil}, Apéndice~\ref{apx:perfil_ipm})
 confirma el mismo contraste (sale vs.\ nunca) en 29 de 36 variables en
 2010$\to$2013 y 31 de 35 en 2013$\to$2016 -- el patrón es robusto tanto a
 la ola como a la definición de pobreza. Esto es consistente con pensar
@@ -1548,7 +1549,7 @@ permite caracterizar esos bolsones, y las etiquetas
   \label{fig:mapa_transicion_monetaria}
 \end{figure}
 
-\subsubsection{Importancia de variables e interpretabilidad}
+\subsubsection{Importancia multivariada de las variables}
 \label{subsec:importancia_resultados}
 
 Esta sección examina qué variables sostienen el poder predictivo
@@ -1660,8 +1661,18 @@ Random Forest y Logística y solo moderada (posiciones 36 a 61) en XGBoost
 y HistGradientBoosting bajo el Modelo B. En cambio, un proxy relacionado
 pero distinto --\texttt{tasa\_cotizacion\_pension\_hogar}, formalidad
 medida a nivel de todo el hogar y no solo del jefe-- sí sobrevive con
-fuerza, entre las posiciones 4 y 20 de forma consistente en los cinco
-algoritmos. Esto no contradice ni invalida el Hallazgo 2: la importancia
+fuerza en la mayoría de los algoritmos, aunque no de forma perfectamente
+consistente (HistGradientBoosting es la excepción, donde cae a las
+posiciones 61--64). Esta sustitución de un proxy de formalidad por otro
+es, además, específica de pobreza monetaria: al repetir el mismo
+ejercicio bajo IPM, el patrón se debilita y en parte se invierte --
+\texttt{categoria\_ocupacional\_jefe} mejora su posición de forma notable
+en varios algoritmos (hasta las posiciones 16--30, frente a 42 en
+adelante bajo monetaria), mientras \texttt{tasa\_cotizacion\_pension\_hogar}
+deja de ser un proxy confiable (su rango se amplía a 28--143 según el
+algoritmo). Qué proxy de formalidad ``gana'' el crédito predictivo no es,
+entonces, una regularidad general del análisis multivariado, sino algo
+que depende de qué definición de pobreza se use. Esto no contradice ni invalida el Hallazgo 2: la importancia
 multivariada mide contribución marginal dado todo lo demás en el modelo,
 no el efecto univariado bruto, así que si ambas variables miden
 formalidad y están correlacionadas entre sí, el modelo le otorga el
@@ -1679,13 +1690,14 @@ pena notar, además, que \texttt{pct\_ninos\_cuidado\_terceros\_hogar} es,
 indirectamente, una variable sobre carga de cuidado --típicamente asumida
 por mujeres--, y su práctica invisibilidad en la importancia multivariada
 tiene una lectura de equidad de género que el análisis cuantitativo por
-sí solo no captura. Para el diseño de política esto tiene dos
-implicaciones: el proxy operacional recomendable para un sistema de
-alerta temprana es la tasa de cotización a pensión del hogar y no la
-condición de asalariado del jefe --y es, además, el tipo de dato que ya
-reside en registros administrativos de seguridad social, en el mismo
-espíritu de cruce de fuentes que plantea el CONPES 3877/SISBEN IV
-\parencite{conpes2016}--, pero, en un sentido más general, un hallazgo
+sí solo no captura. Para el diseño de política, la implicación no es una
+receta operacional única --dado que qué proxy de formalidad domina
+depende de la definición de pobreza, recomendar una sola variable para un
+sistema de alerta temprana sería prematuro sin antes fijar contra qué
+medida de pobreza se calibra, aunque ambos proxies comparten la ventaja
+de residir ya en registros administrativos de seguridad social, en el
+mismo espíritu de cruce de fuentes que plantea el CONPES 3877/SISBEN IV
+\parencite{conpes2016}--, sino, en un sentido más general, que un hallazgo
 univariado sustantivo y bien documentado puede resultar invisible en un
 gráfico de importancia de variables sin que eso signifique que el
 hallazgo sea falso.
@@ -1841,16 +1853,33 @@ Landsat 5 TM.\footnote{Se probó además si DMSP-OLS aporta más al eliminar
 de la encuesta las dos preguntas que la vuelven redundante (resultado
 mixto y débil: solo la regresión logística mejora de forma consistente,
 los modelos de árboles no) y si aporta más cerca de la línea de pobreza
-(sin evidencia de eso tampoco, en los tres terciles de cercanía). Ver
-\texttt{src/05\_model/modelo\_ablacion\_sin\_riqueza.py} y
-\texttt{src/05\_model/heterogeneidad\_cerca\_umbral.py}.} La razón es
+(sin evidencia de eso tampoco, en los tres terciles de cercanía).} La razón es
 redundancia, no ausencia de señal: \texttt{dmsp\_stable\_lights}
 correlaciona con el resultado tan fuerte como variables de riqueza ya en
 la encuesta ($r=-0.214$, comparable a \texttt{estrato\_verificado\_hogar}),
-pero esa correlación colapsa a $r\approx+0.021$ al controlar por dos
-preguntas que la ELCA ya hace (número de servicios públicos y de bienes
-durables del hogar) --las mismas dos variables que dominan el núcleo de
-importancia multivariada (Sección~\ref{subsec:importancia_resultados})--.
+pero esa correlación colapsa a $r\approx+0.010$ al controlar por las
+cuatro variables que dominan el núcleo de importancia multivariada
+(Sección~\ref{subsec:importancia_resultados}): número de servicios
+públicos, estrato verificado, número de bienes durables y personas por
+cuarto (Figura~\ref{fig:residual_dmsp_riqueza}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.62\textwidth]{../outputs/figures/modelos/05_residual_dmsp_riqueza.png}
+  \caption{Correlación de Pearson de \texttt{dmsp\_stable\_lights} con
+  caer en pobreza monetaria, cruda y residualizada, frente a las cuatro
+  variables de encuesta que dominan el núcleo de importancia multivariada
+  (Sección~\ref{subsec:importancia_resultados}): número de servicios
+  públicos, estrato verificado, número de bienes durables y personas por
+  cuarto. La correlación bruta de DMSP-OLS (gris oscuro) es comparable en
+  magnitud a la de las cuatro variables de referencia (gris claro), pero
+  colapsa hacia cero al residualizar (rojo) tanto la variable geoespacial
+  como el resultado contra esas mismas cuatro variables --correlación
+  parcial vía residuos (teorema de Frisch--Waugh--Lovell); $n=2{,}150$,
+  restringido por valores faltantes en estrato verificado--. Fuente:
+  cálculos propios.}
+  \label{fig:residual_dmsp_riqueza}
+\end{figure}
 
 Un matiz con implicación práctica: pese a ser redundante en poder
 predictivo, DMSP-OLS es marcadamente más estable en el tiempo que la
@@ -1905,7 +1934,7 @@ celda, sin bootstrap específico de cada subgrupo).
 \textbf{Tercero,} y el hallazgo más concreto a favor del valor de
 DMSP-OLS: el efecto promedio nulo (monetaria) o pequeño (IPM) esconde
 heterogeneidad relevante. Bajo monetaria el nulo se sostiene en los cuatro
-ejes explorados (Tabla~\ref{tab:heterogeneidad_dmsp}, Anexo~\ref{apx:heterogeneidad_dmsp}):
+ejes explorados (Tabla~\ref{tab:heterogeneidad_dmsp}, Apéndice~\ref{apx:heterogeneidad_dmsp}):
 de 70 celdas algoritmo/grupo/especificación, solo 1
 supera el umbral de cambio relevante ($|\Delta\text{AUC}|\geq0.02$). Bajo
 IPM, en cambio (Tabla~\ref{tab:heterogeneidad_ipm}), el aporte se concentra sistemáticamente en zona rural,
@@ -1941,7 +1970,7 @@ cae en zona urbana y en el tercil de mayor riqueza pese a que el AUC sube
 en ambos, con la precisión subiendo en su lugar--, lo que sugiere que el
 mecanismo por el cual DMSP-OLS reduce el error de focalización (más
 cobertura vs. más precisión) depende del algoritmo, no solo de la
-subpoblación (\texttt{diagnostico\_heterogeneidad\_ipm.csv}).
+subpoblación (Tabla~\ref{tab:heterogeneidad_ipm}).
 
 % ============================================================
 % SECCIÓN 6 — CONCLUSIONES          TARGET: 3–4 páginas
@@ -2361,8 +2390,7 @@ aparece en absoluto en la ola siguiente, ni como emparejamiento uno a uno
 ni como escisión (Figura~\ref{fig:atricion}). La atrición total es de
 11.4\% en ambos periodos (1{,}124 de 9{,}853 hogares base entre 2010 y
 2013; 994 de 8{,}729 entre 2013 y 2016). Esa cifra agregada sí se
-desagregó por perfil de hogar (\texttt{src/02\_build/eda\_hogares\_panel.py},
-\texttt{analizar\_attrition()}): la atrición \textbf{no es aleatoria},
+desagregó por perfil de hogar: la atrición \textbf{no es aleatoria},
 se concentra sistemáticamente en hogares urbanos y de estrato más alto.
 Por zona, la tasa de pérdida es 2.8 veces mayor en zona urbana que en
 zona rural en 2010--2013 (16.2\% vs. 5.8\%) y 1.7 veces mayor en

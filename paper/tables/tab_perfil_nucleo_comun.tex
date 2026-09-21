@@ -4,9 +4,10 @@
   \label{tab:perfil_nucleo_comun}
   \scriptsize
   \setlength{\tabcolsep}{3pt}
-  \begin{minipage}[t]{0.49\textwidth}
-    \resizebox{\linewidth}{!}{%
-    \begin{tabular}{p{0.62\linewidth}rrrr}
+  \newsavebox{\nucleoBoxA}
+  \newsavebox{\nucleoBoxB}
+  \sbox{\nucleoBoxA}{%
+    \begin{tabular}{p{0.3038\textwidth}rrrr}
       \toprule
         \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\
       \midrule
@@ -32,10 +33,8 @@
         \quad Ingreso (veces la línea de pobreza) & 0.42 & 0.55 & 1.58 & 3.26 \\
       \bottomrule
     \end{tabular}}
-  \end{minipage}\hfill
-  \begin{minipage}[t]{0.49\textwidth}
-    \resizebox{\linewidth}{!}{%
-    \begin{tabular}{p{0.62\linewidth}rrrr}
+  \sbox{\nucleoBoxB}{%
+    \begin{tabular}{p{0.3038\textwidth}rrrr}
       \toprule
         \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\
       \midrule
@@ -56,9 +55,26 @@
         \quad Tenencia de vivienda: En usufructo u otro tipo de tenencia & 33\% & 24\% & 28\% & 15\% \\
         \addlinespace\multicolumn{5}{l}{\textbf{Zona de residencia}} \\
         \quad Vive en zona rural & 69\% & 52\% & 45\% & 21\% \\
-        \quad & & & & \\
-        \quad & & & & \\
       \bottomrule
     \end{tabular}}
+  % Ambas mitades se escalan por el MISMO factor (regla de tres sobre el
+  % ancho natural mayor de las dos), en vez de dos \resizebox
+  % independientes -- que, al normalizar cada una a 0.49\textwidth por
+  % separado, producían factores de escala ligeramente distintos (una de
+  % las dos quedaba perceptiblemente más grande).
+  \newlength{\nucleoTarget}
+  \setlength{\nucleoTarget}{0.49\textwidth}
+  \newlength{\nucleoMax}
+  \ifdim\wd\nucleoBoxA>\wd\nucleoBoxB
+    \setlength{\nucleoMax}{\wd\nucleoBoxA}
+  \else
+    \setlength{\nucleoMax}{\wd\nucleoBoxB}
+  \fi
+
+  \begin{minipage}[t]{0.49\textwidth}
+    \resizebox{\dimexpr\nucleoTarget*\wd\nucleoBoxA/\nucleoMax\relax}{!}{\usebox{\nucleoBoxA}}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.49\textwidth}
+    \resizebox{\dimexpr\nucleoTarget*\wd\nucleoBoxB/\nucleoMax\relax}{!}{\usebox{\nucleoBoxB}}
   \end{minipage}
 \end{table}
