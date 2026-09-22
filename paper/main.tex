@@ -505,18 +505,15 @@ Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres
 olas: 2010, 2013 y 2016, en zonas urbana y rural. La ELCA se organiza en
 en módulos temáticos: hogar, personas, niños, comunidades
 y choques, además de los módulos de activos y gasto. Existen dos olas más
-disponibles para 2019 y 2022, que administra el DANE. No obstante, por cuestiones
-de tiempo no se utilizaron en el marco de esta investigación. El
-identificador de hogar cambia de nombre entre olas
-(\texttt{consecutivo}$\to$\texttt{llave}$\to$\texttt{llave\_n16}). Para los
-análisis realizados en esta tesis, se usan exclusivamente coincidencias uno a
-uno de este identificador entre olas consecutivas, excluyendo los hogares
-que se dividieron en dos o más sub-hogares (511 casos entre 2010--2013 y
+disponibles para 2019 y 2022, que administra el DANE. No obstante, por
+de tiempo no se utilizaron en el marco de esta investigación. Para los
+análisis realizados en este estudio, se excluyeron los hogares
+que se dividieron en dos o más sub-hogares en olas subsecuentes (511 casos entre 2010--2013 y
 1{,}190 entre 2013--2016, ver Tabla~\ref{tab:matriz_transicion}), para no
-hacer supuestos reespecto de su ubicación entre hogares divididos.
+hacer supuestos sobre estos hogares en el tiempo.
 
 Antes de construir cualquier covariable se realizó una auditoría
-sistemática de los módulos de la encuesta. La auditoría tuvo cuatro capas, replicadas de forma
+sistemática de los módulos de la encuesta, replicadas de forma
 idéntica en cada módulo: (i) detección y corrección de signos y símbolos de
 codificación de caracteres (por ej. el carácter Unicode de reemplazo U+FFFD y el
 literal \texttt{"???"}
@@ -547,22 +544,20 @@ denominador en vez de contarse como si no cumplieran la condición.
 \subsection{Fuentes geoespaciales}
 \label{subsec:geo}
 
-Este trabajo utiliza información geoespacial disponible públicamente y de manera gratuita como proxy 
-de las condiciones espaciales del entorno y la infraestructura. La idea es que la 
+Este trabajo utiliza información geoespacial disponible públicamente y de manera gratuita. La idea es que la 
 información geoespacial de los hogares puede capturar características del entorno físico y económico 
 local que afectan la vulnerabilidad de estos hogares a caer en pobreza, pero que 
 no se refleja completamente en las encuestas tradicionales que realizan gobiernos y otras organizaciones. 
 Para esto, a partir de las coordenadas de los hogares de la ELCA, que se encuentran
 para consulta de manera estrictamente controlada y restringida por parte de la
-Universidad de los Andes, se consolida la información geoespacial disponible en línea 
+Universidad de los Andes, se consolida la información geoespacial disponible 
 a través de consultas a la API de Google Earth Engine. Esta información 
 se anexa a la base de datos de la ELCA para cada hogar, y se utiliza como covariable 
 adicional en los modelos predictivos de transición hacia la pobreza.
 
-La necesidad fundamental de este proyecto es tener información
-geoespacial para al menos dos olas: 2010 es la ola para la que se entrenan los modelos que
-predicen la transición a la pobreza —el ejercicio central de esta
-tesis—, mientras que la transición 2013$\to$2016 se usa después para
+La necesidad era obtener información geoespacial para al menos dos olas: 
+la transición 2010$\to$2013 es en la que se entrenan los modelos que
+predicen la transición a la pobreza, mientras que la transición 2013$\to$2016 se usa después para
 determinar el poder predictivo de esas mismas variables fuera de
 muestra (Sección~\ref{subsec:outcome}).
 
@@ -573,7 +568,7 @@ se evaluaron otras seis fuentes satelitales o aéreas públicas
 adicionales: —Sentinel-1 (radar), Sentinel-2 (óptico), VIIRS DNB y
 DMSP-OLS (luces nocturnas), y ALOS PALSAR y Landsat 5 TM (evaluadas
 específicamente por tener cobertura anterior a 2014, cuando las demás
-fuentes satelitales modernas todavía no operaban)— y se descartó
+fuentes satelitales todavía no operaban)— y se descartó
 OpenStreetMap porque el mapeo de Colombia apenas empezaba a
 poblarse en 2010--2013 (el Humanitarian OpenStreetMap Team se fundó en
 2010), por lo que la información histórica de esos años estaría
@@ -583,8 +578,8 @@ Sentinel-1, Sentinel-2 y VIIRS DNB se
 descartaron porque ninguna de las tres empezó a operar antes de
 2012 (VIIRS, abril 2012), y las otras dos ni siquiera existían como
 satélites lanzados (Sentinel-1, abril 2014; cobertura global L2A de
-Sentinel-2, marzo 2017) —por lo que no puede existir ninguna imagen real de ellas
-anterior a esas fechas, en ningún catálogo—. Por eso se
+Sentinel-2, marzo 2017), por lo que no puede existir ninguna imagen real de ellas
+anterior a esas fechas, en ningún catálogo. Por eso se
 evaluaron específicamente en el marco de este proyecto: DMSP-OLS, ALOS PALSAR y Landsat 5 TM, las tres
 únicas fuentes públicas con cobertura real anterior a 2014.
 
@@ -595,7 +590,7 @@ USGS, Google Earth Engine Data Catalog, y, para DMSP-OLS, ALOS PALSAR y
 Landsat 5 TM, contra consultas reales de las coordenadas de los 
 hogares en las tres olas de la ELCA (2010, 2013, 2016). 
 El patrón diagonal marca cobertura
-real confirmada sobre hogares del proyecto; el resto se revisó cobertura de
+real confirmada sobre hogares del estudio; el resto se revisó cobertura de
 catálogo sin realizar consultas de los hogares disponibles (Sentinel-2, VIIRS).
 
 \begin{figure}[H]
@@ -604,13 +599,13 @@ catálogo sin realizar consultas de los hogares disponibles (Sentinel-2, VIIRS).
   \caption{Cobertura temporal real de cada fuente geoespacial evaluada,
   frente a las tres olas de la ELCA con coordenadas disponibles. El
   patrón diagonal indica corrida real y completa sobre
-  hogares del proyecto; el resto se revisó cobertura según catálogo. En la barra de GSV, la
+  hogares del estudio; el resto se revisó cobertura según catálogo. En la barra de GSV, la
   intensidad del color es proporcional a la densidad real de fotos por
   año —la gran mayoría de las fotos son de 2023 en adelante.}
   \label{fig:cobertura_temporal_fuentes}
 \end{figure}
 
-El resultado de la corrida de producción, ya completa sobre las tres, es
+El resultado de la consulta de la información geoespacial, ya completa sobre las tres disponibles, es
 asimétrico. DMSP-OLS cubre el 100\% de los hogares tanto en 2010 como en
 2013; es la única de las
 tres con esa cobertura completa en dos olas, lo que permite usarla
@@ -618,8 +613,8 @@ para la evaluación del poder predictivo en la
 transición 2013$\to$2016. ALOS PALSAR cubre el 100\% de los hogares en
 2010, pero tiene un hueco de información confirmado en el catálogo de JAXA entre 2011 y
 2014 —no tiene ninguna cobertura de 2013—. Landsat 5 TM cubre solo 65.5\%
-de los hogares en 2010 (6{,}269 de 9{,}573; el resto pierde el año
-completo por nubosidad persistente, una limitación del sensor
+de los hogares en 2010 (6{,}269 de 9{,}573; del resto no se obtiene 
+información por nubosidad persistente, una limitación del sensor
 óptico) y, pese a que su fecha formal de salida (junio de 2013)
 sugeriría cobertura parcial de esa ola, una consulta directa al catálogo
 de Google Earth Engine confirmó que el sensor dejó de adquirir información
@@ -667,8 +662,7 @@ que se les da en este estudio.
 \subsection{Cobertura, atrición e inventario del panel}
 \label{subsec:desc}
 
-La Tabla~\ref{tab:cobertura_modulos} resume la cobertura de covariables
-por módulo en el dataset consolidado. Los módulos de Hogar, Personas y
+Los módulos de Hogar, Personas y
 Choques cubren la totalidad del panel (27{,}932 observaciones) porque se
 preguntan a todo hogar, sin condición previa. Comunidades y Niños no
 llegan a 100\% porque comunidades se mide a un nivel de agregación distinto:
@@ -677,45 +671,14 @@ es comunidad$\times$ola, no hogar$\times$ola, por lo que representa un
 tuvo un registro correspondiente en esa ola; Niños, por
 construcción, solo aplica a hogares con al menos un niño de 6 a 9 años en
 el periodo, así que su 55.4\% de cobertura es exactamente la proporción
-de hogares que cumplen esa condición.
-
-\begin{table}[H]
-  \centering
-  \caption{Cobertura de covariables por módulo en el dataset consolidado}
-  \label{tab:cobertura_modulos}
-  \small
-  \begin{tabular}{lp{2.6cm}p{2.4cm}p{3.2cm}}
-    \toprule
-    \textbf{Módulo} & \textbf{Candidatas auditadas} & \textbf{Usadas en el modelo} & \textbf{Cobertura (\% del panel)} \\
-    \midrule
-    Hogar        & 155 & 103 & 100\% \\
-    Personas (9 bloques) & 139 & 57  & 100\% \\
-    Comunidades  & 212 & 21  & 91.9--96.4\% \\
-    Niños (6--9 años) & 83 & 13 & 55.4\% (15{,}473 / 27{,}932) \\
-    Choques      & --  & 17  & 100\% \\
-    \bottomrule
-  \end{tabular}
-  \begin{minipage}{0.9\textwidth}
-    \vspace{4pt}
-    \footnotesize \textit{Nota:} ``Candidatas auditadas'' es el número de
-    columnas del módulo que superaron los cuatro filtros de calidad de la
-    auditoría (Sección~\ref{subsec:elco}); ``usadas en el modelo'' es el
-    subconjunto final tras la construcción de \emph{features} -- excepto
-    en Hogar, donde por la magnitud de la compresión hacia variables
-    compuestas (61 columnas finales) se reporta en cambio el número de
-    candidatas crudas absorbidas, directas o dentro de un compuesto
-    (ver ``Bloque de \emph{features} de Hogar''). No
-    incluye llaves de identidad (p. ej. el consecutivo del hogar en
-    Comunidades). Fuente: cálculos propios con base en ELCA 2010, 2013 y
-    2016.
-  \end{minipage}
-\end{table}
-
+de hogares que cumplen esa condición. El detalle de candidatas auditadas,
+variables usadas en el modelo y cobertura por módulo se reporta en la
+Tabla~\ref{tab:cobertura_modulos} del Anexo~\ref{apx:cobertura_modulos}.
 
 \subsubsection{Composición del panel y atrición}
 \label{subsubsec:atricion}
 
-Como en toda encuesta longitudinal existe algo de pérdida de datos (atrición) que 
+En la ELCA existe pérdida de datos (atrición) que 
 se caracteriza de la siguiente manera: el panel comienza con 9{,}853 hogares únicos en 2010 y se reduce
 a 8{,}729 en 2013 y 8{,}086 en 2016 (Figura~\ref{fig:panel_atricion},
 izquierda) —una atrición de 11.4\% entre 2010 y 2013, 11.4\% entre 2013 y
@@ -724,9 +687,8 @@ derecha). Esta
 pérdida no es aleatoria: se concentra en zonas urbanas (16.2\% de los
 hogares urbanos de 2010 se pierden hacia 2013, frente a solo 5.8\% de los
 rurales), lo opuesto a la intuición de que la atrición rural sería mayor
-por dificultad de rastreo geográfico —probablemente porque la ELCA invierte
-más esfuerzo de rastreo en hogares rurales, dado que son la población de
-interés original de la encuesta. Por esta razón, en este estudio se utilizan técnicas de 
+por dificultad de rastreo geográfico, probablemente porque la ELCA invierte
+más esfuerzo de rastreo en hogares rurales. Por esta razón, en este estudio se utilizan técnicas de 
 balanceo para compensar este sesgo.
 
 \begin{figure}[H]
@@ -740,18 +702,18 @@ balanceo para compensar este sesgo.
   \label{fig:panel_atricion}
 \end{figure}
 
-Parte de la aparente estabilidad del panel esconde un fenómeno distinto:
-la división de hogares. 511 hogares originales de 2010 se dividieron en
+Existe también un fenómeno de división de hogares. 511 hogares originales de 2010 se dividieron en
 1{,}043 sub-hogares hacia 2013, y 679 hogares se dividieron en 1{,}411
 sub-hogares hacia 2016 —típicamente porque un hijo formó su propio hogar
 en la misma vivienda o predio—. Por eso el número de \emph{filas} del
 panel hogar$\times$ola (9{,}853 / 9{,}261 / 8{,}818, ola 1/2/3) no coincide
 con el número de hogares \emph{únicos} por ola: un sub-hogar nuevo aporta
 una fila adicional sin ser, en sentido estricto, un hogar nuevo captado
-por primera vez. El número de personas cubiertas por el panel cae de
-forma más pronunciada que el de hogares —43{,}202 personas en 2010,
+por primera vez. Estos hogares divididos se excluyeron del análisis para no 
+realizar ningún supuesto adicional.El número de personas cubiertas por el panel cae de
+forma más pronunciada que el de hogares: 43{,}202 personas en 2010,
 39{,}920 en 2013, 35{,}722 en 2016 (18.7\% de caída acumulada, por encima
-del 17.9\% de hogares)— porque los hogares perdidos tienden a ser, en
+del 17.9\% de hogares). Esto ocurre posiblemente porque los hogares perdidos tienden a ser, en
 promedio, ligeramente más grandes que los que permanecen en el panel.
 
 \subsubsection{Inventario temático de las variables finales}
@@ -760,28 +722,21 @@ promedio, ligeramente más grandes que los que permanecen en el panel.
 El dataset consolidado que alimenta el modelo
 (27{,}932 filas hogar$\times$ola) reúne 181 variables finales: 177 provienen de los
 cinco módulos de la ELCA ya auditados en la
-Tabla~\ref{tab:cobertura_modulos} —excluyendo de ese conteo
+Tabla~\ref{tab:cobertura_modulos}, excluyendo de ese conteo
 \texttt{consecutivo\_c}, que es la llave de unión al módulo Comunidades,
-no una covariable— y las 4 restantes son las variables
+no una covariable, y las 4 restantes son las variables
 geoespaciales. La
-Figura~\ref{fig:inventario_modulos} desagrega ese total por módulo y por
-tipo de dato. Personas (57) y Hogar/vivienda/activos (56) concentran más
-de la mitad del inventario —consistente con que son los módulos que se
-preguntan a todo hogar sin condición previa (Tabla~\ref{tab:cobertura_modulos})—,
+Personas (57) y Hogar/vivienda/activos (56) concentran más
+de la mitad del inventario, consistente con que son los módulos que se
+preguntan a todo hogar sin condición previa (Tabla~\ref{tab:cobertura_modulos}),
 mientras que Comunidades (21), Choques (17), Niños (13) y Geoespacial (4)
 son universos más acotados, ya sea por su nivel de agregación distinto
 (Comunidades) o por aplicar solo a una submuestra o a una sola ola
 (Niños, Geoespacial). De las 181, 159 (88\%) son numéricas continuas o de
 conteo, 17 categóricas (principalmente características del jefe de hogar y
-de la vivienda) y 5 booleanas (los indicadores de pobreza monetaria).
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{../outputs/figures/eda_variables_modelo/01_inventario_por_modulo.png}
-  \caption{Inventario de las 181 variables finales del dataset consolidado,
-  por módulo temático y tipo de dato. Fuente: cálculos propios.}
-  \label{fig:inventario_modulos}
-\end{figure}
+de la vivienda) y 5 booleanas (los indicadores de pobreza monetaria). El
+desagregado por módulo y tipo de dato se muestra en la
+Figura~\ref{fig:inventario_modulos} del Anexo~\ref{apx:cobertura_modulos}.
 
 % ============================================================
 % SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
@@ -800,19 +755,48 @@ de la vivienda) y 5 booleanas (los indicadores de pobreza monetaria).
 \label{subsec:outcome}
 \label{subsec:transiciones}
 
-Siguiendo a \textcite{lopezCalva2011,lopezCalva2014}, se construyen
-matrices de transición de pobreza monetaria e IPM cruzando el estado de
-un hogar en $t$ (filas) contra $t+1$ (columnas) --monetaria: ingreso per
-cápita contra la línea de pobreza (LP) oficial del DANE, específica por
-año y zona; IPM: Sección~\ref{sec:datos}--, según las cuatro categorías
-de \textcite{lopezCalva2014} (nunca/siempre pobre, sale/entra en
-pobreza). El emparejamiento usa solo coincidencias uno a uno del
-identificador de hogar (Sección~\ref{subsec:elco}); se excluyen 511
-hogares divididos en 2010--2013 y 1{,}190 en 2013--2016 por no tener un
-estado inicial y final únicos. El modelo predictivo de esta tesis
+Este estudio sigue la metodología de \textcite{lopezCalva2011,lopezCalva2014}, 
+a partir de la cual se construyen matrices de transición de pobreza monetaria e IPM, 
+cruzando el estado de un hogar en el período inicial $t$ (filas), 
+contra un periodo posterior $t+1$ (columnas). 
+Esta comparación permite observar cómo evoluciona 
+la situación económica de los hogares a lo largo del tiempo y generar
+una taxonomía de cuatro categorías de acuerdo con la clasificación:
+ \emph{nunca pobre}, \emph{siempre pobre}, \emph{entra en pobreza} y \emph{sale de pobreza}.
+ 
+La pobreza monetaria se calcula a partir del cálculo del ingreso per
+cápita del hogar y se compara contra la línea de pobreza (LP) oficial 
+del DANE, específica por año y zona\footnote{Se usa la serie MESEP (línea base ENIG 2006--2007,
+actualizada anualmente por IPC), la misma metodología para las tres olas
+(2010, 2013 y 2016), lo que las hace comparables entre sí. Deliberadamente
+no se usa la actualización metodológica ENPH 2016--2017 con la que el
+DANE recalculó la serie 2012--2018, porque esa serie no cubre 2010 y
+adoptarla habría introducido un quiebre metodológico justo entre las olas
+que este estudio compara.}. El Índice de Pobreza Multidimensional (IPM)
+y la construcción de la clasificación según el IPM se construye
+siguiendo la metodología oficial del DANE \parencite{angulo2011}, como 
+un proxy del índice Alkire-Foster de cinco dimensiones (educación; niñez y juventud;
+trabajo; salud; vivienda y servicios públicos) y quince indicadores
+ponderados (20\% por dimensión, peso igual entre
+los indicadores de cada dimensión) y un punto de corte de pobreza de
+33.3\% del puntaje ponderado.\footnote{Es un proxy porque cinco de los quince indicadores se
+excluyen del puntaje final por huecos de cobertura irresolubles en la ola
+2010 del panel: privación en primera infancia (no medible de forma
+consistente en ninguna ola); inasistencia escolar y trabajo infantil
+(\texttt{estudia}/\texttt{actividad\_ppal} en niños con 0.4\%--35.3\% de
+cobertura en 2010, frente a ~100\% en 2013/2016); y empleo informal y
+desempleo de larga duración (\texttt{actividad\_ppal} en adultos con
+~20\% de cobertura en 2010, frente a 75--80\% en 2013/2016). Se calculan
+y reportan para auditoría, pero no entran en la clasificación
+\texttt{pobre\_ipm}. Quedan diez indicadores activos; la dimensión
+Trabajo, que queda sin indicadores, redistribuye su 20\% entre las cuatro
+dimensiones restantes (25\% cada una). El punto de corte de pobreza se
+mantiene en 33.3\% del puntaje ponderado, independiente del número de
+indicadores activos.} Ambas variables de resultado se describen en la 
+Sección~\ref{sec:datos}--. El modelo predictivo de esta tesis
 (Secciones~\ref{subsec:modelos} en adelante) usa solo una de las cuatro
-celdas: restringido a hogares no pobres en $t$, se define la variable
-dependiente binaria
+celdas: restringido a hogares no pobres en $t$, que caen en pobreza en $t+1$, 
+de acuerdo con la (Ecuación~\ref{eq:outcome}):
 
 \begin{equation}
   \text{CaidaPobreza}_{i,t+1} =
@@ -823,14 +807,11 @@ dependiente binaria
   \label{eq:outcome}
 \end{equation}
 
-\noindent es decir, se estima la probabilidad condicional de \emph{entrar}
-en pobreza dada la información en $t$ (Ecuación~\ref{eq:modelo_base}). El
-resto de la sección caracteriza las cuatro celdas completas --``sale de
-la pobreza'' y ``siempre pobre'' son el contrafactual necesario para
-dimensionar el fenómeno que el modelo predice--; incidencia agregada, FGT
-y cinco ejercicios de robustez de estas cifras --incluida la atrición del
-panel por perfil de hogar-- se documentan en el
-Apéndice~\ref{apx:transiciones_robustez}.
+ A continuación se caracteriza las cuatro celdas completas. Se realizó un 
+ análisis adicional de la incidencia agregada, FGT, y cinco ejercicios de 
+ robustez de estas estimaciones, incluyendo la atrición del panel por 
+ perfil de hogar y se documentan en el Apéndice~\ref{apx:transiciones_robustez}.
+
 
 \input{tables/tab_matriz_transicion_combinada.tex}
 
@@ -839,14 +820,14 @@ pobres en 2010 seguían pobres en 2013, cae a 61.8\% entre 2013 y 2016 (la
 salida condicional sube de 29.7\% a 38.2\%); la persistencia en la
 no-pobreza mejora de 76.6\% a 80.1\%. Bajo IPM entrar es menos frecuente
 (12.1\% y 9.7\%, frente a 23.4\% y 19.9\% en monetaria) pero también lo es
-salir (45.5\% y 47.7\%) --consistente con que el IPM mide privaciones
-estructurales que cambian más lento que el ingreso corriente en
-cualquiera de las dos direcciones. Las
+salir (45.5\% y 47.7\%). Estas diferencias son posiblemente consistentes 
+con que el IPM mide privaciones estructurales que cambian más lento que 
+el ingreso corriente en cualquiera de las dos direcciones. Las
 Figuras~\ref{fig:sankey_2010_2013} y~\ref{fig:sankey_2013_2016} traducen
 la matriz monetaria a flujos: en 2010--2013 dominan los \emph{siempre
 pobres} (43.9\%) sobre los \emph{nunca pobres} (28.8\%); en 2013--2016 el
 orden se invierte (37.0\% vs.\ 33.3\%), y en ambos periodos la salida
-casi duplica la entrada --la pobreza monetaria se redujo de forma neta,
+casi duplica la entrada, es decir, la pobreza monetaria se redujo de forma neta,
 no solo se redistribuyó entre hogares.
 
 \begin{figure}[H]
@@ -2456,6 +2437,57 @@ monetaria se mantiene parejo en los cuatro ejes explorados, sin
 subgrupos donde aporte de forma sistemática.
 
 \input{tables/tab_heterogeneidad_dmsp.tex}
+
+\subsection{Cobertura de covariables por módulo}
+\label{apx:cobertura_modulos}
+
+Complemento de la Sección~\ref{subsec:desc}: candidatas auditadas,
+variables finalmente usadas en el modelo y cobertura sobre el panel para
+cada módulo de la ELCA.
+
+\begin{table}[H]
+  \centering
+  \caption{Cobertura de covariables por módulo en el dataset consolidado}
+  \label{tab:cobertura_modulos}
+  \small
+  \begin{tabular}{lp{2.6cm}p{2.4cm}p{3.2cm}}
+    \toprule
+    \textbf{Módulo} & \textbf{Candidatas auditadas} & \textbf{Usadas en el modelo} & \textbf{Cobertura (\% del panel)} \\
+    \midrule
+    Hogar        & 155 & 103 & 100\% \\
+    Personas (9 bloques) & 139 & 57  & 100\% \\
+    Comunidades  & 212 & 21  & 91.9--96.4\% \\
+    Niños (6--9 años) & 83 & 13 & 55.4\% (15{,}473 / 27{,}932) \\
+    Choques      & --  & 17  & 100\% \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.9\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} ``Candidatas auditadas'' es el número de
+    columnas del módulo que superaron los cuatro filtros de calidad de la
+    auditoría (Sección~\ref{subsec:elco}); ``usadas en el modelo'' es el
+    subconjunto final tras la construcción de \emph{features} -- excepto
+    en Hogar, donde por la magnitud de la compresión hacia variables
+    compuestas (61 columnas finales) se reporta en cambio el número de
+    candidatas crudas absorbidas, directas o dentro de un compuesto
+    (ver ``Bloque de \emph{features} de Hogar''). No
+    incluye llaves de identidad (p. ej. el consecutivo del hogar en
+    Comunidades). Fuente: cálculos propios con base en ELCA 2010, 2013 y
+    2016.
+  \end{minipage}
+\end{table}
+
+Complemento de la Sección~\ref{subsubsec:inventario}: desagregado de las
+181 variables finales del dataset consolidado por módulo temático y tipo
+de dato.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{../outputs/figures/eda_variables_modelo/01_inventario_por_modulo.png}
+  \caption{Inventario de las 181 variables finales del dataset consolidado,
+  por módulo temático y tipo de dato. Fuente: cálculos propios.}
+  \label{fig:inventario_modulos}
+\end{figure}
 
 \section{Detalles de construcción de variables geoespaciales}
 \label{apx:geo}
