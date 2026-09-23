@@ -5,9 +5,9 @@ Formatea `perfil_split_transitorio_persistente_monetaria.csv` (ya
 calculado por `src/02_build/eda_perfil_split_trayectoria.py`) en una tabla
 LaTeX compacta para la Seccion 5.1: compara el subgrupo "Entra
 (transitorio)" (vuelve a salir de la pobreza para 2016) contra "Entra
-(persistente)" (se queda pobre), sobre 3 variables ejemplo (formalidad
-laboral, cotizacion a pension, deuda formal/informal, transporte publico
-comunitario) mas 2 filas de
+(persistente)" (se queda pobre), sobre 5 variables ejemplo (formalidad
+laboral, cotizacion a pension, deuda informal, deuda formal, transporte
+publico comunitario) mas 2 filas de
 resumen agregado (cuantas de las 53 variables quedan mas cerca de "sale"
 que de "nunca cae", y mas cerca de "siempre pobre" que de "sale") -- todos
 los numeros se recalculan aqui desde el CSV fuente, no estan hardcodeados.

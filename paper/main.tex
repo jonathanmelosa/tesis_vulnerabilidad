@@ -1157,34 +1157,28 @@ resultados se presentan en la Sección~\ref{subsec:desempeno}.
 \section{Resultados}
 \label{sec:resultados}
 
-A continuación se presentan los resultados en cinco partes, desde dos metodologías
-distintas, un análisis descriptivo (univariado) y un análisis predictivo (multivariado). La
-Sección~\ref{subsec:caracterizacion_grupos} es un análisis
-\textbf{univariado e inicial}: perfila al hogar vulnerable --el que entra
-en pobreza-- contra los otros tres grupos de la matriz de transición,
-variable por variable (sin controlar por las demás
-covariables), para las 53 (monetaria) y 36 (IPM) covariables que se hallaron como las 
-más robustas para discriminar entre los grupos. Su función es exploratoria y 
-descriptiva: construir la intuición sobre quién es el hogar vulnerable antes de imponerle cualquier
-supuesto de modelo. La Sección~\ref{subsec:desempeno} cambia de
-metodología --pasa a un enfoque \textbf{multivariado}-- y de objetivo:
-ya no describe diferencias marginales entre grupos, sino que busca
-\textbf{predecir} la vulnerabilidad a partir del conjunto de
-covariables, con la mira puesta en generar insumos para una política
-pública diferenciada (focalización de programas de prevención hacia
-quienes el modelo señala en mayor riesgo, distinto de los programas de
-alivio dirigidos a quien ya es pobre). Compara el desempeño fuera de
-muestra de los cinco algoritmos bajo las especificaciones con y sin
-ingreso/gasto del hogar. Es de aclarar, que la importancia de las variables 
-puede variar según el algoritmo utilizado, la especificación del modelo y 
-frente al análisis univariado. Las Secciones~\ref{subsec:marginal}
-y~\ref{subsec:marginal_ipm} y~\ref{subsec:heterogeneidad} se mantienen en
-el mismo objetivo de informar posibles insumos para la política pública, pero revisan la
-utilidad metodológica de otras herramientas bajo ese mismo interés:
-evalúan si agregar DMSP-OLS mejora esa predicción, bajo pobreza monetaria
-e IPM respectivamente y por qué, y si ese efecto --nulo en promedio bajo
-monetaria, pequeño bajo IPM-- es igual en la población o se concentra en
-subgrupos específicos.
+Los resultados se presentan en tres partes. La
+Sección~\ref{subsec:desempeno} compara el desempeño fuera de muestra de
+los cinco algoritmos bajo las especificaciones con y sin ingreso/gasto del
+hogar y analiza sus errores de inclusión y exclusión, con la mira puesta en
+generar insumos para una política pública diferenciada (focalización de
+programas de prevención hacia quienes el modelo señala en mayor riesgo,
+distinto de los programas de alivio dirigidos a quien ya es pobre). La
+Sección~\ref{subsec:determinantes} caracteriza a los hogares vulnerables a
+partir de los valores SHAP de esos modelos --solo se afirma lo que se
+sostiene entre algoritmos, definiciones de pobreza y ventanas temporales--
+y usa el perfil univariado de los cuatro grupos de la matriz de transición
+como validación y para lo que el análisis multivariado no puede ver. La
+Sección~\ref{subsec:marginal_geo} ubica a los hogares vulnerables en las
+fuentes geoespaciales públicas y evalúa si agregar DMSP-OLS mejora esa
+predicción, bajo pobreza monetaria e IPM
+(Secciones~\ref{subsec:marginal} y~\ref{subsec:marginal_ipm}) y si ese
+efecto --nulo en promedio bajo monetaria, pequeño bajo IPM-- es igual en la
+población o se concentra en subgrupos específicos
+(Sección~\ref{subsec:heterogeneidad}). Es de aclarar que la importancia de
+las variables puede variar según el algoritmo, la especificación del modelo
+y el análisis usado, por lo que los determinantes se restringen a lo
+consistente entre ellos.
 
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
@@ -1261,8 +1255,8 @@ implica que el ingreso no importe, anteriormente se estableció que es de las va
 que más separa a los cuatro grupos de la matriz de transición (Sección~
 \ref{subsec:caracterizacion_grupos})--, sino que su contenido informativo
 ya está sustancialmente capturado por otras variables del núcleo del
-perfil (riqueza, educación, bienes durables; Hallazgo 4,
-Sección~\ref{subsec:caracterizacion_grupos}). Bajo IPM la brecha es aún
+perfil (riqueza, educación, bienes durables; Primer hallazgo,
+Sección~\ref{subsec:determinantes}). Bajo IPM la brecha es aún
 menor, y para Random Forest y XGBoost es negativa --el Modelo B (sin ingreso/gasto) supera al
 A--, lo que descarta que la pequeña brecha en la capacidad discriminante 
 de los modelos bajo la definición de pobreza monetaria se deba a la
@@ -1347,131 +1341,171 @@ disponible al momento de la predicción puede anticipar.
 
 \subsection{Determinantes de la vulnerabilidad: perfil e importancia de variables}
 \label{subsec:determinantes}
-
-Esta sección aborda los determinantes de la vulnerabilidad a la pobreza
-desde dos perspectivas complementarias: el perfil univariado de los
-hogares que entran en pobreza --comparándolos con los otros tres grupos
-de la matriz de transición-- y la importancia de esas mismas variables
-una vez se controla por el resto, dentro de los cinco algoritmos de la
-Sección~\ref{subsec:desempeno}.
-
-\subsubsection{Perfil univariado de los hogares vulnerables}
 \label{subsec:caracterizacion_grupos}
+\label{subsec:importancia_resultados}
 
-Esta sección perfila los hogares que \textbf{entran en pobreza} entre 2010
-y 2013 --no pobres en la ola inicial, pobres en la siguiente-- contra los
-otros tres grupos de la matriz de transición
-(Sección~\ref{subsec:transiciones}), sobre las 53 covariables que
-distinguen de forma confiable a los cuatro grupos entre sí (criterio de
-selección en la Sección~\ref{subsec:seleccion_perfil}),\footnote{40 de 53
-superan 0.10; las 13 restantes cumplen efecto$>$0.05 y robustez en
-\emph{ambas} transiciones por separado. Las 40 originales no se
-sometieron a ese chequeo: 2 (\texttt{n\_ninos\_12},
-\texttt{razon\_dependencia\_demografica}) caen bajo 0.10 en
-2013$\to$2016 (0.105$\to$0.084 y 0.104$\to$0.088), aunque siguen
-robustas.} sin colapsar las correlacionadas entre sí, en una sola tabla
-consolidada (Tabla~\ref{tab:perfil_consolidada}).
+Esta sección caracteriza a los hogares vulnerables, es decir, los que no
+son pobres en la ola base y entran en pobreza en la siguiente. La
+evidencia principal proviene de los valores SHAP de los cinco algoritmos
+de la Sección~\ref{subsec:desempeno}, y solo se afirma como determinante
+lo que se sostiene en los cinco algoritmos, en las dos definiciones de
+pobreza (monetaria y multidimensional) y en las dos ventanas
+(2010$\to$2013 y 2013$\to$2016). El perfil univariado de los cuatro
+grupos de la matriz de transición
+(Sección~\ref{subsec:transiciones}) funciona como validación: comprueba
+que los patrones no dependen de la especificación multivariada ni de un
+algoritmo, y permite afirmar lo que SHAP no puede. Las covariables se
+miden en la ola base y el resultado en la siguiente, de modo que ninguna
+variable observa el período que se predice.
 
-Hay cuatro hallazgos principales de este análisis. \textbf{Primero,} el hogar
-vulnerable se parece mucho más al que \emph{acaba de salir} de la pobreza
-que al que nunca fue pobre o al que nunca sale de ella: de las 53
-variables, 47 lo ubican numéricamente más cerca de ``sale de la pobreza''
-que de ``nunca pobre'' (en promedio, cerca de cuatro veces más cerca) --
-Tabla~\ref{tab:perfil_consolidada}. El patrón se repite, y se refuerza, en
-la transición 2013$\to$2016 (49 de 53 variables más cerca de ``sale''): no
-depende de una sola ola del panel. Tampoco depende de cómo se mida la
-pobreza: el mismo ejercicio repetido bajo pobreza multidimensional (IPM,
-36 variables robustas bajo el mismo criterio de la
-Sección~\ref{subsec:seleccion_perfil}, Apéndice~\ref{apx:perfil_ipm})
-confirma el mismo contraste (sale vs.\ nunca) en 29 de 36 variables en
-2010$\to$2013 y 31 de 35 en 2013$\to$2016 -- el patrón es robusto tanto a
-la ola como a la definición de pobreza. Esto es consistente con pensar
-``entra'' y ``sale'' como las dos caras de
-una misma frontera --hogares que cruzan la línea de pobreza en direcciones
-opuestas, con un perfil similar por estar ambos cerca de ese umbral--, y
-no como dos tipos de hogar distintos.
-\textbf{Segundo,} cuatro variables (marcadas $^\dagger$ en la tabla) rompen ese patrón, es decir,
-diferencian mejor a los hogares vulnerables de los demás grupos, todas en la
-misma dirección --el hogar vulnerable queda en el extremo \emph{más
-favorable}, no en el segundo peor--. La más importante es la \emph{formalidad
-laboral del jefe}, la señal que convencionalmente se usaría para descartar
-riesgo: 62.3\% de los jefes de hogar vulnerables son asalariados, más que
-quien sale (52.2\%) y más que quien nunca cae (57.9\%). En 2013$\to$2016
-esa ventaja frente a quien sale se mantiene (52.3\% frente a 46.9\%), pero
-deja de superar a quien nunca cae (55.3\%). Las otras tres son
-menores pero van en la misma dirección: \emph{deuda informal} (26.0\% frente a
-22.7\% de los que salen), \emph{niños al cuidado de terceros} (98.9\% frente a 98.2\% de los que nunca son pobres) y
-\emph{transporte público comunitario} (79.2\% frente a 78.2\% de los que nunca son pobres).
-Estas tres no se sostienen en 2013$\to$2016: el vulnerable vuelve al orden
-esperado, entre ``sale'' y ``siempre pobre'', en las tres --consistente
-con que su efecto (0.051--0.058) apenas superaba el umbral de robustez,
-un orden de magnitud por debajo del de formalidad laboral (0.393). Si una política
-de focalización usara solo la formalidad laboral del jefe en 2010, habría
-clasificado a los hogares vulnerables como los \emph{menos} necesitados de
-los cuatro grupos --el ejemplo más concreto de por qué un estado
-socioeconómico observado no revela el riesgo futuro de un hogar, y en el
-caso del empleo formal, activamente lo oculta.
+Hay seis hallazgos principales. \textbf{Primero,} un núcleo pequeño de
+variables concentra la señal. Entre 14 y 37 variables, de un total de 165
+a 169, acumulan el 80\% del SHAP en cada combinación
+algoritmo/especificación, y las diez primeras capturan entre 44\% y 72\%
+(Tabla~\ref{tab:shap_variables_necesarias}, Apéndice~\ref{apx:soporte_shap}).
+Las 22 variables que están dentro de ese 80\% en al menos cinco de las
+diez combinaciones forman el núcleo (Tabla~\ref{tab:shap_signo_nucleo}).
+Cuatro aparecen en las diez: servicios públicos, estrato, bienes durables
+y personas por cuarto. Siete --riqueza, educación máxima del hogar, nivel
+educativo del jefe, personas por cuarto, razón de dependencia, puntaje
+TVIP y material del piso-- están dentro del núcleo en las cuatro fuentes
+(dos definiciones de pobreza por dos ventanas). El núcleo no depende de
+los umbrales elegidos: las 22 variables se conservan con criterios más
+laxos, y riqueza, educación máxima, razón de dependencia y personas por
+cuarto sobreviven incluso a los más estrictos
+(Tabla~\ref{tab:sensibilidad_shap}).
 
-\input{tables/tab_perfil_consolidada.tex}
+\textbf{Segundo,} el núcleo tiene una dirección consistente entre
+algoritmos, definiciones de pobreza y ventanas
+(Tabla~\ref{tab:shap_signo_nucleo}, columnas de signo). Con dirección
+estable bajo todos los criterios evaluados, reducen el riesgo de entrar en
+pobreza el índice de riqueza, los activos financieros, el estrato, la
+educación máxima del hogar y el grado educativo del jefe, y lo aumenta el
+hacinamiento. Con dirección algo menos firme, pero estable, reducen el
+riesgo el nivel educativo del jefe, el valor del arriendo y los controles
+médicos preventivos, y lo aumenta la razón de dependencia. En cambio, los
+bienes durables, los servicios públicos y la cotización a pensión del
+hogar tienen signo mayoritariamente negativo pero no estable entre
+fuentes; el acceso a internet, el puntaje TVIP, el choque económico y el
+porcentaje de niños con madre o padre vivo cambian de signo entre
+definiciones o ventanas; y la edad del jefe y los desplazados en la
+comunidad tienen una relación no monótona con el riesgo. Estas variables
+se reportan como asociaciones, no como determinantes.
 
-\textbf{Tercero,} y no visible en el promedio agregado: el grupo ``entra
-en pobreza'' no es un solo tipo de hogar, sino dos trayectorias distintas
-que el análisis de dos olas (2010$\to$2013) no alcanza a distinguir.
-Siguiendo a esos mismos 723 hogares que entran a probreza - los vulnerables - 
-hasta la tercera ola (610 con dato en
-2016), se pueden separar según qué pasa después: \emph{pobre transitorio} --vuelve a
-salir antes de 2016-- (355 hogares, 58\%) y \emph{pobre persistente} --sigue
-pobre en 2016-- (255 hogares, 42\%; Tabla~\ref{tab:perfil_split_trayectoria}).
-En ambos subgrupos se mantiene el patrón del primer hallazgo: transitorio
-se parece más a ``sale'' que a ``nunca cae'' en 39 de 53 variables, y
-persistente en 44 de 53. Pero el promedio de ``entra'' esconde un
-gradiente que solo aparece al separarlos: "pobre persistente" se acerca al
-extremo ``siempre pobre'' en 11 de esas 53 variables, frente a solo 2 en
-"pobre transitorio" --. Es decir, dentro de quienes entran a pobreza, quien va a quedar atrapados ya se
-parece un poco más al hogar crónicamente pobre, aunque el patrón
-dominante siga siendo el de la frontera con ``sale''--. Al revisar las variables que caracterizan
-a estos grupos, el caso más claro
-es la \emph{deuda informal}: el promedio de ``entra'' (26.0\%) esconde que
-pobre transitorio (17.3\%) queda por \emph{debajo} incluso de ``sale''
-(22.7\%), mientras pobre persistente (41.9\%) supera a los cuatro grupos,
-incluido ``siempre pobre'' (31.6\%) --separa, dentro del propio grupo
-vulnerable, a quien va a recuperarse rápido de quien va a quedar
-atrapado--. Este patrón no es exclusivo de la deuda: \emph{cotizar a pensión} y
-el \emph{acceso a deuda formal} muestran la misma divergencia
-(Tabla~\ref{tab:perfil_split_trayectoria}) --la misma frontera de
-formalidad laboral y financiera que separa a ``entra'' de ``sale'' en el
-Hallazgo 2 reaparece dentro de ``entra''(los vulnerables) para separar a quien se
-recupera (pobre transitorio) de quien queda atrapado (pobre persistente).
-Este gradiente también se confirma bajo IPM: pobre persistente queda más
-cerca de ``siempre pobre'' que de ``sale'' en 11 de 36 variables, frente
-a 5 de 36 en pobre transitorio -- misma dirección, magnitud comparable.
+\input{tables/tab_shap_signo_nucleo.tex}
+\end{table}
 
-\input{tables/tab_perfil_split_trayectoria.tex}
-
-\textbf{Cuarto,} el núcleo del perfil no depende de cómo se mida la
-pobreza: de las 53 variables robustas bajo monetaria y las 36 bajo IPM,
-28 son comunes a ambas definiciones --vivienda, ingreso/gasto, educación
-y ocupación del jefe, riqueza, bienes durables, servicios públicos,
-DMSP-- (Tabla~\ref{tab:perfil_nucleo_comun}). Que más de la mitad de cada
-conjunto coincida, pese a partir de dos definiciones de pobreza y dos
-criterios de selección independientes, sugiere que el perfil del hogar
-vulnerable no es una casualidad de cómo se define ``pobre'', sino una
-estructura más estable detrás de ambas medidas. Las 25 variables
-exclusivas de monetaria son mayoritariamente financieras y comunitarias.
-Las 8 exclusivas de IPM incluyen, de forma reveladora, la pobreza
-monetaria del propio hogar en 2010 (\texttt{pobre\_ingreso} y análogas):
-ser pobre por ingreso en la ola base es, en sí mismo, uno de los mejores
-predictores univariados de caer en pobreza multidimensional después, sin
-que la relación inversa se sostenga con la misma fuerza.
+\textbf{Tercero,} el perfil univariado valida esa estructura y añade lo
+que SHAP no puede ver. Coincide en el núcleo: 28 variables son comunes a
+pobreza monetaria e IPM, y corresponden a vivienda, riqueza, educación,
+servicios y bienes durables (Tabla~\ref{tab:perfil_nucleo_comun}). Dos
+métodos con supuestos distintos señalan así la misma estructura. Y
+muestra algo que SHAP no puede comparar, porque solo modela a los no
+pobres iniciales: el hogar vulnerable se parece más al que sale de la
+pobreza que al que nunca fue pobre (47 de 53 variables en 2010$\to$2013 y
+49 de 53 en 2013$\to$2016, Tabla~\ref{tab:perfil_consolidada}; 29 de 36 y
+31 de 35 bajo IPM, Apéndice~\ref{apx:perfil_ipm}), incluso en las
+variables de dirección estable del núcleo
+(Figura~\ref{fig:perfil_nucleo_grupos}). Un modelo multiclase sin ingreso
+lo confirma de forma independiente: sobre los hogares de
+2013$\to$2016, separa ``entra'' de ``nunca pobre'' con un AUC de 0.73 a
+0.75, pero apenas separa ``entra'' de ``sale'' (0.53 a 0.56, casi azar).
+Es coherente con pensar ``entra'' y ``sale'' como dos lados de una misma
+frontera, y no como dos tipos de hogar.
 
 \input{tables/tab_perfil_nucleo_comun.tex}
 
-\paragraph{Fuentes geoespaciales públicas.} La luz nocturna del hogar
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_nucleo_grupos_monetaria.png}
+  \caption{Posición de los hogares que entran y que salen de la pobreza
+  entre las medias de ``siempre pobre'' (0) y ``nunca pobre'' (1), para
+  las variables del núcleo SHAP con dirección estable o moderada
+  presentes en el perfil univariado de 53 variables, pobreza monetaria.}
+  \label{fig:perfil_nucleo_grupos}
+\end{figure}
+
+\textbf{Cuarto,} dentro de los vulnerables hay dos trayectorias que solo
+se distinguen con la tercera ola: pobres transitorios (355 hogares, 58\%)
+--vuelven a salir antes de 2016-- y persistentes (255 hogares, 42\%)
+--siguen pobres en 2016-- (Tabla~\ref{tab:perfil_split_trayectoria}). Las
+diferencias entre ambos subgrupos son sustantivas: 20 de las 52
+variables comparadas difieren de forma significativa tras corregir por
+comparaciones múltiples. La deuda informal es la más citada (17.3\%
+frente a 41.9\% con ponderación; 15.5\% frente a 31.5\% sin ponderar, con
+intervalos de confianza del 95\% que no se solapan), en la misma
+dirección de su signo positivo en SHAP, y la cotización a pensión y el
+acceso a deuda formal divergen igual. Los hogares sin dato de 2016 (113
+de 723) no difieren de forma significativa de los restantes, aunque la
+potencia es limitada. El caso del jefe asalariado ilustra cómo se
+complementan los dos análisis: en 2010$\to$2013 es más frecuente entre
+los vulnerables (62.3\%) que entre quienes salen (52.2\%) o nunca caen
+(57.9\%), y esa ventaja no se sostiene en 2013$\to$2016; en el modelo
+multivariado, en cambio, la cotización a pensión del hogar reduce el
+riesgo. Un estado socioeconómico aislado no revela el riesgo futuro de un
+hogar.
+
+\input{tables/tab_perfil_split_trayectoria.tex}
+
+\textbf{Quinto,} \emph{[hipótesis]} la composición del núcleo sugiere una
+lectura que este trabajo no contrasta formalmente: las variables que más
+aportan a la predicción son sobre todo de acumulación --riqueza, activos,
+educación, estrato, vivienda--, mientras que las de actividad económica
+--ocupación, formalidad, deuda-- casi no entran en él, aunque sí separan,
+en el análisis univariado, al hogar que se recupera del que queda
+atrapado (Cuarto hallazgo). El ingreso y el gasto, que solo existen en el
+Modelo A, son la excepción: sí forman parte del núcleo de esa
+especificación. Si la lectura es correcta, las condiciones acumuladas del
+hogar indicarían quién es vulnerable, y la actividad económica reciente,
+cuánto durará esa condición. Se plantea como hipótesis porque la
+separación entre acumulación y actividad no es nítida (la cotización a
+pensión o el arriendo pagado admiten ambas lecturas) y porque no se
+contrastó con una clasificación explícita de las variables.
+
+\textbf{Sexto,} estos hallazgos tienen límites de lectura. La importancia
+SHAP no equivale a aporte predictivo fuera de muestra: la iluminación
+nocturna DMSP-OLS aparece entre las variables importantes pero no mejora
+el AUC-ROC, por su redundancia con servicios públicos y bienes durables
+(Sección~\ref{subsec:marginal_geo}). SHAP reparte el crédito entre
+variables correlacionadas, de modo que la ausencia de una variable en el
+núcleo no implica ausencia de desigualdad: etnia y sexo del jefe casi no
+aparecen, pero son redundantes con zona, riqueza y estrato. La
+coincidencia entre algoritmos no equivale a réplicas independientes,
+porque todos se ajustan a los mismos hogares,\footnote{Las ventanas
+2013$\to$2016 se ajustan y explican sobre la misma muestra, con
+hiperparámetros heredados de 2010$\to$2013. Y el signo describe cómo el
+modelo usa una variable, no un efecto causal.} y ELCA no cubre el Chocó
+rural ni La Guajira, así que el perfil no describe esas zonas.
+
+En conjunto, el hogar vulnerable es un hogar no pobre con poca riqueza y
+capital educativo, hacinado y con alta carga de dependencia, que se
+parece más a quien acaba de salir de la pobreza que a quien nunca la
+vivió. Esa estructura se sostiene entre algoritmos, definiciones de
+pobreza y ventanas, y el análisis univariado añade lo que el ranking
+multivariado no ve: la cercanía con la frontera de salida y la
+trayectoria posterior a la entrada.
+
+\subsection{Contribución marginal de las variables geoespaciales}
+\label{subsec:marginal_geo}
+
+Esta sección examina primero cómo se ubican los hogares vulnerables en las
+fuentes geoespaciales públicas y luego evalúa, en tres pasos, el aporte de DMSP-OLS --la única de
+las tres fuentes geoespaciales nuevas con datos reales tanto en la ola de
+entrenamiento (2010) como en la de prueba (2013), Sección~\ref{subsec:geo}--
+al desempeño del benchmark: primero su efecto promedio bajo pobreza
+monetaria, luego el mismo ejercicio bajo pobreza multidimensional (IPM), y
+finalmente si esos promedios esconden heterogeneidad relevante para el
+diseño de una política de focalización.
+
+\subsubsection{Perfil de los hogares vulnerables en las fuentes geoespaciales}
+\label{subsec:perfil_geo}
+
+La luz nocturna del hogar
 (DMSP-OLS, escala 0--63) separa monotónicamente los cuatro grupos de la
 matriz de transición, tanto en media como en mediana, bajo pobreza monetaria e
 IPM, en la transición 2010$\to$2013 (Figura~\ref{fig:dmsp_monotonico}):
 de ``siempre pobre'' a ``nunca pobre'', el valor típico sube en cada
-paso. Puesto a prueba contra el patrón del Hallazgo 1 (que ``entra en
+paso. Puesto a prueba contra el patrón del Tercer hallazgo de la Sección~\ref{subsec:determinantes} (que ``entra en
 pobreza'' (vulnerable) se parece más a ``sale de la pobreza'' que a
 ``nunca pobre''), el resultado depende de qué definición de pobreza y
 qué estadístico se use. Bajo IPM la mediana confirma el patrón con
@@ -1486,7 +1520,7 @@ porque DMSP-OLS, a diferencia de ALOS PALSAR y Landsat 5 TM, sí tiene
 cobertura real en ambas olas (Sección~\ref{sec:datos})--: ahí la mediana
 de ``entra en pobreza'' (vulnerable) (21.6) vuelve a quedar mucho más
 cerca de ``sale de la pobreza'' (12.7, distancia 8.9) que de ``nunca
-pobre'' (59.9, distancia 38.3), replicando el Hallazgo 1. La debilidad de
+pobre'' (59.9, distancia 38.3), replicando ese hallazgo. La debilidad de
 2010$\to$2013 parece entonces ruido muestral de esa ola, no una excepción
 real al patrón. ALOS PALSAR (radar) sigue el mismo gradiente que DMSP-OLS
 y Landsat NDVI lo invierte (más verde en pobreza persistente, por
@@ -1530,163 +1564,9 @@ permite caracterizar esos bolsones, y las etiquetas
   \label{fig:mapa_transicion_monetaria}
 \end{figure}
 
-\subsubsection{Importancia multivariada de las variables}
-\label{subsec:importancia_resultados}
-
-Esta sección examina qué variables sostienen el poder predictivo
-documentado en la Sección~\ref{subsec:desempeno}, complementando el
-análisis univariado de la Sección~\ref{subsec:caracterizacion_grupos} con
-la pregunta de qué aporta cada variable una vez controlando por las
-demás, usando la importancia por reducción de impureza de Random Forest,
-los coeficientes estandarizados de la regresión logística, y valores SHAP
-que permiten comparar los cinco algoritmos en una misma escala (medidas
-descritas en la Sección~\ref{subsec:interpretabilidad}). Se destacan tres
-hallazgos.
-
-\textbf{Primero,} el desempeño de los cinco algoritmos no depende de que
-todos coincidan en cuál variable individual ``domina'', sino de que
-comparten un núcleo pequeño y estable de variables --la pregunta correcta
-no es qué variable gana en la figura de un solo algoritmo, sino qué
-perfil de variables se repite entre los cinco--. La
-Tabla~\ref{tab:shap_variables_necesarias} cuantifica qué tan pequeño es
-ese núcleo: agregando el SHAP medio de las columnas \emph{one-hot} y de
-indicador de faltante de vuelta a su variable original --de lo contrario
-Random Forest y Logística parecerían necesitar muchas más ``variables''
-que los árboles nativos por un artefacto de codificación (332/328
-columnas expandidas frente a 165/169 variables categóricas nativas), no
-por una diferencia real de concentración de la señal--, entre 14 y 37
-variables (de un total de 165 a 169, mediana de 27) bastan para acumular
-el 80\% del SHAP total en cada una de las diez combinaciones
-algoritmo/especificación, y las diez variables más importantes por sí
-solas capturan entre 44\% y 72\% de esa señal.
-
-\input{tables/tab_shap_variables_necesarias.tex}
-\end{table}
-
-Para delimitar ese núcleo de forma comparable entre los cinco algoritmos
---sin apoyarse en cuál domina en uno en particular--, se cuenta, para
-cada variable, en cuántas de las diez combinaciones algoritmo/especificación
-queda dentro del 80\% de la masa SHAP acumulada; el núcleo se define como
-las variables que lo logran en al menos 5 de esas 10 combinaciones
-(mayoría simple), el mismo espíritu del umbral de robustez del perfil
-univariado de la Sección~\ref{subsec:caracterizacion_grupos}, aplicado
-aquí a consenso entre algoritmos en vez de a bootstrap de muestra. El
-resultado son 22 variables (Tabla~\ref{tab:shap_nucleo_perfil}),
-organizadas en las mismas categorías temáticas del perfil univariado:
-activos del hogar (6 variables), educación y empleo del jefe (6),
-composición del hogar (5), vivienda --hacinamiento y materiales-- (3),
-y una cada una de programas sociales/deuda y comunidad. Cuatro variables
-aparecen en las 10 combinaciones sin excepción: número de servicios
-públicos, estrato verificado y número de bienes durables (activos del
-hogar), y personas por cuarto (hacinamiento). Este perfil es consistente
-con --y más completo que-- cualquier figura de un solo algoritmo: confirma
-el papel central de riqueza, educación y activos del hogar, pero además
-revela un bloque de variables de composición del hogar (razón de
-dependencia demográfica, condición de los padres de los niños,
-vocabulario infantil) que ninguna figura de un solo algoritmo mostraba,
-precisamente porque ninguno por separado la ubicaba entre sus primeras
-posiciones, pero sí lo hace de forma consistente entre varios algoritmos
-a la vez.
-
-\input{tables/tab_shap_nucleo_perfil.tex}
-  \begin{minipage}{0.95\textwidth}
-    \vspace{4pt}
-    \footnotesize \textit{Nota:} 8 de las 22 variables del núcleo no
-    forman parte del perfil univariado de 53 variables de la
-    Sección~\ref{subsec:caracterizacion_grupos} (marcadas $^\dagger$)
-    --el criterio de selección de esa sección (robustez de
-    $\eta^2$/Cramér's V por bootstrap) es distinto del usado aquí
-    (consenso de importancia SHAP entre algoritmos) y no tienen por qué
-    coincidir.
-  \end{minipage}
-\end{table}
-
-Dos matices sobre cómo leer este núcleo. El primero es de conteo: tres de
-las seis variables de la categoría ``Educación y empleo del jefe''
-(máximo nivel educativo del hogar, grado educativo del jefe, nivel
-educativo del jefe en escala ordinal) son distintas codificaciones de
-esencialmente la misma señal --nivel educativo--, no tres fuentes de
-información independientes; contarlas como tres filas del núcleo
-sobrestima cuántas variables sustantivas distintas hay detrás de esa
-categoría. El segundo es de clasificación: ninguna de las diez categorías
-del perfil univariado se ajusta bien a ``tuvo un choque económico en el
-hogar'' --se ubicó en ``Programas sociales y deuda'' por cercanía
-temática (ambas son formas de exposición o protección financiera), pero
-es conceptualmente distinta (un choque sufrido, no un instrumento de
-protección) de lo que esa categoría agrupaba originalmente. Ninguno de
-estos dos matices cambia la lectura general: las métricas de importancia
-usadas tampoco son directamente comparables entre sí --la reducción de
-impureza (Random Forest, XGBoost, LightGBM) tiende a favorecer variables
-continuas o de alta cardinalidad frente a las binarias, independientemente
-de su contenido informativo real, y de las métricas usadas aquí, SHAP es
-la más comparable entre algoritmos, pero ninguna es una vara neutral de
-importancia--, lo que reafirma por qué la lectura correcta para un
-hacedor de política es confiar en el perfil de variables que se repite
-entre algoritmos, no en el orden exacto de una figura particular.
-
-\textbf{Segundo,} el hallazgo univariado más llamativo del perfil de
-vulnerabilidad --que la formalidad laboral del jefe de hogar señala más
-riesgo, no menos (Hallazgo 2, Sección~\ref{subsec:caracterizacion_grupos})--
-no se refleja en las métricas de importancia multivariada estándar de
-ninguno de los cinco algoritmos: \texttt{categoria\_ocupacional\_jefe}, la
-variable con el mayor efecto univariado de las 53 (0.393), cae a un rango
-de importancia marginal o nula en los cinco algoritmos (posiciones 42 a
-146, de 169 a 332 variables según el algoritmo), y es exactamente cero en
-Random Forest y en la regresión logística para casi todas sus categorías,
-en ambas especificaciones. El mismo patrón se repite con las otras tres
-variables ``contraintuitivas'' del Hallazgo 2: \texttt{pct\_ninos\_
-cuidado\_terceros\_hogar} es prácticamente nula en los cinco algoritmos y
-ambas especificaciones, \texttt{tiene\_transporte\_publico\_comunidad}
-nunca entra al top 30, y \texttt{deuda\_informal\_hogar} es cero exacto en
-Random Forest y Logística y solo moderada (posiciones 36 a 61) en XGBoost
-y HistGradientBoosting bajo el Modelo B. En cambio, un proxy relacionado
-pero distinto --\texttt{tasa\_cotizacion\_pension\_hogar}, formalidad
-medida a nivel de todo el hogar y no solo del jefe-- sí sobrevive con
-fuerza en la mayoría de los algoritmos, aunque no de forma perfectamente
-consistente (HistGradientBoosting es la excepción, donde cae a las
-posiciones 61--64). Esta sustitución de un proxy de formalidad por otro
-es, además, específica de pobreza monetaria: al repetir el mismo
-ejercicio bajo IPM, el patrón se debilita y en parte se invierte --
-\texttt{categoria\_ocupacional\_jefe} mejora su posición de forma notable
-en varios algoritmos (hasta las posiciones 16--30, frente a 42 en
-adelante bajo monetaria), mientras \texttt{tasa\_cotizacion\_pension\_hogar}
-deja de ser un proxy confiable (su rango se amplía a 28--143 según el
-algoritmo). Qué proxy de formalidad ``gana'' el crédito predictivo no es,
-entonces, una regularidad general del análisis multivariado, sino algo
-que depende de qué definición de pobreza se use. Esto no contradice ni invalida el Hallazgo 2: la importancia
-multivariada mide contribución marginal dado todo lo demás en el modelo,
-no el efecto univariado bruto, así que si ambas variables miden
-formalidad y están correlacionadas entre sí, el modelo le otorga el
-crédito predictivo a una y deja a la otra sin margen adicional --el mismo
-fenómeno de multicolinealidad del Primer hallazgo, aquí entre dos proxies
-de formalidad--. La desventaja de las variables relacionales frente a las
-económicas tampoco es un accidente estadístico: por naturaleza se miden
-con preguntas binarias de baja varianza en la encuesta, de modo que
-compiten en desventaja estructural, en cualquier métrica de importancia
-basada en varianza explicada o en particiones, contra variables continuas
-de riqueza o ingreso --un sistema de focalización construido solo a
-partir de estos rankings invisibilizaría sistemáticamente la
-vulnerabilidad relacional, no por azar sino por cómo se mide--; vale la
-pena notar, además, que \texttt{pct\_ninos\_cuidado\_terceros\_hogar} es,
-indirectamente, una variable sobre carga de cuidado --típicamente asumida
-por mujeres--, y su práctica invisibilidad en la importancia multivariada
-tiene una lectura de equidad de género que el análisis cuantitativo por
-sí solo no captura. Para el diseño de política, la implicación no es una
-receta operacional única --dado que qué proxy de formalidad domina
-depende de la definición de pobreza, recomendar una sola variable para un
-sistema de alerta temprana sería prematuro sin antes fijar contra qué
-medida de pobreza se calibra, aunque ambos proxies comparten la ventaja
-de residir ya en registros administrativos de seguridad social, en el
-mismo espíritu de cruce de fuentes que plantea el CONPES 3877/SISBEN IV
-\parencite{conpes2016}--, sino, en un sentido más general, que un hallazgo
-univariado sustantivo y bien documentado puede resultar invisible en un
-gráfico de importancia de variables sin que eso signifique que el
-hallazgo sea falso.
-
-\textbf{Tercero,} que una variable geoespacial aparezca entre las más
+Que una variable geoespacial aparezca entre las más
 ``importantes'' de un modelo no implica que aporte información nueva al
-conjunto de prueba, y la propia comparación entre esta sección y la de
-contribución marginal de DMSP-OLS lo demuestra con un caso concreto: en
+conjunto de prueba, y el caso de DMSP-OLS lo ilustra: en
 XGBoost sobre el Modelo A con DMSP-OLS,
 \texttt{dmsp\_stable\_lights\_acum\_minimo} es la séptima variable más
 importante de 192 por reducción de impureza, pese a que la
@@ -1697,8 +1577,7 @@ precisamente por redundancia: la correlación de
 \texttt{dmsp\_stable\_lights} con el resultado cae de $r=-0.214$ a
 $r\approx+0.021$ al controlar por dos preguntas de la propia encuesta
 (servicios públicos y bienes durables del hogar). No es una contradicción
-entre secciones sino el mismo fenómeno de multicolinealidad de los
-hallazgos anteriores visto desde otro ángulo: una variable puede ganarle
+sino un fenómeno de multicolinealidad: una variable puede ganarle
 particiones a otras porque mide algo parecido a lo que el modelo ya
 conoce, sin que eso se traduzca en una mejora del poder predictivo fuera
 de muestra. La advertencia metodológica es general, no específica de
@@ -1709,46 +1588,6 @@ son dos preguntas distintas que este documento sí distingue por diseño
 (Secciones~\ref{subsec:desempeno},~\ref{subsec:importancia_resultados} y~\ref{subsec:marginal_geo}),
 pero que resultan fáciles de confundir si solo se observa una figura de
 importancia sin la comparación de AUC-ROC que la acompaña.
-
-
-Las dos miradas de esta sección --el perfil univariado y la importancia
-multivariada-- convergen en lo esencial y se complementan en lo que cada
-una no puede ver por sí sola. Ambas identifican el mismo núcleo
-estructural (riqueza, educación, activos y condiciones de vivienda del
-hogar) como el determinante más robusto de la vulnerabilidad, sin
-importar si se mide por asociación univariada o por contribución a la
-predicción de cinco algoritmos distintos --esa coincidencia, lograda por
-dos métodos con supuestos y datos de entrada distintos, es la evidencia
-más fuerte de este documento a favor de ese núcleo--. Donde discrepan es
-igual de informativo: la formalidad laboral del jefe, la variable con el
-efecto univariado más llamativo de todo el perfil (Hallazgo 2),
-prácticamente no aporta a la predicción una vez el modelo ya cuenta con
-el resto de variables del núcleo (Segundo hallazgo de la
-Sección~\ref{subsec:importancia_resultados}). Esto no es una
-contradicción sino una diferencia de propósito: el perfil univariado
-responde qué distingue a un hogar vulnerable en términos descriptivos
---incluidas señales contraintuitivas valiosas para entender el
-fenómeno--, mientras que la importancia multivariada responde qué hace
-falta, de forma no redundante, para predecirlo --y una señal puede ser
-sustantivamente reveladora sin ser útil para ese segundo objetivo,
-precisamente porque otras variables ya la vuelven redundante--. Para el
-diseño de un instrumento de focalización, la implicación práctica es
-usar cada análisis para lo que sirve: el perfil univariado para entender
-y comunicar el fenómeno, y el núcleo de importancia multivariada
-(Sección~\ref{subsec:importancia_resultados}) para decidir qué variables
-medir si el objetivo es predecir con la menor cantidad de información
-posible.
-
-\subsection{Contribución marginal de las variables geoespaciales}
-\label{subsec:marginal_geo}
-
-Esta sección evalúa, en tres pasos, el aporte de DMSP-OLS --la única de
-las tres fuentes geoespaciales nuevas con datos reales tanto en la ola de
-entrenamiento (2010) como en la de prueba (2013), Sección~\ref{subsec:geo}--
-al desempeño del benchmark: primero su efecto promedio bajo pobreza
-monetaria, luego el mismo ejercicio bajo pobreza multidimensional (IPM), y
-finalmente si esos promedios esconden heterogeneidad relevante para el
-diseño de una política de focalización.
 
 \subsubsection{Bajo pobreza monetaria}
 \label{subsec:marginal}
@@ -1990,14 +1829,22 @@ ambos periodos; bajo IPM la entrada es menos frecuente pero también lo es
 la salida, consistente con que las privaciones estructurales cambian más
 lento que el ingreso corriente (Sección~\ref{subsec:outcome}).
 \textbf{Segundo}, el perfil del hogar vulnerable --el que entra en
-pobreza-- se parece mucho más, en la mayoría de sus características
-observables, al hogar que \emph{acaba de salir} de la pobreza que al que
-nunca fue pobre (47 de 53 variables robustas lo ubican más cerca de
-``sale''), con una excepción sistemática y contraintuitiva: la
-formalidad laboral del jefe de hogar es \emph{mayor} en quien está a
-punto de caer que en quien nunca fue pobre, justo la señal que
-convencionalmente se usaría para descartar el riesgo
-(Sección~\ref{subsec:caracterizacion_grupos}). \textbf{Tercero}, los
+pobreza-- se concentra en un núcleo pequeño de variables: entre 14 y 37 de
+las 165 a 169 covariables acumulan el 80\% de la señal SHAP, y la riqueza,
+los activos financieros, el estrato y la educación del hogar y del jefe
+--con menos riesgo cuanto más altos-- y el hacinamiento --con más riesgo--
+tienen la misma dirección entre algoritmos, definiciones de pobreza
+(monetaria e IPM) y ventanas temporales
+(Sección~\ref{subsec:determinantes}). El análisis univariado valida esa
+estructura y añade lo que SHAP no puede ver: el hogar vulnerable se parece
+mucho más al que \emph{acaba de salir} de la pobreza que al que nunca fue
+pobre (47 de 53 variables robustas lo ubican más cerca de ``sale''), y
+dentro de los vulnerables hay dos trayectorias --transitoria (58\%) y
+persistente (42\%)-- que la deuda informal y la cotización a pensión
+ayudan a distinguir. La formalidad laboral del jefe, más frecuente entre
+los vulnerables que entre quienes nunca caen en 2010--2013, ilustra por
+qué un estado socioeconómico aislado no revela el riesgo futuro de un
+hogar. \textbf{Tercero}, los
 cinco algoritmos evaluados alcanzan un desempeño similar entre sí
 (AUC-ROC entre 0.731 y 0.767), sin que ninguno domine claramente a los
 demás, y la brecha de desempeño entre el modelo que incluye
@@ -2046,11 +1893,13 @@ comparable al del ingreso sugiere que un sistema de alerta temprana no
 necesita esperar a observar directamente el ingreso de un hogar --la
 variable más costosa y menos frecuente de actualizar-- para identificar
 candidatos a la vulnerabilidad; características más fáciles de observar o
-de actualizar administrativamente (educación, activos del hogar,
-formalidad laboral) ya capturan buena parte de esa señal --con la
-salvedad de que la formalidad laboral señala riesgo en la dirección
-\emph{contraria} a la intuitiva
-(Sección~\ref{subsec:caracterizacion_grupos})--. Segundo, la comparación
+de actualizar administrativamente (riqueza, educación, activos
+financieros, condiciones de la vivienda como el hacinamiento) ya capturan
+buena parte de esa señal, con la misma dirección entre algoritmos y
+definiciones de pobreza (Sección~\ref{subsec:determinantes}); y para
+distinguir, entre los hogares en riesgo, a los que se recuperan de los que
+quedan atrapados, la deuda informal y la cotización a pensión del hogar son
+señales candidatas --descriptivas, no predictivas--. Segundo, la comparación
 entre algoritmos (Sección~\ref{subsec:desempeno}) muestra que la elección
 del algoritmo correcto depende de la función de pérdida que le importa al
 hacedor de política: XGBoost maximiza el recall --relevante si el costo
@@ -2075,6 +1924,21 @@ encuesta ya vigente y con buena cobertura.
 
 \subsection{Limitaciones y agenda de investigación}
 \label{subsec:limitaciones}
+
+Sobre el análisis de determinantes (Sección~\ref{subsec:determinantes}),
+cuatro límites acompañan a los hallazgos. La dirección de cada variable se
+resume con la correlación de Spearman entre su valor y su SHAP, con
+umbrales elegidos por el analista (se evalúan alternativas en el
+Apéndice~\ref{apx:soporte_shap}) y sin captar relaciones no monótonas. Las
+ventanas 2013--2016 se ajustan y explican sobre la misma muestra, con
+hiperparámetros heredados de 2010--2013. La separación entre pobres
+transitorios y persistentes es descriptiva y se apoya en los 610 de 723
+hogares con dato en la tercera ola; no se encontró atrición diferencial,
+pero con poca potencia. Y el modelo multiclase que respalda la cercanía
+entre ``entra'' y ``sale'' se reporta solo de forma resumida, sin describir
+su especificación en la Sección~\ref{subsec:modelos}. La lectura que
+distingue entre variables de acumulación y de actividad económica es una
+hipótesis, no un resultado contrastado.
 
 La agenda de investigación que deja esta tesis tiene tres frentes
 concretos. Primero, la heterogeneidad territorial del aporte de DMSP-OLS
@@ -2394,6 +2258,21 @@ retoma en la Sección~\ref{subsec:limitaciones}).
   no aparecen en absoluto en la ola siguiente).}
   \label{fig:atricion}
 \end{figure}
+
+\subsection{Soporte del perfil univariado y del núcleo SHAP}
+\label{apx:soporte_shap}
+
+Complemento de la Sección~\ref{subsec:determinantes}: perfil de las 53 variables
+robustas por grupo de transición, concentración de la señal SHAP y sensibilidad
+del núcleo y de su dirección a los umbrales elegidos.
+
+\input{tables/tab_perfil_consolidada.tex}
+
+\input{tables/tab_shap_variables_necesarias.tex}
+\end{table}
+
+\input{tables/tab_sensibilidad_shap.tex}
+\end{table}
 
 \subsection{Perfil completo de covariables, pobreza multidimensional (IPM)}
 \label{apx:perfil_ipm}

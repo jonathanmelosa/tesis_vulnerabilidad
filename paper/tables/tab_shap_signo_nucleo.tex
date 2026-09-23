@@ -1,0 +1,59 @@
+\begin{table}[H]
+  \centering
+  \caption{Núcleo de variables del análisis SHAP y su dirección.
+  \emph{Comb.}: combinaciones algoritmo/especificación (de 10) en que
+  la variable está dentro del 80\% de la masa SHAP acumulada
+  (Sección~\ref{subsec:importancia_resultados}). Cada celda de signo
+  indica el signo mayoritario y en cuántas ($n$) de las $m$
+  combinaciones con dirección clara ($|\rho|\geq 0.10$) aparece: $-$
+  significa que valores altos de la variable \emph{reducen} el riesgo
+  de entrar en pobreza; $+$, que lo \emph{aumentan}.
+  \emph{Dirección}: Estable = mismo signo en las cuatro fuentes bajo
+  las 12 combinaciones de umbrales evaluadas; Moderada = en al menos 8;
+  Inestable = en menos. ``cat.'': variable categórica, sin signo a nivel
+  de variable. $^{\dagger}$variable fuera del perfil univariado de 53
+  variables robustas de la Sección~\ref{subsec:caracterizacion_grupos}.}
+  \label{tab:shap_signo_nucleo}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{lccccccc}
+    \toprule
+    \textbf{Variable} & \textbf{Comb.} & \shortstack{\textbf{Monetaria}\\\textbf{2010$\to$13}} & \shortstack{\textbf{Monetaria}\\\textbf{2013$\to$16}} & \shortstack{\textbf{IPM}\\\textbf{2010$\to$13}} & \shortstack{\textbf{IPM}\\\textbf{2013$\to$16}} & \textbf{Dirección} \\
+    \midrule
+    \textbf{Activos del hogar} & & & & & & \\
+    \quad N.\textsuperscript{o} de servicios públicos & 10 & $-$\,10/10 & $-$\,3/5 & $-$\,10/10 & $-$\,9/10 & Inestable \\
+    \quad Estrato (verificado) & 10 & $-$\,10/10 & $-$\,10/10 & $-$\,5/5 & $-$\,10/10 & Estable \\
+    \quad N.\textsuperscript{o} de bienes durables & 10 & $-$\,10/10 & $-$\,10/10 & $-$\,7/8 & $-$\,7/9 & Inestable \\
+    \quad Tiene internet en el hogar & 9 & $-$\,10/10 & $-$\,7/7 & $+$\,3/5 & $+$\,5/8 & Inestable \\
+    \quad Índice de riqueza (PCA) & 8 & $-$\,10/10 & $-$\,10/10 & $-$\,8/8 & $-$\,10/10 & Estable \\
+    \quad N.\textsuperscript{o} de activos financieros & 6 & $-$\,9/9 & $-$\,9/10 & $-$\,10/10 & $-$\,10/10 & Estable \\
+    \addlinespace
+    \textbf{Educación y empleo del jefe} & & & & & & \\
+    \quad Máx. nivel educativo del hogar & 9 & $-$\,10/10 & $-$\,10/10 & $-$\,9/9 & $-$\,9/10 & Estable \\
+    \quad Cotización a pensión (hogar) & 7 & $-$\,8/9 & $-$\,9/9 & $-$\,7/9 & $-$\,8/8 & Inestable \\
+    \quad Edad del jefe de hogar$^{\dagger}$ & 7 & $-$\,8/8 & $-$\,6/7 & $+$\,9/9 & $+$\,7/7 & Inestable \\
+    \quad Estado civil del jefe & 6 & cat. & cat. & cat. & cat. & -- \\
+    \quad Grado educativo del jefe (años)$^{\dagger}$ & 6 & $-$\,6/6 & $-$\,5/5 & $-$\,9/9 & $-$\,9/9 & Estable \\
+    \quad Nivel educativo del jefe (ordinal) & 5 & $-$\,8/8 & $-$\,8/8 & $-$\,9/10 & $-$\,8/8 & Moderada \\
+    \addlinespace
+    \textbf{Vivienda: materiales y servicios} & & & & & & \\
+    \quad Material de piso del hogar & 8 & cat. & cat. & cat. & cat. & -- \\
+    \addlinespace
+    \textbf{Vivienda: hacinamiento} & & & & & & \\
+    \quad Personas por cuarto & 10 & $+$\,10/10 & $+$\,9/9 & $+$\,10/10 & $+$\,10/10 & Estable \\
+    \quad Valor del arriendo pagado & 6 & $-$\,9/10 & $-$\,7/8 & $-$\,10/10 & $-$\,8/8 & Moderada \\
+    \addlinespace
+    \textbf{Composición del hogar} & & & & & & \\
+    \quad \% de niños con madre viva$^{\dagger}$ & 8 & $+$\,9/9 & $+$\,6/6 & $+$\,8/8 & $-$\,4/6 & Inestable \\
+    \quad Razón de dependencia demográfica & 8 & $+$\,8/9 & $+$\,8/9 & $+$\,8/10 & $+$\,8/10 & Moderada \\
+    \quad \% de niños con padre vivo$^{\dagger}$ & 7 & $-$\,4/6 & $+$\,8/9 & $-$\,5/5 & $-$\,10/10 & Inestable \\
+    \quad Tasa de controles médicos preventivos (hogar)$^{\dagger}$ & 6 & $-$\,9/9 & $-$\,8/8 & $-$\,10/10 & $-$\,8/9 & Moderada \\
+    \quad Puntaje de vocabulario infantil (test TVIP)$^{\dagger}$ & 6 & $-$\,4/7 & $-$\,4/6 & $-$\,10/10 & $-$\,8/9 & Inestable \\
+    \addlinespace
+    \textbf{Programas sociales y deuda} & & & & & & \\
+    \quad Tuvo un choque económico (hogar)$^{\dagger}$ & 6 & $+$\,8/9 & $+$\,4/7 & $+$\,8/8 & $+$\,4/6 & Inestable \\
+    \addlinespace
+    \textbf{Comunidad} & & & & & & \\
+    \quad N.\textsuperscript{o} de desplazados en la comunidad$^{\dagger}$ & 5 & $-$\,6/9 & $-$\,7/8 & $+$\,2/3 & $+$\,4/6 & Inestable \\
+    \bottomrule
+  \end{tabular}

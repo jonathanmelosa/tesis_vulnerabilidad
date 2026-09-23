@@ -13,14 +13,13 @@ desbordaba hacia la derecha y no mostraba los 4 grupos): se abandona
 `tabla_covariables_transicion.py`, ya probado), UNA POR CATEGORIA -- mas
 angosto, sin fila de sub-encabezado que rompa el ancho de columna.
 
-El cuerpo de la Seccion 5.2 solo usa las tablas de las categorias con
-varios items (Ingreso y gasto, Vivienda: materiales y servicios,
-Activos del hogar, Educacion y empleo del jefe) -- las categorias con
-pocos items (Zona, Vivienda: hacinamiento, Geoespacial, Programas
-sociales y deuda, Composicion del hogar) se muestran como figura en su
-lugar (ver `graf_perfil_categorias_sparse.py`). El anexo de IPM SI usa
-una tabla por cada una de sus 8 categorias (es una tabla de referencia
-completa, no narrativa).
+El cuerpo de la Seccion 5.2 YA NO usa las tablas por categoria de
+monetaria (las reemplazan `tab_perfil_consolidada`,
+`tab_perfil_split_trayectoria` y `tab_perfil_nucleo_comun`); las
+`tab_perfil_*_monetaria.tex` fueron borradas de `paper/tables/` el
+2026-09-23 y este script las regenera si se corre de nuevo. El anexo de
+IPM SI usa una tabla por cada una de sus 8 categorias (es una tabla de
+referencia completa, no narrativa).
 
 El formato de cada fila (pct / pct_nivel / num) se INFIERE
 automaticamente de `tipo` + `nivel_mostrado` del CSV -- ver

@@ -4264,3 +4264,235 @@ instalar actualizaciones del sistema operativo antes de que se lance esta
 corrida corregida. El relanzamiento (`nohup caffeinate -i python -u
 modelo_multiclase_robusto_comparacion.py ...`) NO debe ejecutarse hasta
 que el usuario confirme explicitamente que el reinicio ya se hizo.
+
+
+## 2026-09-15: Perfil univariado de la Seccion 5 -- extension a 53 variables, split transitorio/persistente, tabla consolidada y presupuesto de paginas
+
+**Contexto.** El perfil del hogar vulnerable (hoy Seccion 5.2.1, antes 5.1)
+tenia 40 variables. A pedido del usuario se reviso por que 40 y no mas,
+se sometio a un panel de expertos simulado (lectura critica de la seccion
+contra todo el proyecto) y se implementaron sus hallazgos. Tambien quedo
+como regla vigente que todo lo que llegue al texto debe ser reproducible
+desde `src/` (ver memoria `feedback-reproducibility`).
+
+**1. Por que 40 variables (respuesta y decision).** El corte es
+`robusto=True` y efecto>0.10 (embudo 172 candidatas -> 97 -> 96 -> 42 ->
+40 tras quitar 2 duplicados exactos; el cuello de botella es el umbral de
+efecto, no el bootstrap). Un umbral de efecto>0.05 solo en 2010->2013
+dejaba 18 candidatas extra. Decision del usuario: bajar el umbral para
+que entren las que son estables entre periodos.
+
+**2. Extension a 53 variables (`VARIABLES_ESTABLES_AMPLIADAS` en
+`src/02_build/eda_perfil_completo.py`).** Se agregan 13 variables que
+cumplen `robusto=True` y efecto>0.05 EN AMBAS transiciones por separado
+(2010->2013 y 2013->2016). De las 18 candidatas se descartaron 5:
+`tiene_deuda_hogar`, `tvip_puntaje_directo_hogar`, `tasa_ahorro_hogar`,
+`pct_ninos_control_pediatrico` y `pct_ninos_no_estudia_razon_economica`
+(efecto 0.076 -> 0.011, deja de ser robusta en el 2o periodo). Ninguna
+de las 13 correlaciona |rho|>0.70 (Spearman) con las 40 originales (max
+0.43, `n_espacios_publicos_comunidad` vs `dmsp_stable_lights`). El script
+re-valida los criterios en tiempo de ejecucion y falla con `ValueError`
+si dejan de cumplirse. Nueva categoria "Comunidad" (2 variables); 10
+categorias en total.
+- Asimetria de transparencia: las 40 originales nunca se sometieron al
+  mismo chequeo de estabilidad. 2 (`n_ninos_12` 0.105->0.084,
+  `razon_dependencia_demografica` 0.104->0.088) caen bajo 0.10 en
+  2013->2016 aunque siguen robustas. Se documenta en nota al pie del
+  texto en vez de retirarlas.
+- Solapamiento con IPM tras la extension: 28 comunes, 25 exclusivas de
+  monetaria, 8 exclusivas de IPM. Corrige un error aritmetico previo del
+  texto ("11 exclusivas de IPM"; el conteo real antes de la extension era 9).
+
+**3. Split transitorio/persistente (`src/02_build/eda_perfil_split_trayectoria.py`,
+`src/tabla_perfil_split_trayectoria.py`).** El panel de expertos senalo que
+"entra en pobreza" mezcla dos trayectorias (58% vuelve a salir para 2016 =
+transitorio, 42% se queda = persistente; 610 de 723 hogares tienen ola 3,
+113 se pierden por atricion). Resultado, contrario a la hipotesis
+inicial: el patron "se parece a sale" sobrevive en ambos subgrupos (39/53
+transitorio, 44/53 persistente), pero persistente esta mas cerca de
+"siempre pobre" que de "sale" en 11/53 variables (transitorio 2/53). La
+deuda informal esta oculta en el promedio agregado (26.0%): transitorio
+17.3%, persistente 41.9% (mas alto que todos los grupos, incluido siempre
+pobre 31.6%). La formalidad laboral (excepcion central) se sostiene en
+ambos subgrupos. Se reusa `construir_tabla_comparativa` sin recalcular
+ranking ni seleccion.
+
+**4. DMSP: media vs mediana.** La monotonicidad se sostiene en ambas
+metricas, pero bajo monetaria la mediana deja a "entra" casi equidistante
+de "sale" y "nunca" (20.7 vs 20.9); bajo IPM confirma el patron con
+margen (2.9 vs 38.4). Se reporta el matiz en el texto y se usa la figura
+`dmsp_monotonico_categoria.png` (existia sin usar). El texto agrega la
+referencia a que la separacion descriptiva de DMSP es en gran parte
+redundante con servicios publicos y bienes durables (Seccion de
+contribucion marginal).
+
+**5. Presentacion: tabla unica `longtable` en vez de 1 tabla/figura por
+categoria.** Para el presupuesto pedido por el usuario ("incorpora todo y
+dejalo en 5 paginas", 2026-09-15) se reemplazaron 4 tablas + 6 figuras
+"sparse" por `paper/tables/tab_perfil_consolidada.tex` (53 filas,
+`src/tabla_perfil_consolidada.py`), con `$^\dagger$` en las 4 excepciones
+(`categoria_ocupacional_jefe`, `deuda_informal_hogar`,
+`pct_ninos_cuidado_terceros_hogar`, `tiene_transporte_publico_comunidad`).
+Intentos descartados: (a) 2 tablas `table`+`resizebox` con `[H]` (dejaba
+media pagina en blanco), (b) `[tp]` (paginas solo de floats, ~40% en
+blanco), (c) `[t]` sin `p` (la tabla B se desplazo a la pagina 65 del
+apendice -- nunca usar), (d) `longtable` con `resizebox` (desbordaba a la
+derecha, ya abandonado el 2026-09-11). Solucion: `longtable` con columnas
+de ancho fijo (`p{0.40\textwidth}` + 4 columnas), sin `resizebox`. Ajustes
+globales de preambulo: `\@fptop=0pt`, `\@fpbot=0pt plus 1fil`,
+`\topfraction=0.85`, `\textfraction=0.1`, `\floatpagefraction=0.75`.
+El mapa regional (queja del usuario: "sigue saliendo muy grande") se
+redujo de `\textwidth` a un ancho fraccionario.
+
+**6. Prosa destilada.** Instruccion explicita del usuario: destilar los
+resultados en vez de un parrafo por categoria; la seccion se reorganizo por
+hallazgos (Primero..Cuarto), no por categoria de variable.
+
+**Pendiente derivado (no resuelto al escribir esta entrada).**
+- Conclusiones (6.1/6.2) no reflejan el split ni la deuda informal.
+- Tablas/figuras por categoria (`tab_perfil_*_monetaria.tex`,
+  `perfil_*_monetaria.png`, `graf_perfil_categorias_sparse.py`) ya no se
+  usan en `main.tex`; el usuario no ha decidido si conservarlas o borrarlas.
+- El perfil ocupa hoy ~7 paginas (27-33), no las 5 pedidas; falta saber
+  si el limite sigue vigente.
+- Docstrings desactualizados: `tabla_perfil_completo.py` (dice que el
+  cuerpo usa tablas por categoria) y `tabla_perfil_split_trayectoria.py`
+  (dice 3 variables ejemplo, ahora son 5).
+
+### Addendum 2026-09-13 — Bug de espejo vertical en el mosaico DMSP (Bogotá con brillo 0) y diagrama aluvial de transiciones
+
+**1. Bug de orientación en `eda_dmsp_nacional_gee.py`, corregido.** El
+usuario notó que en el mapa regional Bogotá casi no tenía iluminación. Se
+verificó que no era un hallazgo sino un error de ensamblaje: `sampleRectangle`
+devuelve cada tile con la fila 0 en el borde NORTE (orden estándar
+norte-arriba, confirmado con una consulta directa a GEE sobre Bogotá:
+máximo 63 en la fila correcta), pero el bucle asumía fila 0 = borde SUR al
+insertar en `mosaico[iy0:iy1, ...]`. Cada tile de 4° de latitud quedó
+espejado verticalmente dentro de su propio bloque, y el `np.flipud` global
+final no lo corrige. Evidencia: en el raster con bug, Bogotá (-74.08, 4.65)
+leía 0, Cali 0 y Medellín 5; el 63 de Bogotá aparecía en el punto reflejado
+del bloque [3.5, 7.5) → 3.5 + 7.5 − 4.65 = 6.35°N, donde el raster leía
+exactamente 63.0. Fix: `tile = tile[::-1, :]` justo antes de asignar el
+tile al mosaico (el `np.flipud` global se mantiene). Tras regenerar,
+Bogotá, Cali, Medellín y Barranquilla leen 63 (el techo de saturación del
+sensor) y el punto 6.35°N vuelve a 0.
+
+Regenerados: `dmsp_nacional_gee_2010.tif`, `fondo_dmsp_colombia_2010.npz`
+y `prueba_estilo_tramas_regional.png` (`graf_mapa_territorial_tramas.py`).
+El bug solo afectaba al fondo visual del mapa: la variable
+`dmsp_stable_lights` por hogar (usada en perfiles y modelos) viene de otra
+extracción y ya mostraba a Bogotá en 63 (mediana regional), sin cambios.
+`mapa_territorial_transicion_divipola.py` no se vuelve a correr en la
+sala (decisión del usuario, consistente con el pivote del 2026-09-12: no
+existe identificador geográfico real a nivel de hogar).
+
+**2. Diagrama aluvial de transiciones (`src/graf_sankey_transicion_pobreza.py`).**
+Vista complementaria a la barra apilada de `graf_transiciones`: hace
+explícito que "Sale" y "Siempre pobre" son subconjuntos de Pobre en t, y
+"Nunca pobre" y "Entra" de No pobre en t. Genera 2010→2013 y 2013→2016 en
+`outputs/figures/pobreza/sankey_transicion_pobreza_{2010_2013,2013_2016}.png`
+(incluidas en `main.tex` como `fig:sankey_2010_2013` y `fig:sankey_2013_2016`).
+Decisiones: datos sin ponderar (`transicion_{conteo,pct}_ola*.csv`, la
+misma fuente que la Tabla de matrices de transición); cada porcentaje
+declara su base explícita en el rótulo ("23.4% de No pobres 2010", es
+decir, % de fila y no del total) porque el usuario no entendía los
+porcentajes sin base; título con "Metodología López-Calva y Ortiz-Juárez
+(2014)" y n, sin la frase "panel emparejado"; misma paleta por categoría
+que el resto de la tesis. Las cifras citadas en el texto (p. ej. 62.3 %
+de asalariados entre vulnerables, con la salvedad de 2013→2016) salen de
+`perfil_completo_monetaria_{2010_2013,2013_2016}.csv`.
+
+### 2026-09-23 — Sección 5.2 unificada: SHAP con signo como eje, univariado como validación, y chequeos de robustez
+
+**Decisión del usuario.** Unificar 5.2 (perfil univariado + importancia
+SHAP) en una sola sección con seis hallazgos numerados (Primero..Sexto),
+donde SHAP es la evidencia principal y solo se afirma lo que se sostiene
+entre los 5 algoritmos, las 2 definiciones de pobreza y las 2 ventanas. El
+perfil univariado queda como validación y como fuente de lo que SHAP no
+puede mostrar: la frontera entra ≈ sale (SHAP solo modela a los no pobres
+iniciales) y la separación transitorio/persistente (requiere la tercera
+ola). La lectura "las variables de acumulación determinan quién es
+vulnerable y las de actividad económica cuánto dura" se deja como
+HIPÓTESIS en el Quinto hallazgo: el usuario juzgó arbitraria una
+clasificación formal stock/flujo de las 165 variables. El bootstrap de
+intervalos para |SHAP| y signo se descartó por decisión del usuario.
+
+**Scripts nuevos (todos reproducen o consumen resultados ya calculados):**
+- `src/05_model/diagnostico_shap_signo.py` → `diagnostico_shap_signo.csv`.
+  Signo por variable = Spearman entre el valor de la variable y su SHAP, en
+  las 40 combinaciones (4 fuentes x 5 algoritmos x 2 especificaciones).
+  Reproduce `shap_abs_medio` de los rankings originales (dif. máx. 1e-6).
+  Categóricas nativas: una fila por nivel (>= 30 hogares).
+- `src/05_model/sensibilidad_shap_nucleo.py`: sensibilidad de umbrales del
+  núcleo (masa 70/80/90%, mínimo 4/5/6 de 10) y de la dirección (|rho|
+  0.05–0.20, proporción 0.70–0.90), y núcleo por especificación A/B.
+- `src/tabla_shap_signo_nucleo.py` → `tab_shap_signo_nucleo.tex` (núcleo +
+  signo unidos; Dirección Estable = 12/12 celdas, Moderada >= 8, Inestable).
+- `src/tabla_sensibilidad_shap.py` → `tab_sensibilidad_shap.tex` (apéndice).
+- `src/graf_perfil_nucleo_grupos.py` → `perfil_nucleo_grupos_monetaria.png`
+  (posición relativa de sale/entra entre siempre=0 y nunca=1, 8 variables de
+  dirección estable/moderada presentes en las 53 del perfil).
+- `src/05_model/auc_pares_multiclase_predicciones.py` → AUC de los 6 pares
+  de grupos desde `multiclase/predicciones/*.parquet`.
+- `src/02_build/robustez_split_trayectoria.py`: atrición y pruebas del
+  split transitorio/persistente.
+- `src/05_model/diagnostico_shap_monotonia.py`: forma valor→SHAP por tramos.
+
+**Resultados y qué cambian en el texto**
+1. Núcleo: las 22 variables se conservan con criterios más laxos; con el
+   más estricto (masa 70%, >= 5/10) quedan 13 y 4 universales (riqueza,
+   educación máx. del hogar, razón de dependencia, personas por cuarto).
+2. Dirección Estable: riqueza, activos financieros, estrato, educ. máx.
+   hogar, grado educ. jefe, personas por cuarto. Moderada: nivel educ.
+   jefe (ordinal), arriendo, razón de dependencia, controles preventivos.
+   NO estables: bienes durables, servicios públicos, pensión, TVIP,
+   internet, edad, desplazados, choque económico, % niños con madre/padre
+   vivo. Corrige un borrador previo que las daba por negativas en las 4.
+3. Núcleo por especificación (mayoría 3 de 5): A 26 variables, B 23; 19 de
+   las 22 en ambos. Con esa regla, ingreso, gasto y sus brechas SÍ entran
+   al núcleo del Modelo A; la regla original (>= 5 de 10) los excluía por
+   exigirles estar en las 5 combinaciones del A. El Quinto hallazgo debe
+   decirlo.
+4. Temporalidad: las covariables son nivel en la ola base t y el resultado
+   es t+1 (regla (a)/(b) de la Sección 2 de 2026-08-09); no hay fuga por
+   construcción. NO verificado: la ventana de referencia de las preguntas
+   de choque (no está documentada en el repo).
+5. Multiclase, Modelo B, holdout 2013->2016 (B4 y B4geoDMSP, 6 algoritmos):
+   AUC entra-vs-sale 0.534–0.564, el par más difícil; entra-vs-nunca
+   0.73–0.75, entra-vs-siempre 0.67–0.71, sale-vs-siempre 0.60–0.63,
+   nunca-vs-sale 0.81–0.83, nunca-vs-siempre 0.90–0.93. Es la confirmación
+   multivariada de que "entra" se parece más a "sale" que a "nunca".
+   Modelo A da ~1.0 para entra-vs-sale (tautología: incluye el ingreso de
+   la ola base). INCONSISTENCIA NO RESUELTA: las probabilidades de las
+   especificaciones *geo3 (out-of-fold) dan entra-vs-sale ≈ 0.87 y
+   entra-vs-resto ≈ 0.90, incompatibles con el registro (≈ 0.59 y 0.67);
+   las de holdout sí coinciden con el registro. No se usan las geo3 hasta
+   revisar `_procesar_cv` de `modelo_multiclase_predicciones.py`.
+6. Atrición del split (610 de 723): 13 de 53 variables con |SMD| > 0.2 pero
+   0 significativas tras Benjamini-Hochberg; los hogares sin dato 2016
+   tienen estrato algo mayor (SMD ≈ -0.34), es decir, quienes quedan son
+   algo más pobres. Sin evidencia de atrición diferencial, pero con poca
+   potencia (113 hogares).
+7. Transitorio vs persistente: 25 de 53 variables con |SMD| > 0.2 y 20 de
+   52 significativas (q < 0.05). Deuda informal: 15.5% vs 31.5% sin
+   ponderar (IC 95% Wilson [10.9, 21.6] y [22.9, 41.6]); 17.3% vs 41.9%
+   ponderado; n = 174 y 92. CAUTELA: la afirmación de que el persistente
+   (41.9%) supera incluso a "siempre pobre" (31.6%) depende de la
+   ponderación; sin ponderar el persistente (31.5%) queda igual a "siempre
+   pobre". Cotización a pensión del jefe (27.9% vs 14.1%), deuda formal
+   (83.3% vs 67.4%) y afiliación a salud laboral son las diferencias más
+   sólidas.
+8. Monotonía (32 combinaciones sin Logística): la relación valor→SHAP es no
+   monótona en 28 de 40 casos para `edad_jefe` y 18 de 24 para
+   `n_desplazados_comunidad`, lo que explica su signo inestable; bienes
+   durables y riqueza son mayoritariamente decrecientes (32/40 y 31/40);
+   razón de dependencia, creciente (32/40). Criterio |rho_tramos| >= 0.8
+   con 5 tramos, sensible al ruido de SHAP en árboles.
+
+**Pendiente derivado.** Insertar en `main.tex` (no modificado): tabla X
+unida (8 columnas, revisar ancho), Figura W, apéndice de sensibilidad;
+reescribir Segundo y Quinto con las correcciones; revisar el texto del
+Cuarto hallazgo por la cautela de ponderación; investigar la
+inconsistencia de las predicciones *geo3; confirmar con el cuestionario de
+ELCA la ventana de referencia de los choques; entradas de `decisions.md`
+aún faltantes de otro trabajo (FP/VN, choques ola 3, matriz de confusión).
