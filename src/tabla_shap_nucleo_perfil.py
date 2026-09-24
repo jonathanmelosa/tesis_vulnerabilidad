@@ -42,8 +42,11 @@ OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 # univariado de 53 variables de la Sección 5.1 (y por tanto no tienen
 # entrada en ETIQUETAS_PERFIL_53).
 ETIQUETAS_NUEVAS = {
-    "pct_ninos_madre_viva": "\\% de niños con madre viva",
-    "pct_ninos_padre_vivo": "\\% de niños con padre vivo",
+    # \char`\%{} en vez de \%: babel-spanish redefine \% con un \unskip
+    # que borra el \quad de sangria que va justo antes (la fila quedaba
+    # sin sangria); \char imprime el mismo glifo sin pasar por babel.
+    "pct_ninos_madre_viva": "\\char`\\%{} de niños con madre viva",
+    "pct_ninos_padre_vivo": "\\char`\\%{} de niños con padre vivo",
     "edad_jefe": "Edad del jefe de hogar",
     "grado_educ_jefe": "Grado educativo del jefe (años)",
     "tvip_puntaje_directo_hogar": "Puntaje de vocabulario infantil (test TVIP)",
@@ -53,9 +56,10 @@ ETIQUETAS_NUEVAS = {
 }
 
 ORDEN_CATEGORIAS = [
-    "Activos del hogar", "Educación y empleo del jefe",
+    "Activos del hogar", "Educación, empleo y seguridad social",
     "Vivienda: materiales y servicios", "Vivienda: hacinamiento",
-    "Composición del hogar", "Programas sociales y deuda", "Comunidad",
+    "Composición del hogar", "Desarrollo infantil (6--9 años)", "Salud",
+    "Programas sociales y deuda", "Choques y afrontamiento", "Comunidad",
 ]
 
 

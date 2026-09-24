@@ -48,13 +48,13 @@ UMBRAL_EFECTO = 0.10
 CATEGORIA_IPM_EXTRA = {
     "lp": ("Ingreso y gasto", "Miles $ por mes (línea de pobreza)"),
     "li": ("Ingreso y gasto", "Miles $ por mes (línea de indigencia)"),
-    "pct_adultos_alfabetizados": ("Educación y empleo del jefe", "% del grupo"),
+    "pct_adultos_alfabetizados": ("Educación, empleo y seguridad social", "% del grupo"),
     "pct_ninos_cuidado_terceros_hogar": ("Composición del hogar", "% del grupo"),
     "pobre_extremo_ingreso": ("Ingreso y gasto", "% del grupo (pobre extremo por ingreso, 2010)"),
     "pobre_ingreso": ("Ingreso y gasto", "% del grupo (pobre por ingreso, 2010)"),
     "pobre_gasto": ("Ingreso y gasto", "% del grupo (pobre por gasto, 2010)"),
     "pobre_extremo_gasto": ("Ingreso y gasto", "% del grupo (pobre extremo por gasto, 2010)"),
-    "sexo_jefe": ("Educación y empleo del jefe", "% del grupo"),
+    "sexo_jefe": ("Composición del hogar", "% del grupo"),
 }
 CATEGORIA = {**CATEGORIA_MONETARIA, **CATEGORIA_IPM_EXTRA}
 DUPLICADOS_EXACTOS = ["ingreso_percapita_hogar", "gasto_percapita_hogar"]

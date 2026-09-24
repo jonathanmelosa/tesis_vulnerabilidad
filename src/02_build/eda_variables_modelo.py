@@ -232,6 +232,12 @@ def clasificar_tipo(serie: pd.Series) -> str:
 
 
 def tabla_inventario(df: pd.DataFrame, content_cols: list) -> pd.DataFrame:
+    """Devuelve el inventario completo (incluye las 4 variables insignia
+    geoespaciales, que la matriz de correlacion si usa), pero el CSV y la
+    figura de inventario solo cubren las variables de la ELCA: las 4
+    insignia no son el set geoespacial de los modelos (23 DMSP-OLS en
+    AgeoDMSP/BgeoDMSP, ver construir_pipeline_geo_dmsp.py), asi que
+    contarlas como "modulo Geoespacial" subestimaba ese set."""
     n_total = len(df)
     filas = []
     for col in content_cols:
@@ -243,12 +249,14 @@ def tabla_inventario(df: pd.DataFrame, content_cols: list) -> pd.DataFrame:
             "cobertura_pct": 100 * df[col].notna().mean(),
         })
     inv = pd.DataFrame(filas)
-    inv.to_csv(TABLES_DIR / "01_inventario_variables.csv", index=False)
-    print(f"Guardado 01_inventario_variables.csv ({len(inv)} variables, n_total={n_total:,})")
+    inv_elca = inv[inv["modulo"] != "Geoespacial"]
+    inv_elca.to_csv(TABLES_DIR / "01_inventario_variables.csv", index=False)
+    print(f"Guardado 01_inventario_variables.csv ({len(inv_elca)} variables ELCA, n_total={n_total:,})")
     return inv
 
 
 def figura_inventario_por_modulo(inv: pd.DataFrame) -> None:
+    inv = inv[inv["modulo"] != "Geoespacial"]
     tabla = inv.groupby(["modulo", "tipo"]).size().unstack(fill_value=0)
     orden = [m for m, _ in MODULE_RANGES if m in tabla.index]
     tabla = tabla.loc[orden]
@@ -263,6 +271,7 @@ def figura_inventario_por_modulo(inv: pd.DataFrame) -> None:
         bottom += vals
     for i, total in enumerate(tabla.sum(axis=1).values):
         ax.annotate(f"{int(total)}", xy=(i, total), xytext=(0, 3), textcoords="offset points", ha="center", fontsize=9)
+    ax.set_ylim(0, tabla.sum(axis=1).max() * 1.1)
     ax.set_ylabel("Numero de variables")
     ax.set_title("Inventario de variables finales por modulo tematico")
     ax.legend(title="Tipo", frameon=False)

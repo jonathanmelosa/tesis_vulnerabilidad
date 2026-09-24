@@ -55,9 +55,14 @@ OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 
 N_ESPERADO = 28
 
-# Mismos parametros ya calibrados en tabla_perfil_consolidada.py contra
-# el PDF compilado -- ver ese script para la justificacion completa.
-CHARS_POR_LINEA = 34
+# Mismo esquema que tabla_perfil_consolidada.py (ver ese script para la
+# justificacion), pero CHARS_POR_LINEA recalibrado el 2026-09-24 para el
+# ancho de columna de ESTA tabla (p{0.3038\textwidth}, distinto al de la
+# consolidada): en el PDF compilado "Estado civil del jefe: En unión
+# libre" (37 caracteres) cabe en una linea; con 34 se sobreestimaban los
+# renglones de la mitad izquierda y el relleno caia en la mitad que ya
+# era mas larga.
+CHARS_POR_LINEA = 37
 PESO_CATEGORIA = 1.5
 
 
@@ -97,8 +102,9 @@ def _punto_de_corte(entradas: list[tuple[str, str, float, str]]) -> int:
 
 def _tabular(entradas: list[tuple[str, str, float, str]]) -> str:
     lineas = [
-        r"\resizebox{\linewidth}{!}{%",
-        r"\begin{tabular}{p{0.62\linewidth}rrrr}",
+        # [t]: la linea base de la caja es la primera fila, para que las
+        # dos mitades queden alineadas arriba aunque tengan altos distintos.
+        r"\begin{tabular}[t]{p{0.3038\textwidth}rrrr}",
         r"  \toprule",
         r"    \textbf{Variable} & \textbf{Siempre} & \textbf{Sale} & \textbf{Entra} & \textbf{Nunca} \\",
         r"  \midrule",
@@ -109,7 +115,7 @@ def _tabular(entradas: list[tuple[str, str, float, str]]) -> str:
         else:
             lineas.append(contenido)
     lineas.append(r"  \bottomrule")
-    lineas.append(r"\end{tabular}}")
+    lineas.append(r"\end{tabular}")
     return "\n".join(lineas)
 
 
@@ -155,11 +161,34 @@ def main() -> None:
         r"  \label{tab:perfil_nucleo_comun}",
         r"  \scriptsize",
         r"  \setlength{\tabcolsep}{3pt}",
+        r"  \newsavebox{\nucleoBoxA}",
+        r"  \newsavebox{\nucleoBoxB}",
+        r"  \sbox{\nucleoBoxA}{%",
+        "    " + _tabular(izquierda).replace("\n", "\n    ") + "}",
+        r"  \sbox{\nucleoBoxB}{%",
+        "    " + _tabular(derecha).replace("\n", "\n    ") + "}",
+        # Ambas mitades se escalan por el MISMO factor (regla de tres sobre
+        # el ancho natural mayor de las dos), en vez de dos \resizebox
+        # independientes -- que, al normalizar cada una a 0.49\textwidth
+        # por separado, producian factores de escala ligeramente distintos
+        # (una de las dos quedaba perceptiblemente mas grande). Este
+        # esquema estaba editado a mano en el .tex (commit 5cb242f) y no en
+        # este script; se incorpora aqui el 2026-09-24 para que regenerar
+        # la tabla no lo pierda.
+        r"  \newlength{\nucleoTarget}",
+        r"  \setlength{\nucleoTarget}{0.49\textwidth}",
+        r"  \newlength{\nucleoMax}",
+        r"  \ifdim\wd\nucleoBoxA>\wd\nucleoBoxB",
+        r"    \setlength{\nucleoMax}{\wd\nucleoBoxA}",
+        r"  \else",
+        r"    \setlength{\nucleoMax}{\wd\nucleoBoxB}",
+        r"  \fi",
+        "",
         r"  \begin{minipage}[t]{0.49\textwidth}",
-        "    " + _tabular(izquierda).replace("\n", "\n    "),
+        r"    \resizebox{\dimexpr\nucleoTarget*\wd\nucleoBoxA/\nucleoMax\relax}{!}{\usebox{\nucleoBoxA}}",
         r"  \end{minipage}\hfill",
         r"  \begin{minipage}[t]{0.49\textwidth}",
-        "    " + _tabular(derecha).replace("\n", "\n    "),
+        r"    \resizebox{\dimexpr\nucleoTarget*\wd\nucleoBoxB/\nucleoMax\relax}{!}{\usebox{\nucleoBoxB}}",
         r"  \end{minipage}",
         r"\end{table}",
     ]

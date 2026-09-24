@@ -65,7 +65,7 @@ OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 
 # Orden tematico completo (reemplaza GRUPO_A/GRUPO_B de la version anterior).
 ORDEN_CATEGORIAS = [
-    "Educación y empleo del jefe", "Vivienda: materiales y servicios",
+    "Educación, empleo y seguridad social", "Vivienda: materiales y servicios",
     "Zona de residencia", "Geoespacial", "Activos del hogar",
     "Vivienda: hacinamiento", "Programas sociales y deuda",
     "Composición del hogar", "Comunidad", "Ingreso y gasto",
@@ -171,9 +171,11 @@ def _tabular(entradas: list[tuple[str, str, float, str]]) -> str:
     # usado en tab_covariables_transicion_monetaria.tex) para forzar el
     # tabular a caber EXACTO en su mitad de pagina sin importar el ancho
     # natural del contenido.
+    # [t] (2026-09-24): la linea base de cada mitad es su primera fila, para
+    # que queden alineadas arriba aunque el relleno no iguale los altos.
     lineas = [
         r"\resizebox{\linewidth}{!}{%",
-        r"\begin{tabular}{p{0.62\linewidth}rrrr}",
+        r"\begin{tabular}[t]{p{0.62\linewidth}rrrr}",
         r"  \toprule",
         ENCABEZADO_TABULAR,
         r"  \midrule",

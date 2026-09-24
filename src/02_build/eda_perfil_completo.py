@@ -100,6 +100,11 @@ VARIABLES_ESTABLES_AMPLIADAS = [
 # del `modulo` del inventario y de la unidad real de cada variable
 # (revisado con `construir_tabla_comparativa`: "(media)" vs "(media, %)"
 # vs categorica -- ver columna nivel_mostrado del output).
+# Cambio 2026-09-24 (pedido del usuario): "Educación y empleo del jefe" se
+# renombra "Educación, empleo y seguridad social" (incluye variables del
+# hogar, no solo del jefe, y afiliación/cotización); etnia_jefe y
+# estado_civil_jefe pasan a "Composición del hogar", y
+# pct_ninos_apoyo_alimentario_escolar a "Programas sociales y deuda".
 CATEGORIA = {
     "dmsp_stable_lights": ("Geoespacial", "Iluminación nocturna (0-63)"),
     "zona": ("Zona de residencia", "% del grupo"),
@@ -128,31 +133,31 @@ CATEGORIA = {
     "n_programas_sociales_hogar": ("Programas sociales y deuda", "Número (conteo)"),
     "beneficiario_familias_accion_hogar": ("Programas sociales y deuda", "% del grupo"),
     "beneficiario_algun_programa_hogar": ("Programas sociales y deuda", "% del grupo"),
-    "nivel_educ_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "categoria_ocupacional_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "medio_consiguio_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "registro_mercantil_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "n_empleados_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "etnia_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "estado_civil_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "nivel_educ_max_hogar": ("Educación y empleo del jefe", "Años/nivel (escala propia)"),
-    "nivel_educ_ordinal_jefe": ("Educación y empleo del jefe", "Años/nivel (escala propia)"),
-    "tasa_cotizacion_pension_hogar": ("Educación y empleo del jefe", "% del grupo"),
-    "cotiza_pension_jefe": ("Educación y empleo del jefe", "% del grupo"),
+    "nivel_educ_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
+    "categoria_ocupacional_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
+    "medio_consiguio_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
+    "registro_mercantil_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
+    "n_empleados_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
+    "etnia_jefe": ("Composición del hogar", "% del grupo"),
+    "estado_civil_jefe": ("Composición del hogar", "% del grupo"),
+    "nivel_educ_max_hogar": ("Educación, empleo y seguridad social", "Años/nivel (escala propia)"),
+    "nivel_educ_ordinal_jefe": ("Educación, empleo y seguridad social", "Años/nivel (escala propia)"),
+    "tasa_cotizacion_pension_hogar": ("Educación, empleo y seguridad social", "% del grupo"),
+    "cotiza_pension_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
     "n_ninos_12": ("Composición del hogar", "Número (conteo)"),
     "razon_dependencia_demografica": ("Composición del hogar", "Razón de dependencia"),
     # -- Extensión 2026-09-15 (VARIABLES_ESTABLES_AMPLIADAS, ver docstring) --
-    "tasa_afiliacion_pension_hogar": ("Educación y empleo del jefe", "% del grupo"),
-    "tasa_afiliacion_salud_laboral_hogar": ("Educación y empleo del jefe", "% del grupo"),
-    "afiliado_pension_jefe": ("Educación y empleo del jefe", "% del grupo"),
-    "afiliado_salud_laboral_jefe": ("Educación y empleo del jefe", "% del grupo"),
+    "tasa_afiliacion_pension_hogar": ("Educación, empleo y seguridad social", "% del grupo"),
+    "tasa_afiliacion_salud_laboral_hogar": ("Educación, empleo y seguridad social", "% del grupo"),
+    "afiliado_pension_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
+    "afiliado_salud_laboral_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
     "deuda_formal_hogar": ("Programas sociales y deuda", "% del grupo"),
     "deuda_informal_hogar": ("Programas sociales y deuda", "% del grupo"),
     "tiene_escritura_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
     "financio_credito_formal_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
     "tiene_vehiculo_hogar": ("Activos del hogar", "% del grupo"),
     "pct_ninos_cuidado_terceros_hogar": ("Composición del hogar", "% del grupo"),
-    "pct_ninos_apoyo_alimentario_escolar": ("Composición del hogar", "% del grupo"),
+    "pct_ninos_apoyo_alimentario_escolar": ("Programas sociales y deuda", "% del grupo"),
     "n_espacios_publicos_comunidad": ("Comunidad", "Número (conteo)"),
     "tiene_transporte_publico_comunidad": ("Comunidad", "% del grupo"),
 }

@@ -69,14 +69,20 @@ UMBRAL_COMBINACIONES = 5  # de 10 (5 algoritmos x 2 especificaciones)
 # variables de la Seccion 5.1 (criterio de seleccion distinto, ver
 # Seccion 4.2) -- categorizadas a mano, propuesta mostrada y aprobada por
 # el usuario (2026-09-18) usando el mismo esquema de 10 categorias.
+# Cambio 2026-09-24 (aprobado por el usuario): se alinean con la tabla de
+# temas del Anexo (src/tabla_temas_variables.py), que agrego temas que el
+# esquema de 10 no tenia -- edad_jefe pasa a Composicion del hogar,
+# tvip_puntaje_directo_hogar a Desarrollo infantil,
+# tasa_control_preventivo_hogar a Salud y tuvo_choque_economico_hogar a
+# Choques y afrontamiento.
 CATEGORIA_MANUAL = {
     "pct_ninos_madre_viva": "Composición del hogar",
     "pct_ninos_padre_vivo": "Composición del hogar",
-    "edad_jefe": "Educación y empleo del jefe",
-    "grado_educ_jefe": "Educación y empleo del jefe",
-    "tvip_puntaje_directo_hogar": "Composición del hogar",
-    "tuvo_choque_economico_hogar": "Programas sociales y deuda",
-    "tasa_control_preventivo_hogar": "Composición del hogar",
+    "edad_jefe": "Composición del hogar",
+    "grado_educ_jefe": "Educación, empleo y seguridad social",
+    "tvip_puntaje_directo_hogar": "Desarrollo infantil (6--9 años)",
+    "tuvo_choque_economico_hogar": "Choques y afrontamiento",
+    "tasa_control_preventivo_hogar": "Salud",
     "n_desplazados_comunidad": "Comunidad",
 }
 

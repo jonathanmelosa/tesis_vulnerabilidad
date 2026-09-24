@@ -35,6 +35,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{array}
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
@@ -144,21 +145,7 @@ no pobres y se estiman distintos algoritmos de aprendizaje supervisado
 GradientBoosting), evaluando su capacidad predictiva en un período 
 posterior al utilizado para su estimación: los modelos se entrenan con 
 las transiciones observadas entre 2010 y 2013 y se evalúan con las 
-transiciones entre 2013 y 2016. Este esquema permite evaluar el desempeño 
-de los modelos en datos temporalmente posteriores a aquellos utilizados 
-para su entrenamiento, aproximándose a su capacidad para anticipar 
-transiciones futuras hacia la pobreza. Los modelos se estiman con y sin 
-variables monetarias del hogar. El modelo base, que es lo que se reporta 
-en esta versión del documento, alcanza un AUC-ROC entre 0.731 y 0.767
-según el algoritmo, con una brecha de apenas 0.008–0.028 entre la
-especificación que incluye ingreso/gasto del hogar y la que no lo hace, 
-lo que sugiere que las covariables no monetarias capturan una fracción 
-sustancial del poder predictivo típicamente atribuido al ingreso. La 
-incorporación de las variables geoespaciales, contribución central de esta 
-tesis, está en construcción. De confirmarse un aporte incremental, los 
-resultados podrían fortalecer instrumentos de focalización con información 
-de mayor frecuencia y menor costo de actualización que las encuestas de 
-hogares tradicionales.
+transiciones entre 2013 y 2016. .
 
 \textbf{Palabras clave:} vulnerabilidad a la pobreza,
 aprendizaje de máquinas, datos geoespaciales, ELCA,
@@ -454,9 +441,6 @@ sistemas de focalización entre levantamientos de encuestas -- la
 motivación directa de las fuentes geoespaciales que esta tesis busca
 incorporar (Sección~\ref{subsec:geo}).
 
-\subsection{Síntesis y vacío que llena este trabajo}
-\label{subsec:gap}
-
 La evidencia revisada muestra que los modelos que combinan variables
 geoespaciales con información socioeconómica de encuestas superan a los
 basados exclusivamente en cualquiera de las dos fuentes, con ventajas más
@@ -503,10 +487,10 @@ la focalización de políticas públicas de seguridad social.
 La fuente primaria de datos es la Encuesta Longitudinal Colombiana de la
 Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres 
 olas: 2010, 2013 y 2016, en zonas urbana y rural. La ELCA se organiza en
-en módulos temáticos: hogar, personas, niños, comunidades
+ módulos temáticos: hogar, personas, niños, comunidades
 y choques, además de los módulos de activos y gasto. Existen dos olas más
 disponibles para 2019 y 2022, que administra el DANE. No obstante, por
-de tiempo no se utilizaron en el marco de esta investigación. Para los
+problemas de tiempo no se utilizaron en el marco de esta investigación. Para los
 análisis realizados en este estudio, se excluyeron los hogares
 que se dividieron en dos o más sub-hogares en olas subsecuentes (511 casos entre 2010--2013 y
 1{,}190 entre 2013--2016, ver Tabla~\ref{tab:matriz_transicion}), para no
@@ -515,14 +499,14 @@ hacer supuestos sobre estos hogares en el tiempo.
 Antes de construir cualquier covariable se realizó una auditoría
 sistemática de los módulos de la encuesta, replicadas de forma
 idéntica en cada módulo: (i) detección y corrección de signos y símbolos de
-codificación de caracteres (por ej. el carácter Unicode de reemplazo U+FFFD y el
-literal \texttt{"???"}
-en lugar de vocales acentuadas y la letra ñ); (ii) clasificación exhaustiva de cada columna según su
+codificación de caracteres (por ej. el caracter Unicode de reemplazo U+FFFD y el
+literal \texttt{"???"} en lugar de vocales acentuadas y la letra ñ); 
+(ii) clasificación de cada columna según su
 cobertura en las tres olas; (iii) búsqueda de columnas renombradas entre
 olas; y (iv) verificación para toda columna con cobertura menor
 al 10\%, de si esa baja cobertura refleja una pregunta filtro (por
 ejemplo, solo se pregunta a hogares con niños) y no una pérdida de
-información evitable.
+información.
 
 El resultado es un panel hogar x ola consolidado de 27{,}932 observaciones
 (9{,}853 en 2010, 9{,}261 en 2013 y 8{,}818 en 2016) y 184 columnas, que
@@ -535,8 +519,8 @@ composición demográfica, conteo de ``al menos uno'' cuando la presencia de un 
 miembro con una característica ya cambia la vulnerabilidad del hogar
 (por ejemplo, algún miembro con discapacidad), máximo para capital humano
 disponible (ej.nivel educativo más alto del hogar), y el valor del jefe de
-hogar sin agregar cuando la literatura lo usa como proxy estándar. Las
-tasas de mercado laboral se calculan restringiendo el denominador a
+hogar sin agregar. Las
+tasas de mercado laboral se calcularon restringiendo el denominador a
 personas en edad de trabajar (15 años o más, siguiendo el estándar
 DANE/GEIH) antes de agregar, y los missings a nivel persona se excluyen del
 denominador en vez de contarse como si no cumplieran la condición.
@@ -546,8 +530,14 @@ denominador en vez de contarse como si no cumplieran la condición.
 
 Este trabajo utiliza información geoespacial disponible públicamente y de manera gratuita. La idea es que la 
 información geoespacial de los hogares puede capturar características del entorno físico y económico 
-local que afectan la vulnerabilidad de estos hogares a caer en pobreza, pero que 
-no se refleja completamente en las encuestas tradicionales que realizan gobiernos y otras organizaciones. 
+local que no se reflejan completamente en las encuestas tradicionales que
+realizan gobiernos y otras organizaciones, pero que afectan la
+vulnerabilidad de estos hogares a caer en pobreza: la actividad económica
+y la electrificación del entorno (luces nocturnas), la densidad del área
+construida frente a la vegetación (radar y reflectancia óptica), y si el
+entorno se venía densificando o perdiendo cobertura vegetal antes de cada
+ola (Tabla~\ref{tab:variables_pedagogico} del Anexo~\ref{apx:variables_geo}).
+
 Para esto, a partir de las coordenadas de los hogares de la ELCA, que se encuentran
 para consulta de manera estrictamente controlada y restringida por parte de la
 Universidad de los Andes, se consolida la información geoespacial disponible 
@@ -565,10 +555,10 @@ Inicialmente, se priorizó la utilización de imágenes de
 Google Street View, sin embargo, su cobertura es limitada en 
 Colombia y no alcanza a cubrir ninguna de las olas suficientemente. Por esta razón, 
 se evaluaron otras seis fuentes satelitales o aéreas públicas
-adicionales: —Sentinel-1 (radar), Sentinel-2 (óptico), VIIRS DNB y
+adicionales: Sentinel-1 (radar), Sentinel-2 (óptico), VIIRS DNB y
 DMSP-OLS (luces nocturnas), y ALOS PALSAR y Landsat 5 TM (evaluadas
 específicamente por tener cobertura anterior a 2014, cuando las demás
-fuentes satelitales todavía no operaban)— y se descartó
+fuentes satelitales todavía no operaban). Se descartó
 OpenStreetMap porque el mapeo de Colombia apenas empezaba a
 poblarse en 2010--2013 (el Humanitarian OpenStreetMap Team se fundó en
 2010), por lo que la información histórica de esos años estaría
@@ -580,84 +570,39 @@ descartaron porque ninguna de las tres empezó a operar antes de
 satélites lanzados (Sentinel-1, abril 2014; cobertura global L2A de
 Sentinel-2, marzo 2017), por lo que no puede existir ninguna imagen real de ellas
 anterior a esas fechas, en ningún catálogo. Por eso se
-evaluaron específicamente en el marco de este proyecto: DMSP-OLS, ALOS PALSAR y Landsat 5 TM, las tres
+incluyeron en el marco de este proyecto: DMSP-OLS, ALOS PALSAR y Landsat 5 TM, las tres
 únicas fuentes públicas con cobertura real anterior a 2014.
 
-La Figura~\ref{fig:cobertura_temporal_fuentes} resume, para las siete
+La Figura~\ref{fig:cobertura_temporal_fuentes} del
+Anexo~\ref{apx:cobertura_temporal} resume, para las siete
 fuentes evaluadas, su ventana de disponibilidad, verificada contra
 la documentación oficial de cada catálogo: Copernicus/ESA, NOAA, JAXA,
 USGS, Google Earth Engine Data Catalog, y, para DMSP-OLS, ALOS PALSAR y
 Landsat 5 TM, contra consultas reales de las coordenadas de los 
-hogares en las tres olas de la ELCA (2010, 2013, 2016). 
-El patrón diagonal marca cobertura
-real confirmada sobre hogares del estudio; el resto se revisó cobertura de
-catálogo sin realizar consultas de los hogares disponibles (Sentinel-2, VIIRS).
+hogares en las tres olas de la ELCA (2010, 2013, 2016).
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/fig_cobertura_temporal_fuentes.png}
-  \caption{Cobertura temporal real de cada fuente geoespacial evaluada,
-  frente a las tres olas de la ELCA con coordenadas disponibles. El
-  patrón diagonal indica corrida real y completa sobre
-  hogares del estudio; el resto se revisó cobertura según catálogo. En la barra de GSV, la
-  intensidad del color es proporcional a la densidad real de fotos por
-  año —la gran mayoría de las fotos son de 2023 en adelante.}
-  \label{fig:cobertura_temporal_fuentes}
-\end{figure}
-
-El resultado de la consulta de la información geoespacial, ya completa sobre las tres disponibles, es
+El resultado de la consulta de la información geoespacial sobre las tres fuentes disponibles es
 asimétrico. DMSP-OLS cubre el 100\% de los hogares tanto en 2010 como en
 2013; es la única de las
-tres con esa cobertura completa en dos olas, lo que permite usarla
+tres fuentes con esa cobertura completa en dos olas, lo que permite usarla
 para la evaluación del poder predictivo en la
 transición 2013$\to$2016. ALOS PALSAR cubre el 100\% de los hogares en
 2010, pero tiene un hueco de información confirmado en el catálogo de JAXA entre 2011 y
-2014 —no tiene ninguna cobertura de 2013—. Landsat 5 TM cubre solo 65.5\%
-de los hogares en 2010 (6{,}269 de 9{,}573; del resto no se obtiene 
+2014, es decir, no tiene ninguna cobertura de 2013. Landsat 5 TM cubre solo 65.5\%
+de los hogares en 2010 (6{,}269 de 9{,}573; del resto no se obtuvo 
 información por nubosidad persistente, una limitación del sensor
 óptico) y, pese a que su fecha formal de salida (junio de 2013)
 sugeriría cobertura parcial de esa ola, una consulta directa al catálogo
 de Google Earth Engine confirmó que el sensor dejó de adquirir información
 utilizable antes de esa fecha, no hay ninguna imagen real de Landsat 5
-en 2012 ni en 2013, en ningún punto del planeta. Las tres se incorporan
-al proyecto.
+en 2012 ni en 2013, en ningún punto del planeta. Por lo tanto, solo estas tres fuentes se incorporaron
+al proyecto pero solo DMSP-OLS constituyó la fuente principal.
 
-La Tabla~\ref{tab:variables_pedagogico} resume, para las tres fuentes
-nuevas, el mecanismo físico de medición, el nombre de las variables
-principales que se construyeron, y la interpretación 
-que se les da en este estudio.
-
-\begin{table}[H]
-  \centering
-  \caption{Qué mide cada fuente nueva, qué variables construye, y qué
-  aproxima cada una.}
-  \label{tab:variables_pedagogico}
-  \small
-  \begin{tabular}{lp{3.1cm}p{3.7cm}p{4.0cm}}
-    \toprule
-    \textbf{Fuente} & \textbf{Mecanismo físico} & \textbf{Variables (estado / ventana acum.)} & \textbf{Qué aproxima} \\
-    \midrule
-    DMSP-OLS &
-    Radiancia visible nocturna captada por satélite (alumbrado público, vivienda, comercio) &
-    Estado: nivel, log, saturación\newline
-    Acumulada: media, tendencia, crecimiento (sobre \texttt{stable\_}\allowbreak\texttt{lights}) &
-    Actividad económica y electrificación agregada del entorno (nivel); si el entorno se venía electrificando/densificando antes de la ola (ventana acumulada) \\
-    \addlinespace
-    ALOS PALSAR &
-    Retrodispersión de radar en banda-L (HH, HV) sobre estructuras y vegetación &
-    Estado: HH, HV (dB), razón HH/HV, índice normalizado\newline
-    Acumulada: media, tendencia, crecimiento de cada una &
-    Densidad y consolidación del entorno construido vs. vegetación (nivel); si la zona se venía densificando/deforestando antes de 2010 (ventana acumulada) \\
-    \addlinespace
-    Landsat 5 TM &
-    Reflectancia óptica multiespectral (visible, infrarrojo cercano, infrarrojo de onda corta) &
-    Estado: NDVI, NDBI, BSI, Tasseled Cap (10 índices)\newline
-    Acumulada: media, tendencia, crecimiento de NDVI/NDBI/BSI/brillo &
-    Cobertura vegetal y densidad de construcción del entorno inmediato (nivel); pérdida de vegetación o expansión de área construida antes de la ola (ventana acumulada) \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
+Se hizo un ejercicio adicional con Google Street View, que es la fuente de información geoespacial más cercana a la
+experiencia humana de observación del entorno, y que por su naturaleza
+cercana a la percepción humana podría capturar información relevante para la predicción de vulnerabilidad a la pobreza. Sin embargo, su cobertura
+es limitada en Colombia y no alcanza a cubrir ninguna de las olas suficientemente. Por esta razón, 
+se decidió no incluirla en el análisis principal, aunque se tuvo en cuenta para la construcción de variables geoespaciales complementarias y para la discusión de resultados.
 
 \subsection{Cobertura, atrición e inventario del panel}
 \label{subsec:desc}
@@ -680,63 +625,66 @@ Tabla~\ref{tab:cobertura_modulos} del Anexo~\ref{apx:cobertura_modulos}.
 
 En la ELCA existe pérdida de datos (atrición) que 
 se caracteriza de la siguiente manera: el panel comienza con 9{,}853 hogares únicos en 2010 y se reduce
-a 8{,}729 en 2013 y 8{,}086 en 2016 (Figura~\ref{fig:panel_atricion},
-izquierda) —una atrición de 11.4\% entre 2010 y 2013, 11.4\% entre 2013 y
-2016, y 17.9\% acumulada entre 2010 y 2016 (Figura~\ref{fig:panel_atricion},
-derecha). Esta
+a 8{,}729 en 2013 y 8{,}086 en 2016. Esto es una atrición de 11.4\% entre 2010 y
+2013, 11.4\% entre 2013 y 2016, y 17.9\% acumulada entre 2010 y 2016
+(Figura~\ref{fig:panel_atricion} del Anexo~\ref{apx:atricion}). Esta
 pérdida no es aleatoria: se concentra en zonas urbanas (16.2\% de los
 hogares urbanos de 2010 se pierden hacia 2013, frente a solo 5.8\% de los
-rurales), lo opuesto a la intuición de que la atrición rural sería mayor
+rurales), lo opuesto al posible supuesto de que la atrición rural sería mayor
 por dificultad de rastreo geográfico, probablemente porque la ELCA invierte
 más esfuerzo de rastreo en hogares rurales. Por esta razón, en este estudio se utilizan técnicas de 
 balanceo para compensar este sesgo.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.48\textwidth]{../outputs/figures/eda_hogares/01_hogares_por_ola.png}
-  \hfill
-  \includegraphics[width=0.48\textwidth]{../outputs/figures/eda_hogares/03_attrition_tasas.png}
-  \caption{Izquierda: hogares únicos por ola. Derecha: tasa de pérdida de
-  hogares entre olas consecutivas y acumulada 2010--2016. Fuente: cálculos
-  propios.}
-  \label{fig:panel_atricion}
-\end{figure}
-
 Existe también un fenómeno de división de hogares. 511 hogares originales de 2010 se dividieron en
 1{,}043 sub-hogares hacia 2013, y 679 hogares se dividieron en 1{,}411
-sub-hogares hacia 2016 —típicamente porque un hijo formó su propio hogar
-en la misma vivienda o predio—. Por eso el número de \emph{filas} del
+sub-hogares hacia 2016. Esto ocurreporque un hijo formó su propio hogar
+en la misma vivienda o predio o en un predio diferente. Por eso el número de \emph{filas} del
 panel hogar$\times$ola (9{,}853 / 9{,}261 / 8{,}818, ola 1/2/3) no coincide
 con el número de hogares \emph{únicos} por ola: un sub-hogar nuevo aporta
 una fila adicional sin ser, en sentido estricto, un hogar nuevo captado
 por primera vez. Estos hogares divididos se excluyeron del análisis para no 
-realizar ningún supuesto adicional.El número de personas cubiertas por el panel cae de
-forma más pronunciada que el de hogares: 43{,}202 personas en 2010,
-39{,}920 en 2013, 35{,}722 en 2016 (18.7\% de caída acumulada, por encima
-del 17.9\% de hogares). Esto ocurre posiblemente porque los hogares perdidos tienden a ser, en
-promedio, ligeramente más grandes que los que permanecen en el panel.
+realizar ningún supuesto adicional. 
 
 \subsubsection{Inventario temático de las variables finales}
 \label{subsubsec:inventario}
 
-El dataset consolidado que alimenta el modelo
-(27{,}932 filas hogar$\times$ola) reúne 181 variables finales: 177 provienen de los
-cinco módulos de la ELCA ya auditados en la
+El dataset consolidado de la ELCA (27{,}932 filas hogar$\times$ola) reúne
+177 variables finales: 164 provienen de los cinco módulos auditados en la
 Tabla~\ref{tab:cobertura_modulos}, excluyendo de ese conteo
 \texttt{consecutivo\_c}, que es la llave de unión al módulo Comunidades,
-no una covariable, y las 4 restantes son las variables
-geoespaciales. La
-Personas (57) y Hogar/vivienda/activos (56) concentran más
-de la mitad del inventario, consistente con que son los módulos que se
-preguntan a todo hogar sin condición previa (Tabla~\ref{tab:cobertura_modulos}),
-mientras que Comunidades (21), Choques (17), Niños (13) y Geoespacial (4)
-son universos más acotados, ya sea por su nivel de agregación distinto
-(Comunidades) o por aplicar solo a una submuestra o a una sola ola
-(Niños, Geoespacial). De las 181, 159 (88\%) son numéricas continuas o de
-conteo, 17 categóricas (principalmente características del jefe de hogar y
-de la vivienda) y 5 booleanas (los indicadores de pobreza monetaria). El
-desagregado por módulo y tipo de dato se muestra en la
-Figura~\ref{fig:inventario_modulos} del Anexo~\ref{apx:cobertura_modulos}.
+no una covariable, y las 13 restantes forman un bloque monetario
+(ingreso, gasto, líneas de pobreza e indicadores de pobreza). Personas
+(57) y Hogar/vivienda/activos (56) concentran más de la mitad del
+inventario, consistente con que son los módulos que se preguntan a todo
+hogar sin condición previa (Tabla~\ref{tab:cobertura_modulos}), mientras
+que Comunidades (21), Choques (17) y Niños (13) son universos más
+acotados, ya sea por su nivel de agregación distinto (Comunidades) o por
+aplicar solo a una submuestra (Niños). De las 177, 155 (88\%) son
+numéricas continuas o de conteo, 17 categóricas (principalmente
+características del jefe de hogar y de la vivienda) y 5 booleanas (los
+indicadores de pobreza monetaria). El desagregado por módulo y tipo de
+dato se muestra en la Figura~\ref{fig:inventario_modulos}, y por tema en
+la Tabla~\ref{tab:temas_variables}, ambas del
+Anexo~\ref{apx:cobertura_modulos}.
+
+Este conjunto no entra igual a todos los modelos evaluados, porque se
+probaron dos especificaciones de covariables
+(Sección~\ref{subsec:modelos}). El Modelo A conserva, del bloque
+monetario, solo el ingreso y el gasto per cápita real y sus brechas frente
+a la Línea de Pobreza, y suma 169 covariables; el Modelo B excluye todo
+el bloque monetario y usa 165 covariables no monetarias. En ambos casos
+se descartan los indicadores de pobreza, las líneas de pobreza y el
+ingreso y gasto nominales, porque definen la variable de resultado.
+Sobre cada especificación se evalúa luego el aporte de las variables
+geoespaciales en dos variantes. La principal agrega las 23 variables de
+DMSP-OLS, la única fuente con datos reales en 2010 y 2013, y se evalúa en 
+la ventana 2013 - 2016 (Sección~\ref{subsec:marginal_geo}). La segunda agrega
+las 127 variables de las tres fuentes juntas (23 de DMSP-OLS, 52 de ALOS
+PALSAR y 52 de Landsat 5 TM); como ALOS PALSAR y Landsat 5 TM solo tienen
+datos en 2010, esta variante se evalúa únicamente con validación cruzada
+dentro de la transición 2010$\to$2013. El detalle de las variables por
+fuente se reporta en la Tabla~\ref{tab:variables_pedagogico} del
+Anexo~\ref{apx:variables_geo}.
 
 % ============================================================
 % SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
@@ -780,7 +728,7 @@ trabajo; salud; vivienda y servicios públicos) y quince indicadores
 ponderados (20\% por dimensión, peso igual entre
 los indicadores de cada dimensión) y un punto de corte de pobreza de
 33.3\% del puntaje ponderado.\footnote{Es un proxy porque cinco de los quince indicadores se
-excluyen del puntaje final por huecos de cobertura irresolubles en la ola
+excluyen del puntaje final por huecos de cobertura en la ola
 2010 del panel: privación en primera infancia (no medible de forma
 consistente en ninguna ola); inasistencia escolar y trabajo infantil
 (\texttt{estudia}/\texttt{actividad\_ppal} en niños con 0.4\%--35.3\% de
@@ -1669,7 +1617,13 @@ se mantiene igual en las 10, sin una sola excepción. Se descartó
 sobreajuste como explicación (la brecha entre el AUC de validación
 cruzada y el de prueba no se ensancha al agregar DMSP-OLS) y el mismo
 patrón, con correlaciones aún más débiles, se repite en ALOS PALSAR y
-Landsat 5 TM.\footnote{Se probó además si DMSP-OLS aporta más al eliminar
+Landsat 5 TM. Agregar las 127 variables de las tres fuentes juntas,
+evaluadas con validación cruzada dentro de 2010$\to$2013 porque ALOS
+PALSAR y Landsat 5 TM no tienen dato en 2013, tampoco mejora el AUC-ROC
+en ninguno de los tres algoritmos estimados (cae entre 0.000 y 0.006); la
+precisión en el decil de mayor riesgo solo sube en el Modelo B con
+XGBoost y con la regresión logística (Tabla~\ref{tab:geo3_cv} del
+Anexo~\ref{apx:geo3_cv}).\footnote{Se probó además si DMSP-OLS aporta más al eliminar
 de la encuesta las dos preguntas que la vuelven redundante (resultado
 mixto y débil: solo la regresión logística mejora de forma consistente,
 los modelos de árboles no) y si aporta más cerca de la línea de pobreza
@@ -2288,7 +2242,7 @@ por correlación), una tabla por categoría temática.
 \input{tables/tab_perfil_vivienda_materiales_y_servicios_ipm.tex}
 \input{tables/tab_perfil_vivienda_hacinamiento_ipm.tex}
 \input{tables/tab_perfil_activos_del_hogar_ipm.tex}
-\input{tables/tab_perfil_educacion_y_empleo_del_jefe_ipm.tex}
+\input{tables/tab_perfil_educacion_empleo_y_seguridad_social_ipm.tex}
 \input{tables/tab_perfil_composicion_del_hogar_ipm.tex}
 \input{tables/tab_perfil_geoespacial_ipm.tex}
 
@@ -2316,6 +2270,16 @@ monetaria se mantiene parejo en los cuatro ejes explorados, sin
 subgrupos donde aporte de forma sistemática.
 
 \input{tables/tab_heterogeneidad_dmsp.tex}
+
+\subsection{Aporte de las tres fuentes geoespaciales juntas bajo pobreza monetaria}
+\label{apx:geo3_cv}
+
+Complemento de la Sección~\ref{subsec:marginal}: desempeño de los Modelos
+A y B al agregar las 127 variables de DMSP-OLS, ALOS PALSAR y Landsat 5 TM
+juntas, frente a los mismos modelos sin variables geoespaciales, bajo el
+mismo esquema de validación cruzada.
+
+\input{tables/tab_geo3_cv.tex}
 
 \subsection{Cobertura de covariables por módulo}
 \label{apx:cobertura_modulos}
@@ -2357,15 +2321,37 @@ cada módulo de la ELCA.
 \end{table}
 
 Complemento de la Sección~\ref{subsubsec:inventario}: desagregado de las
-181 variables finales del dataset consolidado por módulo temático y tipo
-de dato.
+177 variables finales del dataset consolidado de la ELCA por módulo
+temático y tipo de dato.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{../outputs/figures/eda_variables_modelo/01_inventario_por_modulo.png}
-  \caption{Inventario de las 181 variables finales del dataset consolidado,
+  \caption{Inventario de las 177 variables finales del dataset consolidado de la ELCA,
   por módulo temático y tipo de dato. Fuente: cálculos propios.}
   \label{fig:inventario_modulos}
+\end{figure}
+
+Las mismas 177 variables, agrupadas por el tema que cubren en lugar del
+módulo de la ELCA del que provienen:
+
+\input{tables/tab_temas_variables.tex}
+
+\subsection{Composición del panel y atrición}
+\label{apx:atricion}
+
+Complemento de la Sección~\ref{subsubsec:atricion}: evolución del número
+de hogares únicos por ola y tasas de pérdida de hogares entre olas.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.48\textwidth]{../outputs/figures/eda_hogares/01_hogares_por_ola.png}
+  \hfill
+  \includegraphics[width=0.48\textwidth]{../outputs/figures/eda_hogares/03_attrition_tasas.png}
+  \caption{Izquierda: hogares únicos por ola. Derecha: tasa de pérdida de
+  hogares entre olas consecutivas y acumulada 2010--2016. Fuente: cálculos
+  propios.}
+  \label{fig:panel_atricion}
 \end{figure}
 
 \section{Detalles de construcción de variables geoespaciales}
@@ -2373,6 +2359,77 @@ de dato.
 
 % Pipeline GSV, buffers, fuentes satelitales,
 % código de referencia si aplica.
+
+\subsection{Qué mide cada fuente geoespacial}
+\label{apx:variables_geo}
+
+Complemento de la Sección~\ref{subsec:geo}: para las tres fuentes
+incorporadas (DMSP-OLS, ALOS PALSAR y Landsat 5 TM), el mecanismo físico
+de medición, las variables principales construidas y la interpretación
+que se les da en este estudio.
+
+\begin{table}[H]
+  \centering
+  \caption{Qué mide cada fuente nueva, qué variables construye, y qué
+  aproxima cada una.}
+  \label{tab:variables_pedagogico}
+  \small
+  \begin{tabular}{>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{4.0cm}}
+    \toprule
+    \textbf{Fuente} & \textbf{Mecanismo físico} & \textbf{Variables (estado / ventana acum.)} & \textbf{Qué aproxima} \\
+    \midrule
+    DMSP-OLS\newline {\footnotesize (23 var.: 5 estado + 18 acum.)} &
+    Radiancia visible nocturna captada por satélite (alumbrado público, vivienda, comercio) &
+    Estado: nivel, log, saturación\newline
+    Acumulada: media, tendencia, crecimiento (sobre \texttt{stable\_}\allowbreak\texttt{lights}) &
+    Actividad económica y electrificación agregada del entorno (nivel); si el entorno se venía electrificando/densificando antes de la ola (ventana acumulada) \\
+    \addlinespace
+    ALOS PALSAR\newline {\footnotesize (52 var.: 7 estado + 45 acum.)} &
+    Retrodispersión de radar en banda-L (HH, HV) sobre estructuras y vegetación &
+    Estado: HH, HV (dB), razón HH/HV, índice normalizado\newline
+    Acumulada: media, tendencia, crecimiento de cada una &
+    Densidad y consolidación del entorno construido vs. vegetación (nivel); si la zona se venía densificando/deforestando antes de 2010 (ventana acumulada) \\
+    \addlinespace
+    Landsat 5 TM\newline {\footnotesize (52 var.: 16 estado + 36 acum.)} &
+    Reflectancia óptica multiespectral (visible, infrarrojo cercano, infrarrojo de onda corta) &
+    Estado: NDVI, NDBI, BSI, Tasseled Cap (10 índices)\newline
+    Acumulada: media, tendencia, crecimiento de NDVI/NDBI/BSI/brillo &
+    Cobertura vegetal y densidad de construcción del entorno inmediato (nivel); pérdida de vegetación o expansión de área construida antes de la ola (ventana acumulada) \\
+    \bottomrule
+  \end{tabular}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} las especificaciones principales (Modelos
+    A y B con DMSP-OLS, holdout temporal) agregan solo las 23 variables de
+    DMSP-OLS; la variante con las tres fuentes agrega las 127, evaluada con
+    validación cruzada dentro de 2010$\to$2013 (Tabla~\ref{tab:geo3_cv}).
+    Cada variable de ventana acumulada se resume en nueve estadísticos:
+    media, desviación estándar, mínimo, máximo, rango, coeficiente de
+    variación, tendencia, crecimiento acumulado y número de años con dato.
+    Se excluyen las variables de cambio entre olas (movimiento del hogar,
+    crecimiento 2010--2013), que no están definidas en la ola base. Fuente:
+    cálculos propios.
+  \end{minipage}
+\end{table}
+
+\subsection{Cobertura temporal de las fuentes evaluadas}
+\label{apx:cobertura_temporal}
+
+Complemento de la Sección~\ref{subsec:geo}: ventana de disponibilidad de
+las siete fuentes geoespaciales evaluadas frente a las tres olas de la
+ELCA.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{figures/fig_cobertura_temporal_fuentes.png}
+  \caption{Cobertura temporal real de cada fuente geoespacial evaluada,
+  frente a las tres olas de la ELCA con coordenadas disponibles. El
+  patrón diagonal indica corrida real y completa sobre
+  hogares del estudio; el resto se revisó cobertura según catálogo. En la barra de GSV, la
+  intensidad del color es proporcional a la densidad real de fotos por
+  año —la gran mayoría de las fotos son de 2023 en adelante.}
+  \label{fig:cobertura_temporal_fuentes}
+\end{figure}
 
 \newpage
 \tableofcontents
