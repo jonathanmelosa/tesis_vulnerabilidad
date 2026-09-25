@@ -2,7 +2,9 @@
 tabla_hiperparametros.py
 =====================================
 Tabla del Anexo con los hiperparametros finales (y la estrategia de
-balanceo elegida) de TODOS los modelos cuyos resultados se reportan en la
+balanceo y el umbral de clasificacion elegidos; el umbral agregado el
+2026-09-25 para que las notas de las matrices de confusion remitan solo
+a este anexo) de TODOS los modelos cuyos resultados se reportan en la
 tesis -- pedido del usuario (2026-09-25): "todo modelo que se reporte,
 incluyendo los de multiclase, deben tener los hiperparametros reportados
 en ese anexo". No reentrena nada: lee la columna `hiperparametros` (JSON)
@@ -95,6 +97,14 @@ def formatear_hiperparametros(texto_json: str) -> str:
     return "; ".join(partes)
 
 
+def _umbral(fila) -> str:
+    """Umbral de clasificacion promedio sobre las semillas (el mismo de las
+    tablas de desempeno). El multiclase no tiene umbral: asigna la clase
+    mas probable."""
+    u = fila.get("umbral_clasificacion_media")
+    return "--" if pd.isna(u) else f"{u:.2f}"
+
+
 def cargar_bloque(fuentes, especs_validas) -> pd.DataFrame:
     frames = []
     for archivo, filtro in fuentes:
@@ -117,15 +127,15 @@ def cargar_bloque(fuentes, especs_validas) -> pd.DataFrame:
 
 def main() -> None:
     lineas = [
-        r"\begin{longtable}{>{\raggedright\arraybackslash}p{0.22\textwidth}l l>{\raggedright\arraybackslash}p{0.44\textwidth}}",
-        r"  \caption{Hiperparámetros finales y estrategia de balanceo de todos los modelos reportados.}",
+        r"\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\textwidth}l l c>{\raggedright\arraybackslash}p{0.40\textwidth}}",
+        r"  \caption{Hiperparámetros finales, estrategia de balanceo y umbral de clasificación de todos los modelos reportados.}",
         r"  \label{tab:hiperparametros} \\",
         r"  \toprule",
-        r"  \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Hiperparámetros} \\",
+        r"  \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{Hiperparámetros} \\",
         r"  \midrule",
         r"  \endfirsthead",
         r"  \toprule",
-        r"  \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Hiperparámetros} \\",
+        r"  \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{Hiperparámetros} \\",
         r"  \midrule",
         r"  \endhead",
         r"  \bottomrule",
@@ -143,10 +153,10 @@ def main() -> None:
         df = df.sort_values(["orden_alg", "orden_esp"])
         if i > 0:
             lineas.append(r"  \midrule")
-        lineas.append(f"  \\multicolumn{{4}}{{l}}{{\\textbf{{{titulo}}}}} \\\\*")
+        lineas.append(f"  \\multicolumn{{5}}{{l}}{{\\textbf{{{titulo}}}}} \\\\*")
         for _, f in df.iterrows():
             lineas.append(
-                f"  {f['alg']} & {especs[f['especificacion']]} & {f['balanceo_elegido']} & "
+                f"  {f['alg']} & {especs[f['especificacion']]} & {f['balanceo_elegido']} & {_umbral(f)} & "
                 f"{formatear_hiperparametros(f['hiperparametros'])} \\\\"
             )
         n_total += len(df)

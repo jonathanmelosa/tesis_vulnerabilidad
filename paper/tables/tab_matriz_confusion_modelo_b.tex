@@ -1,8 +1,8 @@
 \begin{table}[H]
   \centering
-  \caption{Matriz de confusión del Modelo A en el conjunto de prueba
+  \caption{Matriz de confusión del Modelo B en el conjunto de prueba
   (2013$\to$2016), pobreza monetaria e IPM.}
-  \label{tab:matriz_confusion_a}
+  \label{tab:matriz_confusion_b}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
   \resizebox{\textwidth}{!}{%
@@ -12,11 +12,11 @@
     \cmidrule(lr){2-5} \cmidrule(lr){6-9}
     \textbf{Algoritmo} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} & \textbf{VP} & \textbf{FP} & \textbf{FN} & \textbf{VN} \\
     \midrule
-    XGBoost                  & 617 (19\%) & 1888 (59\%) & 18 (1\%) & 668 (21\%) & 491 (9\%) & 3297 (59\%) & 51 (1\%) & 1732 (31\%) \\
-    Random Forest            & 594 (19\%) & 1572 (49\%) & 41 (1\%) & 984 (31\%) & 343 (6\%) & 1493 (27\%) & 199 (4\%) & 3536 (63\%) \\
-    HistGradientBoosting     & 584 (18\%) & 1532 (48\%) & 51 (2\%) & 1024 (32\%) & 301 (5\%) & 1124 (20\%) & 241 (4\%) & 3905 (70\%) \\
-    LightGBM                 & 561 (18\%) & 1354 (42\%) & 74 (2\%) & 1202 (38\%) & 415 (7\%) & 2052 (37\%) & 127 (2\%) & 2977 (53\%) \\
-    Logística regularizada   & 561 (18\%) & 1444 (45\%) & 74 (2\%) & 1112 (35\%) & 379 (7\%) & 1862 (33\%) & 163 (3\%) & 3167 (57\%) \\
+    Random Forest            & 573 (18\%) & 1559 (49\%) & 62 (2\%) & 997 (31\%) & 414 (7\%) & 2120 (38\%) & 128 (2\%) & 2909 (52\%) \\
+    XGBoost                  & 594 (19\%) & 1770 (55\%) & 41 (1\%) & 786 (25\%) & 513 (9\%) & 3690 (66\%) & 29 (1\%) & 1339 (24\%) \\
+    Logística regularizada   & 573 (18\%) & 1575 (49\%) & 62 (2\%) & 981 (31\%) & 399 (7\%) & 2055 (37\%) & 143 (3\%) & 2974 (53\%) \\
+    HistGradientBoosting     & 541 (17\%) & 1358 (43\%) & 94 (3\%) & 1198 (38\%) & 342 (6\%) & 1507 (27\%) & 200 (4\%) & 3522 (63\%) \\
+    LightGBM                 & 576 (18\%) & 1622 (51\%) & 59 (2\%) & 934 (29\%) & 397 (7\%) & 1982 (36\%) & 145 (3\%) & 3047 (55\%) \\
     \bottomrule
   \end{tabular}%
   }
@@ -27,7 +27,7 @@
     paréntesis, porcentaje sobre el total de la fila para cada definición
     de pobreza (monetaria, $n=3{,}191$; IPM, $n=5{,}571$). Modelos
     clasificados con los hiperparámetros y el umbral reportados en la
-    Tabla~\ref{tab:hiperparametros} del Anexo~\ref{apx:hiperparametros}. La matriz del Modelo B se reporta en la Tabla~\ref{tab:matriz_confusion_b} del Anexo~\ref{apx:confusion_b}.
+    Tabla~\ref{tab:hiperparametros} del Anexo~\ref{apx:hiperparametros}.
     Fuente: cálculos propios.
   \end{minipage}
 \end{table}
