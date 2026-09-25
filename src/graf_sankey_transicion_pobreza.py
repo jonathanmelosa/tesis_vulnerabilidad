@@ -2,7 +2,8 @@
 graf_sankey_transicion_pobreza.py
 ===================================
 Diagrama aluvial (Sankey de 2 columnas) de la transicion de pobreza
-monetaria por ingreso entre 2010 y 2013: permite "hacer zoom" sobre el
+monetaria por ingreso (y, desde 2026-09-24, de pobreza multidimensional
+--IPM--) en las dos ventanas del panel: permite "hacer zoom" sobre el
 universo de No pobres 2010 (cuantos se quedan No pobres vs. cuantos entran
 en pobreza) y sobre el universo de Pobres 2010 (cuantos salen vs. cuantos
 se quedan pobres), con n y % rotulados directamente sobre cada franja.
@@ -23,10 +24,13 @@ monetaria por ingreso" del documento). Genera AMBOS periodos:
     outputs/tables/pobreza/transicion_pct_ola1_a_2.csv
     outputs/tables/pobreza/transicion_conteo_ola2_a_3.csv  (2013 -> 2016)
     outputs/tables/pobreza/transicion_pct_ola2_a_3.csv
+    outputs/tables/pobreza/transicion_{conteo,pct}_ipm_ola{1_a_2,2_a_3}.csv  (IPM)
 
 OUTPUTS
     outputs/figures/pobreza/sankey_transicion_pobreza_2010_2013.png
     outputs/figures/pobreza/sankey_transicion_pobreza_2013_2016.png
+    outputs/figures/pobreza/sankey_transicion_pobreza_ipm_2010_2013.png
+    outputs/figures/pobreza/sankey_transicion_pobreza_ipm_2013_2016.png
 
 COMO CORRER
     python src/graf_sankey_transicion_pobreza.py
@@ -88,7 +92,7 @@ def ribbon_path(x0: float, x1: float, y0_top: float, y0_bot: float,
 
 
 def graf_sankey(conteo: pd.DataFrame, pct: pd.DataFrame, ano_inicial: int, ano_final: int,
-                nombre_archivo: str) -> None:
+                nombre_archivo: str, medida: str = "pobreza monetaria por ingreso") -> None:
     n_np_np = int(conteo.loc["No pobre", "No pobre"])   # Nunca pobre
     n_np_p = int(conteo.loc["No pobre", "Pobre"])         # Entra en pobreza
     n_p_np = int(conteo.loc["Pobre", "No pobre"])         # Sale de la pobreza
@@ -127,7 +131,11 @@ def graf_sankey(conteo: pd.DataFrame, pct: pd.DataFrame, ano_inicial: int, ano_f
     y_siempre_r_top, y_siempre_r_bot = y_entra_r_bot, y_p_fin_bot
 
     x0, x1 = 0.12, 0.88
-    fig, ax = plt.subplots(figsize=(9, 6.4))
+    # Tamano cercano al impreso (2026-09-24): en el paper cada panel ocupa
+    # ~3 pulgadas de ancho (figura 2x2); a 9x6.4 los rotulos quedaban a
+    # ~30% de escala (ilegibles). A 6x5 con fuentes de 10-12 pt quedan
+    # alrededor de 5-6 pt impresos.
+    fig, ax = plt.subplots(figsize=(6, 5.6))
 
     # t_label: posicion relativa (0=lado 2010, 1=lado 2013) donde se centra el
     # rotulo de cada franja. Las dos franjas que SE CRUZAN (Entra/Sale) se
@@ -141,8 +149,8 @@ def graf_sankey(conteo: pd.DataFrame, pct: pd.DataFrame, ano_inicial: int, ano_f
     etq_p_ini = f"de Pobres {ano_inicial}"
     flujos = [
         ("Nunca pobre", n_np_np, pct_np_np, etq_np_ini, y_nunca_top, y_nunca_bot, y_nunca_r_top, y_nunca_r_bot, 0.5),
-        ("Entra en pobreza", n_np_p, pct_np_p, etq_np_ini, y_entra_top, y_entra_bot, y_entra_r_top, y_entra_r_bot, 0.28),
-        ("Sale de la pobreza", n_p_np, pct_p_np, etq_p_ini, y_sale_top, y_sale_bot, y_sale_r_top, y_sale_r_bot, 0.72),
+        ("Entra en pobreza", n_np_p, pct_np_p, etq_np_ini, y_entra_top, y_entra_bot, y_entra_r_top, y_entra_r_bot, 0.10),
+        ("Sale de la pobreza", n_p_np, pct_p_np, etq_p_ini, y_sale_top, y_sale_bot, y_sale_r_top, y_sale_r_bot, 0.90),
         ("Siempre pobre", n_p_p, pct_p_p, etq_p_ini, y_siempre_top, y_siempre_bot, y_siempre_r_top, y_siempre_r_bot, 0.5),
     ]
 
@@ -154,9 +162,31 @@ def graf_sankey(conteo: pd.DataFrame, pct: pd.DataFrame, ano_inicial: int, ano_f
         mid0 = (yt0 + yb0) / 2
         mid1 = (yt1 + yb1) / 2
         ym = mid0 + t_label * (mid1 - mid0)
-        ax.text(xm, ym, f"{nombre}\n{n_val:,} hogares\n({pct_val:.1f}% {base_pct})",
-                ha="center", va="center", fontsize=8.5, color="white",
-                fontweight="bold", zorder=3)
+        # Dos lineas en vez de tres y texto oscuro sobre fondo blanco
+        # translucido. Las dos franjas que se cruzan (Entra/Sale) son
+        # delgadas bajo IPM y sus rotulos chocaban entre si y con los
+        # nodos: se rotulan DEBAJO del diagrama, con una flecha a la franja
+        # (cerca de su extremo de origen/destino, donde no se superponen).
+        texto = f"{nombre}: {n_val:,}\n{pct_val:.1f}% {base_pct}"
+        estilo = dict(ha="center", va="center", fontsize=10, color=INK_PRIMARIO,
+                      fontweight="bold", zorder=5, linespacing=1.15,
+                      bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.7, edgecolor="none"))
+        if nombre in ("Entra en pobreza", "Sale de la pobreza"):
+            # Entra a la izquierda (alineado a la izquierda) y Sale a la
+            # derecha (alineado a la derecha), para que no se toquen.
+            izquierda = nombre == "Entra en pobreza"
+            estilo["ha"] = "left" if izquierda else "right"
+            ax.annotate(texto, xy=(xm, ym), xytext=(-0.18 if izquierda else 1.18, -0.10 * n_total),
+                        arrowprops=dict(arrowstyle="-", color=INK_SECUNDARIO, linewidth=0.8,
+                                        shrinkA=0, shrinkB=0, relpos=(0.5, 1.0)),
+                        **estilo)
+        else:
+            # Nunca/Siempre pobre: franjas anchas, el rotulo cabe dentro --
+            # texto blanco sin fondo (el recuadro blanco se veia mal sobre
+            # el azul/rojo, pedido del usuario 2026-09-24).
+            estilo.pop("bbox")
+            estilo["color"] = "white"
+            ax.text(xm, ym, texto, **estilo)
 
     # --- Nodos (barras) ---
     ancho_nodo = 0.035
@@ -173,20 +203,20 @@ def graf_sankey(conteo: pd.DataFrame, pct: pd.DataFrame, ano_inicial: int, ano_f
         x_texto = x - 0.01 if lado == "left" else x + ancho_nodo + 0.01
         ha = "right" if lado == "left" else "left"
         ax.text(x_texto, (ybot + ytop) / 2, f"{etiqueta}\n{n_val:,}",
-                ha=ha, va="center", fontsize=10, color=INK_PRIMARIO, fontweight="bold")
+                ha=ha, va="center", fontsize=11, color=INK_PRIMARIO, fontweight="bold")
 
     ax.text(x0 - ancho_nodo / 2, n_total * 1.04, str(ano_inicial), ha="center", fontsize=13,
             color=INK_PRIMARIO, fontweight="bold")
     ax.text(x1 + ancho_nodo / 2, n_total * 1.04, str(ano_final), ha="center", fontsize=13,
             color=INK_PRIMARIO, fontweight="bold")
 
-    ax.set_xlim(-0.15, 1.15)
-    ax.set_ylim(-n_total * 0.02, n_total * 1.10)
+    ax.set_xlim(-0.22, 1.22)
+    ax.set_ylim(-n_total * 0.17, n_total * 1.10)
     ax.axis("off")
     ax.set_title(
-        f"Transicion de pobreza monetaria por ingreso, {ano_inicial} → {ano_final}\n"
+        f"Transicion de {medida}, {ano_inicial} → {ano_final}\n"
         f"Metodologia Lopez-Calva y Ortiz-Juarez (2014) (n = {n_total:,} hogares)",
-        fontsize=12, pad=14,
+        fontsize=11.5, pad=10,
     )
 
     fig.tight_layout()
@@ -203,6 +233,15 @@ def main() -> None:
 
     conteo_2_3, pct_2_3 = cargar_matriz("ola2_a_3")
     graf_sankey(conteo_2_3, pct_2_3, 2013, 2016, "sankey_transicion_pobreza_2013_2016.png")
+
+    medida_ipm = "pobreza multidimensional (IPM)"
+    conteo_ipm_1_2, pct_ipm_1_2 = cargar_matriz("ipm_ola1_a_2")
+    graf_sankey(conteo_ipm_1_2, pct_ipm_1_2, 2010, 2013,
+                "sankey_transicion_pobreza_ipm_2010_2013.png", medida_ipm)
+
+    conteo_ipm_2_3, pct_ipm_2_3 = cargar_matriz("ipm_ola2_a_3")
+    graf_sankey(conteo_ipm_2_3, pct_ipm_2_3, 2013, 2016,
+                "sankey_transicion_pobreza_ipm_2013_2016.png", medida_ipm)
 
 
 if __name__ == "__main__":

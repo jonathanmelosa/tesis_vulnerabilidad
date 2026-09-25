@@ -39,6 +39,9 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
+% Notas al pie siempre al fondo de la pagina, aunque la pagina quede corta
+% (con \raggedbottom de article quedaban justo debajo del texto).
+\usepackage[bottom]{footmisc}
 % Alinea las paginas dedicadas exclusivamente a floats (ej. tablas [tp]
 % grandes que no caben junto a texto) hacia ARRIBA en vez de centrarlas
 % verticalmente (comportamiento por defecto del kernel de LaTeX,
@@ -317,7 +320,7 @@ longitudinales de Chile, México y Perú para estimar empíricamente el
 umbral de ingreso asociado a una probabilidad del 10\% de caer en
 pobreza, y proponen la clasificación en cuatro trayectorias --nunca
 pobre, siempre pobre, sale de la pobreza, entra en pobreza-- que se
-adopta en la Sección~\ref{subsec:transiciones} de esta tesis. Sus
+adopta en la Sección~\ref{subsec:outcome} de esta tesis. Sus
 resultados muestran que la población vulnerable, cuantitativamente
 significativa en los tres países, no puede identificarse adecuadamente
 con métodos de focalización basados en el estado observado de pobreza.
@@ -493,7 +496,7 @@ disponibles para 2019 y 2022, que administra el DANE. No obstante, por
 problemas de tiempo no se utilizaron en el marco de esta investigación. Para los
 análisis realizados en este estudio, se excluyeron los hogares
 que se dividieron en dos o más sub-hogares en olas subsecuentes (511 casos entre 2010--2013 y
-1{,}190 entre 2013--2016, ver Tabla~\ref{tab:matriz_transicion}), para no
+1{,}190 entre 2013--2016, ver Figura~\ref{fig:sankey}), para no
 hacer supuestos sobre estos hogares en el tiempo.
 
 Antes de construir cualquier covariable se realizó una auditoría
@@ -686,6 +689,89 @@ dentro de la transición 2010$\to$2013. El detalle de las variables por
 fuente se reporta en la Tabla~\ref{tab:variables_pedagogico} del
 Anexo~\ref{apx:variables_geo}.
 
+\subsection{Dinámica de la pobreza en el panel}
+\label{subsec:transiciones}
+
+Esta sección describe los cuatro grupos de la matriz de transición
+(\emph{nunca pobre}, \emph{siempre pobre}, \emph{entra en pobreza} y
+\emph{sale de pobreza}), definidos en la Sección~\ref{subsec:outcome}.
+Para establecer la robustez de las estimaciones de pobreza monetaria y
+sus clasificaciones, se realizó un análisis adicional de la incidencia
+agregada, FGT, y cinco ejercicios de estimaciones, incluyendo la
+atrición del panel por perfil de hogar, que se documentan en el
+Apéndice~\ref{apx:transiciones_robustez}.
+
+\begin{figure}[!t]
+  \centering
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2010_2013.png}
+    \caption{Monetaria, 2010$\to$2013 ($n=8{,}218$).}
+    \label{fig:sankey_2010_2013}
+  \end{subfigure}\hfill
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2013_2016.png}
+    \caption{Monetaria, 2013$\to$2016 ($n=6{,}911$).}
+    \label{fig:sankey_2013_2016}
+  \end{subfigure}
+
+  \vspace{6pt}
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_ipm_2010_2013.png}
+    \caption{IPM, 2010$\to$2013 ($n=8{,}218$).}
+    \label{fig:sankey_ipm_2010_2013}
+  \end{subfigure}\hfill
+  \begin{subfigure}{0.49\textwidth}
+    \centering
+    \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_ipm_2013_2016.png}
+    \caption{IPM, 2013$\to$2016 ($n=6{,}911$).}
+    \label{fig:sankey_ipm_2013_2016}
+  \end{subfigure}
+  \caption{Transición de pobreza entre categorías de \textcite{lopezCalva2014},
+  panel emparejado 1 a 1 (mismo universo para monetaria e IPM; excluye 511
+  hogares que se dividieron entre olas en 2010--2013 y 1{,}190 en
+  2013--2016). Arriba: pobreza monetaria por ingreso; abajo:
+  pobreza multidimensional (IPM).}
+  \label{fig:sankey}
+\end{figure}
+
+Bajo pobreza monetaria la persistencia es alta pero decrece: 70.3\% de los
+pobres en 2010 seguían pobres en 2013, cae a 61.8\% entre 2013 y 2016 (la
+salida condicional sube de 29.7\% a 38.2\%); la persistencia en la
+no-pobreza mejora de 76.6\% a 80.1\%. Bajo IPM entrar es menos frecuente
+(12.1\% y 9.7\%, frente a 23.4\% y 19.9\% en monetaria) y salir es más
+frecuente (54.5\% y 52.3\%, frente a 29.7\% y 38.2\%), por lo que la
+persistencia en la pobreza es menor (45.5\% y 47.7\%, frente a 70.3\% y
+61.8\%). La baja entrada es coherente con que el IPM mide privaciones
+estructurales (educación, materiales de la vivienda, acceso a servicios)
+que, una vez superadas, rara vez se revierten, a diferencia del ingreso
+corriente. La alta salida debe leerse con cautela en 2010$\to$2013,
+porque coincide con un cambio en la medición del indicador de barreras de
+acceso a salud (Sección~\ref{subsec:limitaciones}); que se mantenga en
+2013$\to$2016, donde ese indicador se mide igual, sugiere que no solo
+se debe a las medición. Los paneles
+superiores de la Figura~\ref{fig:sankey} traducen la matriz monetaria a
+flujos (los inferiores hacen lo mismo con la del IPM): en 2010--2013 dominan los \emph{siempre
+pobres} (43.9\%) sobre los \emph{nunca pobres} (28.8\%); en 2013--2016 el
+orden se invierte (37.0\% vs.\ 33.3\%), y en ambos periodos la salida
+casi duplica la entrada, es decir, la pobreza monetaria se redujo de forma neta,
+no solo se redistribuyó entre hogares.
+
+Un último ejercicio (Tabla~\ref{tab:trayectorias_3olas}) sigue a los
+mismos hogares no pobres en la ola base a lo largo de las tres olas para
+distinguir, dentro de quienes \emph{entran} en pobreza, una entrada
+transitoria de una persistente. Bajo pobreza monetaria, 24.1\% de los no
+pobres en 2010 entra en pobreza en algún momento: 14.0\% salen de
+nuevo antes de 2016 (``transitorio'') y 10.1\% se quedan (``persistente'').
+Bajo IPM la entrada total es menor (12.2\%) y se reparte parecido (8.2
+transitoria, 4.0 persistente): en ambas definiciones, más de la mitad de
+quienes entran en pobreza no quedan atrapados dentro de la ventana de
+seis años observada.
+
+\input{tables/tab_trayectorias_3olas.tex}
+
 % ============================================================
 % SECCIÓN 4 — ESTRATEGIA EMPÍRICA   TARGET: 6–7 páginas
 % ============================================================
@@ -699,9 +785,8 @@ Anexo~\ref{apx:variables_geo}.
 \section{Estrategia empírica}
 \label{sec:estrategia}
 
-\subsection{Construcción de la variable de resultado y dinámica de transiciones}
+\subsection{Construcción de la variable de resultado}
 \label{subsec:outcome}
-\label{subsec:transiciones}
 
 Este estudio sigue la metodología de \textcite{lopezCalva2011,lopezCalva2014}, 
 a partir de la cual se construyen matrices de transición de pobreza monetaria e IPM, 
@@ -709,21 +794,21 @@ cruzando el estado de un hogar en el período inicial $t$ (filas),
 contra un periodo posterior $t+1$ (columnas). 
 Esta comparación permite observar cómo evoluciona 
 la situación económica de los hogares a lo largo del tiempo y generar
-una taxonomía de cuatro categorías de acuerdo con la clasificación:
+una taxonomía de cuatro categorías de acuerdo con la clasificación en dos momentos del tiempo:
  \emph{nunca pobre}, \emph{siempre pobre}, \emph{entra en pobreza} y \emph{sale de pobreza}.
  
-La pobreza monetaria se calcula a partir del cálculo del ingreso per
-cápita del hogar y se compara contra la línea de pobreza (LP) oficial 
+Ahora bien, la pobreza monetaria en este trabajo se calcula a partir del cálculo del ingreso per
+cápita del hogar, de acuerdo con las preguntas correspondientes en la ELCA, y se compara contra la línea de pobreza (LP) oficial 
 del DANE, específica por año y zona\footnote{Se usa la serie MESEP (línea base ENIG 2006--2007,
 actualizada anualmente por IPC), la misma metodología para las tres olas
 (2010, 2013 y 2016), lo que las hace comparables entre sí. Deliberadamente
 no se usa la actualización metodológica ENPH 2016--2017 con la que el
 DANE recalculó la serie 2012--2018, porque esa serie no cubre 2010 y
 adoptarla habría introducido un quiebre metodológico justo entre las olas
-que este estudio compara.}. El Índice de Pobreza Multidimensional (IPM)
-y la construcción de la clasificación según el IPM se construye
-siguiendo la metodología oficial del DANE \parencite{angulo2011}, como 
-un proxy del índice Alkire-Foster de cinco dimensiones (educación; niñez y juventud;
+que este estudio compara.}. De otro lado, este estudio utiliza un proxy del
+Índice de Pobreza Multidimensional (IPM) que se construye
+siguiendo la metodología oficial del DANE \parencite{angulo2011},
+ de cinco dimensiones (educación; niñez y juventud;
 trabajo; salud; vivienda y servicios públicos) y quince indicadores
 ponderados (20\% por dimensión, peso igual entre
 los indicadores de cada dimensión) y un punto de corte de pobreza de
@@ -740,10 +825,11 @@ y reportan para auditoría, pero no entran en la clasificación
 Trabajo, que queda sin indicadores, redistribuye su 20\% entre las cuatro
 dimensiones restantes (25\% cada una). El punto de corte de pobreza se
 mantiene en 33.3\% del puntaje ponderado, independiente del número de
-indicadores activos.} Ambas variables de resultado se describen en la 
-Sección~\ref{sec:datos}--. El modelo predictivo de esta tesis
-(Secciones~\ref{subsec:modelos} en adelante) usa solo una de las cuatro
-celdas: restringido a hogares no pobres en $t$, que caen en pobreza en $t+1$, 
+indicadores activos.}
+
+Los modelos predictivos de este estudio
+(Secciones~\ref{subsec:modelos} en adelante) usan solo uno de los cuatro
+grupos de variables de resultado, los hogares no pobres en $t$, que caen en pobreza en $t+1$, 
 de acuerdo con la (Ecuación~\ref{eq:outcome}):
 
 \begin{equation}
@@ -755,90 +841,58 @@ de acuerdo con la (Ecuación~\ref{eq:outcome}):
   \label{eq:outcome}
 \end{equation}
 
- A continuación se caracteriza las cuatro celdas completas. Se realizó un 
- análisis adicional de la incidencia agregada, FGT, y cinco ejercicios de 
- robustez de estas estimaciones, incluyendo la atrición del panel por 
- perfil de hogar y se documentan en el Apéndice~\ref{apx:transiciones_robustez}.
-
-
-\input{tables/tab_matriz_transicion_combinada.tex}
-
-Bajo pobreza monetaria la persistencia es alta pero decrece: 70.3\% de los
-pobres en 2010 seguían pobres en 2013, cae a 61.8\% entre 2013 y 2016 (la
-salida condicional sube de 29.7\% a 38.2\%); la persistencia en la
-no-pobreza mejora de 76.6\% a 80.1\%. Bajo IPM entrar es menos frecuente
-(12.1\% y 9.7\%, frente a 23.4\% y 19.9\% en monetaria) pero también lo es
-salir (45.5\% y 47.7\%). Estas diferencias son posiblemente consistentes 
-con que el IPM mide privaciones estructurales que cambian más lento que 
-el ingreso corriente en cualquiera de las dos direcciones. Las
-Figuras~\ref{fig:sankey_2010_2013} y~\ref{fig:sankey_2013_2016} traducen
-la matriz monetaria a flujos: en 2010--2013 dominan los \emph{siempre
-pobres} (43.9\%) sobre los \emph{nunca pobres} (28.8\%); en 2013--2016 el
-orden se invierte (37.0\% vs.\ 33.3\%), y en ambos periodos la salida
-casi duplica la entrada, es decir, la pobreza monetaria se redujo de forma neta,
-no solo se redistribuyó entre hogares.
-
-\begin{figure}[H]
-  \centering
-  \begin{minipage}{0.49\textwidth}
-    \centering
-    \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2010_2013.png}
-    \caption{2010$\to$2013 ($n=8{,}218$).}
-    \label{fig:sankey_2010_2013}
-  \end{minipage}\hfill
-  \begin{minipage}{0.49\textwidth}
-    \centering
-    \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2013_2016.png}
-    \caption{2013$\to$2016 ($n=6{,}911$).}
-    \label{fig:sankey_2013_2016}
-  \end{minipage}
-  \caption*{Transición de pobreza monetaria por ingreso entre categorías
-  de \textcite{lopezCalva2014}, panel emparejado 1 a 1.}
-\end{figure}
-
-Un último ejercicio (Tabla~\ref{tab:trayectorias_3olas}) sigue a los
-mismos hogares no pobres en la ola base a lo largo de las tres olas para
-distinguir, dentro de quienes \emph{entran} en pobreza, una entrada
-transitoria de una persistente. Bajo pobreza monetaria, 24.1\% de los no
-pobres en 2010 entra en pobreza en algún momento: 14.0 puntos salen de
-nuevo antes de 2016 (``transitorio'') y 10.1 se quedan (``persistente'').
-Bajo IPM la entrada total es menor (12.2\%) y se reparte parecido (8.2
-transitoria, 4.0 persistente): en ambas definiciones, más de la mitad de
-quienes entran en pobreza no quedan atrapados dentro de la ventana de
-seis años observada.
-
-\input{tables/tab_trayectorias_3olas.tex}
-
-\subsection{Selección de covariables para el perfil univariado}
+\subsection{Metodología de caracterización de los hogares vulnerables}
 \label{subsec:seleccion_perfil}
 
-La Sección~\ref{subsec:caracterizacion_grupos} contrasta los cuatro
-grupos de la matriz de transición sobre cerca de 185 covariables
-candidatas de la encuesta. Describirlas todas sin ningún filtro sería
-demasiado confuso: con muestras muy desiguales entre grupos (723 hogares
-"entra" frente a 3.604 "siempre pobre" en 2010--2013), una simple
-comparación de promedios o porcentajes no distingue una diferencia real
-entre grupos de una que aparece por azar de qué hogares fueron
-encuestados. Se necesita entonces una regla explícita para decidir qué
-variables merecen contarse, y qué tan fuerte es esa diferencia --no solo
-si existe--.
+Para caracterizar a los hogares vulnerables se combinan dos análisis. El
+principal usa los modelos de la Sección~\ref{subsec:modelos} para
+identificar qué variables anticipan la entrada en pobreza. El segundo
+compara directamente las covariables de los cuatro grupos de la matriz de
+transición: comprueba qué tan bien esas variables separan a los grupos en
+los datos y permite definir al hogar vulnerable \emph{entran en pobreza} 
+respecto a los tres restantes, incluyendo a los que ya eran pobres, que 
+los modelos no incluyen.
 
-La regla, aplicada variable por variable, responde una pregunta simple:
-¿qué tan bien predice el valor de esa única variable a cuál de los cuatro
-grupos pertenece un hogar, en una escala de 0 (no ayuda nada) a 1 (los
-distingue perfectamente)? Esa capacidad se mide con $\eta^2$ (variables
-numéricas) o V de Cramér (categóricas) --la misma pregunta, la fórmula
-adecuada según el tipo de dato--, en su versión corregida por sesgo
-(ambas medidas exageran la asociación en muestras pequeñas, y "entra" es el
-grupo más pequeño) y ponderada por los factores de expansión de la
-encuesta. Una variable entra al perfil solo si esa medida supera 0.05 de
-forma consistente en 300 remuestreos \emph{bootstrap} de los datos, no
-solo en la muestra original: exige que la señal sea repetible, no una
-casualidad de qué hogares puntuales aparecen en la encuesta. De las 185
-candidatas, 53 (monetaria) y 36 (IPM) pasan el filtro. A diferencia de un
-modelo predictivo, las variables que pasan no se colapsan aunque estén
-correlacionadas entre sí: el objetivo aquí es describir, no evitar
-redundancia, y cada variable retenida puede aportar información al perfil.
+En el primer análisis se usan valores SHAP, que miden cuánto sube o baja
+cada variable la probabilidad predicha para cada hogar, en la misma
+escala para los cinco algoritmos. Se calculan para los Modelos A y B, lo
+que da diez combinaciones de algoritmo y especificación, en las dos
+definiciones de pobreza y en las dos ventanas. De ahí salen dos
+resultados. El \emph{núcleo} son las variables que, en al menos cinco de
+las diez combinaciones, están entre las que suman el 80\% de la
+importancia total. La \emph{dirección} indica si valores altos de una
+variable suben o bajan el riesgo, y se mide con la correlación de
+Spearman entre la variable y su valor SHAP. Se considera una variable como 
+estable dentro del núcleo si se mantiene en las dos definiciones de pobreza 
+y en las dos ventanas. Ambos criterios se prueban con umbrales alternativos en el
+Apéndice~\ref{apx:soporte_shap} para validar los resultados.
+
+En el segundo análisis se mide, para cada variable, qué tan bien
+distingue a los cuatro grupos, con una medida entre 0 y 1. Para las
+variables numéricas es el $\eta^2$ de un análisis de varianza (ANOVA) de
+una vía sobre los rangos de la variable, equivalente no paramétrico que
+no se deja arrastrar por valores extremos: la proporción de su variación
+que explica el grupo. Para las categóricas es la V de Cramér, basada en la
+prueba chi-cuadrado de independencia. Ambas se ponderan por los factores
+de expansión. Una variable entra al perfil si esa medida supera 0.10 y si el resultado se
+sostiene en 300 remuestreos \emph{bootstrap}, es decir, si no depende del
+azar de la muestra. Así quedan 53 variables bajo pobreza monetaria y 36
+bajo IPM. Dos ejercicios completan el análisis: se separa a los hogares
+que entran en pobreza según sigan o no pobres en 2016 (transitorios y
+persistentes), y un modelo multiclase, entrenado con todos los hogares
+del panel y sin ingreso ni gasto, mide si es posible distinguir a quienes
+entran de quienes salen de la pobreza.
+
+Los dos análisis se combinan de la siguiente manera. El análisis SHAP
+decide qué variables se reportan como determinantes: las del núcleo cuya
+dirección es estable. El análisis univariado no agrega variables a esa
+lista, sino que cumple dos funciones. La primera es de control: si las
+variables que los modelos consideran importantes no diferenciaran a los
+grupos en los datos, el resultado de SHAP podría ser causado por los
+modelos. La segunda es de comparación: como los modelos solo incluyen
+hogares que no eran pobres, no pueden decir a qué grupo se parece el
+hogar vulnerable; el análisis univariado sí puede, porque incluye a los
+cuatro grupos.
 
 \subsection{Especificación de modelos}
 \label{subsec:modelos}
@@ -985,7 +1039,7 @@ frente a la variabilidad esperable por aleatoriedad del ajuste.
 \label{subsec:desbalance}
 
 La tasa de entrada a la pobreza en la muestra de entrenamiento es de
-23.4\% (Tabla~\ref{tab:matriz_transicion}), un desbalance que
+23.4\% (Figura~\ref{fig:sankey_2010_2013}), un desbalance que
 puede sesgar a los algoritmos hacia la clase mayoritaria. Se comparan tres
 estrategias de tratamiento del desbalance para cada algoritmo:
 reponderación de clases (\texttt{class\_weight="balanced"} o su
@@ -1075,32 +1129,6 @@ una señal explotable por el modelo (por ejemplo, la ausencia de datos de
 vacunación infantil ya codifica indirectamente que el hogar no tiene
 hijos pequeños) en vez de forzar un supuesto de imputación potencialmente
 sesgado.
-
-\subsection{Importancia de variables e interpretabilidad}
-\label{subsec:interpretabilidad}
-
-Para cada modelo se reporta una medida de importancia de variables acorde
-a su naturaleza: los coeficientes estandarizados (con signo) de la
-regresión logística; la importancia por reducción de impureza
-(\texttt{feature\_importances\_}) de Random Forest, XGBoost y LightGBM; y
-la importancia por permutación (\emph{permutation importance}, AUC-ROC
-sobre el conjunto de prueba, 10 repeticiones) de HistGradientBoosting, más
-costosa computacionalmente pero más robusta a la correlación entre
-covariables que la importancia basada en impureza. La comparación de estas
-listas de variables más importantes entre el Modelo A y el Modelo B
-(Sección~\ref{subsec:desempeno}) es la primera aproximación a la pregunta
-de qué información no monetaria es más predictiva de la transición a la
-pobreza, antes de la incorporación de las variables geoespaciales
-(Sección~\ref{subsec:limitaciones}). Como estas medidas no comparten
-unidad entre algoritmos (impureza vs.\ coeficiente estandarizado vs.\
-caída de AUC-ROC), se complementan con valores SHAP (\emph{SHapley
-Additive exPlanations}) para los cinco algoritmos sobre los Modelos A y
-B, que sí son comparables en una misma escala --la contribución promedio,
-en valor absoluto, de cada variable a la predicción de cada hogar-- y que
-además satisfacen aditividad (la suma de los SHAP values de un hogar
-reconstruye exactamente su predicción) y consistencia (si un modelo pasa
-a depender más de una variable, su SHAP value nunca puede bajar). Los
-resultados se presentan en la Sección~\ref{subsec:desempeno}.
 
 \section{Resultados}
 \label{sec:resultados}
@@ -1779,9 +1807,9 @@ en el panel ELCA 2010--2016 muestra una reducción sostenida de la
 incidencia (de 60.7\% a 42.4\% por ingreso) acompañada de una tasa de
 entrada a la pobreza de 23.4\% entre 2010--2013 y de 19.9\% entre
 2013--2016, con una tasa de salida que casi duplica a la de entrada en
-ambos periodos; bajo IPM la entrada es menos frecuente pero también lo es
-la salida, consistente con que las privaciones estructurales cambian más
-lento que el ingreso corriente (Sección~\ref{subsec:outcome}).
+ambos periodos; bajo IPM la entrada es menos frecuente y la salida más
+frecuente, aunque la salida de 2010--2013 está influida por un cambio en
+la medición de un indicador de salud (Sección~\ref{subsec:transiciones}).
 \textbf{Segundo}, el perfil del hogar vulnerable --el que entra en
 pobreza-- se concentra en un núcleo pequeño de variables: entre 14 y 37 de
 las 165 a 169 covariables acumulan el 80\% de la señal SHAP, y la riqueza,
@@ -1880,7 +1908,7 @@ encuesta ya vigente y con buena cobertura.
 \label{subsec:limitaciones}
 
 Sobre el análisis de determinantes (Sección~\ref{subsec:determinantes}),
-cuatro límites acompañan a los hallazgos. La dirección de cada variable se
+tres límites acompañan a los hallazgos. La dirección de cada variable se
 resume con la correlación de Spearman entre su valor y su SHAP, con
 umbrales elegidos por el analista (se evalúan alternativas en el
 Apéndice~\ref{apx:soporte_shap}) y sin captar relaciones no monótonas. Las
@@ -1888,11 +1916,27 @@ ventanas 2013--2016 se ajustan y explican sobre la misma muestra, con
 hiperparámetros heredados de 2010--2013. La separación entre pobres
 transitorios y persistentes es descriptiva y se apoya en los 610 de 723
 hogares con dato en la tercera ola; no se encontró atrición diferencial,
-pero con poca potencia. Y el modelo multiclase que respalda la cercanía
-entre ``entra'' y ``sale'' se reporta solo de forma resumida, sin describir
-su especificación en la Sección~\ref{subsec:modelos}. La lectura que
+pero con poca potencia. La lectura que
 distingue entre variables de acumulación y de actividad económica es una
 hipótesis, no un resultado contrastado.
+
+Los resultados bajo IPM tienen además un límite de medición propio. El
+IPM usado es un proxy del oficial (Sección~\ref{subsec:outcome}): cinco de
+sus quince indicadores no son medibles en 2010, y uno de los activos,
+barreras de acceso a salud, se mide en 2010 con un proxy distinto al de
+2013 y 2016. El cambio no es menor: el 79\% de los hogares que salen de la
+pobreza IPM entre 2010 y 2013 lo hacen perdiendo justamente esa privación,
+de modo que parte de la salida observada en esa ventana probablemente
+refleja el cambio de medida y no una mejora real. Se evaluó armonizar el
+indicador con la pregunta directa, disponible también en 2010, pero la
+diferencia en quiénes la responden deja una brecha de nivel (10\% frente
+a 20\% de hogares privados) que tampoco puede atribuirse con certeza a
+cambios reales. Por eso, las conclusiones bajo IPM que dependen de la
+ventana 2010$\to$2013 (sus tasas de transición, el perfil univariado IPM,
+los modelos entrenados sobre ella y el aporte de DMSP-OLS bajo IPM)
+dependen necesariamente del proxy utilizado y deben leerse como
+condicionales a él. La ventana 2013$\to$2016, en la que el indicador se
+mide igual en ambas olas, es la comparación IPM más limpia.
 
 La agenda de investigación que deja esta tesis tiene tres frentes
 concretos. Primero, la heterogeneidad territorial del aporte de DMSP-OLS
@@ -1904,7 +1948,7 @@ solo con una estimación puntual, que el aporte se concentra donde la
 Sección~\ref{subsec:heterogeneidad} sugiere. Segundo, la comparación por
 región geográfica (más allá de la partición urbano/rural ya explotada)
 quedó fuera por tamaño de muestra: con 3{,}089 hogares no pobres en la
-base de entrenamiento (Tabla~\ref{tab:matriz_transicion}), partir además
+base de entrenamiento (Figura~\ref{fig:sankey_2010_2013}), partir además
 por región deja celdas demasiado pequeñas para una estimación confiable
 bajo el holdout temporal principal. Tercero, ALOS PALSAR y Landsat 5 TM
 --evaluadas en esta tesis solo de forma exploratoria, sin holdout real
