@@ -67,11 +67,12 @@ def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Desempeño de los cinco algoritmos, holdout temporal",
-        r"  (train 2010$\to$2013, test 2013$\to$2016). Media sobre 5 semillas",
-        r"  del ajuste final. Umbral elegido por CV maximizando F-beta",
-        r"  ($\beta=2$), CV\_FOLDS=10, N\_ITER\_BUSQUEDA=30.",
-        r"  Precision-top10: precisión entre el 10\% de hogares de mayor riesgo.}",
+        # Titulo corto (2026-09-25, pedido del usuario): holdout, umbral F2 y
+        # parametros de CV ya se explican en el texto (Secciones 4.4 y 4.5)
+        # y en el parrafo que introduce la tabla.
+        r"  \caption{Desempeño de los cinco algoritmos en el conjunto de prueba",
+        r"  (2013$\to$2016), promedio de 5 semillas. Prec.-top10: precisión en el",
+        r"  10\% de hogares con mayor riesgo predicho.}",
         r"  \label{tab:desempeno_modelos}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",

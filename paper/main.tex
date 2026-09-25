@@ -1019,7 +1019,9 @@ estratificada de 10 particiones: el conjunto de entrenamiento se divide en
 se entrena 10 veces dejando por fuera un bloque distinto y se evalúa sobre
 él. Promediar las 10 evaluaciones castiga a las combinaciones que
 memorizan particularidades de los datos en vez de aprender un patrón que
-generaliza.
+generaliza. Los hiperparámetros elegidos para cada uno de los modelos
+reportados se presentan en la Tabla~\ref{tab:hiperparametros} del
+Anexo~\ref{apx:hiperparametros}.
 
 Para verificar que 30 iteraciones no se
 quedan cortas, se extendió la búsqueda a 50 iteraciones para el caso más
@@ -1050,7 +1052,15 @@ del modelo para una política con cobertura limitada. Por eso se reportan
 también el \emph{recall}, la precisión y el F1 al umbral de clasificación
 elegido con F$_2$ (Sección~\ref{subsec:desbalance}), junto con la matriz
 de confusión completa; el F1 se incluye por ser la referencia más usada en
-la literatura, aunque no es el criterio que fija el umbral. Además, se
+la literatura, aunque no es el criterio que fija el umbral. El
+\emph{recall} es la fracción de los hogares que efectivamente entran en
+pobreza que el modelo marca como en riesgo (cuánta de la pobreza futura se
+captura), y la precisión es la fracción de los hogares marcados que
+efectivamente entran (cuántas de las alertas son acertadas). Ambas
+dependen del umbral y se mueven en direcciones opuestas: con un mismo
+modelo, bajar el umbral sube el \emph{recall} a costa de la precisión, y
+viceversa. El umbral solo elige un punto dentro de lo que la capacidad de
+ordenamiento del modelo, medida por su AUC-ROC, permite. Además, se
 reporta la precisión en el decil de mayor riesgo, que no depende de un
 umbral de clasificación y responde directamente la pregunta de un
 programa con presupuesto limitado: si solo puede atender al 10\% de los
@@ -1117,48 +1127,26 @@ precisión y el F1.
 
 Los resultados se presentan en tres partes. La
 Sección~\ref{subsec:desempeno} compara el desempeño fuera de muestra de
-los cinco algoritmos bajo las especificaciones con y sin ingreso/gasto del
-hogar y analiza sus errores de inclusión y exclusión, con la mira puesta en
-generar insumos para una política pública diferenciada (focalización de
-programas de prevención hacia quienes el modelo señala en mayor riesgo,
+los cinco algoritmos bajo las especificaciones A y B (con y sin ingreso/gasto) del
+hogar y analiza los errores de inclusión y exclusión de los modelos, con la mira puesta en
+generar insumos para una política pública diferenciada (Ej. Focalización de
+programas de prevención hacia quienes el modelo señala en mayor riesgo de vulnerabilidad,
 distinto de los programas de alivio dirigidos a quien ya es pobre). La
 Sección~\ref{subsec:determinantes} caracteriza a los hogares vulnerables a
-partir de los valores SHAP de esos modelos --solo se afirma lo que se
-sostiene entre algoritmos, definiciones de pobreza y ventanas temporales--
-y usa el perfil univariado de los cuatro grupos de la matriz de transición
-como validación y para lo que el análisis multivariado no puede ver. La
-Sección~\ref{subsec:marginal_geo} ubica a los hogares vulnerables en las
+partir de los valores SHAP de esos modelos y usa el perfil univariado de
+ los cuatro grupos de la matriz de transición
+como validación y para estudiar lo que el análisis multivariado no permite: comparar
+simultáneamente los perfiles de los cuatro grupos. La
+Sección~\ref{subsec:marginal_geo} analiza el efecto de las variables provinientes de
 fuentes geoespaciales públicas y evalúa si agregar DMSP-OLS mejora esa
 predicción, bajo pobreza monetaria e IPM
 (Secciones~\ref{subsec:marginal} y~\ref{subsec:marginal_ipm}) y si ese
-efecto --nulo en promedio bajo monetaria, pequeño bajo IPM-- es igual en la
-población o se concentra en subgrupos específicos
-(Sección~\ref{subsec:heterogeneidad}). Es de aclarar que la importancia de
-las variables puede variar según el algoritmo, la especificación del modelo
-y el análisis usado, por lo que los determinantes se restringen a lo
-consistente entre ellos.
+efecto es igual en la población o se concentra en subgrupos específicos
+(Sección~\ref{subsec:heterogeneidad}).
 
 \subsection{Desempeño comparativo de modelos}
 \label{subsec:desempeno}
 
-Antes de comparar el desempeño de los cinco algoritmos, conviene fijar
-brevemente qué mide cada métrica y cómo se relacionan entre sí. El
-AUC-ROC resume la capacidad de un modelo para ordenar correctamente los
-hogares por riesgo, sin depender de ningún umbral de clasificación --es
-la métrica que compara algoritmos entre sí (Sección~\ref{subsec:validacion})--.
-\emph{Recall} y \emph{precision}, en cambio, sí dependen del umbral
-elegido: recall es la fracción de hogares que efectivamente entran en
-pobreza y el modelo marca como riesgo (cuánta pobreza real se captura),
-precision es la fracción de los hogares marcados que efectivamente entran
-(cuánta de la alarma es acertada). Las tres no son independientes entre
-sí: dado un AUC-ROC fijo, mover el umbral de clasificación permite subir
-recall solo a costa de precision, y viceversa --el AUC-ROC actúa como un
-techo que ninguna elección de umbral puede superar, solo desplazar el
-punto donde se cae dentro de esa restricción--. Esta sección se organiza
-en dos partes: primero el desempeño comparado de los cinco algoritmos, y
-luego, apoyándose en esa restricción, un análisis de los errores de
-inclusión y exclusión que resulta inevitable en cualquier instrumento de
-focalización con ese techo de discriminación.
 
 \subsubsection{Desempeño de los modelos}
 \label{subsec:desempeno_modelos}
@@ -1169,73 +1157,69 @@ ingreso/gasto; Modelo B, sin ellos), evaluado sobre el conjunto de prueba
 completamente fuera de muestra (2013$\to$2016), con la estrategia de
 balanceo de clases y el umbral de clasificación ya elegidos por validación
 cruzada dentro del periodo de entrenamiento (Secciones~\ref{subsec:validacion}
-y \ref{subsec:desbalance}).\footnote{Balanceo elegido por validación
-cruzada: \emph{ninguno} (sin reponderar) en todos los casos, excepto
-HistGradientBoosting y la regresión logística en el Modelo A, y Random
-Forest y la regresión logística en el Modelo B, donde fue \emph{balanced}
-(reponderación de clases).}
+y \ref{subsec:desbalance}; la estrategia de balanceo y los
+hiperparámetros elegidos para cada modelo se reportan en el
+Anexo~\ref{apx:hiperparametros}).
 
 \input{tables/tab_desempeno_modelos_fbeta2_cv10.tex}
-  \begin{minipage}{0.95\textwidth}
-    \vspace{4pt}
-    \footnotesize \textit{Nota:} umbral elegido por validación cruzada
-    maximizando F$_2$ en cada semilla (Sección~\ref{subsec:desbalance}), no
-    fijo en 0.5; se reporta el promedio de las 5 semillas. El umbral es
-    considerablemente más bajo que en una búsqueda equivalente por F1 --al
-    pesar el recall el doble, F$_2$ empuja el punto de corte hacia abajo
-    para dejar pasar más casos de entrada a la pobreza, a costa de más
-    falsos positivos (columna Recall, sistemáticamente sobre 0.88, frente a
-    un F1 más moderado). Prec.-top10: precisión entre el 10\% de hogares
-    que el modelo señala como de mayor riesgo, la cifra más relevante para
-    un programa de focalización con capacidad fija (Sección~\ref{subsec:validacion}).
-  \end{minipage}
 \end{table}
 
-Frente al desempeño de los modelos, se encontraron dos hallazgos a partir de las diferencias
-puntuales entre los desempeños de los algoritmos y las especificaciones (Tabla~\ref{tab:desempeno_modelos}).
+Frente al desempeño de los modelos se encontraron dos hallazgos.
 \textbf{Primero,} el algoritmo elegido
 no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco).
-Bajo IPM el mismo techo aparece, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
+Bajo IPM ocurre lo mismo, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
 Apéndice~\ref{apx:desempeno_ipm}).
 Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no,
 el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces.
-Esto es consistente con la literatura sobre predicción de pobreza
---AUC-ROC de 0.70--0.80 en \textcite{chaudhuri2002}, 0.73--0.77 en \textcite{mcbride2018}--.
+Esto es consistente con la literatura sobre predicción de pobreza, por ejemplo, 
+AUC-ROC de 0.70--0.80 en \textcite{chaudhuri2002}, 0.73--0.77 en \textcite{mcbride2018}.
+Que incluso la regresión logística regularizada, el algoritmo más simple,
+quede cerca de los demás (prácticamente igual sin ingreso (0.739
+frente a 0.742) y 0.02 por debajo con ingreso) y que los algoritmos de
+\emph{boosting} elijan árboles poco profundos (profundidad 3 o 4) sugiere
+que las interacciones complejas entre variables aportan poco. El límite al
+desempeño parece estar en la información que contienen las covariables más
+que en la forma del modelo, lo que no implica relaciones lineales: algunas
+variables, como la edad del jefe de hogar, tienen una relación no monótona
+con el riesgo (Sección~\ref{subsec:determinantes}).
 
 \textbf{Segundo,} la capacidad de identificar vulnerables apenas cambia
 si se excluyen las variables de ingreso/gasto del hogar de las
 covariables que se utilizan en los modelos. La ganancia
-de incluir esa información, que valga mencionar es la más cara de levantar mediante encuesta, 
+de incluir esa información, que es la más cara de levantar mediante encuesta, 
 y la menos confiable, es marginal (brecha de AUC de 0.008 a 0.028 entre
 el Modelo A y B, mucho menor de lo que predeciría un enfoque de
 vulnerabilidad puramente monetario, \textcite{chaudhuri2002}). Esto no
-implica que el ingreso no importe, anteriormente se estableció que es de las variables
-que más separa a los cuatro grupos de la matriz de transición (Sección~
-\ref{subsec:caracterizacion_grupos})--, sino que su contenido informativo
+implica que el ingreso no importe (Sección~
+\ref{subsec:caracterizacion_grupos}), sino que su contenido informativo
 ya está sustancialmente capturado por otras variables del núcleo del
-perfil (riqueza, educación, bienes durables; Primer hallazgo,
-Sección~\ref{subsec:determinantes}). Bajo IPM la brecha es aún
-menor, y para Random Forest y XGBoost es negativa --el Modelo B (sin ingreso/gasto) supera al
-A--, lo que descarta que la pequeña brecha en la capacidad discriminante 
+perfil (Ej. Riqueza, educación, bienes durables Sección~\ref{subsec:determinantes}). 
+Bajo IPM la brecha es aún menor, y para Random Forest y XGBoost es negativa 
+(el Modelo B (sin ingreso/gasto) supera al
+A), lo que descarta que la pequeña brecha en la capacidad discriminante 
 de los modelos bajo la definición de pobreza monetaria se deba a la
-relación mecánica entre ingreso y la definición de pobreza. La
-implicación práctica sigue la misma lógica que sustenta focalizar con
-proxies observables del ingreso en vez de medirlo directamente
-\parencite{mcbride2018}: un instrumento más barato, sin ingreso/gasto
-detallado, rendiría casi lo mismo.
+relación entre ingreso y la definición de pobreza. La
+implicación práctica sería mantener la estrategia de focalizar mediante 
+el ingreso/gasto del hogar, pero cuando no sea posible obtener esa información,
+se encuentre desactualizada o poco confiable, se podría utilizar 
+un instrumento alternativo y confiable: las mismas variables que 
+ofrece la encuesta. Con un particular énfasis en las variables del 
+núcleo del perfil (Sección~\ref{subsec:determinantes}), que son las que más 
+contribuyen a la predicción de vulnerabilidad.
 
 \subsubsection{Análisis de los errores de inclusión y exclusión}
 \label{subsec:errores_inclusion}
 
 Aunque el poder de discriminación (AUC-ROC) es similar entre los cinco
-algoritmos (Sección~\ref{subsec:desempeno_modelos}), el algoritmo y la
+algoritmos, el algoritmo y la
 estrategia de elección del umbral sí determinan cuánta capacidad de
 cobertura necesita un eventual programa social que focalice vulnerables
 para no perder casos reales. En este estudio se encontró que ese costo,
-con cualquier algoritmo, ronda entre los 3--4 hogares atendidos por cada
-hogar que realmente lo necesitaba (Tabla~\ref{tab:matriz_confusion_a}): de
-los hogares que efectivamente no entran en pobreza, HistGradientBoosting
-identifica correctamente al 40\%, mientras XGBoost solo al 26\%. En
+con cualquier algoritmo, ronda entre 3.4 y 4.1 hogares atendidos por cada
+hogar que realmente lo necesitaba (Tabla~\ref{tab:matriz_confusion_a}). A
+la vez, de los hogares que efectivamente no entran en pobreza, los modelos
+descartan correctamente entre el 26\% (XGBoost) y el 47\% (LightGBM); el
+resto recibe una alerta que no necesitaba. En
 términos de las métricas de la Tabla~\ref{tab:desempeno_modelos}, esto
 corresponde a un recall alto (0.88--0.95: casi todos los hogares que
 efectivamente caen quedan marcados) pero una precisión baja (0.25--0.28:
@@ -1243,11 +1227,14 @@ solo uno de cada 4 marcados efectivamente cae); la precisión en el 10\%
 de mayor riesgo (Prec.-top10, 0.49--0.52) casi duplica la precisión al
 umbral completo, lo que sugiere que concentrar la atención en ese decil
 sería una estrategia de focalización más eficiente que usar el umbral de
-clasificación completo. El comportamiento de recall y precision obedece
+clasificación completo. 
+
+El comportamiento de recall y precision obedece
 no solo al modelo, sino en parte también a la decisión de diseño: el
-umbral elegido por F$_2$, que pone el doble del peso en la importancia de
-los falsos positivos que en los falsos negativos, determina dónde se cae
-(vulnerable o no vulnerable) dentro del techo que impone el AUC. Lo que sí
+umbral elegido por F$_2$, que da el doble de peso a no dejar sin detectar
+a hogares que caen en pobreza (falsos negativos) que a marcar de más a
+hogares que no caen (falsos positivos), determina en qué punto del
+intercambio entre \emph{recall} y precisión se ubica el modelo. Lo que sí
 es una restricción, que ninguna combinación de modelo y umbral pueden
 resolver, es que con un AUC-ROC de 0.75 no es posible lograr recall y
 precision altos simultáneamente. Este intercambio es el mismo que la
@@ -1255,7 +1242,7 @@ literatura de focalización de programas sociales llama errores de
 inclusión y de exclusión (\emph{Type E} y \emph{Type F},
 \textcite{cornia1993}): para un instrumento de focalización dado, reducir
 uno necesariamente aumenta el otro; solo un instrumento con mayor poder de
-discriminación --no un umbral distinto-- puede mover esa frontera.
+discriminación (no un umbral distinto) puede mover esa frontera.
 
 \input{tables/tab_matriz_confusion_modelo_a.tex}
 
@@ -2380,6 +2367,22 @@ de hogares únicos por ola y tasas de pérdida de hogares entre olas.
   \label{fig:panel_atricion}
 \end{figure}
 
+\subsection{Hiperparámetros de los modelos reportados}
+\label{apx:hiperparametros}
+
+Complemento de la Sección~\ref{subsec:validacion}: hiperparámetros finales
+y estrategia de balanceo de clases elegidos por validación cruzada para
+todos los modelos cuyos resultados se reportan en el documento. Los
+análisis SHAP, de heterogeneidad y de \emph{bootstrap} usan estos mismos
+modelos. Varias especificaciones de un mismo algoritmo comparten
+hiperparámetros porque la búsqueda aleatoria usa una semilla fija: prueba
+las mismas 30 combinaciones en cada especificación, y a menudo gana la
+misma.
+
+{\footnotesize
+\input{tables/tab_hiperparametros.tex}
+}
+
 \section{Detalles de construcción de variables geoespaciales}
 \label{apx:geo}
 
@@ -2456,8 +2459,5 @@ ELCA.
   año —la gran mayoría de las fotos son de 2023 en adelante.}
   \label{fig:cobertura_temporal_fuentes}
 \end{figure}
-
-\newpage
-\tableofcontents
 
 \end{document}
