@@ -4496,3 +4496,58 @@ Cuarto hallazgo por la cautela de ponderación; investigar la
 inconsistencia de las predicciones *geo3; confirmar con el cuestionario de
 ELCA la ventana de referencia de los choques; entradas de `decisions.md`
 aún faltantes de otro trabajo (FP/VN, choques ola 3, matriz de confusión).
+
+## 2026-09-25: Por que el modelo multiclase es complementario y no el modelo principal
+
+**Contexto.** El usuario pregunto por que los resultados del ejercicio
+multiclase (4 grupos de la matriz de transicion; ver entradas del
+2026-09-16 y 2026-09-18) no son el resultado principal de la tesis. Se
+agrego en `main.tex` (Seccion 4.2, parrafo que explica como se combinan
+SHAP y el analisis univariado) un pie de pagina resumido con las razones 1
+y 2; aqui quedan
+las cuatro razones completas, con las cifras verificadas contra
+`data/processed/benchmark_resultados/multiclase/registro_modelos_multiclase.csv`
+(6 algoritmos x 6 especificaciones, corrida del 2026-09-18 al 2026-09-21).
+
+**Razones.**
+
+1. **La pregunta de investigacion es sobre los no pobres.** La tesis estudia
+   vulnerabilidad a la pobreza (Chaudhuri et al. 2002): entre los hogares
+   que hoy NO son pobres, cuales caeran en pobreza. Un programa de
+   focalizacion de hogares vulnerables actua sobre esa poblacion. El modelo
+   binario (Ecuacion `eq:outcome`, poblacion filtrada a no pobres en la ola
+   base) responde exactamente esa pregunta. El multiclase incluye tambien a
+   los hogares ya pobres, cuya pregunta es otra (salir o permanecer en la
+   pobreza).
+
+2. **Con ingreso (Modelo A) el multiclase es tautologico.** La condicion de
+   pobreza en la ola base la determina el ingreso, y es lo que separa
+   "entra/nunca" (no pobres en la base) de "sale/siempre" (pobres en la
+   base). `auc_entra_vs_sale` = 1.000 en 5 de 6 algoritmos en A4, A4geoDMSP
+   y A4geo3 (0.975-0.984 la red neuronal): no es senal, es la definicion de
+   los grupos. El binario lo evita porque en su poblacion esa condicion es
+   constante. Solo el Modelo B (sin ingreso ni gasto) es interpretable.
+
+3. **Detecta mal a quienes entran en pobreza.** En las tres
+   especificaciones B (B4, B4geoDMSP, B4geo3) los seis algoritmos eligen "sin
+   balanceo" por un margen minimo de AUC en validacion cruzada
+   (`auc_cv_ninguno` - `auc_cv_balanced` entre 0.003 y 0.008), y la clase
+   minoritaria desaparece: el recall de "entra" queda entre 0.0% y 1.8%
+   (Random Forest: 0.0% en las tres). El binario corrige esto con un umbral
+   de clasificacion ajustable (F-beta, beta=2); el multiclase asigna la
+   clase mas probable (argmax) y no tiene umbral que ajustar. Es la misma
+   advertencia de "Tratamiento del desbalance de clases", mas grave aqui.
+
+4. **Se diseno como diagnostico, no como modelo principal.** Se construyo
+   despues (2026-09-16) para una pregunta que el binario no puede
+   responder: si quienes entran en pobreza se distinguen de quienes salen.
+   Bajo B, `auc_entra_vs_sale` queda entre 0.53 y 0.60 en todos los
+   algoritmos y especificaciones (casi azar), confirmacion multivariada del
+   hallazgo univariado de que "entra" se parece a "sale". Ese es su papel en
+   la Seccion 5.2.
+
+**Decision.** El modelo binario sigue siendo el principal; el multiclase se
+reporta solo como diagnostico de la cercania entre "entra" y "sale".
+Pendientes previos que siguen abiertos (ver entrada del 2026-09-18):
+`diagnostico_shap_multiclase.py` y `modelo_multiclase_descomponer_auc.py`
+no se han corrido sobre los resultados corregidos.

@@ -220,6 +220,14 @@ def analizar_attrition(df: pd.DataFrame) -> dict:
         index=["2010->2013", "2013->2016", "2010->2016"],
     )
     resumen["tasa_perdida_%"] = (resumen["hogares_perdidos"] / resumen["hogares_base"] * 100).round(2)
+    # La tasa de perdida (hogares de la ola base que no aparecen en la
+    # siguiente) no coincide con la caida neta del numero de hogares:
+    # algunos hogares no encontrados en 2013 vuelven a ser encuestados en
+    # 2016 (agregado 2026-09-25, para explicar en el texto por que la
+    # perdida 2013->2016 es 11.4% aunque el conteo solo cae 7.4%).
+    resumen["hogares_regresan"] = [0, len(ola3 - ola2), 0]
+    resumen["hogares_fin"] = [len(ola2), len(ola3), len(ola3)]
+    resumen["caida_neta_%"] = ((1 - resumen["hogares_fin"] / resumen["hogares_base"]) * 100).round(2)
     resumen.to_csv(TABLES_DIR / "03_attrition_resumen.csv")
 
     fig, ax = plt.subplots(figsize=(5, 4))
