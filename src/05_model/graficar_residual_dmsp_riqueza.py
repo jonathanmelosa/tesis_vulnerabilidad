@@ -50,7 +50,7 @@ ETIQUETAS = [
     ("Estrato verificado\n(referencia)", "cruda (control vs outcome)", "estrato_verificado_hogar", COLOR_REFERENCIA_BRUTA),
     ("N.º de bienes durables\n(referencia)", "cruda (control vs outcome)", "n_bienes_durables_hogar", COLOR_REFERENCIA_BRUTA),
     ("Personas por cuarto\n(referencia)", "cruda (control vs outcome)", "personas_por_cuarto_hogar", COLOR_REFERENCIA_BRUTA),
-    ("Iluminación nocturna\n(DMSP-OLS), residualizada$^{*}$", "parcial (sklearn.LinearRegression)", "dmsp_stable_lights", COLOR_RESIDUALIZADA),
+    ("Iluminación nocturna\n(DMSP-OLS), residualizada", "parcial (sklearn.LinearRegression)", "dmsp_stable_lights", COLOR_RESIDUALIZADA),
 ]
 
 
@@ -86,13 +86,14 @@ def main() -> None:
     handles = [
         plt.Rectangle((0, 0), 1, 1, color=COLOR_DMSP_BRUTA, label="DMSP-OLS, correlación bruta"),
         plt.Rectangle((0, 0), 1, 1, color=COLOR_REFERENCIA_BRUTA, label="Referencias, correlación bruta"),
-        plt.Rectangle((0, 0), 1, 1, color=COLOR_RESIDUALIZADA, label="DMSP-OLS, residualizada$^{*}$"),
+        plt.Rectangle((0, 0), 1, 1, color=COLOR_RESIDUALIZADA, label="DMSP-OLS, residualizada"),
     ]
     ax.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.36), ncol=1, frameon=False, fontsize=9)
 
     ax.set_title("La correlación de DMSP-OLS con caer en pobreza es comparable a la de\nlas variables de encuesta más predictivas -- y colapsa al controlar por ellas", fontsize=11)
-    fig.text(0.01, -0.02, "$^{*}$Controlando por las 4 variables de referencia (correlación parcial vía residuos,\nteorema de Frisch–Waugh–Lovell).",
-              fontsize=8, color="#555555")
+    # La nota al pie (asterisco, correlacion parcial via residuos / FWL) no se
+    # leia en el tamano del documento; va en el caption de main.tex
+    # (2026-09-28, pedido del usuario).
     fig.tight_layout()
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

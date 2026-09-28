@@ -48,7 +48,7 @@ ETIQUETAS_NUEVAS = {
     "pct_ninos_madre_viva": "\\char`\\%{} de niños con madre viva",
     "pct_ninos_padre_vivo": "\\char`\\%{} de niños con padre vivo",
     "edad_jefe": "Edad del jefe de hogar",
-    "grado_educ_jefe": "Grado educativo del jefe (años)",
+    "grado_educ_jefe": "Último grado aprobado por el jefe",  # no son años de escolaridad: el grado se reinicia en cada nivel (2026-09-28)
     "tvip_puntaje_directo_hogar": "Puntaje de vocabulario infantil (test TVIP)",
     "tuvo_choque_economico_hogar": "Tuvo un choque económico (hogar)",
     "tasa_control_preventivo_hogar": "Tasa de controles médicos preventivos (hogar)",

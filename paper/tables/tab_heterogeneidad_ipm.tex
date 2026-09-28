@@ -1,6 +1,6 @@
 \begin{table}[H]
   \centering
-  \caption{$\Delta$AUC-ROC de agregar DMSP-OLS por subgrupo, pobreza multidimensional (IPM). En \textbf{negrita}: $|\Delta|\geq 0.02$. Grupos con $n<30$ omitidos (no confiables). XGB=XGBoost, RF=Random Forest, LGBM=LightGBM, HGB=HistGradientBoosting, Log.=Logística regularizada. Fuente: cálculos propios.}
+  \caption{$\Delta$AUC-ROC de agregar DMSP-OLS por subgrupo, pobreza multidimensional (IPM). En \textbf{negrita}: $|\Delta|\geq 0.02$. Grupos con $n<30$ omitidos (no confiables). XGB=XGBoost, RF=Random Forest, LGBM=LightGBM, HGB=HistGradientBoosting, Log.=Logística regularizada. Fuente: cálculos propios, \texttt{diagnostico\_heterogeneidad\_ipm.csv} (\texttt{src/05\_model/diagnostico\_heterogeneidad\_ipm.py}).}
   \label{tab:heterogeneidad_ipm}
   \footnotesize
   \setlength{\tabcolsep}{3.5pt}
@@ -36,14 +36,14 @@
      & Estrato 3 & A & 889 & -0.007 & -0.006 & -0.006 & -0.005 & +0.002 \\
      & Estrato 3 & B & 889 & +0.005 & \textbf{-0.031} & -0.003 & +0.009 & +0.003 \\
     \midrule
-    Proxy de riqueza & Bajo (proxy menos discriminante) & A & 1,858 & +0.014 & +0.003 & +0.008 & +0.001 & +0.001 \\
-     & Bajo (proxy menos discriminante) & B & 1,858 & \textbf{+0.021} & -0.003 & \textbf{+0.030} & +0.003 & +0.000 \\
+    Servicios y bienes & Tercil bajo & A & 1,858 & +0.014 & +0.003 & +0.008 & +0.001 & +0.001 \\
+     & Tercil bajo & B & 1,858 & \textbf{+0.021} & -0.003 & \textbf{+0.030} & +0.003 & +0.000 \\
     \addlinespace
-     & Medio & A & 1,977 & +0.007 & +0.004 & +0.002 & -0.006 & +0.000 \\
-     & Medio & B & 1,977 & +0.018 & -0.004 & +0.019 & -0.001 & +0.000 \\
+     & Tercil medio & A & 1,977 & +0.007 & +0.004 & +0.002 & -0.006 & +0.000 \\
+     & Tercil medio & B & 1,977 & +0.018 & -0.004 & +0.019 & -0.001 & +0.000 \\
     \addlinespace
-     & Alto (proxy menos discriminante) & A & 1,736 & \textbf{+0.034} & -0.001 & +0.004 & +0.001 & +0.000 \\
-     & Alto (proxy menos discriminante) & B & 1,736 & \textbf{+0.033} & \textbf{-0.030} & +0.009 & +0.005 & +0.000 \\
+     & Tercil alto & A & 1,736 & \textbf{+0.034} & -0.001 & +0.004 & +0.001 & +0.000 \\
+     & Tercil alto & B & 1,736 & \textbf{+0.033} & \textbf{-0.030} & +0.009 & +0.005 & +0.000 \\
     \bottomrule
   \end{tabular}%
   }

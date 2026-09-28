@@ -1,0 +1,34 @@
+\begin{table}[H]
+  \centering
+  \caption{AUC-ROC del modelo multiclase por par de grupos de la matriz de transición.}
+  \label{tab:multiclase_auc_pares}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Algoritmo} & \textbf{\shortstack{Nunca vs.\\siempre}} & \textbf{\shortstack{Nunca vs.\\entra}} & \textbf{\shortstack{Nunca vs.\\sale}} & \textbf{\shortstack{Entra vs.\\siempre}} & \textbf{\shortstack{Sale vs.\\siempre}} & \shortstack{\textbf{Entra vs.}\\\textbf{sale}} \\
+    \midrule
+    \multicolumn{7}{l}{\textit{AUC-ROC, Modelo B}} \\
+    XGBoost & 0.927 & 0.752 & 0.830 & 0.676 & 0.595 & 0.534 \\
+    LightGBM & 0.927 & 0.754 & 0.829 & 0.685 & 0.603 & 0.543 \\
+    HistGradientBoosting & 0.925 & 0.752 & 0.824 & 0.675 & 0.605 & 0.545 \\
+    Random Forest & 0.919 & 0.749 & 0.813 & 0.702 & 0.611 & 0.541 \\
+    Red neuronal (MLP) & 0.910 & 0.743 & 0.820 & 0.685 & 0.613 & 0.554 \\
+    Logística regularizada & 0.896 & 0.734 & 0.806 & 0.688 & 0.629 & 0.562 \\
+    \addlinespace
+    \multicolumn{7}{l}{\textit{Cambio al agregar DMSP-OLS}} \\
+    XGBoost & -0.000 & +0.001 & -0.001 & +0.005 & +0.013 & +0.011 \\
+    LightGBM & +0.000 & -0.003 & +0.003 & +0.013 & +0.011 & +0.009 \\
+    HistGradientBoosting & -0.000 & -0.004 & +0.004 & -0.008 & -0.003 & -0.006 \\
+    Random Forest & -0.002 & -0.004 & -0.002 & -0.008 & -0.004 & -0.006 \\
+    Red neuronal (MLP) & -0.002 & -0.004 & -0.002 & +0.023 & +0.010 & +0.005 \\
+    Logística regularizada & +0.000 & -0.001 & +0.001 & -0.001 & -0.003 & +0.002 \\
+    \bottomrule
+  \end{tabular}%
+  }
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} AUC-ROC de cada par de grupos: se restringe a los hogares de los dos grupos y se usa como puntaje la probabilidad que el modelo asigna al primero. Modelo B, conjunto de prueba 2013$\to$2016, una sola corrida (semilla 42). El modelo separa bien los extremos (nunca frente a siempre pobre), pero casi no separa a quienes entran de quienes salen de la pobreza. El panel inferior es la diferencia entre el mismo modelo con las 23 variables de DMSP-OLS y sin ellas. Fuente: cálculos propios.
+  \end{minipage}
+\end{table}

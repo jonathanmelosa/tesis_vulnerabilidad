@@ -148,6 +148,14 @@ def generar_tex(matriz: pd.DataFrame, clave: str, etiqueta: str) -> str:
         f"    de pobreza (monetaria, $n={_miles(n_mon)}$; IPM, $n={_miles(n_ipm)}$). Modelos",
         r"    clasificados con los hiperparámetros y el umbral reportados en la",
         r"    Tabla~\ref{tab:hiperparametros} del Anexo~\ref{apx:hiperparametros}." + remision_b,
+        # Cambio 2026-09-28 (pedido del usuario): la matriz es de una sola
+        # corrida (semilla 42) y la Tabla de desempeno promedia 5 semillas;
+        # sin esta aclaracion el recall/precision que se derivan de aqui no
+        # coinciden con los de esa tabla.
+        r"    Corresponde a una sola corrida de cada modelo, por lo que el",
+        r"    \emph{recall} y la precisión que se derivan de ella difieren",
+        r"    levemente de los promedios de 5 semillas de la",
+        r"    Tabla~\ref{tab:desempeno_modelos}.",
         r"    Fuente: cálculos propios.",
         r"  \end{minipage}",
         r"\end{table}",

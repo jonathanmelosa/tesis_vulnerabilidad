@@ -47,8 +47,17 @@ EJES_ORDEN = [
     ("eje_zona", "Zona"),
     ("eje_brecha_lp", "Cercanía a LP"),
     ("eje_estrato", "Estrato"),
-    ("eje_riqueza_proxy", "Proxy de riqueza"),
+    ("eje_riqueza_proxy", "Servicios y bienes"),
 ]
+# Las etiquetas de los terciles vienen de los scripts de diagnostico y
+# decian "(proxy menos discriminante)" en los dos extremos, lo que no
+# describe nada: son terciles de un indice de servicios publicos y bienes
+# durables (2026-09-28, pedido del usuario).
+GRUPOS_RENOMBRADOS = {
+    "Bajo (proxy menos discriminante)": "Tercil bajo",
+    "Medio": "Tercil medio",
+    "Alto (proxy menos discriminante)": "Tercil alto",
+}
 
 
 def cargar(ruta: Path) -> pd.DataFrame:
@@ -96,7 +105,7 @@ def generar_tex(df: pd.DataFrame, especificaciones: list, etiquetas_espec: dict,
                     celdas.append(f"\\textbf{{{delta:+.3f}}}" if abs(delta) >= 0.02 else f"{delta:+.3f}")
                 prefijo_eje = eje_bonito if (gi == 0 and ei == 0) else ""
                 lineas.append(
-                    f"    {prefijo_eje} & {grupo} & {etiquetas_espec[espec]} & {n:,} & "
+                    f"    {prefijo_eje} & {GRUPOS_RENOMBRADOS.get(grupo, grupo)} & {etiquetas_espec[espec]} & {n:,} & "
                     + " & ".join(celdas) + r" \\"
                 )
             if not (gi == len(grupos) - 1):

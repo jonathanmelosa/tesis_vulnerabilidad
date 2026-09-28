@@ -1,57 +1,36 @@
 \begin{table}[H]
   \centering
   \caption{Contribución marginal de DMSP-OLS bajo pobreza
-  multidimensional (IPM), holdout temporal (train 2010$\to$2013,
-  test 2013$\to$2016).}
+  multidimensional (IPM) (entrenamiento 2010$\to$2013, prueba
+  2013$\to$2016).}
   \label{tab:marginal_dmsp_ipm_significancia}
   \footnotesize
-  \setlength{\tabcolsep}{4pt}
-  \resizebox{\textwidth}{!}{%
+  \setlength{\tabcolsep}{6pt}
   \begin{tabular}{llcccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{Esp.} & \textbf{AUC base} & \textbf{AUC +DMSP} & $\boldsymbol{\Delta}$\textbf{AUC} & $\boldsymbol{\Delta}$\textbf{top-10\%} \\
+    \textbf{Algoritmo} & \textbf{Esp.} & \textbf{AUC base} & \textbf{AUC +DMSP} & $\boldsymbol{\Delta}$\textbf{AUC} & $\boldsymbol{\Delta}$\textbf{Prec.-top10} \\
     \midrule
-    XGBoost                  & A & 0.7254 & 0.7363 & \textbf{+0.0128} & +0.022 \\
+    XGBoost                  & A & 0.725 & 0.736 & \textbf{+0.013} & +0.022 \\
+    Random Forest            & A & 0.729 & 0.729 & +0.001 & +0.004 \\
+    LightGBM                 & A & 0.741 & 0.745 & +0.004 & +0.005 \\
+    HistGradientBoosting     & A & 0.740 & 0.738 & -0.002 & +0.002 \\
+    Logística regularizada   & A & 0.730 & 0.730 & -0.000 & +0.009 \\
     \addlinespace
-    Random Forest            & A & 0.7291 & 0.7291 & +0.0012 & +0.004 \\
-    \addlinespace
-    LightGBM                 & A & 0.7414 & 0.7452 & +0.0037 & +0.005 \\
-    \addlinespace
-    HistGradientBoosting     & A & 0.7396 & 0.7378 & -0.0018 & +0.002 \\
-    \addlinespace
-    Logística regularizada   & A & 0.7300 & 0.7300 & -0.0000 & +0.009 \\
-    \addlinespace
-    XGBoost                  & B & 0.7276 & 0.7455 & \textbf{+0.0198} & +0.016 \\
-    \addlinespace
-    Random Forest            & B & 0.7350 & 0.7323 & -0.0035 & +0.015 \\
-    \addlinespace
-    LightGBM                 & B & 0.7304 & 0.7471 & \textbf{+0.0167} & +0.021 \\
-    \addlinespace
-    HistGradientBoosting     & B & 0.7385 & 0.7401 & +0.0016 & -0.007 \\
-    \addlinespace
-    Logística regularizada   & B & 0.7296 & 0.7295 & -0.0000 & +0.011 \\
+    XGBoost                  & B & 0.728 & 0.746 & \textbf{+0.020} & +0.016 \\
+    Random Forest            & B & 0.735 & 0.732 & -0.004 & +0.015 \\
+    LightGBM                 & B & 0.730 & 0.747 & \textbf{+0.017} & +0.021 \\
+    HistGradientBoosting     & B & 0.739 & 0.740 & +0.002 & -0.007 \\
+    Logística regularizada   & B & 0.730 & 0.730 & -0.000 & +0.011 \\
     \bottomrule
-  \end{tabular}%
-  }
+  \end{tabular}
   \begin{minipage}{0.95\textwidth}
     \vspace{4pt}
-    \footnotesize \textit{Nota:} AUC base/+DMSP son la media de 5
-    semillas (Sección~\ref{subsec:desempeno}); $\Delta$AUC viene de
-    un bootstrap pareado sobre una sola semilla (42) del mismo
-    conjunto de prueba, por eso puede diferir del AUC de 5 semillas
-    en el tercer decimal. Filas en \textbf{negrita}: el IC95\% de
-    $\Delta$AUC no cruza cero -- LightGBM-B (IC95\% [0.0076, 0.0258], $p=0.000$ sin corregir por clustering (sin cobertura de bootstrap cluster-robusto)); XGBoost-A (IC95\% [0.0037, 0.0225], $p=0.006$ sin corregir y $p=0.004$ corrigiendo por clustering); XGBoost-B (IC95\% [0.0096, 0.0296], $p=0.001$ sin corregir y $p=0.000$ corrigiendo por clustering). La
-    corrección por clustering comunitario (remuestreo agrupado por
-    \texttt{id\_comunidad}, 1{,}696 comunidades, disponible para
-    XGBoost, HistGradientBoosting y Logística) es necesaria porque
-    DMSP-OLS tiene una resolución espacial gruesa (30 arcosegundos,
-    $\sim$1\,km) -- la limitación que llevó al desarrollo de VIIRS
-    (15 arcosegundos, $\sim$500\,m, con mejor calibración y menos
-    saturación en zonas brillantes) como sucesor de DMSP-OLS-- así
-    que hogares de una misma comunidad comparten, en buena medida,
-    el mismo píxel o uno adyacente de iluminación nocturna, y el
-    error estándar ingenuo por hogar puede subestimar la
-    incertidumbre si no se corrige por esa correlación compartida.
-    Fuente: cálculos propios.
+    \footnotesize \textit{Nota:} AUC: promedio de 5 semillas.
+    $\Delta$AUC: \emph{bootstrap} pareado sobre el conjunto de prueba
+    (una semilla); en \textbf{negrita}, diferencias cuyo IC95\% no
+    cruza cero. Intervalos, valores $p$ y corrección por
+    conglomerados de comunidad en la
+    Tabla~\ref{tab:significancia_dmsp_ipm} del
+    Anexo~\ref{apx:marginal_dmsp}. Fuente: cálculos propios.
   \end{minipage}
 \end{table}

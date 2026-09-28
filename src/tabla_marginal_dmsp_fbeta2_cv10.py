@@ -74,27 +74,36 @@ def fila_tex(df: pd.DataFrame, algoritmo_raw: str, espec: str, cfg: dict) -> str
         f"{fila['precision_top10_media']:.3f} & "
         f"[{fila['precision_top10_ci95_low']:.3f}, {fila['precision_top10_ci95_high']:.3f}] & "
         f"{fila['umbral_clasificacion_media']:.3f} & "
-        f"{fila['recall_media']:.3f} & {fila['precision_media']:.3f} & {fila['f1_media']:.3f} \\\\"
+        f"{fila['recall_media']:.3f} & {fila['precision_media']:.3f} & {fila['f1_media']:.3f} & "
+        f"{brecha_cv_prueba(fila):+.3f} \\\\"
     )
+
+
+def brecha_cv_prueba(fila: pd.Series) -> float:
+    """AUC de validacion cruzada (con el balanceo elegido) menos AUC en
+    prueba (agregado 2026-09-28, pedido del usuario): si agregar DMSP-OLS
+    sobreajustara, esta brecha se ensancharia frente a la especificacion
+    sin DMSP-OLS."""
+    return fila[f"auc_cv_{fila['balanceo_elegido']}"] - fila["auc_roc_media"]
 
 
 def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
+        # Caption corto y tabla autocontenida (2026-09-28, pedido del usuario):
+        # la tabla pasa al anexo con \\input; ya no remite a las versiones
+        # F1/folds=3, que no estan en el documento.
         r"  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin",
-        r"  DMSP-OLS, holdout temporal (train 2010$\to$2013, test 2013$\to$2016).",
-        r"  Umbral elegido por CV maximizando F-beta ($\beta=2$), con",
-        r"  CV\_FOLDS=10 y N\_ITER\_BUSQUEDA=30 -- comparar con",
-        r"  Tabla~\ref{tab:marginal_dmsp} (F1, folds=3) y",
-        r"  Tabla~\ref{tab:marginal_dmsp_fbeta2} (F-beta=2, folds=3).}",
+        r"  DMSP-OLS, pobreza monetaria (entrenamiento 2010$\to$2013, prueba",
+        r"  2013$\to$2016).}",
         r"  \label{tab:marginal_dmsp_fbeta2_cv10}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
         r"  \resizebox{\textwidth}{!}{%",
-        r"  \begin{tabular}{llcccccccc}",
+        r"  \begin{tabular}{llccccccccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} \\",
+        r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} & \textbf{Brecha CV} \\",
         r"    \midrule",
     ]
     for i, (espec_base, espec_geo) in enumerate(cfg["pares_especificacion"]):
@@ -105,7 +114,20 @@ def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
                 lineas.append(r"    \addlinespace")
         if i < len(cfg["pares_especificacion"]) - 1:
             lineas.append(r"    \addlinespace")
-    lineas += [r"    \bottomrule", r"  \end{tabular}%", r"  }"]
+    lineas += [
+        r"    \bottomrule", r"  \end{tabular}%", r"  }",
+        r"  \begin{minipage}{0.95\textwidth}",
+        r"    \vspace{4pt}",
+        r"    \footnotesize \textit{Nota:} promedio de 5 semillas; IC95\% sobre",
+        r"    las semillas. \emph{Recall}, precisión y F1 se miden al umbral ya",
+        r"    elegido para cada algoritmo y especificación por validación cruzada",
+        r"    maximizando F$_2$ (Sección~\ref{subsec:desbalance}). Brecha CV: AUC",
+        r"    de validación cruzada menos AUC en prueba; si agregar DMSP-OLS",
+        r"    sobreajustara, se ensancharía frente a la especificación sin",
+        r"    DMSP-OLS. Fuente: cálculos propios.",
+        r"  \end{minipage}",
+        r"\end{table}",
+    ]
     return "\n".join(lineas)
 
 

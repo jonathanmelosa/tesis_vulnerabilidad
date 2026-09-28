@@ -30,6 +30,9 @@ INPUTS
     data/processed/benchmark_resultados/registro_modelos_ipm.csv
     data/processed/benchmark_resultados/diagnostico_bootstrap_ipm.csv
     data/processed/benchmark_resultados/diagnostico_bootstrap_cluster_ipm.csv
+    data/processed/benchmark_resultados/diagnostico_bootstrap_dmsp.csv
+    data/processed/benchmark_resultados/diagnostico_bootstrap_cluster_dmsp.csv
+        (panel monetario de la tabla del anexo)
         (cobertura parcial: solo XGBoost, HistGradientBoosting, Logistica
         -- Random Forest y LightGBM no tienen bootstrap cluster-robusto
         corrido; se resume como "sin cobertura" en la nota si aplica a un
@@ -38,6 +41,7 @@ INPUTS
 OUTPUTS
 
     paper/tables/tab_marginal_dmsp_ipm_significancia.tex
+    paper/tables/tab_significancia_dmsp_ipm.tex  (detalle para el anexo)
 
 COMO CORRER
 
@@ -56,6 +60,8 @@ CONFIG = {
     "registro": RESULTADOS_DIR / "registro_modelos_ipm.csv",
     "bootstrap": RESULTADOS_DIR / "diagnostico_bootstrap_ipm.csv",
     "bootstrap_cluster": RESULTADOS_DIR / "diagnostico_bootstrap_cluster_ipm.csv",
+    "bootstrap_monetaria": RESULTADOS_DIR / "diagnostico_bootstrap_dmsp.csv",
+    "bootstrap_cluster_monetaria": RESULTADOS_DIR / "diagnostico_bootstrap_cluster_dmsp.csv",
     "algoritmos_orden": [
         "XGBoost",
         "Random Forest",
@@ -114,83 +120,122 @@ def fila_tex(registro: pd.DataFrame, boot: pd.DataFrame,
     delta_top10 = r_geo["precision_top10_media"] - r_base["precision_top10_media"]
 
     negrita = not bool(b["cruza_cero"])
-    fmt_delta = f"\\textbf{{{b['delta_auc']:+.4f}}}" if negrita else f"{b['delta_auc']:+.4f}"
+    fmt_delta = f"\\textbf{{{b['delta_auc']:+.3f}}}" if negrita else f"{b['delta_auc']:+.3f}"
 
     return (
-        f"    {nombre:<24s} & {etiqueta} & {r_base['auc_roc_media']:.4f} & {r_geo['auc_roc_media']:.4f} & "
+        f"    {nombre:<24s} & {etiqueta} & {r_base['auc_roc_media']:.3f} & {r_geo['auc_roc_media']:.3f} & "
         f"{fmt_delta} & {delta_top10:+.3f} \\\\"
     )
 
 
-def _nota_significancia(boot: pd.DataFrame, boot_cl: pd.DataFrame, cfg: dict) -> list:
-    """Arma la frase de la nota que resume, por fuera de la tabla, los IC95%
-    y valores p (con y sin corregir por clustering comunitario) de los
-    pares con Delta AUC-ROC significativo -- en vez de columnas propias en
-    la tabla."""
-    sig = boot[~boot["cruza_cero"]].copy()
-    partes = []
-    for _, fila in sig.iterrows():
-        bc = boot_cl[(boot_cl.algoritmo == fila["algoritmo"]) & (boot_cl.especificacion_base == fila["especificacion_base"])]
-        etiqueta = cfg["etiqueta_especificacion"][fila["especificacion_base"]]
-        if bc.empty:
-            texto_p = f"$p={fila['p_valor']:.3f}$ sin corregir por clustering (sin cobertura de bootstrap cluster-robusto)"
-        else:
-            texto_p = f"$p={fila['p_valor']:.3f}$ sin corregir y $p={bc.iloc[0]['p_valor_cluster']:.3f}$ corrigiendo por clustering"
-        partes.append(
-            f"{fila['algoritmo']}-{etiqueta} (IC95\\% [{fila['ci95_low']:.4f}, {fila['ci95_high']:.4f}], {texto_p})"
-        )
-    return partes
-
-
-def generar_tex(registro: pd.DataFrame, boot: pd.DataFrame, boot_cl: pd.DataFrame, cfg: dict) -> str:
-    detalle_significancia = "; ".join(_nota_significancia(boot, boot_cl, cfg))
+def generar_tex(registro: pd.DataFrame, boot: pd.DataFrame, cfg: dict) -> str:
+    # Formato alineado con el resto de tablas (2026-09-28, pedido del
+    # usuario): sin \\resizebox (con 6 columnas estiraba la tabla y agrandaba
+    # la letra), sin espacio entre cada fila, 3 decimales, y una nota corta
+    # que remite al anexo para los IC, valores p y la correccion por
+    # clustering (antes iban en la nota, ~12 lineas).
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
         r"  \caption{Contribución marginal de DMSP-OLS bajo pobreza",
-        r"  multidimensional (IPM), holdout temporal (train 2010$\to$2013,",
-        r"  test 2013$\to$2016).}",
+        r"  multidimensional (IPM) (entrenamiento 2010$\to$2013, prueba",
+        r"  2013$\to$2016).}",
         r"  \label{tab:marginal_dmsp_ipm_significancia}",
         r"  \footnotesize",
-        r"  \setlength{\tabcolsep}{4pt}",
-        r"  \resizebox{\textwidth}{!}{%",
+        r"  \setlength{\tabcolsep}{6pt}",
         r"  \begin{tabular}{llcccc}",
         r"    \toprule",
         r"    \textbf{Algoritmo} & \textbf{Esp.} & \textbf{AUC base} & \textbf{AUC +DMSP} & "
-        r"$\boldsymbol{\Delta}$\textbf{AUC} & $\boldsymbol{\Delta}$\textbf{top-10\%} \\",
+        r"$\boldsymbol{\Delta}$\textbf{AUC} & $\boldsymbol{\Delta}$\textbf{Prec.-top10} \\",
         r"    \midrule",
     ]
     for i, (espec_base, espec_geo) in enumerate(cfg["pares_especificacion"]):
-        for j, algoritmo_raw in enumerate(cfg["algoritmos_orden"]):
+        for algoritmo_raw in cfg["algoritmos_orden"]:
             lineas.append(fila_tex(registro, boot, algoritmo_raw, espec_base, espec_geo, cfg))
-            if j < len(cfg["algoritmos_orden"]) - 1:
-                lineas.append(r"    \addlinespace")
         if i < len(cfg["pares_especificacion"]) - 1:
             lineas.append(r"    \addlinespace")
     lineas += [
         r"    \bottomrule",
-        r"  \end{tabular}%",
-        r"  }",
+        r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} AUC base/+DMSP son la media de 5",
-        r"    semillas (Sección~\ref{subsec:desempeno}); $\Delta$AUC viene de",
-        r"    un bootstrap pareado sobre una sola semilla (42) del mismo",
-        r"    conjunto de prueba, por eso puede diferir del AUC de 5 semillas",
-        r"    en el tercer decimal. Filas en \textbf{negrita}: el IC95\% de",
-        r"    $\Delta$AUC no cruza cero -- " + detalle_significancia + ". La",
-        r"    corrección por clustering comunitario (remuestreo agrupado por",
-        r"    \texttt{id\_comunidad}, 1{,}696 comunidades, disponible para",
-        r"    XGBoost, HistGradientBoosting y Logística) es necesaria porque",
-        r"    DMSP-OLS tiene una resolución espacial gruesa (30 arcosegundos,",
-        r"    $\sim$1\,km) -- la limitación que llevó al desarrollo de VIIRS",
-        r"    (15 arcosegundos, $\sim$500\,m, con mejor calibración y menos",
-        r"    saturación en zonas brillantes) como sucesor de DMSP-OLS-- así",
-        r"    que hogares de una misma comunidad comparten, en buena medida,",
-        r"    el mismo píxel o uno adyacente de iluminación nocturna, y el",
-        r"    error estándar ingenuo por hogar puede subestimar la",
-        r"    incertidumbre si no se corrige por esa correlación compartida.",
-        r"    Fuente: cálculos propios.",
+        r"    \footnotesize \textit{Nota:} AUC: promedio de 5 semillas.",
+        r"    $\Delta$AUC: \emph{bootstrap} pareado sobre el conjunto de prueba",
+        r"    (una semilla); en \textbf{negrita}, diferencias cuyo IC95\% no",
+        r"    cruza cero. Intervalos, valores $p$ y corrección por",
+        r"    conglomerados de comunidad en la",
+        r"    Tabla~\ref{tab:significancia_dmsp_ipm} del",
+        r"    Anexo~\ref{apx:marginal_dmsp}. Fuente: cálculos propios.",
+        r"  \end{minipage}",
+        r"\end{table}",
+    ]
+    return "\n".join(lineas)
+
+
+def _filas_significancia(boot: pd.DataFrame, boot_cl: pd.DataFrame, especs: list, cfg: dict) -> list:
+    """Una fila por algoritmo y especificacion: Delta AUC (negrita si su
+    IC95% no cruza cero), IC95%, p sin corregir y p con remuestreo agrupado
+    por comunidad ("--" donde no se estimo)."""
+    filas = []
+    for i, espec_base in enumerate(especs):
+        for algoritmo_raw in cfg["algoritmos_orden"]:
+            nombre_boot = cfg["nombres_bootstrap"][algoritmo_raw]
+            b = boot[(boot.algoritmo == nombre_boot) & (boot.especificacion_base == espec_base)].iloc[0]
+            c = boot_cl[(boot_cl.algoritmo == nombre_boot) & (boot_cl.especificacion_base == espec_base)]
+            p_cl = f"{c.iloc[0]['p_valor_cluster']:.3f}" if not c.empty else "--"
+            delta = f"{b['delta_auc']:+.3f}"
+            if not bool(b["cruza_cero"]):
+                delta = f"\\textbf{{{delta}}}"
+            filas.append(
+                f"    {cfg['nombres_algoritmo'][algoritmo_raw]:<24s} & {espec_base[0]} & "
+                f"{delta} & [{b['ci95_low']:+.3f}, {b['ci95_high']:+.3f}] & {b['p_valor']:.3f} & {p_cl} \\\\"
+            )
+        if i < len(especs) - 1:
+            filas.append(r"    \addlinespace")
+    return filas
+
+
+def generar_tex_anexo(boot: pd.DataFrame, boot_cl: pd.DataFrame,
+                      boot_mon: pd.DataFrame, boot_cl_mon: pd.DataFrame, cfg: dict) -> str:
+    """Detalle de significancia del cambio de AUC-ROC al agregar DMSP-OLS.
+    Panel IPM: los 10 pares de la tabla principal. Panel monetario
+    (agregado 2026-09-28, pedido del usuario): las Conclusiones afirman que
+    bajo pobreza monetaria el IC95% cruza cero en las 10 combinaciones, y
+    ninguna tabla del documento lo mostraba. La correccion por comunidad se
+    corrio para XGBoost, HistGradientBoosting y Logistica, no para Random
+    Forest ni LightGBM."""
+    n_col = 6
+    lineas = [
+        r"\begin{table}[H]",
+        r"  \centering",
+        r"  \caption{Significancia del cambio de AUC-ROC al agregar DMSP-OLS,",
+        r"  pobreza monetaria y multidimensional (IPM).}",
+        r"  \label{tab:significancia_dmsp_ipm}",
+        r"  \footnotesize",
+        r"  \setlength{\tabcolsep}{6pt}",
+        r"  \begin{tabular}{llcccc}",
+        r"    \toprule",
+        r"    \textbf{Algoritmo} & \textbf{Esp.} & $\boldsymbol{\Delta}$\textbf{AUC} & "
+        r"\textbf{IC95\%} & $\boldsymbol{p}$ & $\boldsymbol{p}$ \textbf{por comunidad} \\",
+        r"    \midrule",
+        f"    \\multicolumn{{{n_col}}}{{l}}{{\\textit{{Pobreza monetaria}}}} \\\\",
+        *_filas_significancia(boot_mon, boot_cl_mon, ["A", "B"], cfg),
+        r"    \addlinespace",
+        f"    \\multicolumn{{{n_col}}}{{l}}{{\\textit{{Pobreza multidimensional (IPM)}}}} \\\\",
+        *_filas_significancia(boot, boot_cl, [b for b, _ in cfg["pares_especificacion"]], cfg),
+    ]
+    n_cl = int(boot_cl["n_clusters"].iloc[0])
+    lineas += [
+        r"    \bottomrule",
+        r"  \end{tabular}",
+        r"  \begin{minipage}{0.95\textwidth}",
+        r"    \vspace{4pt}",
+        r"    \footnotesize \textit{Nota:} \emph{bootstrap} pareado sobre el",
+        r"    conjunto de prueba 2013$\to$2016 (una semilla). $p$ por comunidad:",
+        f"    remuestreo agrupado por comunidad ({n_cl:,} comunidades)".replace(",", "{,}") + ",",
+        r"    porque hogares de una misma comunidad comparten en buena medida el",
+        r"    mismo píxel de luz nocturna (resolución de $\sim$1\,km); ``--'':",
+        r"    corrección no estimada. Fuente: cálculos propios.",
         r"  \end{minipage}",
         r"\end{table}",
     ]
@@ -203,11 +248,14 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     registro, boot, boot_cl = cargar(cfg)
-    tex = generar_tex(registro, boot, boot_cl, cfg)
-    ruta_tex = out_dir / "tab_marginal_dmsp_ipm_significancia.tex"
-    ruta_tex.write_text(tex, encoding="utf-8")
-    print(f"Tabla exportada: {ruta_tex}")
-    print("\n" + tex)
+    for nombre, tex in {
+        "tab_marginal_dmsp_ipm_significancia.tex": generar_tex(registro, boot, cfg),
+        "tab_significancia_dmsp_ipm.tex": generar_tex_anexo(
+            boot, boot_cl,
+            pd.read_csv(cfg["bootstrap_monetaria"]), pd.read_csv(cfg["bootstrap_cluster_monetaria"]), cfg),
+    }.items():
+        (out_dir / nombre).write_text(tex, encoding="utf-8")
+        print(f"Tabla exportada: {out_dir / nombre}")
 
 
 if __name__ == "__main__":

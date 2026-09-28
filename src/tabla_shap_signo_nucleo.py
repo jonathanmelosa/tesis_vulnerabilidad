@@ -121,35 +121,42 @@ def clasificar(variable: str, sensibilidad: pd.DataFrame) -> str:
 
 
 def generar_tex(nucleo: pd.DataFrame, resumen: pd.DataFrame, sensibilidad: pd.DataFrame) -> str:
+    # longtable en vez de table[H] (2026-09-28, pedido del usuario): con [H]
+    # la tabla, casi de una pagina, no cabia tras el Segundo hallazgo y
+    # dejaba media pagina en blanco; longtable la parte entre paginas como
+    # texto. El grupo {...} contiene el tamano de letra; el caption se
+    # mantiene en tamano normal.
+    encabezado = [
+        r"  \toprule",
+        "  \\textbf{Variable} & \\textbf{Comb.} & " + " & ".join(t for _, t in FUENTES) + r" & \textbf{Dirección} \\",
+        r"  \midrule",
+    ]
     lineas = [
-        r"\begin{table}[H]",
-        r"  \centering",
-        r"  \caption{Núcleo de variables del análisis SHAP y su dirección.",
-        r"  \emph{Comb.}: combinaciones algoritmo/especificación (de 10) en que",
-        r"  la variable está dentro del 80\% de la masa SHAP acumulada",
-        r"  (Sección~\ref{subsec:importancia_resultados}). Cada celda de signo",
-        r"  indica el signo mayoritario y en cuántas ($n$) de las $m$",
-        r"  combinaciones con dirección clara ($|\rho|\geq 0.10$) aparece: $-$",
-        r"  significa que valores altos de la variable \emph{reducen} el riesgo",
-        r"  de entrar en pobreza; $+$, que lo \emph{aumentan}.",
-        r"  \emph{Dirección}: Estable = mismo signo en las cuatro fuentes bajo",
-        r"  las 12 combinaciones de umbrales evaluadas; Moderada = en al menos 8;",
-        r"  Inestable = en menos. ``cat.'': variable categórica, sin signo a nivel",
-        r"  de variable. $^{\dagger}$variable fuera del perfil univariado de 53",
-        r"  variables robustas de la Sección~\ref{subsec:caracterizacion_grupos}.}",
-        r"  \label{tab:shap_signo_nucleo}",
-        r"  \scriptsize",
-        r"  \setlength{\tabcolsep}{3pt}",
-        r"  \begin{tabular}{lccccccc}",
-        r"    \toprule",
-        "    \\textbf{Variable} & \\textbf{Comb.} & " + " & ".join(t for _, t in FUENTES) + r" & \textbf{Dirección} \\",
-        r"    \midrule",
+        r"{\scriptsize",
+        r"\captionsetup{font=normalsize}",
+        r"\setlength{\LTcapwidth}{\textwidth}",
+        r"\setlength{\tabcolsep}{3pt}",
+        r"\begin{longtable}{lcccccc}",
+        # Titulo corto (2026-09-28, pedido del usuario); la explicacion de
+        # columnas y signos pasa a la nota bajo la tabla.
+        r"  \caption{Núcleo de variables del análisis SHAP y su dirección.}",
+        r"  \label{tab:shap_signo_nucleo} \\",
+        *encabezado,
+        r"  \endfirsthead",
+        r"  \multicolumn{7}{l}{\textit{Tabla~\thetable\ (continuación)}} \\",
+        *encabezado,
+        r"  \endhead",
+        r"  \midrule",
+        r"  \multicolumn{7}{r}{\textit{Continúa en la página siguiente}} \\",
+        r"  \endfoot",
+        r"  \bottomrule",
+        r"  \endlastfoot",
     ]
     for categoria in ORDEN_CATEGORIAS:
         bloque = nucleo[nucleo["categoria"] == categoria].sort_values("n_combinaciones", ascending=False)
         if bloque.empty:
             continue
-        lineas.append(f"    \\textbf{{{categoria}}} & & & & & & \\\\")
+        lineas.append(f"    \\textbf{{{categoria}}} & & & & & & \\\\*")  # "\\*" evita salto de pagina tras el titulo de categoria
         for _, v in bloque.iterrows():
             g = resumen[resumen["variable"] == v["variable"]].set_index("fuente").loc[[f for f, _ in FUENTES]].reset_index()
             marca = "" if v["en_perfil_53"] else "$^{\\dagger}$"
@@ -158,7 +165,25 @@ def generar_tex(nucleo: pd.DataFrame, resumen: pd.DataFrame, sensibilidad: pd.Da
         lineas.append(r"    \addlinespace")
     if lineas[-1] == r"    \addlinespace":
         lineas.pop()
-    lineas += [r"    \bottomrule", r"  \end{tabular}"]
+    lineas += [
+        r"\end{longtable}",
+        r"\vspace{-\LTpost}",
+        r"{\footnotesize \textit{Nota:} \emph{Comb.}: combinaciones",
+        r"algoritmo/especificación (de 10) en que la variable está dentro del",
+        r"80\% de la masa SHAP acumulada",
+        r"(Sección~\ref{subsec:importancia_resultados}). Cada celda de signo",
+        r"indica el signo mayoritario y en cuántas ($n$) de las $m$",
+        r"combinaciones con dirección clara ($|\rho|\geq 0.10$) aparece: $-$",
+        r"significa que valores altos de la variable \emph{reducen} el riesgo",
+        r"de entrar en pobreza; $+$, que lo \emph{aumentan}.",
+        r"\emph{Dirección}: Estable = mismo signo en las cuatro fuentes bajo",
+        r"las 12 combinaciones de umbrales evaluadas; Moderada = en al menos 8;",
+        r"Inestable = en menos. ``cat.'': variable categórica, sin signo a nivel",
+        r"de variable. $^{\dagger}$Variable fuera del perfil univariado de 53",
+        r"variables robustas de la Sección~\ref{subsec:caracterizacion_grupos}.",
+        r"Fuente: cálculos propios.\par}",
+        r"}",
+    ]
     return "\n".join(lineas)
 
 
@@ -172,7 +197,7 @@ def main() -> None:
     tex = generar_tex(nucleo, resumen, sensibilidad)
     RUTA_TEX.parent.mkdir(parents=True, exist_ok=True)
     RUTA_TEX.write_text(tex, encoding="utf-8")
-    print(f"Tabla exportada (cuerpo de tabular; el cierre \\end{{table}} sigue a mano en main.tex): {RUTA_TEX}")
+    print(f"Tabla exportada (longtable completa, sin cierre a mano en main.tex): {RUTA_TEX}")
     print(f"Resumen numérico: {RUTA_RESUMEN}")
     print("\n" + tex)
 
