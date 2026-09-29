@@ -13,7 +13,7 @@ particiones dentro de la transicion 2010->2013, metricas sobre
 probabilidades out-of-fold, 5 semillas) porque ALOS PALSAR y Landsat 5 TM
 no tienen dato en 2013 y no admiten el holdout temporal. Por eso estas
 cifras son comparables entre si, pero NO contra la tabla de DMSP-OLS con
-holdout (tab:marginal_dmsp). Solo se corrieron HistGradientBoosting,
+holdout (tab:marginal_dmsp_fbeta2_cv10). Solo se corrieron HistGradientBoosting,
 XGBoost y logistica regularizada.
 
 INPUTS
@@ -108,7 +108,7 @@ def generar_tex(base: pd.DataFrame, geo: pd.DataFrame) -> str:
         r"    \vspace{4pt}",
         r"    \footnotesize \textit{Nota:} ALOS PALSAR y Landsat 5 TM no tienen",
         r"    dato en 2013, por lo que esta variante no admite el holdout temporal",
-        r"    de la Tabla~\ref{tab:marginal_dmsp}: las métricas se calculan sobre",
+        r"    de la Tabla~\ref{tab:marginal_dmsp_fbeta2_cv10}: las métricas se calculan sobre",
         r"    probabilidades \emph{out-of-fold} y son comparables entre sí, no contra",
         r"    esa tabla. Solo se estimaron los tres algoritmos mostrados.",
         r"    N.º var.: covariables que recibe el modelo. Fuente: cálculos propios.",
