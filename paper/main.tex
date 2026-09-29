@@ -338,7 +338,12 @@ enfoque seminal de \textcite{chaudhuri2002} y del que parte este trabajo,
 propone estimar esa probabilidad a partir de la media y la varianza 
 esperadas del consumo o
 ingreso del hogar, definiendo la vulnerabilidad como la probabilidad de
-que el bienestar futuro caiga por debajo de la línea de pobreza.
+que el bienestar futuro caiga por debajo de la línea de pobreza. En la
+práctica, ese enfoque clasifica como vulnerable a un hogar cuando dicha
+probabilidad supera 0.5, un umbral arbitrario cuya capacidad para
+anticipar la pobreza observada se ha evaluado poco; \textcite{hohberg2018}
+la evalúan con curvas ROC en un panel alemán y muestran que un umbral
+elegido según el objetivo de focalización predice mejor.
 Desarrollos posteriores han refinado esta definición incorporando la
 distinción entre vulnerabilidad ante choques idiosincráticos y covariados
 \parencite{dercon2002}, y aplicaciones específicas para contextos
@@ -419,11 +424,20 @@ resultados revelan heterogeneidad significativa en los factores de
 vulnerabilidad entre grupos demográficos, pero el trabajo predice también
 un estado observado --ser pobre extremo-- y no la probabilidad de transición
 hacia la pobreza en un periodo futuro, lo que lo mantiene dentro de la
-misma limitación conceptual que caracteriza al resto de la literatura. En
+misma limitación conceptual que caracteriza a la mayor parte de la
+literatura. En
 Colombia, \textcite{muneton2022} han aplicado aprendizaje de máquinas a la
 clasificación de pobres, pero su aplicación en un contexto de datos
 longitudinales y para el análisis de la vulnerabilidad ha sido explorada
-de manera limitada.
+de manera limitada. Una excepción es \textcite{burger2021}, que predicen
+con \emph{gradient boosting} la entrada y la salida de la pobreza al año
+siguiente a partir de más de 500 variables de registros administrativos
+de los Países Bajos, y usan valores SHAP para identificar los factores de
+riesgo; entre los hogares no pobres, el más importante es la propiedad de
+la vivienda. Ese ejercicio se hace en un país de ingreso alto, con
+registros administrativos completos y sin fuentes geoespaciales,
+condiciones muy distintas a las de un país en desarrollo que depende de
+encuestas.
 
 \subsection{Variables geoespaciales como fuente complementaria}
 \label{subsec:geoespacial}
@@ -467,11 +481,13 @@ sistemas de focalización entre levantamientos de encuestas -- la
 motivación directa de las fuentes geoespaciales que este artículo busca
 incorporar (Sección~\ref{subsec:geo}).
 
-Esta evidencia muestra que combinar variables geoespaciales con encuestas
-supera a cualquiera de las dos fuentes por separado, sobre todo con
-validación fuera de muestra. Sin embargo, ninguno de estos trabajos
-predice la caída en pobreza de hogares hoy no pobres con datos
-longitudinales de hogar, un problema que exige una variable de resultado
+Esta evidencia sugiere que combinar variables geoespaciales con encuestas
+puede mejorar lo que cada fuente logra por separado, sobre todo donde la
+encuesta es escasa. Sin embargo, ninguno de estos trabajos, ni los pocos
+que predicen la entrada en pobreza \parencite{burger2021,hohberg2018},
+evalúa si las fuentes geoespaciales públicas mejoran esa predicción en un
+país en desarrollo, con datos longitudinales de encuesta y una partición
+temporal hacia adelante, un problema que exige una variable de resultado
 prospectiva, un horizonte explícito entre olas y predictores medidos
 antes de la transición. Este trabajo busca llenar ese vacío desde un
 enfoque predictivo y no causal: en política pública la predicción es
