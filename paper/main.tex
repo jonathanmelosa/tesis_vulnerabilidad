@@ -209,11 +209,11 @@ no estima la probabilidad de que un hogar hoy no pobre caiga en pobreza.
 La pandemia
 de COVID-19 puso en evidencia las limitaciones de información sobre
 focalización de política pública con las que cuenta el país
-\parencite{castaneda2021}, y ejercicios recientes de aproximación a la
-vulnerabilidad monetaria en Bogotá mediante pseudo-panel confirman tanto
-la relevancia del problema como las restricciones que impone la ausencia
-de datos longitudinales reales sobre los hogares
-\parencite{gaitan2023,castaneda2012}.
+\parencite{castaneda2021}, y un ejercicio reciente de aproximación a la
+vulnerabilidad monetaria en Bogotá mediante paneles sintéticos confirma
+tanto la relevancia del problema como las restricciones que impone la
+ausencia de datos longitudinales reales sobre los hogares
+\parencite{gaitan2023}.
 
 Este artículo aprovecha la disponibilidad de la Encuesta Longitudinal
 Colombiana (ELCA), con tres olas de seguimiento a los mismos
@@ -302,9 +302,10 @@ distinción entre pobreza crónica y pobreza transitoria. Utilizando
 paneles de hogares rurales en China, \textcite{jalan2000} muestran que la
 pobreza persistente se relaciona principalmente con limitaciones
 estructurales (bajos niveles de activos productivos o capital humano),
-mientras que la pobreza transitoria suele originarse en fluctuaciones del
-ingreso asociadas con choques económicos (ej. pérdida de empleo, caídas en precios) 
-o eventos adversos (ej. desastres naturales, conflictos). Esta
+mientras que la pobreza transitoria se origina en la variabilidad del
+consumo del hogar ante choques de ingreso, como la enfermedad de un
+miembro del hogar o la pérdida de una cosecha por plagas, y aumenta con la
+volatilidad de su patrimonio. Esta
 distinción tiene implicaciones directas para el diseño de política: los
 hogares crónicamente pobres requieren intervenciones orientadas a la
 acumulación de activos y el acceso a servicios, mientras que los hogares
@@ -321,13 +322,14 @@ caídas en precios agrícolas, crisis macroeconómicas compartidos por todos).
 Esa capacidad de resiliencia está determinada por los activos físicos, 
 humanos y sociales del hogar y
 por el entorno institucional en que opera. \textcite{christiaensen2005}
-refuerzan este punto al mostrar que en muchos países en desarrollo existe
-una población significativa de hogares no pobres pero altamente
-expuestos: su situación actual los ubica por encima de la línea de
-pobreza, pero su fragilidad patrimonial los hace vulnerables a caer ante
-afectaciones moderadas. Esta población es precisamente la que los
-sistemas tradicionales de focalización tienen mayor dificultad para
-identificar, dado que no son pobres bajo el criterio estático.
+refuerzan este punto para la Kenya rural: en 1994 los hogares enfrentaban
+en promedio una probabilidad del 39\% de caer en pobreza en el futuro,
+mayor en las zonas áridas expuestas a la volatilidad de las lluvias, y los
+choques idiosincráticos también generaban una volatilidad importante del
+consumo. Los hogares hoy no pobres pero expuestos a esos choques son
+precisamente los que los sistemas tradicionales de focalización tienen
+mayor dificultad para identificar, dado que no son pobres bajo el
+criterio estático.
 
 A partir de estos hallazgos se ha desarrollado la literatura sobre
 vulnerabilidad a la pobreza, que la conceptualiza como la probabilidad
@@ -340,7 +342,7 @@ que el bienestar futuro caiga por debajo de la línea de pobreza.
 Desarrollos posteriores han refinado esta definición incorporando la
 distinción entre vulnerabilidad ante choques idiosincráticos y covariados
 \parencite{dercon2002}, y aplicaciones específicas para contextos
-latinoamericanos \parencite{bergolo2010,costella2023}.
+latinoamericanos \parencite{bergolo2010}.
 
 Un aporte particularmente relevante para este trabajo es el de
 \textcite{lopezCalva2011,lopezCalva2014}, quienes operacionalizan el
@@ -354,8 +356,10 @@ resultados muestran que la población vulnerable, cuantitativamente
 significativa en los tres países, no puede identificarse adecuadamente
 con métodos de focalización basados en el estado observado de pobreza.
 
-En Colombia, la ausencia de un panel de hogares ha llevado a aproximar la
-vulnerabilidad con pseudo-paneles \parencite{castaneda2012,gaitan2023};
+En Colombia, la ausencia de un panel de hogares ha llevado a usar
+pseudo-paneles, tanto para estudiar trampas de pobreza
+\parencite{castaneda2012} como para aproximar la vulnerabilidad
+\parencite{gaitan2023};
 \textcite{gaitan2023} estima que cerca del 23\% de la población bogotana
 era vulnerable en 2021. La ELCA, con tres olas de seguimiento a los
 mismos hogares, permite superar esa limitación. Con la misma ELCA,
@@ -395,10 +399,10 @@ entrenamiento, lo cual no garantiza un buen desempeño cuando el modelo se
 aplica a poblaciones nuevas. \textcite{mcbride2018} documentan este
 problema en detalle y muestran que priorizar la validación fuera de
 muestra, mediante validación cruzada y algoritmos como Random Forest y
-Quantile Regression Forest, puede mejorar sustancialmente la precisión de
-las herramientas de focalización, reduciendo la tasa de exclusión de
-hogares pobres y mejorando la precisión balanceada en hasta 17 puntos
-porcentuales frente a los métodos tradicionales. Este resultado debe matizarse con la advertencia de
+Quantile Regression Forest, puede mejorar sustancialmente la exactitud
+fuera de muestra de las herramientas de focalización, reduciendo la tasa
+de exclusión de hogares pobres y mejorando su criterio de exactitud
+balanceada (BPAC) hasta en 17.5\% frente a los métodos tradicionales. Este resultado debe matizarse con la advertencia de
 \textcite{usmanova2022}: los métodos de aprendizaje automático tienden a
 mejorar la predicción en contextos de alta dimensionalidad y relaciones
 no lineales entre variables, pero un modelo entrenado en un país no
@@ -408,8 +412,9 @@ sociales y culturales que no captura.
 El trabajo de \textcite{ferdausi2025} es el que más se aproxima
 conceptualmente al problema de la vulnerabilidad, al aplicar algoritmos de
 aprendizaje automático a datos de hogares en zonas costeras de Bangladesh
-para identificar predictores de pobreza extrema, logrando una
-precisión del 96\% con un conjunto reducido de siete variables. Sus
+para identificar predictores de pobreza extrema: sus modelos alcanzan una
+exactitud del 96\% e identifican siete variables como los principales
+factores de la pobreza extrema. Sus
 resultados revelan heterogeneidad significativa en los factores de
 vulnerabilidad entre grupos demográficos, pero el trabajo predice también
 un estado observado --ser pobre extremo-- y no la probabilidad de transición
@@ -428,16 +433,15 @@ para aproximarse a perfiles de población en ausencia de datos confiables y
 pertinentes. \textcite{blumenstock2015} demuestran que los metadatos de
 telefonía móvil permiten predecir el nivel de bienestar económico de los
 hogares en Ruanda con precisión considerable. \textcite{jean2016}
-extendieron esta lógica al dominio satelital, mostrando que la
-combinación de imágenes satelitales con datos de encuesta permite explicar
-hasta el 75\% de la variación en consumo o riqueza en contextos africanos,
-superando lo que cualquiera de las dos fuentes logra de manera aislada.
+extendieron esta lógica al dominio satelital: en cinco países africanos,
+una red neuronal entrenada con imágenes satelitales diurnas, luz nocturna
+y datos de encuesta explica hasta el 75\% de la variación local del
+consumo o la riqueza, y predice mejor que la luz nocturna sola.
 \textcite{li2019} muestran que a partir de imágenes de luminosidad
 nocturna es posible clasificar la pobreza a nivel de condados con
-precisiones superiores al 82\%, aunque advierten que su capacidad
-discriminatoria se reduce en contextos de pobreza muy extendida, donde la
-variabilidad espacial de las imágenes es insuficiente para distinguir
-entre hogares con distintos niveles de privación.
+exactitudes globales superiores al 82\%. Sin embargo, en regiones pobres
+y rurales la luz nocturna rinde menos que las imágenes diurnas, porque
+varía poco entre zonas \parencite{hall2023}.
 
 Trabajos más recientes han avanzado hacia la evaluación sistemática del
 valor incremental de las fuentes geoespaciales, incluyendo aplicaciones en
@@ -445,14 +449,17 @@ contextos latinoamericanos. \textcite{newhouse2025} muestran para México
 que combinar imágenes satelitales con encuestas de hogares mejora la
 precisión de las estimaciones de pobreza monetaria a nivel municipal, un
 nivel de desagregación en el que la encuesta sola no es representativa.
-\textcite{aiken2022} muestran que la combinación de datos satelitales y de
-telefonía móvil reduce los errores de exclusión en programas sociales
-entre 4\% y 21\% frente a los métodos tradicionales. \textcite{hall2023},
-en una revisión sistemática, documentan que la combinación de múltiples
-fuentes incrementa el poder predictivo hasta en 15 puntos porcentuales,
-pero identifican que los datos geoespaciales predicen mejor activos
-físicos que variables de flujo como ingreso o consumo, y que su desempeño
-depende críticamente del contexto geográfico. \textcite{hofer2025} añaden
+\textcite{aiken2022} muestran, para un programa de transferencias de
+emergencia en Togo, que un modelo de aprendizaje de máquinas entrenado con
+datos de telefonía móvil reduce los errores de exclusión entre 4\% y 21\%
+frente a la focalización geográfica, aunque los aumenta frente a un
+registro social completo. \textcite{hall2023},
+en una revisión sistemática, documentan que el número de fuentes de datos
+está entre los factores más asociados con el poder predictivo y que
+combinar aprendizaje automático y profundo lo aumenta hasta en 15 puntos
+porcentuales; también encuentran que los estudios que predicen activos
+físicos superan en 17 puntos a los que predicen variables de flujo como
+ingreso o consumo, y que el desempeño depende del contexto geográfico. \textcite{hofer2025} añaden
 que la ventaja de estas fuentes reside tanto en la información nueva que
 aportan como en su mayor granularidad espacial y frecuencia de
 actualización, lo que las hace especialmente valiosas para actualizar
@@ -817,9 +824,9 @@ transición, aproximada de manera distinta según el algoritmo. Se estiman
 y comparan cinco algoritmos: una regresión logística regularizada
 (\emph{elastic net}), cuya fuerza y mezcla de penalización se eligen por
 validación cruzada y que sirve de referencia por ser interpretable; Random
-Forest; y tres implementaciones de \emph{gradient boosting} (XGBoost,
-LightGBM y HistGradientBoosting), de uso extendido en la literatura de
-focalización \parencite{mcbride2018}, que manejan de forma nativa los
+Forest, que \textcite{mcbride2018} emplean para mejorar la focalización
+fuera de muestra; y tres implementaciones de \emph{gradient boosting}
+(XGBoost, LightGBM y HistGradientBoosting), que manejan de forma nativa los
 datos faltantes y las variables categóricas (descripción detallada en el
 Anexo~\ref{apx:hiperparametros}). El riesgo de multicolinealidad,
 relevante sobre todo para la regresión logística, se analiza en el
@@ -851,10 +858,13 @@ observado en 2013) y la tercera ola como conjunto de prueba, completamente
 independiente, para evaluar el desempeño predictivo fuera de muestra
 (transición 2013 a 2016: covariables de 2013, resultado observado en
 2016). Este recurso temporal hacia adelante replica el caso de uso
-real de un sistema de focalización, solo existe la ola base al momento de
-predecir, y es, siguiendo a \textcite{mcbride2018}, la validación más
-exigente para un modelo de este tipo porque prueba generalización ante un
-régimen económico distinto al de entrenamiento.
+real de un sistema de focalización, en el que solo existe la ola base al
+momento de predecir. Es además más exigente que la validación cruzada
+aleatoria que recomiendan \textcite{mcbride2018}, quienes advierten que
+esta supone que el proceso generador de los datos no cambia entre el
+desarrollo y la aplicación de la herramienta; la partición temporal pone a
+prueba ese supuesto, porque evalúa el modelo en un periodo económico
+distinto al de entrenamiento.
 
 Dentro del periodo de entrenamiento (2010 a 2013), los hiperparámetros de
 cada algoritmo, como la profundidad de los árboles o la tasa de
@@ -1020,6 +1030,16 @@ Bajo IPM ocurre lo mismo, en un rango de AUC-ROC igual de estrecho (0.725--0.747
 Apéndice~\ref{apx:desempeno_ipm}).
 Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no,
 el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces.
+Es un desempeño moderado frente a los pocos trabajos que evalúan la
+predicción de la entrada en pobreza. Con registros administrativos de los
+Países Bajos, más de 500 variables y un horizonte de un año,
+\textcite{burger2021} obtienen un AUC normalizado de 0.90 (donde 0
+equivale al azar y 1 a una clasificación perfecta), y con el panel alemán
+SOEP, \textcite{hohberg2018} identifican al 80\% de quienes caen al año
+siguiente con menos de 20\% de falsos positivos en la mayoría de los
+años, proporción que sube a cerca de 30\% con un horizonte de tres años.
+Aquí la predicción se hace a tres años y con una encuesta, no con
+registros administrativos, lo que hace esperable un techo más bajo.
 Que incluso la regresión logística regularizada, el algoritmo más simple,
 quede cerca de los demás (prácticamente igual sin ingreso (0.739
 frente a 0.742) y 0.02 por debajo con ingreso) y que los algoritmos de
@@ -1037,12 +1057,20 @@ si se excluyen las variables de ingreso/gasto del hogar de las
 covariables que se utilizan en los modelos. La ganancia
 de incluir esa información, que es la más cara de levantar mediante encuesta, 
 y la menos confiable, es marginal (brecha de AUC de 0.008 a 0.028 entre
-el Modelo A y B, mucho menor de lo que predeciría un enfoque de
-vulnerabilidad puramente monetario, \textcite{chaudhuri2002}). Esto no
+el Modelo A y B). La brecha es pequeña si se considera que, en el enfoque
+de \textcite{chaudhuri2002}, la vulnerabilidad se deriva directamente de
+la media y la varianza esperadas del consumo. Esto no
 implica que el ingreso no importe (Sección~
 \ref{subsec:caracterizacion_grupos}), sino que su contenido informativo
 ya está sustancialmente capturado por otras variables del núcleo del
-perfil (Ej. Riqueza, educación, bienes durables Sección~\ref{subsec:determinantes}). 
+perfil (Ej. Riqueza, educación, bienes durables Sección~\ref{subsec:determinantes}).
+Este resultado es coherente con dos líneas de la literatura.
+\textcite{lopezCalva2014} interpretan el ingreso observado como una medida
+resumen de los activos del hogar y, por eso, construyen un ingreso
+permanente a partir de esos activos y de características socioeconómicas;
+y los \emph{proxy means tests} descansan en que un conjunto de
+características del hogar fáciles de verificar aproxima su bienestar sin
+medir el ingreso \parencite{mcbride2018}.
 Bajo IPM la brecha es aún menor, y para Random Forest y XGBoost es negativa 
 (el Modelo B (sin ingreso/gasto) supera al
 A), lo que descarta que la pequeña brecha en la capacidad discriminante 
@@ -1083,7 +1111,12 @@ posible tener \emph{recall} y precisión altos a la vez. Es el intercambio
 que la literatura de focalización llama errores de inclusión y de
 exclusión (\emph{Type E} y \emph{Type F}, \textcite{cornia1993}): para un
 instrumento dado, reducir uno aumenta el otro, y solo un instrumento con
-mayor poder de discriminación puede mover esa frontera. En cambio, en el
+mayor poder de discriminación puede mover esa frontera. Por eso
+\textcite{hohberg2018} proponen elegir el umbral según el objetivo de
+focalización y no fijarlo en una probabilidad de 0.5: privilegiar la
+identificación de quienes caerán conduce a programas más amplios, y
+minimizar el total de errores, a programas más acotados. El umbral elegido
+por F$_2$ y el decil de mayor riesgo corresponden a esas dos opciones. En cambio, en el
 decil de mayor riesgo la precisión (0.49--0.52) casi duplica la del umbral
 completo: uno de cada dos hogares atendidos efectivamente cae. El costo
 es la cobertura: ese decil contiene solo entre el 25\% y el 26\% de los
@@ -1134,7 +1167,13 @@ menos un choque frente a 71--72\% de los falsos positivos --consistente
 con el enfoque de vulnerabilidad de \textcite{chaudhuri2002}: el modelo
 identifica correctamente al hogar en el margen, y parte de quién realiza
 el riesgo podría depender de choques que la ola base no permite
-anticipar. La comparación es descriptiva: los choques se autorreportan en
+anticipar. También coincide con la evidencia de que los choques
+idiosincráticos y comunes, como la pérdida de la cosecha de un hogar o la
+falta de lluvias, generan movimientos de corto plazo hacia dentro y fuera
+de la pobreza que una medición en un solo momento no captura
+\parencite{dercon2000}, y de que los choques idiosincráticos producen por
+sí solos una volatilidad del consumo no despreciable
+\parencite{christiaensen2005}. La comparación es descriptiva: los choques se autorreportan en
 la misma ola en que se observa la caída, de modo que un hogar que cayó
 puede recordarlos o reportarlos más, o haberlos sufrido como consecuencia
 de la caída.
@@ -1214,7 +1253,14 @@ pero no estable entre fuentes, y el acceso a internet, el puntaje TVIP, el
 choque económico, el porcentaje de niños con madre o padre vivo, la edad
 del jefe y los desplazados en la comunidad cambian de signo entre
 definiciones o ventanas; por eso se reportan como asociaciones, no como
-determinantes. El signo describe cómo el modelo usa cada variable, no un
+determinantes. Estas direcciones coinciden con las que encuentran
+\textcite{hernandez2022} con la misma ELCA bajo pobreza multidimensional,
+donde los años de educación, el empleo asalariado y el acceso al crédito
+reducen la vulnerabilidad, y con la literatura que asocia el capital
+humano con la pobreza crónica y la riqueza con una menor pobreza
+transitoria \parencite{jalan2000}, y que identifica el ahorro como una
+forma de autoseguro de los hogares frente a los choques
+\parencite{dercon2002}. El signo describe cómo el modelo usa cada variable, no un
 efecto causal, pero indica dónde tendría más sentido enfocar la
 prevención: en fortalecer el patrimonio del hogar (ahorro y activos
 financieros, educación y vivienda) más que en compensar carencias una vez
@@ -1239,7 +1285,14 @@ multiclase sin ingreso confirma esto de forma independiente: en
 2013$\to$2016 separa ``entra'' de ``nunca pobre'' con un AUC de 0.73 a
 0.75, pero apenas separa ``entra'' de ``sale'' (0.53 a 0.56, casi azar; Apéndice~\ref{apx:multiclase}).
 ``Entra'' y ``sale'' son dos lados de una misma frontera, no dos tipos de
-hogar. El mismo modelo aporta dos matices. El hogar que entra se distingue
+hogar. Es la población que \textcite{lopezCalva2014} identifican en Chile,
+México y Perú: hogares que superaron la línea de pobreza sin alcanzar
+seguridad económica y que siguen expuestos a volver a caer; y es coherente
+con la pobreza transitoria de \textcite{jalan2000}, en la que hogares no
+pobres en tiempos normales pueden caer de repente en la pobreza. Parte de
+esa cercanía puede reflejar también error de medición del ingreso cerca de
+la línea, al que las transiciones son sensibles
+(Anexo~\ref{apx:transiciones_robustez}). El mismo modelo aporta dos matices. El hogar que entra se distingue
 de ``nunca pobre'' con más dificultad que el que sale (AUC de 0.73 a 0.75,
 frente a 0.81 a 0.83), consistente con que parte de una situación algo
 mejor. Y con la información de la ola base tampoco se distingue bien a
@@ -1282,7 +1335,14 @@ son sustantivas: 20 de las 52 variables comparadas difieren de forma
 significativa. La más marcada es la deuda informal (17.3\% de los
 transitorios frente a 41.9\% de los persistentes), y en la misma
 dirección los persistentes cotizan menos a pensión y tienen menos acceso
-a deuda formal. Estas variables podrían orientar la duración del apoyo: una vez
+a deuda formal. El resultado es coherente con \textcite{dercon2002}, para
+quien los mercados formales de crédito y seguros suelen estar ausentes o
+ser incompletos en los países en desarrollo, lo que dificulta suavizar el
+consumo cuando los choques persisten, y con \textcite{hernandez2022}, que
+encuentran con la ELCA que el acceso al crédito reduce la vulnerabilidad.
+Que una parte de quienes caen permanezca en la pobreza es consistente,
+además, con la evidencia de trampas de pobreza en Colombia
+\parencite{castaneda2012}. Estas variables podrían orientar la duración del apoyo: una vez
 un hogar cae, el endeudamiento informal y la falta de cotización
 señalarían a quienes necesitan un apoyo más largo, lo que complementa la
 focalización en dos etapas (Sección~\ref{subsec:politica}).
@@ -1338,7 +1398,7 @@ gradiente y la cercanía entre ``entra'' y ``sale'' indica que ese patrón
 no depende de cómo se construyó el cuestionario. Para la política, esto
 hace de la luz nocturna un indicador gratuito y de cobertura universal
 del gradiente socioeconómico, útil para priorizar territorios donde no hay
-encuesta, aunque no para seleccionar hogares dentro de ellos, como
+encuesta \parencite{hofer2025}, aunque no para seleccionar hogares dentro de ellos, como
 muestra el siguiente hallazgo.
 
 \begin{figure}[H]
@@ -1387,10 +1447,16 @@ cambia apenas entre $-0.006$ y $+0.011$
 La luz nocturna distingue, como la encuesta, a los hogares precarios de
 los que no lo son, pero no a cuáles de los precarios caerán. Un sistema
 que ya cuenta con una encuesta vigente no ganaría precisión al
-integrarla. Hay, sin embargo, una
+integrarla. Es coherente con la evidencia previa: en \textcite{jean2016}
+la luz nocturna sola predice peor que un modelo que la combina con
+imágenes diurnas y datos de encuesta, y \textcite{hall2023} encuentran que
+los datos geoespaciales predicen peor variables de flujo, como el ingreso
+o el consumo, que los activos físicos. Hay, sin embargo, una
 diferencia práctica: la luz nocturna es mucho más estable en el tiempo
 que esas variables de la encuesta (correlación entre 2010 y 2013 de
-0.958, frente a 0.600 de los bienes durables).
+0.958, frente a 0.600 de los bienes durables). Esa estabilidad es la que
+permite, como proponen \textcite{hofer2025}, usar la luz nocturna para
+estimar entre encuestas.
 
 \begin{figure}[H]
   \centering
@@ -1446,9 +1512,18 @@ más de los hogares que efectivamente caen, sin reducir la precisión.
 XGBoost, en cambio, gana de forma más pareja entre grupos, y Random
 Forest no gana en casi ningún subgrupo. Son estimaciones exploratorias,
 con celdas de unos pocos cientos de hogares y sin intervalos propios por
-subgrupo. Si el patrón se confirma, el complemento satelital tendría más
-sentido focalizado geográficamente, en las zonas rurales y de estratos
-bajos donde la encuesta es más débil, que como insumo nacional.
+subgrupo. Este patrón contrasta con la evidencia de que la luz nocturna
+rinde peor en regiones pobres y rurales, donde varía poco
+\parencite{hall2023}. La diferencia puede estar en el uso: allí la luz
+nocturna es el único predictor del nivel de bienestar, mientras que aquí
+complementa una encuesta, de modo que incluso poca variación puede aportar
+donde las preguntas de la encuesta distinguen menos entre hogares; es una
+hipótesis que queda por verificar. Si el patrón se confirma, el
+complemento satelital tendría más sentido focalizado geográficamente, en
+las zonas rurales y de estratos bajos donde la encuesta es más débil, que
+como insumo nacional, en línea con \textcite{newhouse2025}, para quienes
+la imagen satelital mejora las estimaciones de pobreza justamente en las
+áreas donde la encuesta tiene pocas observaciones.
 
 En suma, la luz nocturna describe bien la geografía de la pobreza, pero
 no reemplaza a la encuesta.
@@ -1520,7 +1595,11 @@ en el decil de mayor riesgo para transferencias costosas. Tercero, si la
 asociación con los choques se confirma, la focalización podría hacerse en
 dos etapas, en las que el modelo define
 quién está en riesgo y un choque activa el apoyo, verificando el choque y
-no el perfil y actualizando la lista con frecuencia. Cuarto, como la
+no el perfil y actualizando la lista con frecuencia. Esto respondería a una
+limitación de la protección social reactiva a choques en la región, que ha
+dependido sobre todo de ampliar los beneficios de quienes ya estaban en
+los programas y ha dejado por fuera a muchos hogares afectados
+\parencite{costella2023}. Cuarto, como la
 salida de la pobreza tampoco se anticipa desde el perfil, la graduación
 debería ser gradual y con seguimiento, y la deuda informal y la falta de
 cotización podrían orientar la duración del apoyo. Quinto, la iluminación
@@ -2170,9 +2249,7 @@ datos faltantes (Sección~\ref{subsec:desbalance}):
   varianza que un árbol individual.
   \item \textbf{XGBoost, LightGBM y HistGradientBoosting.} Tres
   implementaciones de \emph{gradient boosting} de árboles. Este algoritmo
-  es sobresaliente por su balance entre desempeño e interpretabilidad,
-  y uno de los más usados en la literatura de focalización de pobreza
-  \parencite{mcbride2018}. Los
+  es sobresaliente por su balance entre desempeño e interpretabilidad. Los
   tres manejan de forma nativa tanto los datos faltantes como las
   variables categóricas, sin necesidad de imputación ni de
   \emph{one-hot encoding}.
