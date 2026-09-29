@@ -141,9 +141,9 @@ caerán en pobreza. Este trabajo evalúa si variables derivadas de fuentes
 geoespaciales públicas mejoran la predicción de la caída en pobreza,
 monetaria y multidimensional, frente a modelos basados solo en la Encuesta
 Longitudinal Colombiana (ELCA). Con las tres olas del panel (2010, 2013 y
-2016), se estiman cinco algoritmos de aprendizaje supervisado, con y sin
-ingreso del hogar, entrenados con las transiciones de 2010 a 2013 y
-evaluados con las de 2013 a 2016. Los modelos identifican a los hogares
+2016), se entrenan modelos con cinco algoritmos de aprendizaje supervisado,
+con y sin ingreso del hogar, usando las transiciones de 2010 a 2013, y se
+evalúan con las de 2013 a 2016. Los modelos identifican a los hogares
 vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77) que casi
 no depende del algoritmo ni del ingreso: un núcleo pequeño de variables de
 acumulación, como riqueza, educación, activos y vivienda, concentra la
@@ -157,7 +157,7 @@ una encuesta vigente; su valor está en priorizar territorios y servir de
 respaldo entre rondas de encuesta.
 
 \textbf{Palabras clave:} vulnerabilidad a la pobreza,
-aprendizaje de máquinas, datos geoespaciales, ELCA,
+aprendizaje automático, datos geoespaciales, ELCA,
 focalización, Colombia.
 
 \end{abstract}
@@ -220,7 +220,7 @@ Colombiana (ELCA), con tres olas de seguimiento a los mismos
 hogares (2010, 2013 y 2016), para construir y comparar modelos
 predictivos de \emph{transición} hacia la pobreza, monetaria y
 multidimensional. Este abordaje se diferencia de la mayor parte de la
-literatura de aprendizaje de máquinas aplicada a la pobreza, que predice
+literatura de aprendizaje automático aplicada a la pobreza, que predice
 la condición actual de un hogar y no su transición futura
 \parencite{muneton2022,ferdausi2025}.
 
@@ -234,7 +234,7 @@ características socioeconómicas del hogar reportadas en encuestas?
 Para responderla, el documento construye la variable de resultado 
 que es la transición hacia la pobreza,
 audita las covariables socioeconómicas disponibles en la ELCA 
-y estima cinco algoritmos de aprendizaje supervisado
+y estima modelos con cinco algoritmos de aprendizaje supervisado
 (regresión logística regularizada \emph{Elastic Net}, Random Forest, XGBoost, LightGBM y
 HistGradientBoosting), en dos especificaciones: con y sin ingreso y gasto del hogar, bajo dos
 definiciones de pobreza, monetaria y multidimensional. Sobre esos modelos
@@ -273,7 +273,7 @@ abordan.
 
 El resto del documento se organiza así. La Sección~\ref{sec:literatura}
 revisa el marco conceptual de vulnerabilidad a la pobreza y la literatura
-de aprendizaje de máquinas aplicada a su predicción. La
+de aprendizaje automático aplicada a su predicción. La
 Sección~\ref{sec:datos} describe la ELCA y las fuentes geoespaciales. La
 Sección~\ref{sec:estrategia} detalla la estrategia empírica: construcción
 de la variable de resultado, especificación de los modelos, validación fuera de muestra y
@@ -379,7 +379,7 @@ dependen de encuestas detalladas, costosas y de levantamiento
 infrecuente, lo que motiva explorar fuentes alternativas de datos
 (Sección~\ref{subsec:geoespacial}).
 
-\subsection{Aprendizaje de máquinas en la predicción de pobreza}
+\subsection{Aprendizaje automático en la predicción de pobreza}
 \label{subsec:ml_pobreza}
 
 La literatura sobre predicción de pobreza mediante algoritmos de
@@ -426,7 +426,7 @@ un estado observado --ser pobre extremo-- y no la probabilidad de transición
 hacia la pobreza en un periodo futuro, lo que lo mantiene dentro de la
 misma limitación conceptual que caracteriza a la mayor parte de la
 literatura. En
-Colombia, \textcite{muneton2022} han aplicado aprendizaje de máquinas a la
+Colombia, \textcite{muneton2022} han aplicado aprendizaje automático a la
 clasificación de pobres, pero su aplicación en un contexto de datos
 longitudinales y para el análisis de la vulnerabilidad ha sido explorada
 de manera limitada. Una excepción es \textcite{burger2021}, que predicen
@@ -464,7 +464,7 @@ que combinar imágenes satelitales con encuestas de hogares mejora la
 precisión de las estimaciones de pobreza monetaria a nivel municipal, un
 nivel de desagregación en el que la encuesta sola no es representativa.
 \textcite{aiken2022} muestran, para un programa de transferencias de
-emergencia en Togo, que un modelo de aprendizaje de máquinas entrenado con
+emergencia en Togo, que un modelo de aprendizaje automático entrenado con
 datos de telefonía móvil reduce los errores de exclusión entre 4\% y 21\%
 frente a la focalización geográfica, aunque los aumenta frente a un
 registro social completo. \textcite{hall2023},
@@ -836,8 +836,8 @@ de modelo:
 observadas en el periodo $t$ (Sección~\ref{subsec:elco}), 
 incluyendo las variables geoespaciales complementarias, y $F(\cdot)$ es
 la función que relaciona esas características con la probabilidad de
-transición, aproximada de manera distinta según el algoritmo. Se estiman
-y comparan cinco algoritmos: una regresión logística regularizada
+transición, aproximada de manera distinta según el algoritmo. Se
+comparan cinco algoritmos de aprendizaje supervisado: una regresión logística regularizada
 (\emph{elastic net}), cuya fuerza y mezcla de penalización se eligen por
 validación cruzada y que sirve de referencia por ser interpretable; Random
 Forest, que \textcite{mcbride2018} emplean para mejorar la focalización
@@ -851,7 +851,7 @@ Apéndice~\ref{apx:correlacion}.
 Para evaluar el aporte del nivel de ingreso/gasto del hogar, 
 el predictor más informativo bajo el enfoque de vulnerabilidad de
 \textcite{chaudhuri2002}, que compara qué tan cerca está un hogar del
-umbral de pobreza, se estima cada uno de los cinco algoritmos bajo dos
+umbral de pobreza, con cada uno de los cinco algoritmos se estiman dos
 especificaciones de covariables: el \textbf{Modelo A} incluye el ingreso y
 gasto per cápita real del hogar en el periodo base y la brecha frente a la
 Línea de Pobreza (LP), de escala-invariante (se mantiene constante
@@ -1194,7 +1194,7 @@ la misma ola en que se observa la caída, de modo que un hogar que cayó
 puede recordarlos o reportarlos más, o haberlos sufrido como consecuencia
 de la caída.
 
-En suma, cualquier algoritmo, incluso el más simple y aun sin medir el
+En suma, cualquier modelo, incluso el del algoritmo más simple y aun sin medir el
 ingreso del hogar, identifica con una capacidad moderada (AUC-ROC cercano
 a 0.75) a los hogares que están en el margen de la pobreza, pero distingue
 mal cuáles de ellos efectivamente caerán, un resultado asociado de forma
@@ -1210,7 +1210,7 @@ Sección~\ref{subsec:politica}.
 Esta sección responde quiénes son los hogares vulnerables, es decir, los
 que no son pobres en la ola base y entran en pobreza en la siguiente, y
 qué los distingue. La evidencia principal son los valores SHAP de los
-cinco algoritmos de la Sección~\ref{subsec:desempeno}: solo se afirma como
+modelos de la Sección~\ref{subsec:desempeno}: solo se afirma como
 determinante lo que se sostiene en los cinco algoritmos, en las dos
 definiciones de pobreza (monetaria y multidimensional) y en las dos
 ventanas (2010$\to$2013 y 2013$\to$2016). El perfil univariado, que
@@ -1435,7 +1435,7 @@ muestra el siguiente hallazgo.
 
 \textbf{Segundo,} bajo pobreza monetaria, agregar la luz nocturna a la
 encuesta no mejora la identificación de los hogares vulnerables. Al
-reentrenar los cinco algoritmos con las 23 variables de DMSP-OLS, el
+reentrenar los diez modelos con las 23 variables de DMSP-OLS, el
 AUC-ROC cambia entre $-0.006$ y $+0.006$ en las diez combinaciones de
 algoritmo y especificación, y la precisión en el decil de mayor riesgo
 cae o se mantiene en todas; el intervalo de confianza del cambio incluye
@@ -1563,8 +1563,8 @@ predicción de la caída en pobreza de hogares colombianos no pobres, frente
 a modelos basados solo en la ELCA. Solo una de las cuatro fuentes
 consideradas, la iluminación nocturna DMSP-OLS, tiene datos en la ola de
 entrenamiento y en la de prueba, de modo que es la base de la evaluación
-principal. El ejercicio estima cinco algoritmos, con y sin ingreso del
-hogar, bajo pobreza monetaria y multidimensional, con entrenamiento en
+principal. El ejercicio estima modelos con cinco algoritmos de aprendizaje
+supervisado, con y sin ingreso del hogar, bajo pobreza monetaria y multidimensional, con entrenamiento en
 2010$\to$2013 y prueba en 2013$\to$2016.
 
 Cinco hallazgos se destacan. \textbf{Primero,} la pobreza monetaria cae de
@@ -2214,7 +2214,8 @@ queda absorbida por las demás. Cuarto, se construyó con un propósito
 más acotado, como diagnóstico: comprobar si quienes entran en pobreza
 se distinguen de quienes salen, algo que el modelo binario no puede
 responder (Sección~\ref{subsec:determinantes}).
-El modelo multiclase usa los mismos cinco algoritmos y, además, una red
+El modelo multiclase se estima con los mismos cinco algoritmos y, además,
+con una red
 neuronal (perceptrón multicapa), sobre los cuatro grupos de la matriz de
 transición y sin ingreso ni gasto entre las covariables (Modelo B). Sigue
 el mismo esquema de validación que el modelo binario

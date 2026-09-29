@@ -110,7 +110,7 @@ def generar_tex(base: pd.DataFrame, geo: pd.DataFrame) -> str:
         r"    dato en 2013, por lo que esta variante no admite el holdout temporal",
         r"    de la Tabla~\ref{tab:marginal_dmsp_fbeta2_cv10}: las métricas se calculan sobre",
         r"    probabilidades \emph{out-of-fold} y son comparables entre sí, no contra",
-        r"    esa tabla. Solo se estimaron los tres algoritmos mostrados.",
+        r"    esa tabla. Solo se estimaron modelos con los tres algoritmos mostrados.",
         r"    N.º var.: covariables que recibe el modelo. Fuente: cálculos propios.",
         r"  \end{minipage}",
         r"\end{table}",
