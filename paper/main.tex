@@ -135,9 +135,9 @@
 % TARGET: 200–250 palabras (no cuenta en el límite de páginas)
 \begin{abstract}
 \noindent
-Los sistemas de focalización en Colombia, como el SISBEN, identifican la
-pobreza como un estado observado y no anticipan qué hogares no pobres
-caerán en ella. Este trabajo evalúa si variables derivadas de fuentes
+Los sistemas de focalización en Colombia, como el SISBEN, clasifican a los
+hogares según su situación actual y no anticipan qué hogares no pobres
+caerán en pobreza. Este trabajo evalúa si variables derivadas de fuentes
 geoespaciales públicas mejoran la predicción de la caída en pobreza,
 monetaria y multidimensional, frente a modelos basados solo en la Encuesta
 Longitudinal Colombiana (ELCA). Con las tres olas del panel (2010, 2013 y
@@ -148,8 +148,9 @@ vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77) que casi
 no depende del algoritmo ni del ingreso: un núcleo pequeño de variables de
 acumulación, como riqueza, educación, activos y vivienda, concentra la
 señal, y el hogar vulnerable se parece más al que acaba de salir de la
-pobreza que al que nunca fue pobre. Lo que distingue a quien efectivamente
-cae ocurre después de la predicción, en forma de choques. La iluminación
+pobreza que al que nunca fue pobre. Quienes efectivamente caen reportan
+más choques posteriores a la predicción, lo que sugiere que parte del
+riesgo se realiza por eventos que la ola base no puede anticipar. La iluminación
 nocturna, la única fuente geoespacial con cobertura suficiente, describe
 bien la geografía de la pobreza, pero no mejora la predicción cuando hay
 una encuesta vigente; su valor está en priorizar territorios y servir de
@@ -199,7 +200,13 @@ Beneficiarios de Programas Sociales (SISBEN) opera a través de una
 encuesta cuya aplicación depende de la solicitud de los hogares y de los
 recursos de la entidad territorial responsable, lo que genera rezagos en
 la actualización de la información y dificulta contar con datos
-recientes sobre el efecto de choques \parencite{conpes2016}. La pandemia
+recientes sobre el efecto de choques \parencite{conpes2016}. El SISBEN IV
+busca corregir en parte estas limitaciones: combina el estándar de vida
+con una presunción de la capacidad de generación de ingresos del hogar y
+se articula con registros administrativos \parencite{conpes2016}. Aun
+así, clasifica a los hogares según su situación y capacidad actuales, y
+no estima la probabilidad de que un hogar hoy no pobre caiga en pobreza.
+La pandemia
 de COVID-19 puso en evidencia las limitaciones de información sobre
 focalización de política pública con las que cuenta el país
 \parencite{castaneda2021}, y ejercicios recientes de aproximación a la
@@ -243,7 +250,7 @@ vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77), similar
 entre algoritmos y casi igual sin el ingreso del hogar; que un núcleo
 pequeño de variables de acumulación concentra la señal, y que el hogar
 vulnerable se parece más al que acaba de salir de la pobreza que al que
-nunca fue pobre; además, que lo que distingue a quien efectivamente cae en pobreza son
+nunca fue pobre; además, que quienes efectivamente caen reportan más
 choques posteriores a la predicción. La iluminación nocturna no mejora la
 predicción cuando hay una encuesta vigente, porque su información ya está
 contenida en la encuesta, pero es más estable en el tiempo y su pequeño
@@ -260,8 +267,9 @@ con el pasado, evaluar en el futuro), y documenta de forma sistemática y
 verificable la calidad y cobertura de cada covariable
 utilizada. Segundo, empírica: genera evidencia novedosa para Colombia
 sobre el aporte relativo de información geoespacial pública en la 
-predicción de transiciones a la pobreza, un problema no
-abordado directamente por la literatura existente aplicada al país.
+predicción de transiciones a la pobreza, un problema que los trabajos
+previos sobre vulnerabilidad con la ELCA \parencite{hernandez2022} no
+abordan.
 
 El resto del documento se organiza así. La Sección~\ref{sec:literatura}
 revisa el marco conceptual de vulnerabilidad a la pobreza y la literatura
@@ -350,7 +358,14 @@ En Colombia, la ausencia de un panel de hogares ha llevado a aproximar la
 vulnerabilidad con pseudo-paneles \parencite{castaneda2012,gaitan2023};
 \textcite{gaitan2023} estima que cerca del 23\% de la población bogotana
 era vulnerable en 2021. La ELCA, con tres olas de seguimiento a los
-mismos hogares, permite superar esa limitación. Aun así, estos métodos
+mismos hogares, permite superar esa limitación. Con la misma ELCA,
+\textcite{hernandez2022} estiman la vulnerabilidad a la pobreza
+multidimensional con el enfoque de pobreza esperada de
+\textcite{chaudhuri2002} y encuentran que la proporción de hogares
+vulnerables supera la de pobres, sobre todo en zona rural (70\% frente a
+39\%). Este artículo se diferencia en que no infiere la vulnerabilidad de
+la media y la varianza esperadas del bienestar, sino que predice la
+transición observada con modelos validados fuera de muestra. Aun así, estos métodos
 dependen de encuestas detalladas, costosas y de levantamiento
 infrecuente, lo que motiva explorar fuentes alternativas de datos
 (Sección~\ref{subsec:geoespacial}).
@@ -699,6 +714,16 @@ pobreza en $t+1$, de acuerdo con la definición de vulnerabilidad
   \end{cases}
   \label{eq:outcome}
 \end{equation}
+
+Conviene precisar la terminología. En el sentido de
+\textcite{chaudhuri2002}, la vulnerabilidad es una probabilidad
+\emph{ex ante}; en este artículo corresponde a la probabilidad predicha
+por los modelos, $\hat{P}(\text{CaidaPobreza}_{i,t+1}=1 \mid X_{it})$. La
+entrada efectiva en pobreza es su realización observada, que se usa para
+entrenar y evaluar esos modelos. Por brevedad, el texto llama
+\emph{hogares vulnerables} a los que efectivamente entran en pobreza,
+entendiendo que son la realización del riesgo y que otros hogares con una
+probabilidad predicha igual de alta no llegaron a caer.
 
 Como diagnóstico complementario se estima además un modelo multiclase
 sobre los cuatro grupos de la matriz de transición, sin ingreso ni gasto,
@@ -1099,23 +1124,26 @@ distinguen bien a los hogares precarios de los que no lo son; lo que
 distingue solo en parte es cuáles de los hogares precarios efectivamente
 caerán.
 
-\textbf{Quinto,} lo que más se asocia con que un hogar efectivamente
-caiga, frente a quien no, son los choques que ocurren después de la
-predicción. Comparando choques reportados en la ola de
+\textbf{Quinto,} quienes efectivamente caen reportan más choques
+posteriores a la predicción que quienes no caen. Comparando choques reportados en la ola de
 destino (2016, posteriores al momento de la predicción y por tanto no
 usados por el modelo) entre verdaderos positivos y falsos positivos, los
 primeros reportaron más choques en la ola de 2016: 3.1
 choques en promedio frente a 2.2 (ambos algoritmos), y 81--82\% tuvo al
 menos un choque frente a 71--72\% de los falsos positivos --consistente
 con el enfoque de vulnerabilidad de \textcite{chaudhuri2002}: el modelo
-identifica correctamente al hogar en el margen, pero quién realiza el
-riesgo depende de una exposición a choques que ningún dato de encuesta
-disponible al momento de la predicción puede anticipar.
+identifica correctamente al hogar en el margen, y parte de quién realiza
+el riesgo podría depender de choques que la ola base no permite
+anticipar. La comparación es descriptiva: los choques se autorreportan en
+la misma ola en que se observa la caída, de modo que un hogar que cayó
+puede recordarlos o reportarlos más, o haberlos sufrido como consecuencia
+de la caída.
 
 En suma, cualquier algoritmo, incluso el más simple y aun sin medir el
 ingreso del hogar, identifica con una capacidad moderada (AUC-ROC cercano
-a 0.75) a los hogares que están en el margen de la pobreza, pero no puede
-anticipar cuáles de ellos sufrirán los choques que los hacen caer. Las
+a 0.75) a los hogares que están en el margen de la pobreza, pero distingue
+mal cuáles de ellos efectivamente caerán, un resultado asociado de forma
+descriptiva a choques posteriores a la predicción. Las
 implicaciones de este resultado para la focalización se discuten en la
 Sección~\ref{subsec:politica}.
 
@@ -1456,10 +1484,10 @@ cada ventana, mientras casi el doble de hogares sale de ella
 identificar a los vulnerables tiene un techo (AUC-ROC de 0.73 a 0.77) que
 no depende del algoritmo ni del ingreso; con un umbral que capte casi a
 todos, un programa atendería entre 2.4 y 3.1 hogares que no caen por cada
-uno que sí (Sección~\ref{subsec:desempeno}). \textbf{Tercero,} lo que
-separa a quien cae de quien no ocurre después de la predicción: los
-hogares marcados que no caen también son precarios, quienes caen viven
-más choques, y la información de la ola base distingue a ``entra'' de
+uno que sí (Sección~\ref{subsec:desempeno}). \textbf{Tercero,} con la
+información de la ola base es difícil separar a quien cae de quien no: los
+hogares marcados que no caen también son precarios, quienes caen reportan
+más choques posteriores, y la información de la ola base distingue a ``entra'' de
 ``sale'' casi al azar (Sección~\ref{subsec:errores_inclusion}).
 \textbf{Cuarto,} el hogar vulnerable se reconoce por lo que ha acumulado
 (riqueza, educación, activos y vivienda) y se parece más al que acaba de
@@ -1479,14 +1507,18 @@ conclusión firme (Sección~\ref{subsec:marginal_geo}).
 \label{subsec:politica}
 
 Los resultados sugieren cinco implicaciones para sistemas de focalización
-como el SISBEN. Primero, la focalización puede apoyarse en variables no
+como el SISBEN IV, que hoy clasifica a los hogares por su estándar de vida
+y su capacidad presunta de generar ingresos; los modelos de este artículo
+podrían complementarlo con una medida del riesgo de entrada en pobreza de
+los hogares hoy no pobres. Primero, la focalización puede apoyarse en variables no
 monetarias, que capturan casi toda la señal; cuando la información del
 hogar está desactualizada o incompleta, un conjunto reducido centrado en
 el núcleo podría servir como alternativa. Segundo, el umbral debe depender
 del costo del instrumento: amplio para intervenciones preventivas de bajo
 costo, donde los incluidos por error también son precarios, y concentrado
-en el decil de mayor riesgo para transferencias costosas. Tercero, la
-focalización podría hacerse en dos etapas, en las que el modelo define
+en el decil de mayor riesgo para transferencias costosas. Tercero, si la
+asociación con los choques se confirma, la focalización podría hacerse en
+dos etapas, en las que el modelo define
 quién está en riesgo y un choque activa el apoyo, verificando el choque y
 no el perfil y actualizando la lista con frecuencia. Cuarto, como la
 salida de la pobreza tampoco se anticipa desde el perfil, la graduación
