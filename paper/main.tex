@@ -134,27 +134,30 @@
 % ── Resumen ──────────────────────────────────────────────
 % TARGET: 200–250 palabras (no cuenta en el límite de páginas)
 \begin{abstract}
+\setstretch{1.15}% interlineado menor que el cuerpo para que resumen y palabras clave quepan en la pagina 1
 \noindent
 Los sistemas de focalización en Colombia, como el SISBEN, clasifican a los
 hogares según su situación actual y no anticipan qué hogares no pobres
-caerán en pobreza. Este trabajo evalúa si variables derivadas de fuentes
-geoespaciales públicas mejoran la predicción de la caída en pobreza,
-monetaria y multidimensional, frente a modelos basados solo en la Encuesta
-Longitudinal Colombiana (ELCA). Con las tres olas del panel (2010, 2013 y
-2016), se entrenan modelos con cinco algoritmos de aprendizaje supervisado,
-con y sin ingreso del hogar, usando las transiciones de 2010 a 2013, y se
-evalúan con las de 2013 a 2016. Los modelos identifican a los hogares
-vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77) que casi
-no depende del algoritmo ni del ingreso: un núcleo pequeño de variables de
-acumulación, como riqueza, educación, activos y vivienda, concentra la
-señal, y el hogar vulnerable se parece más al que acaba de salir de la
-pobreza que al que nunca fue pobre. Quienes efectivamente caen reportan
-más choques posteriores a la predicción, lo que sugiere que parte del
-riesgo se realiza por eventos que la ola base no puede anticipar. La iluminación
-nocturna, la única fuente geoespacial con cobertura suficiente, describe
-bien la geografía de la pobreza, pero no mejora la predicción cuando hay
-una encuesta vigente; su valor está en priorizar territorios y servir de
-respaldo entre rondas de encuesta.
+caerán en pobreza. Este trabajo evalúa si fuentes geoespaciales públicas
+mejoran la predicción de la caída en pobreza, monetaria y multidimensional,
+frente a usar solo la Encuesta Longitudinal Colombiana (ELCA).
+Se entrenan modelos con cinco algoritmos de aprendizaje supervisado, con y
+sin ingreso y gasto del hogar, en las transiciones 2010--2013 del panel, y
+se evalúan en las de 2013--2016. Los modelos identifican a los hogares
+vulnerables con una capacidad moderada (AUC-ROC de 0.72 a 0.77) que casi no
+depende del algoritmo ni del ingreso: pocas variables, como
+riqueza, educación, activos y vivienda, concentran la señal, y el hogar
+vulnerable se parece más al que acaba de salir de la pobreza que al que
+nunca fue pobre. Quienes caen reportan más choques posteriores
+a la predicción, lo que sugiere que parte del riesgo depende de eventos que
+la ola base no permite anticipar; entre quienes caen, la deuda informal y la
+falta de cotización a pensión distinguen a los que permanecen en la pobreza.
+La iluminación nocturna, la única fuente con cobertura
+suficiente, describe bien la geografía de la pobreza, pero no mejora la
+predicción monetaria cuando hay una encuesta vigente y aporta poco bajo
+pobreza multidimensional, sobre todo en zonas rurales; su valor está en
+priorizar territorios donde no hay encuesta o está desactualizada, porque
+cubre todo el país y cambia poco en el tiempo.
 
 \textbf{Palabras clave:} vulnerabilidad a la pobreza,
 aprendizaje automático, datos geoespaciales, ELCA,
@@ -200,7 +203,7 @@ Beneficiarios de Programas Sociales (SISBEN) opera a través de una
 encuesta cuya aplicación depende de la solicitud de los hogares y de los
 recursos de la entidad territorial responsable, lo que genera rezagos en
 la actualización de la información y dificulta contar con datos
-recientes sobre el efecto de choques \parencite{conpes2016}. El SISBEN IV
+recientes sobre el efecto de choques. El SISBEN IV
 busca corregir en parte estas limitaciones: combina el estándar de vida
 con una presunción de la capacidad de generación de ingresos del hogar y
 se articula con registros administrativos \parencite{conpes2016}. Aun
