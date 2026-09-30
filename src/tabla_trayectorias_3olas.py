@@ -80,11 +80,8 @@ def generar_tex(monetaria: pd.DataFrame, ipm: pd.DataFrame) -> str:
         rf"    \footnotesize \textit{{Nota:}} $n$={n_monetaria:,} hogares no pobres en 2010 bajo".replace(",", "{,}"),
         rf"    pobreza monetaria; $n$={n_ipm:,} bajo IPM (universos distintos porque".replace(",", "{,}"),
         r"    no-pobre-monetaria y no-pobre-IPM en 2010 no son el mismo conjunto de",
-        r"    hogares). \% sobre ese universo, sin ponderar (ver también",
-        r"    \texttt{pct\_ponderado} en los CSV fuente). Fuente: cálculos propios,",
-        r"    \texttt{outputs/tables/eda\_transicion\_covariables/trayectorias\_3olas\_\{monetaria,ipm\}.csv}",
-        r"    (\texttt{src/02\_build/eda\_trayectorias\_3olas.py}), generados por",
-        r"    \texttt{src/tabla\_trayectorias\_3olas.py}.",
+        r"    hogares). \% sobre ese universo, sin ponderar. Fuente: cálculos",
+        r"    propios.",
         r"  \end{minipage}",
         r"\end{table}",
     ]

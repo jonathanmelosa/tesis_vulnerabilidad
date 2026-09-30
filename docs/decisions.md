@@ -4686,4 +4686,6 @@ regeneraron identicas (salvo el orden de filas empatadas en
 una nota mas larga (con rutas de archivo) que la de
 `paper/tables/tab_trayectorias_3olas.tex` en el repositorio: la tabla del
 paper se edito a mano y no coincide con su script. No se toco; se restauro
-la version del repositorio.
+la version del repositorio. *Resuelto (2026-09-30):* se ajusto la nota del
+script al texto del paper; regenerada, la tabla queda identica a la del
+repositorio.
