@@ -136,8 +136,8 @@
 \begin{abstract}
 \setstretch{1.15}% interlineado menor que el cuerpo para que resumen y palabras clave quepan en la pagina 1
 \noindent
-Los sistemas de focalización en Colombia, como el SISBEN, clasifican a los
-hogares según su situación actual y no anticipan qué hogares no pobres
+Los sistemas de focalización en Colombia, como el SISBEN y el Registro
+Social de Hogares, clasifican a los hogares según su situación actual y no anticipan qué hogares no pobres
 caerán en pobreza. Este trabajo evalúa si fuentes geoespaciales públicas
 mejoran la predicción de la caída en pobreza, monetaria y multidimensional,
 frente a usar solo la Encuesta Longitudinal Colombiana (ELCA).
@@ -155,7 +155,7 @@ falta de cotización a pensión distinguen a los que permanecen en la pobreza.
 La iluminación nocturna, la única fuente con cobertura
 suficiente, describe bien la geografía de la pobreza, pero no mejora la
 predicción monetaria cuando hay una encuesta vigente y aporta poco bajo
-pobreza multidimensional, sobre todo en zonas rurales; su valor está en
+pobreza multidimensional; su valor está en
 priorizar territorios donde no hay encuesta o está desactualizada, porque
 cubre todo el país y cambia poco en el tiempo.
 
@@ -199,16 +199,23 @@ Identificar qué hogares son vulnerables a caer en pobreza, antes de que
 ocurra la caída, requiere información dinámica y actualizada sobre su
 situación, algo que los sistemas tradicionales de focalización no están
 diseñados para proveer. En Colombia, el Sistema de Identificación de
-Beneficiarios de Programas Sociales (SISBEN) opera a través de una
-encuesta cuya aplicación depende de la solicitud de los hogares y de los
-recursos de la entidad territorial responsable, lo que genera rezagos en
-la actualización de la información y dificulta contar con datos
-recientes sobre el efecto de choques. El SISBEN IV
-busca corregir en parte estas limitaciones: combina el estándar de vida
-con una presunción de la capacidad de generación de ingresos del hogar y
-se articula con registros administrativos \parencite{conpes2016}. Aun
-así, clasifica a los hogares según su situación y capacidad actuales, y
-no estima la probabilidad de que un hogar hoy no pobre caiga en pobreza.
+Potenciales Beneficiarios de Programas Sociales (SISBEN) es desde hace
+casi treinta años el principal instrumento de focalización del gasto
+social. La actualización de su información ha dependido sobre todo de
+operativos de barrido cada seis o siete años, lo que genera rezagos: en
+la evaluación del SISBEN III, el 75\% de la información socioeconómica
+seguía igual que en su recolección inicial \parencite{pabon2023}. El
+SISBEN IV busca corregir en parte estas limitaciones: combina el estándar
+de vida con una presunción de la capacidad de generación de ingresos del
+hogar y se diseñó para interoperar con registros administrativos
+\parencite{conpes2016,pabon2023}. Sobre esa base, el Decreto Ley 812 de
+2020 creó el Registro Social de Hogares (RSH), que integra la información
+del SISBEN IV con 28 bases de datos nacionales y 1{,}832 territoriales
+para validarla y actualizarla, y permite por primera vez seguir la
+evolución de las condiciones de vida de los hogares \parencite{pabon2023}.
+Aun así, el sistema clasifica a los hogares según su situación y
+capacidad actuales, y no estima la probabilidad de que un hogar hoy no
+pobre caiga en pobreza.
 La pandemia
 de COVID-19 puso en evidencia las limitaciones de información sobre
 focalización de política pública con las que cuenta el país
@@ -249,7 +256,7 @@ principal; las demás se evalúan de forma exploratoria
 (Sección~\ref{subsec:geo}).
 
 Los resultados muestran que los modelos identifican a los hogares
-vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77), similar
+vulnerables con una capacidad moderada (AUC-ROC de 0.72 a 0.77), similar
 entre algoritmos y casi igual sin el ingreso del hogar; que un núcleo
 pequeño de variables de acumulación concentra la señal, y que el hogar
 vulnerable se parece más al que acaba de salir de la pobreza que al que
@@ -341,16 +348,17 @@ enfoque seminal de \textcite{chaudhuri2002} y del que parte este trabajo,
 propone estimar esa probabilidad a partir de la media y la varianza 
 esperadas del consumo o
 ingreso del hogar, definiendo la vulnerabilidad como la probabilidad de
-que el bienestar futuro caiga por debajo de la línea de pobreza. En la
-práctica, ese enfoque clasifica como vulnerable a un hogar cuando dicha
+que el bienestar futuro caiga por debajo de la línea de pobreza. 
+Desarrollos posteriores han refinado esta definición incorporando la
+distinción entre vulnerabilidad ante choques idiosincráticos y covariados
+\parencite{dercon2002}, y aplicaciones específicas para contextos
+latinoamericanos \parencite{bergolo2010}. En la
+práctica, el enfoque clasifica como vulnerable a un hogar cuando dicha
 probabilidad supera 0.5, un umbral arbitrario cuya capacidad para
 anticipar la pobreza observada se ha evaluado poco; \textcite{hohberg2018}
 la evalúan con curvas ROC en un panel alemán y muestran que un umbral
 elegido según el objetivo de focalización predice mejor.
-Desarrollos posteriores han refinado esta definición incorporando la
-distinción entre vulnerabilidad ante choques idiosincráticos y covariados
-\parencite{dercon2002}, y aplicaciones específicas para contextos
-latinoamericanos \parencite{bergolo2010}.
+
 
 Un aporte particularmente relevante para este trabajo es el de
 \textcite{lopezCalva2011,lopezCalva2014}, quienes operacionalizan el
@@ -401,7 +409,7 @@ investigación.
 
 Los modelos de prueba indirecta de medios (\emph{proxy means tests}, PMT)
 han sido durante décadas el instrumento estándar para la focalización de
-programas sociales en países en desarrollo. Su desarrollo ha privilegiado
+programas sociales en países en desarrollo. Su evolución ha privilegiado
 históricamente la minimización del error \emph{dentro} de la muestra de
 entrenamiento, lo cual no garantiza un buen desempeño cuando el modelo se
 aplica a poblaciones nuevas. \textcite{mcbride2018} documentan este
@@ -432,12 +440,12 @@ literatura. En
 Colombia, \textcite{muneton2022} han aplicado aprendizaje automático a la
 clasificación de pobres, pero su aplicación en un contexto de datos
 longitudinales y para el análisis de la vulnerabilidad ha sido explorada
-de manera limitada. Una excepción es \textcite{burger2021}, que predicen
+de manera limitada. Un ejemplo de otro contexto es \textcite{burger2021}, que predicen
 con \emph{gradient boosting} la entrada y la salida de la pobreza al año
 siguiente a partir de más de 500 variables de registros administrativos
 de los Países Bajos, y usan valores SHAP para identificar los factores de
 riesgo; entre los hogares no pobres, el más importante es la propiedad de
-la vivienda. Ese ejercicio se hace en un país de ingreso alto, con
+la vivienda. Sin embargo, ese ejercicio se hace en un país de ingreso alto, con
 registros administrativos completos y sin fuentes geoespaciales,
 condiciones muy distintas a las de un país en desarrollo que depende de
 encuestas.
@@ -556,9 +564,11 @@ OpenStreetMap estaba casi vacío en Colombia en 2010--2013. DMSP-OLS cubre
 el 100\% de los hogares en 2010 y en 2013. ALOS PALSAR cubre 2010, pero no
 tiene datos entre 2011 y 2014. Landsat 5 TM cubre solo el 65.5\% de los
 hogares en 2010, por nubosidad, y dejó de adquirir imágenes útiles antes
-de 2013. Por eso DMSP-OLS es la fuente de la evaluación principal. Google
-Street View se evaluó solo de forma exploratoria: no hay fotos anteriores
-a 2012 y el 61\% son posteriores a 2023 (Anexo~\ref{apx:gsv}).
+de 2013. Por eso DMSP-OLS es la fuente de la evaluación principal. Además
+de las otras dos fuentes con información disponible limitada antes de 2014, 
+se revisaron también imágenes de Google Street View de forma exploratoria
+debido a que de lo que ser revisó no hay fotos anteriores a 2012 y 
+el 61\% son posteriores a 2023 (Anexo~\ref{apx:gsv}).
 
 \subsection{Cobertura, atrición e inventario del panel}
 \label{subsec:desc}
@@ -600,7 +610,7 @@ agregada, FGT, y cinco ejercicios de estimaciones, incluyendo la
 atrición del panel por perfil de hogar, que se documentan en el
 Apéndice~\ref{apx:transiciones_robustez}}.
 
-\begin{figure}[!t]
+\begin{figure}[!htb]
   \centering
   \begin{subfigure}{0.49\textwidth}
     \centering
@@ -1601,9 +1611,9 @@ conclusión firme (Sección~\ref{subsec:marginal_geo}).
 \label{subsec:politica}
 
 Los resultados sugieren cinco implicaciones para sistemas de focalización
-como el SISBEN IV, que hoy clasifica a los hogares por su estándar de vida
-y su capacidad presunta de generar ingresos; los modelos de este artículo
-podrían complementarlo con una medida del riesgo de entrada en pobreza de
+como el SISBEN IV y el Registro Social de Hogares, que hoy clasifican a
+los hogares por su estándar de vida y su capacidad presunta de generar
+ingresos; los modelos de este artículo podrían complementarlos con una medida del riesgo de entrada en pobreza de
 los hogares hoy no pobres. Primero, la focalización puede apoyarse en variables no
 monetarias, que capturan casi toda la señal; cuando la información del
 hogar está desactualizada o incompleta, un conjunto reducido centrado en
