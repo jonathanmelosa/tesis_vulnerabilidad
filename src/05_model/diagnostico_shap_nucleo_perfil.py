@@ -32,15 +32,20 @@ INPUTS
 
     data/processed/benchmark_resultados/diagnostico_shap_importancia_ab.csv
     data/processed/benchmark_train_test/modelo_A_2010_2013.parquet
-    outputs/tables/eda_transicion_covariables/perfil_completo_monetaria_2010_2013.csv
-    (solo para heredar la categoria tematica de las variables que ya
-    estan en el perfil univariado de 53 variables de la Seccion 5.1; las
-    que no estan ahi se categorizan a mano, ver CATEGORIA_MANUAL)
+    src/etiquetas_variables.py (`CATEGORIA`: categoria tematica de las
+    variables que la tienen asignada; las demas se categorizan a mano, ver
+    CATEGORIA_MANUAL)
+
+Cambio 2026-09-30 (pedido del usuario, se retira el perfil univariado del
+paper): la categoria ya no se lee de la tabla del perfil de 53 variables
+(`perfil_completo_monetaria_2010_2013.csv`), sino del diccionario
+`CATEGORIA` del que esa tabla la tomaba, y se elimina la columna
+`en_perfil_53`. La lista del nucleo y sus categorias no cambian.
 
 OUTPUTS
 
     data/processed/benchmark_resultados/diagnostico_shap_nucleo_perfil.csv
-    (columnas: variable, categoria, n_combinaciones, en_perfil_53,
+    (columnas: variable, categoria, n_combinaciones,
     shap_promedio_normalizado)
 
 COMO CORRER
@@ -55,19 +60,19 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import modelo_utils as mu
+from etiquetas_variables import CATEGORIA
 
 RUTA_SHAP = mu.PROJECT_ROOT / "data" / "processed" / "benchmark_resultados" / "diagnostico_shap_importancia_ab.csv"
 RUTA_DATOS_A = mu.PROJECT_ROOT / "data" / "processed" / "benchmark_train_test" / "modelo_A_2010_2013.parquet"
-RUTA_PERFIL_53 = mu.PROJECT_ROOT / "outputs" / "tables" / "eda_transicion_covariables" / "perfil_completo_monetaria_2010_2013.csv"
 RUTA_SALIDA = mu.PROJECT_ROOT / "data" / "processed" / "benchmark_resultados" / "diagnostico_shap_nucleo_perfil.csv"
 
 UMBRAL_MASA_ACUMULADA = 0.80
 UMBRAL_COMBINACIONES = 5  # de 10 (5 algoritmos x 2 especificaciones)
 
-# Variables del nucleo que NO estan en el perfil univariado de 53
-# variables de la Seccion 5.1 (criterio de seleccion distinto, ver
-# Seccion 4.2) -- categorizadas a mano, propuesta mostrada y aprobada por
+# Variables del nucleo sin categoria en `CATEGORIA` (etiquetas_variables.py)
+# -- categorizadas a mano, propuesta mostrada y aprobada por
 # el usuario (2026-09-18) usando el mismo esquema de 10 categorias.
 # Cambio 2026-09-24 (aprobado por el usuario): se alinean con la tabla de
 # temas del Anexo (src/tabla_temas_variables.py), que agrego temas que el
@@ -136,18 +141,15 @@ def main() -> None:
 
     nucleo = conteo[conteo >= UMBRAL_COMBINACIONES].sort_values(ascending=False)
 
-    perfil_53 = pd.read_csv(RUTA_PERFIL_53).set_index("variable")["categoria"].to_dict()
-
     filas = []
     for variable, n_comb in nucleo.items():
-        categoria = perfil_53.get(variable) or CATEGORIA_MANUAL.get(variable)
+        categoria = CATEGORIA[variable][0] if variable in CATEGORIA else CATEGORIA_MANUAL.get(variable)
         if categoria is None:
             raise ValueError(f"Variable del núcleo sin categoría asignada: {variable} -- agregar a CATEGORIA_MANUAL")
         filas.append({
             "variable": variable,
             "categoria": categoria,
             "n_combinaciones": int(n_comb),
-            "en_perfil_53": variable in perfil_53,
             "shap_promedio_normalizado": round(float(promedio_normalizado.get(variable, 0.0)), 5),
         })
 

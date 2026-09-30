@@ -41,6 +41,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from etiquetas_variables import ETIQUETAS
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TABLES_DIR = REPO_ROOT / "outputs" / "tables" / "eda_transicion_covariables"
 OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
@@ -49,70 +51,7 @@ CATEGORIAS_ORDEN_GRUPO = ["Siempre pobre", "Sale de la pobreza", "Entra en pobre
 
 CORRECCIONES_NIVEL = {"Bldosa, vinilo, tableta o ladrillo": "Baldosa, vinilo, tableta o ladrillo"}
 
-ETIQUETAS = {
-    "brecha_lp_ingreso": "Ingreso (veces la línea de pobreza)",
-    "brecha_lp_gasto": "Gasto (veces la línea de pobreza)",
-    "ingreso_percapita_hogar_real": "Ingreso per cápita",
-    "gasto_percapita_hogar_real": "Gasto per cápita",
-    "lp": "Línea de pobreza (referencia)",
-    "li": "Línea de indigencia (referencia)",
-    "zona": "Vive en zona rural",
-    "dmsp_stable_lights": "Iluminación nocturna (DMSP)",
-    "material_pisos_hogar": "Material de piso: {nivel}",
-    "energia_cocinan_hogar": "Combustible de cocina: {nivel}",
-    "servicio_sanitario_hogar": "Servicio sanitario: {nivel}",
-    "eliminan_basura_hogar": "Recolección de basura: {nivel}",
-    "obtencion_agua_hogar": "Obtención de agua: {nivel}",
-    "tipo_vivienda_hogar": "Tipo de vivienda: {nivel}",
-    "material_paredes_hogar": "Material de paredes: {nivel}",
-    "tenencia_vivienda_hogar": "Tenencia de vivienda: {nivel}",
-    "personas_por_cuarto_hogar": "Personas por cuarto",
-    "personas_por_dormitorio_hogar": "Personas por dormitorio",
-    "valor_arriendo_pagado_hogar": "Valor del arriendo pagado",
-    "n_bienes_durables_hogar": "N.\\textsuperscript{o} de bienes durables",
-    "n_servicios_publicos_hogar": "N.\\textsuperscript{o} de servicios públicos",
-    "n_activos_financieros_hogar": "N.\\textsuperscript{o} de activos financieros",
-    "estrato_hogar": "Estrato (autorreportado)",
-    "estrato_verificado_hogar": "Estrato (verificado)",
-    "riqueza_pca_hogar": "Índice de riqueza (PCA)",
-    "tiene_internet_hogar": "Tiene internet en el hogar",
-    "n_programas_sociales_hogar": "N.\\textsuperscript{o} de programas sociales",
-    "beneficiario_familias_accion_hogar": "Beneficiario de Familias en Acción",
-    "beneficiario_algun_programa_hogar": "Beneficiario de algún programa social",
-    "nivel_educ_jefe": "Educación del jefe: {nivel}",
-    "categoria_ocupacional_jefe": "Ocupación del jefe: {nivel}",
-    "medio_consiguio_jefe": "Consiguió trabajo: {nivel}",
-    "registro_mercantil_jefe": "Registro mercantil del jefe: {nivel}",
-    "n_empleados_jefe": "Negocio del jefe: {nivel}",
-    "etnia_jefe": "Etnia del jefe: {nivel}",
-    "estado_civil_jefe": "Estado civil del jefe: {nivel}",
-    "sexo_jefe": "Sexo del jefe: {nivel}",
-    "tasa_cotizacion_pension_hogar": "Cotización a pensión (hogar)",
-    "cotiza_pension_jefe": "Jefe cotiza a pensión",
-    "nivel_educ_max_hogar": "Máx. nivel educativo del hogar",
-    "nivel_educ_ordinal_jefe": "Nivel educativo del jefe (ordinal)",
-    "pct_adultos_alfabetizados": "Adultos alfabetizados en el hogar",
-    "n_ninos_12": "N.\\textsuperscript{o} de niños en el hogar",
-    "pct_ninos_cuidado_terceros_hogar": "Niños al cuidado de terceros",
-    "razon_dependencia_demografica": "Razón de dependencia demográfica",
-    "pobre_ingreso": "Pobre por ingreso (2010)",
-    "pobre_extremo_ingreso": "Pobre extremo por ingreso (2010)",
-    "pobre_gasto": "Pobre por gasto (2010)",
-    "pobre_extremo_gasto": "Pobre extremo por gasto (2010)",
-    # -- Extensión 2026-09-15 (VARIABLES_ESTABLES_AMPLIADAS) --
-    "tasa_afiliacion_pension_hogar": "Afiliación a pensión (hogar)",
-    "tasa_afiliacion_salud_laboral_hogar": "Afiliación a salud laboral (hogar)",
-    "afiliado_pension_jefe": "Jefe afiliado a pensión",
-    "afiliado_salud_laboral_jefe": "Jefe afiliado a salud laboral",
-    "deuda_formal_hogar": "Tiene deuda formal",
-    "deuda_informal_hogar": "Tiene deuda informal",
-    "tiene_escritura_vivienda_hogar": "Tiene escritura de la vivienda",
-    "financio_credito_formal_vivienda_hogar": "Financió la vivienda con crédito formal",
-    "tiene_vehiculo_hogar": "Tiene vehículo",
-    "pct_ninos_apoyo_alimentario_escolar": "Niños con apoyo alimentario escolar",
-    "n_espacios_publicos_comunidad": "N.\\textsuperscript{o} de espacios públicos en la comunidad",
-    "tiene_transporte_publico_comunidad": "Comunidad con transporte público",
-}
+# ETIQUETAS vive en src/etiquetas_variables.py (movida 2026-09-30).
 
 
 def slug(categoria: str) -> str:

@@ -67,6 +67,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "04_features"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from etiquetas_variables import CATEGORIA  # noqa: E402
 from build_pobreza_desagregaciones import _llave_compuesta, cargar_pesos_muestrales, construir_matriz_transicion  # noqa: E402
 from eda_transicion_covariables import (  # noqa: E402
     POBREZA_PATH,
@@ -96,71 +98,7 @@ VARIABLES_ESTABLES_AMPLIADAS = [
     "n_espacios_publicos_comunidad", "tiene_transporte_publico_comunidad",
 ]
 
-# Categoria tematica y sub-panel por unidad -- asignado a mano a partir
-# del `modulo` del inventario y de la unidad real de cada variable
-# (revisado con `construir_tabla_comparativa`: "(media)" vs "(media, %)"
-# vs categorica -- ver columna nivel_mostrado del output).
-# Cambio 2026-09-24 (pedido del usuario): "Educación y empleo del jefe" se
-# renombra "Educación, empleo y seguridad social" (incluye variables del
-# hogar, no solo del jefe, y afiliación/cotización); etnia_jefe y
-# estado_civil_jefe pasan a "Composición del hogar", y
-# pct_ninos_apoyo_alimentario_escolar a "Programas sociales y deuda".
-CATEGORIA = {
-    "dmsp_stable_lights": ("Geoespacial", "Iluminación nocturna (0-63)"),
-    "zona": ("Zona de residencia", "% del grupo"),
-    "brecha_lp_ingreso": ("Ingreso y gasto", "Veces la línea de pobreza"),
-    "brecha_lp_gasto": ("Ingreso y gasto", "Veces la línea de pobreza"),
-    "ingreso_percapita_hogar_real": ("Ingreso y gasto", "Miles $ por mes"),
-    "gasto_percapita_hogar_real": ("Ingreso y gasto", "Miles $ por mes"),
-    "material_pisos_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "energia_cocinan_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "servicio_sanitario_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "eliminan_basura_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "obtencion_agua_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "tipo_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "material_paredes_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "tenencia_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "personas_por_cuarto_hogar": ("Vivienda: hacinamiento", "Personas por cuarto/dormitorio"),
-    "personas_por_dormitorio_hogar": ("Vivienda: hacinamiento", "Personas por cuarto/dormitorio"),
-    "valor_arriendo_pagado_hogar": ("Vivienda: hacinamiento", "Miles $ de arriendo/mes"),
-    "n_bienes_durables_hogar": ("Activos del hogar", "Número (conteo)"),
-    "n_servicios_publicos_hogar": ("Activos del hogar", "Número (conteo)"),
-    "n_activos_financieros_hogar": ("Activos del hogar", "Número (conteo)"),
-    "estrato_hogar": ("Activos del hogar", "Estrato (1-6)"),
-    "estrato_verificado_hogar": ("Activos del hogar", "Estrato (1-6)"),
-    "riqueza_pca_hogar": ("Activos del hogar", "Índice de riqueza (PCA)"),
-    "tiene_internet_hogar": ("Activos del hogar", "% del grupo"),
-    "n_programas_sociales_hogar": ("Programas sociales y deuda", "Número (conteo)"),
-    "beneficiario_familias_accion_hogar": ("Programas sociales y deuda", "% del grupo"),
-    "beneficiario_algun_programa_hogar": ("Programas sociales y deuda", "% del grupo"),
-    "nivel_educ_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "categoria_ocupacional_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "medio_consiguio_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "registro_mercantil_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "n_empleados_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "etnia_jefe": ("Composición del hogar", "% del grupo"),
-    "estado_civil_jefe": ("Composición del hogar", "% del grupo"),
-    "nivel_educ_max_hogar": ("Educación, empleo y seguridad social", "Años/nivel (escala propia)"),
-    "nivel_educ_ordinal_jefe": ("Educación, empleo y seguridad social", "Años/nivel (escala propia)"),
-    "tasa_cotizacion_pension_hogar": ("Educación, empleo y seguridad social", "% del grupo"),
-    "cotiza_pension_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "n_ninos_12": ("Composición del hogar", "Número (conteo)"),
-    "razon_dependencia_demografica": ("Composición del hogar", "Razón de dependencia"),
-    # -- Extensión 2026-09-15 (VARIABLES_ESTABLES_AMPLIADAS, ver docstring) --
-    "tasa_afiliacion_pension_hogar": ("Educación, empleo y seguridad social", "% del grupo"),
-    "tasa_afiliacion_salud_laboral_hogar": ("Educación, empleo y seguridad social", "% del grupo"),
-    "afiliado_pension_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "afiliado_salud_laboral_jefe": ("Educación, empleo y seguridad social", "% del grupo"),
-    "deuda_formal_hogar": ("Programas sociales y deuda", "% del grupo"),
-    "deuda_informal_hogar": ("Programas sociales y deuda", "% del grupo"),
-    "tiene_escritura_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "financio_credito_formal_vivienda_hogar": ("Vivienda: materiales y servicios", "% del grupo"),
-    "tiene_vehiculo_hogar": ("Activos del hogar", "% del grupo"),
-    "pct_ninos_cuidado_terceros_hogar": ("Composición del hogar", "% del grupo"),
-    "pct_ninos_apoyo_alimentario_escolar": ("Programas sociales y deuda", "% del grupo"),
-    "n_espacios_publicos_comunidad": ("Comunidad", "Número (conteo)"),
-    "tiene_transporte_publico_comunidad": ("Comunidad", "% del grupo"),
-}
+# CATEGORIA vive en src/etiquetas_variables.py (movida 2026-09-30).
 
 
 def calcular_seleccion_2010_2013() -> list:

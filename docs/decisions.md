@@ -4551,3 +4551,139 @@ reporta solo como diagnostico de la cercania entre "entra" y "sale".
 Pendientes previos que siguen abiertos (ver entrada del 2026-09-18):
 `diagnostico_shap_multiclase.py` y `modelo_multiclase_descomponer_auc.py`
 no se han corrido sobre los resultados corregidos.
+
+## 2026-09-30: Construccion de `deuda_formal_hogar`/`deuda_informal_hogar` -- limitacion documentada, no se corrige
+
+**Contexto.** Al restringir el Cuarto hallazgo de la Seccion 5.2
+(transitorios vs. persistentes) a las variables del nucleo SHAP, la deuda
+informal, su variable principal, quedo fuera porque no esta en el nucleo.
+Al investigar por que, se reviso su construccion
+(`src/04_features/build_hogar_features.py`, lineas 288-290 y 428-430).
+Cifras: `src/02_build/diagnostico_deuda_formal_informal.py`.
+
+**Construccion.** Ambas variables salen de `con_quien_1`, el prestamista
+del PRIMER prestamo del hogar: 1 si es formal (banco, cooperativa, ICETEX,
+etc.) o informal (amigos, familiares, prestamistas, etc.), respectivamente;
+0 si el primer prestamo es del otro tipo o "otro"; NaN si el hogar no tiene
+prestamo.
+
+**Problemas encontrados.**
+
+1. *"Sin deuda" queda codificado como faltante.* Los NaN de
+   `deuda_informal_hogar` coinciden exactamente con `tiene_deuda_hogar == 0`
+   (14,211 hogares-ola, ninguno fuera de ahi). En los benchmarks del Modelo B
+   eso es 47.5% (2010->2013) y 35.9% (2013->2016) de "faltantes" que en
+   realidad son hogares sin deuda; el indicador de faltante que usan la
+   logistica y Random Forest es, de hecho, "no tiene deuda".
+2. *Redundancia por construccion.* Entre los hogares con deuda, las dos
+   variables son casi complementarias: Spearman -0.948 (2010->2013) y
+   -0.897 (2013->2016). No es un error; es la misma pregunta vista desde los
+   dos lados.
+3. *Denominador de los porcentajes.* Los promedios por grupo ignoran los NaN,
+   asi que el "% con deuda informal" es el porcentaje ENTRE LOS HOGARES
+   ENDEUDADOS cuyo primer prestamo es informal, no el porcentaje de todos los
+   hogares. El Cuarto hallazgo lo presentaba como porcentaje de hogares
+   (transitorios 17.3% vs. persistentes 41.9%), lo que estaba mal expresado.
+4. *Solo el primer prestamo.* `con_quien_2` tiene dato para 1,469, 2,270 y
+   1,850 hogares en las olas 1, 2 y 3 y no se usa.
+5. *Categoria "otro".* 348 primeros prestamos ("otro", "otro. ¿cuál?") quedan
+   en 0 en ambas variables.
+
+**Decision del usuario.** No se corrige la construccion: hacerlo exigiria
+reconstruir las covariables y volver a correr todos los modelos (binarios,
+IPM, multiclase y SHAP). El efecto sobre los modelos es probablemente
+pequeno, porque la informacion de "tiene deuda" no se pierde (esta en
+`tiene_deuda_hogar` y en el indicador de faltante). Queda como limitacion
+documentada. En el paper, la deuda informal sale del Cuarto hallazgo por la
+regla de mantener solo lo que se sostiene en el nucleo SHAP; su ausencia
+del nucleo no demuestra que no importe para la persistencia en la pobreza,
+solo que no ayuda a anticipar la entrada.
+
+## 2026-09-30: Se retira el perfil univariado del paper; el multiclase pasa a ser la comparacion entre los cuatro grupos
+
+**Contexto.** El usuario noto una inconsistencia: la Seccion 4.2 decia que
+solo el analisis univariado (eta^2 sobre rangos / V de Cramer, 53 variables
+bajo pobreza monetaria y 36 bajo IPM) podia ubicar al hogar vulnerable
+frente a los demas grupos, cuando el modelo multiclase se construyo
+precisamente para eso. Ademas, el eta^2 / V de Cramer sobre los cuatro
+grupos esta dominado por el contraste nunca pobre - siempre pobre (ser pobre
+o no en la ola base), asi que como "validacion" del nucleo SHAP respondia
+otra pregunta.
+
+**Decision del usuario.** Se retira el perfil univariado del paper. Los
+determinantes siguen saliendo del nucleo SHAP; la comparacion entre los
+cuatro grupos se hace con el modelo multiclase (Modelo B, AUC por par en la
+prueba 2013->2016). Criterio relajado para el Tercer hallazgo: se afirma
+solo bajo pobreza monetaria (el multiclase no se estimo bajo IPM) y con la
+evaluacion fuera de muestra 2013->2016, el mismo estandar que el desempeno
+de los modelos binarios. No se corre el multiclase en 2010->2013.
+
+**Resultados que lo sostienen (todos por script).**
+- AUC por par con 5 semillas (`src/05_model/auc_pares_multiclase_semillas.py`):
+  nunca vs. entra 0.734-0.754; entra vs. sale 0.533-0.562; sale vs. siempre
+  0.595-0.629. Los intervalos entre semillas son degenerados (desviacion 0)
+  en logistica, HistGB y LightGBM, que con sus hiperparametros no usan azar,
+  por lo que no sirven como medida de incertidumbre.
+- Bootstrap por comunidad, 2,000 remuestras, pareado entre B4 y B4geoDMSP
+  (`src/05_model/diagnostico_bootstrap_cluster_multiclase.py`, misma
+  convencion que `diagnostico_bootstrap_cluster_dmsp.py`): los IC95 de
+  entra vs. sale (0.504-0.593) y de nunca vs. entra (0.714-0.775) no se
+  superponen en ningun algoritmo. DMSP-OLS: 30 de 36 IC del cambio cruzan
+  cero; ninguno en entra vs. sale; los 6 que no cruzan son menores a 0.025
+  en valor absoluto y de signo mixto.
+- Figura del nucleo por grupo (`src/graf_perfil_nucleo_grupos.py`): ahora
+  calcula las medias ponderadas directamente (antes las leia del perfil de
+  53 variables, lo que dejaba fuera a grado educativo del jefe y controles
+  preventivos). Las 8 variables previas dan exactamente las mismas
+  posiciones; con las 10, "entra" queda mas cerca de "sale" que de "nunca
+  pobre" en 19 de 20 combinaciones variable x ventana (excepcion: grado
+  educativo del jefe en 2013->2016).
+- Cuarto hallazgo (transitorios vs. persistentes) restringido al nucleo
+  SHAP, solo descriptivo, sin correccion por comparaciones multiples
+  (decision del usuario): `src/02_build/eda_split_trayectoria_nucleo.py` y
+  `src/tabla_split_trayectoria_nucleo.py`. 14 de 31 indicadores con
+  |diferencia estandarizada| >= 0.20. Sale la deuda informal (no esta en el
+  nucleo; ver entrada anterior sobre su construccion); se mantiene la
+  cotizacion a pension; el mensaje pasa a "quedan atrapados los que cayeron
+  con menos recursos acumulados" (activos financieros, riqueza, estrato,
+  educacion).
+
+**Correccion de un archivo intermedio.** Las filas `*geo3` de
+`auc_pares_multiclase.csv` eran probabilidades IN-SAMPLE (el docstring de
+`auc_pares_multiclase_predicciones.py` decia, por error, out-of-fold, y
+daban AUC entra vs. sale de 0.67-0.95). El paper no las usaba. Se excluyen
+y se corrigio el docstring.
+
+**Cambios en el paper.** 4.1 (sale el parrafo del multiclase), 4.2
+(multiclase en lugar del analisis univariado), introduccion de Resultados y
+de 5.2 (y su titulo), hallazgos 3 y 4, cierre de 5.2, 5.3 (frase del
+multiclase con DMSP-OLS), resumen, conclusiones, implicaciones de politica,
+limitaciones (el Tercer hallazgo es solo monetario). Salen las tablas del
+perfil (`tab_perfil_consolidada`, `tab_perfil_nucleo_comun`,
+`tab_perfil_split_trayectoria` y las 8 del perfil IPM, con su apendice) y
+la marca de "fuera del perfil de 53" en `tab_shap_signo_nucleo`. La tabla
+de AUC por par reporta ahora el IC95 del bootstrap por comunidad.
+
+**Independencia de los scripts (pedido del usuario).** Los scripts vigentes
+ya no importan de los scripts del perfil. Se crearon dos modulos neutros,
+con el codigo movido sin cambios:
+- `src/etiquetas_variables.py`: `CATEGORIA` (antes en
+  `eda_perfil_completo.py`), `ETIQUETAS` (antes en `tabla_perfil_completo.py`)
+  y las etiquetas del nucleo con `etiqueta()` (antes en
+  `tabla_shap_nucleo_perfil.py`).
+- `src/02_build/panel_transicion.py`: rutas, `COLS_ID` y funciones de carga
+  del panel y de las covariables (antes en `eda_transicion_covariables.py`)
+  y `construir_panel_split` (antes en `eda_perfil_split_trayectoria.py`).
+Los scripts del perfil importan ahora de esos modulos y siguen funcionando.
+`diagnostico_shap_nucleo_perfil.py` toma la categoria de `CATEGORIA` en vez
+de leer `perfil_completo_monetaria_2010_2013.csv` y deja de escribir la
+columna `en_perfil_53`. Verificado: todas las salidas vigentes se
+regeneraron identicas (salvo el orden de filas empatadas en
+`sensibilidad_signo_nucleo_por_variable.csv` y los cambios buscados en
+`tab_shap_signo_nucleo` y `tab_temas_variables`).
+
+**Pendiente encontrado de paso.** `src/tabla_trayectorias_3olas.py` genera
+una nota mas larga (con rutas de archivo) que la de
+`paper/tables/tab_trayectorias_3olas.tex` en el repositorio: la tabla del
+paper se edito a mano y no coincide con su script. No se toco; se restauro
+la version del repositorio.

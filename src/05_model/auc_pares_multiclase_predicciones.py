@@ -21,9 +21,15 @@ por par; no depende de que a sea "mas pobre" que b.
 
 Limitaciones: (i) una sola semilla (42, el ajuste canonico de
 `modelo_multiclase_predicciones.py`), sin IC; los IC de 5 semillas para
-`entra_vs_sale` estan en el registro. (ii) Las especificaciones de holdout
-(A4, B4, ..., geoDMSP) son evaluadas sobre 2013->2016 (hogares que el
-modelo no vio); las *geo3 son out-of-fold sobre 2010->2013. (iii) Modelo A
+`entra_vs_sale` estan en el registro; la version con 5 semillas e IC95 de
+los 6 pares esta en `auc_pares_multiclase_semillas.py`. (ii) Solo se
+usan las especificaciones de holdout (A4, B4, A4geoDMSP, B4geoDMSP),
+evaluadas sobre 2013->2016 (hogares que el modelo no vio). Las *geo3 se
+EXCLUYEN (corregido 2026-09-30): sus probabilidades en `predicciones/`
+las guarda `modelo_multiclase_robusto_comparacion._guardar_predicciones`
+con el estimador ajustado sobre la misma muestra que predice, es decir,
+son IN-SAMPLE, no out-of-fold (esta nota decia antes, por error, que eran
+out-of-fold, y daban AUC de entra vs. sale de 0.67 a 0.95). (iii) Modelo A
 incluye el ingreso de la ola base, que define entra frente a sale, asi
 que sus AUC de ese par (~1.0) son una tautologia, no una señal.
 
@@ -46,6 +52,7 @@ import pandas as pd
 from sklearn.metrics import roc_auc_score
 
 import modelo_utils as mu
+import modelo_utils_multiclase as mcu
 
 DIR_PRED = mu.RESULTADOS_DIR / "multiclase" / "predicciones"
 RUTA_SALIDA = mu.RESULTADOS_DIR / "multiclase" / "auc_pares_multiclase.csv"
@@ -64,6 +71,8 @@ def main() -> None:
     filas = []
     for ruta in sorted(DIR_PRED.glob("*.parquet")):
         df = pd.read_parquet(ruta)
+        if df["especificacion"].iloc[0] in mcu.ESPECIFICACIONES_4CLASES_CV:
+            continue  # *geo3: probabilidades in-sample, ver docstring (ii)
         fila = {"algoritmo": df["algoritmo"].iloc[0], "especificacion": df["especificacion"].iloc[0], "n": len(df)}
         for a, b in itertools.combinations(GRUPOS, 2):
             fila[f"auc_{a}_vs_{b}"] = round(auc_par(df, a, b), 4)

@@ -7,7 +7,8 @@ Clasifica las 177 variables finales del consolidado de la ELCA por TEMA
 ejemplos.
 
 Reutiliza las categorias tematicas ya asignadas a las 53 variables del
-perfil (`CATEGORIA` de `src/02_build/eda_perfil_completo.py`), para que un
+perfil (`CATEGORIA` de `src/etiquetas_variables.py`, antes en
+`src/02_build/eda_perfil_completo.py`), para que un
 mismo tema tenga el mismo nombre en esta tabla y en las tablas de perfil.
 Las 124 variables restantes se asignan en `TEMA_EXTRA` (a mano, por
 variable) o, para modulos enteramente tematicos, por modulo
@@ -32,8 +33,8 @@ from pathlib import Path
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "src" / "02_build"))
-from eda_perfil_completo import CATEGORIA  # noqa: E402
+sys.path.insert(0, str(REPO_ROOT / "src"))
+from etiquetas_variables import CATEGORIA  # noqa: E402
 
 INVENTARIO_PATH = REPO_ROOT / "outputs" / "tables" / "eda_variables_modelo" / "01_inventario_variables.csv"
 OUTPUT_PATH = REPO_ROOT / "paper" / "tables" / "tab_temas_variables.tex"
@@ -164,7 +165,7 @@ def main() -> None:
         r"    \vspace{4pt}",
         r"    \footnotesize \textit{Nota:} clasificación temática propia, independiente del",
         r"    módulo de la ELCA del que proviene cada variable; los temas son los mismos que",
-        r"    agrupan las tablas de perfil. No incluye las variables geoespaciales",
+        r"    agrupan el núcleo SHAP (Tabla~\ref{tab:shap_signo_nucleo}). No incluye las variables geoespaciales",
         r"    (Anexo~\ref{apx:variables_geo}). Fuente: cálculos propios con base en ELCA",
         r"    2010, 2013 y 2016.",
         r"  \end{minipage}",

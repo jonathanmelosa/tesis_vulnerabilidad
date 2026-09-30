@@ -150,8 +150,8 @@ riqueza, educación, activos y vivienda, concentran la señal, y el hogar
 vulnerable se parece más al que acaba de salir de la pobreza que al que
 nunca fue pobre. Quienes caen reportan más choques posteriores
 a la predicción, lo que sugiere que parte del riesgo depende de eventos que
-la ola base no permite anticipar; entre quienes caen, la deuda informal y la
-falta de cotización a pensión distinguen a los que permanecen en la pobreza.
+la ola base no permite anticipar; entre quienes caen, permanecen en la
+pobreza los que tenían menos activos financieros y menos cotización a pensión.
 La iluminación nocturna, la única fuente con cobertura
 suficiente, describe bien la geografía de la pobreza, pero no mejora la
 predicción monetaria cuando hay una encuesta vigente y aporta poco bajo
@@ -516,59 +516,58 @@ el objetivo es mejorar la focalización \emph{ex ante}.
 \section{Datos}
 \label{sec:datos}
 
-\subsection{Encuesta Longitudinal Colombiana (ELCA)}
+\subsection{Fuentes de datos}
 \label{subsec:elco}
-
-La fuente primaria de datos es la Encuesta Longitudinal Colombiana de la
-Universidad de los Andes (ELCA), que sigue a los mismos hogares en tres 
-olas: 2010, 2013 y 2016, en zonas urbana y rural. La ELCA se organiza en
- módulos temáticos: hogar, personas, niños, comunidades
-y choques, además de los módulos de activos y gasto. Existen dos olas más, de 2019 y 2022,
-administradas por el DANE, que no se incluyen en este análisis y quedan
-como extensión para trabajo futuro. Para los
-análisis realizados en este estudio, se excluyeron los hogares
-que se dividieron en dos o más sub-hogares en olas subsecuentes (511 casos entre 2010--2013 y
-1{,}190 entre 2013--2016), para no
-hacer supuestos sobre estos hogares en el tiempo.
-
-Antes de construir las covariables se auditaron sistemáticamente los
-módulos de la encuesta (codificación de caracteres, cobertura por ola,
-columnas renombradas y preguntas filtro;
-Anexo~\ref{apx:cobertura_modulos}). El resultado es un panel hogar$\times$ola
-de 27{,}932 observaciones (9{,}853 en 2010, 9{,}261 en 2013 y 8{,}818 en
-2016) y 184 columnas, que combina las covariables de los módulos con las
-variables monetarias (ingreso y gasto per cápita, nominal y real, y brecha
-frente a la línea de pobreza).
-
-\subsection{Fuentes geoespaciales}
 \label{subsec:geo}
 
-Este trabajo utiliza información geoespacial pública y gratuita, bajo el
-supuesto de que captura características del entorno físico y económico
-local que las encuestas no reflejan por completo, pero que afectan la
-vulnerabilidad del hogar: la actividad económica y la electrificación del
-entorno (luces nocturnas), la densidad del área construida frente a la
-vegetación (radar y reflectancia óptica) y si el entorno se venía
-densificando o perdiendo cobertura vegetal antes de cada ola
-(Tabla~\ref{tab:variables_pedagogico}, Anexo~\ref{apx:variables_geo}). A
-partir de las coordenadas de los hogares de la ELCA, de acceso restringido
-y controlado por la Universidad de los Andes, la información se consulta
-en Google Earth Engine y se anexa a cada hogar.
+El estudio combina un panel de hogares con información geoespacial
+pública y gratuita. Qué datos se usan de cada fuente lo decide el diseño
+de evaluación: los modelos se entrenan en la transición 2010$\to$2013 y
+se evalúan en 2013$\to$2016, así que toda fuente necesita datos en 2010 y
+en 2013.
 
-Como los modelos se entrenan en 2010$\to$2013 y se evalúan en
-2013$\to$2016, cada fuente necesita datos en 2010 y en 2013. De las siete
-fuentes evaluadas (Anexo~\ref{apx:cobertura_temporal}), solo tres tienen
-cobertura anterior a 2014: DMSP-OLS, ALOS PALSAR y Landsat 5 TM.
+\paragraph{Panel de hogares.} La fuente primaria es la Encuesta
+Longitudinal Colombiana de la Universidad de los Andes (ELCA), que sigue
+a los mismos hogares urbanos y rurales en 2010, 2013 y 2016. Se organiza
+en módulos temáticos (hogar, personas, niños, comunidades, choques,
+activos y gasto). Las olas de 2019 y 2022, administradas por el DANE,
+quedan fuera de esta ventana y se dejan como agenda futura. Se
+excluyen los hogares que se dividieron en dos o más sub-hogares en olas
+posteriores (511 casos entre 2010 y 2013, y 1{,}190 entre 2013 y 2016),
+para no hacer supuestos sobre su trayectoria. Tras auditar los módulos
+(codificación de caracteres, cobertura por ola, columnas renombradas y
+preguntas filtro; Anexo~\ref{apx:cobertura_modulos}), el resultado es un
+panel hogar$\times$ola de 27{,}932 observaciones (9{,}853 en 2010, 9{,}261
+en 2013 y 8{,}818 en 2016) y 184 columnas. El panel reúne las covariables
+de los módulos y las variables monetarias construidas: ingreso y gasto per cápita,
+nominales y reales, y la brecha frente a la línea de pobreza.
+
+\paragraph{Información geoespacial.} El supuesto es que el entorno
+físico y económico local afecta la vulnerabilidad del hogar de maneras
+que la encuesta no capta por completo. Se evaluaron siete fuentes
+(Anexo~\ref{apx:cobertura_temporal}), agrupadas según lo que miden. La
+actividad económica y la electrificación del entorno se aproximan con
+luces nocturnas (DMSP-OLS y VIIRS DNB). La densidad del área construida
+frente a la vegetación se aproxima con radar (ALOS PALSAR y Sentinel-1)
+y con reflectancia óptica (Landsat 5 TM y Sentinel-2). La infraestructura
+cartografiada se aproxima con OpenStreetMap. Además de su nivel, de cada
+fuente se mide si el entorno se venía densificando o perdiendo cobertura
+vegetal antes de cada ola (Tabla~\ref{tab:variables_pedagogico},
+Anexo~\ref{apx:variables_geo}). Toda las información se consulta en Google
+Earth Engine a partir de las coordenadas de los hogares de la ELCA, cuyo
+acceso es restringido y controlado por la Universidad de los Andes.
 Sentinel-1, Sentinel-2 y VIIRS DNB empezaron a operar después de 2012, y
-OpenStreetMap estaba casi vacío en Colombia en 2010--2013. DMSP-OLS cubre
-el 100\% de los hogares en 2010 y en 2013. ALOS PALSAR cubre 2010, pero no
-tiene datos entre 2011 y 2014. Landsat 5 TM cubre solo el 65.5\% de los
-hogares en 2010, por nubosidad, y dejó de adquirir imágenes útiles antes
-de 2013. Por eso DMSP-OLS es la fuente de la evaluación principal. Además
-de las otras dos fuentes con información disponible limitada antes de 2014, 
-se revisaron también imágenes de Google Street View de forma exploratoria
-debido a que de lo que ser revisó no hay fotos anteriores a 2012 y 
-el 61\% son posteriores a 2023 (Anexo~\ref{apx:gsv}).
+OpenStreetMap estaba casi vacío en Colombia entre 2010 y 2013. Solo tres
+fuentes, una por cada tipo de medición, tienen cobertura anterior a 2014:
+DMSP-OLS cubre el 100\% de los hogares en 2010 y en 2013; ALOS PALSAR
+cubre 2010 pero no tiene datos entre 2011 y 2014; y Landsat 5 TM cubre
+solo el 65.5\% de los hogares en 2010, por nubosidad, y dejó de adquirir
+imágenes útiles antes de 2013. Por eso DMSP-OLS es la fuente de la
+evaluación principal y las otras dos se usan en una variante
+complementaria (Sección~\ref{subsec:desc}). Las imágenes de Google Street
+View se revisaron solo de forma exploratoria: para las coordenadas de los hogares, 
+no hay fotos anteriores a 2012 y el 61\% de las que se encontraron
+son posteriores a 2023 (Anexo~\ref{apx:gsv}).
 
 \subsection{Cobertura, atrición e inventario del panel}
 \label{subsec:desc}
@@ -576,27 +575,25 @@ el 61\% son posteriores a 2023 (Anexo~\ref{apx:gsv}).
 Los módulos de Hogar, Personas y Choques cubren todo el panel;
 Comunidades cubre entre 92 y 96\%, porque se mide por comunidad y no por
 hogar, y Niños el 55.4\%, la proporción de hogares con niños de 6 a 9
-años (Anexo~\ref{apx:cobertura_modulos}). El panel pierde 11.4\% de los
-hogares entre 2010 y 2013 y otro 11.4\% entre 2013 y 2016 (17.9\%
-acumulado). La atrición no es aleatoria: se concentra en hogares urbanos
-(16.2\% frente a 5.8\% de los rurales en 2010--2013) y de estratos altos
-(Anexo~\ref{apx:atricion}).
+años. El panel pierde 11.4\% de los hogares entre 2010 y 2013 y otro
+11.4\% entre 2013 y 2016 (17.9\% acumulado). La atrición no es
+aleatoria: se concentra en hogares urbanos (16.2\% frente a 5.8\% de los
+rurales en 2010--2013) y de estratos altos (Anexo~\ref{apx:atricion}).
 
-Las covariables finales suman 177 variables: 164 de los módulos auditados
-y 13 monetarias (detalle por módulo, tipo y tema en el
+Las covariables finales suman 177: 164 de los módulos y 13 monetarias
+(cobertura y detalle por módulo, tipo y tema en el
 Anexo~\ref{apx:cobertura_modulos}).
 \label{subsubsec:variables_especificaciones}
-El Modelo A usa 169 y el Modelo B, sin ingreso ni gasto, 165
-(Sección~\ref{subsec:modelos}). En ambos se descartan los indicadores y
-líneas de pobreza y el ingreso y gasto nominales, porque definen la
-variable de resultado. Sobre cada especificación se evalúa el aporte
-geoespacial en dos variantes. La principal agrega las 23 variables de
-DMSP-OLS, la única fuente con datos en 2010 y 2013, y se evalúa en
-2013$\to$2016 (Sección~\ref{subsec:marginal_geo}). La segunda agrega las
-127 variables de las tres fuentes (23 de DMSP-OLS, 52 de ALOS PALSAR y 52
-de Landsat 5 TM) y, como las dos últimas solo tienen datos en 2010, se
-evalúa con validación cruzada dentro de 2010$\to$2013
-(Tabla~\ref{tab:variables_pedagogico}, Anexo~\ref{apx:variables_geo}).
+Se descartan los indicadores y las líneas de pobreza y el ingreso y
+gasto nominales, porque definen la variable de resultado. Con eso, el
+Modelo A usa 169 variables y el Modelo B, sin ingreso ni gasto, usa 165
+(Sección~\ref{subsec:modelos}). A cada especificación se le agregan las
+variables geoespaciales en dos variantes. La principal agrega las 23
+variables de DMSP-OLS y se evalúa en 2013$\to$2016
+(Sección~\ref{subsec:marginal_geo}). La complementaria agrega las 127
+variables de las tres fuentes (23 de DMSP-OLS, 52 de ALOS PALSAR y 52 de
+Landsat 5 TM) y se evalúa con validación cruzada dentro de
+2010$\to$2013.
 
 \subsection{Dinámica de la pobreza en el panel}
 \label{subsec:transiciones}
@@ -646,9 +643,17 @@ Apéndice~\ref{apx:transiciones_robustez}}.
   \label{fig:sankey}
 \end{figure}
 
-Bajo pobreza monetaria la persistencia es alta pero decrece: 70.3\% de los
+Los paneles
+superiores de la Figura~\ref{fig:sankey} traducen la matriz monetaria a
+flujos (los inferiores hacen lo mismo con la del IPM): en 2010--2013 dominan los \emph{siempre
+pobres} (43.9\%) sobre los \emph{nunca pobres} (28.8\%); en 2013--2016 el
+orden se invierte (37.0\% vs.\ 33.3\%), y en ambos periodos la salida
+casi duplica la entrada, es decir, la pobreza monetaria se redujo de forma neta,
+no solo se redistribuyó entre hogares. Bajo pobreza monetaria la persistencia 
+es alta pero decrece: 70.3\% de los
 pobres en 2010 seguían pobres en 2013, cae a 61.8\% entre 2013 y 2016 (la
-salida condicional a no ser pobre sube de 29.7\% a 38.2\%); la persistencia en la
+salida de la pobreza, condicional a ser pobre en la ola base, sube de
+29.7\% a 38.2\%); la persistencia en la
 no-pobreza mejora de 76.6\% a 80.1\%. Bajo IPM entrar es menos frecuente
 (12.1\% y 9.7\%, frente a 23.4\% y 19.9\% en monetaria) y salir es más
 frecuente (54.5\% y 52.3\%, frente a 29.7\% y 38.2\%), por lo que la
@@ -658,15 +663,9 @@ estructurales (educación, materiales de la vivienda, acceso a servicios)
 que, una vez superadas, rara vez se revierten, a diferencia del ingreso
 corriente. La alta salida debe leerse con cautela en 2010$\to$2013,
 porque coincide con un cambio en la medición del indicador de barreras de
-acceso a salud (Sección~\ref{subsec:limitaciones}); que se mantenga en
+acceso a salud (Sección~\ref{subsec:limitaciones}); no obstante, que se mantenga en
 2013$\to$2016, donde ese indicador se mide igual, sugiere que no solo
-se debe a la medición. Los paneles
-superiores de la Figura~\ref{fig:sankey} traducen la matriz monetaria a
-flujos (los inferiores hacen lo mismo con la del IPM): en 2010--2013 dominan los \emph{siempre
-pobres} (43.9\%) sobre los \emph{nunca pobres} (28.8\%); en 2013--2016 el
-orden se invierte (37.0\% vs.\ 33.3\%), y en ambos periodos la salida
-casi duplica la entrada, es decir, la pobreza monetaria se redujo de forma neta,
-no solo se redistribuyó entre hogares.
+se debe a la medición.
 
 Un último ejercicio (Tabla~\ref{tab:trayectorias_3olas}) sigue a los
 mismos hogares no pobres en la ola base a lo largo de las tres olas para
@@ -714,31 +713,28 @@ actualizada anualmente por IPC), la misma metodología para las tres olas
 no se usa la actualización metodológica ENPH 2016--2017 con la que el
 DANE recalculó la serie 2012--2018, porque esa serie no cubre 2010 y
 adoptarla habría introducido una inconsistencia metodológica justo entre las olas
-que este estudio compara.}. De otro lado, este estudio utiliza un proxy del
-Índice de Pobreza Multidimensional (IPM) que se construye
-siguiendo la metodología oficial del DANE \parencite{angulo2011},
- de cinco dimensiones (educación; niñez y juventud;
-trabajo; salud; vivienda y servicios públicos) y quince indicadores
-ponderados (20\% por dimensión, peso igual entre
-los indicadores de cada dimensión) y un punto de corte de pobreza de
-33.3\% del puntaje ponderado.\footnote{Es un proxy porque cinco de los quince indicadores se
-excluyen del puntaje final por huecos de cobertura en la ola
-2010 del panel: privación en primera infancia (no medible de forma
-consistente en ninguna ola); inasistencia escolar y trabajo infantil
-(\texttt{estudia}/\texttt{actividad\_ppal} en niños con 0.4\%--35.3\% de
-cobertura en 2010, frente a ~100\% en 2013/2016); y empleo informal y
-desempleo de larga duración (\texttt{actividad\_ppal} en adultos con
-~20\% de cobertura en 2010, frente a 75--80\% en 2013/2016). Se calculan
-y reportan para auditoría, pero no entran en la clasificación
-\texttt{pobre\_ipm}. Quedan diez indicadores activos; la dimensión
-Trabajo, que queda sin indicadores, redistribuye su 20\% entre las cuatro
-dimensiones restantes (25\% cada una). El punto de corte de pobreza se
-mantiene en 33.3\% del puntaje ponderado, independiente del número de
-indicadores activos.}
+que este estudio compara.}. De otro lado, la pobreza multidimensional se
+mide con un proxy del Índice de Pobreza Multidimensional (IPM) del DANE
+\parencite{angulo2011}, construido con los diez indicadores que la ELCA
+permite medir de forma comparable en las tres olas. Los indicadores se
+agrupan en cuatro dimensiones de igual peso (25\% cada una), con igual
+peso entre los indicadores de cada dimensión: educación (bajo logro
+educativo y analfabetismo), niñez y juventud (rezago escolar), salud
+(sin aseguramiento y barreras de acceso) y vivienda y servicios públicos
+(fuente de agua, eliminación de excretas, pisos, paredes y hacinamiento
+crítico). Un hogar se clasifica como pobre si su puntaje ponderado de
+privaciones es de al menos 33.3\%, el mismo corte del IPM
+oficial.\footnote{El IPM oficial tiene cinco dimensiones y quince
+indicadores. Se excluyen cinco por falta de cobertura en la ola 2010:
+privación en primera infancia (no medible de forma consistente en
+ninguna ola); inasistencia escolar y trabajo infantil (0.4\%--35.3\% de
+cobertura en 2010, frente a cerca de 100\% en 2013 y 2016); y empleo
+informal y desempleo de larga duración (cerca de 20\% de cobertura en
+2010, frente a 75--80\% en 2013 y 2016). Con ello la dimensión Trabajo
+queda sin indicadores y su peso se reparte entre las otras cuatro.}
 
 Los modelos predictivos de este estudio (Secciones~\ref{subsec:modelos}
-en adelante) se estiman sobre los hogares no pobres en $t$ (los grupos
-\emph{nunca pobre} y \emph{entra en pobreza}) y predicen si caen en
+en adelante) se estiman sobre los hogares no pobres en $t$ y predicen si caen en
 pobreza en $t+1$, de acuerdo con la definición de vulnerabilidad
 (Ecuación~\ref{eq:outcome}):
 
@@ -761,26 +757,15 @@ entrenar y evaluar esos modelos. Por brevedad, el texto llama
 entendiendo que son la realización del riesgo y que otros hogares con una
 probabilidad predicha igual de alta no llegaron a caer.
 
-Como diagnóstico complementario se estima además un modelo multiclase
-sobre los cuatro grupos de la matriz de transición, sin ingreso ni gasto,
-que permite comprobar si quienes entran en pobreza se distinguen de
-quienes salen, algo que el modelo binario no puede responder
-(Sección~\ref{subsec:determinantes}). No es el modelo principal, porque la
-pregunta de vulnerabilidad se refiere solo a los hogares hoy no pobres.
-Su especificación completa y sus resultados se reportan en el
-Apéndice~\ref{apx:multiclase}.
-
 \subsection{Metodología de caracterización de los hogares vulnerables}
 \label{subsec:seleccion_perfil}
 
 Para caracterizar a los hogares vulnerables se combinan dos análisis. El
 principal usa los modelos de la Sección~\ref{subsec:modelos} para
 identificar qué variables anticipan la entrada en pobreza. El segundo
-compara directamente las covariables de los cuatro grupos de la matriz de
-transición: comprueba qué tan bien esas variables separan a los grupos en
-los datos y permite ubicar al hogar vulnerable (\emph{entra en pobreza}) 
-respecto a los tres restantes, incluyendo a los que ya eran pobres, que 
-los modelos no incluyen.
+compara a los hogares vulnerables (\emph{entra en pobreza}) con los otros
+tres grupos de la matriz de transición, incluidos los que ya eran pobres,
+que los modelos binarios no incluyen.
 
 En el primer análisis se usan valores SHAP, que miden cuánto sube o baja
 cada variable la probabilidad predicha para cada hogar, con la ventaja 
@@ -797,41 +782,28 @@ de una variable es estable si su signo se mantiene en las dos definiciones
 de pobreza y en las dos ventanas. Ambos criterios se prueban con umbrales alternativos en el
 Apéndice~\ref{apx:soporte_shap} para validar los resultados.
 
-En el segundo análisis se mide, para cada variable, qué tan bien
-distingue a los cuatro grupos, con una medida entre 0 y 1. Para las
-variables numéricas es el $\eta^2$ de un análisis de varianza (ANOVA) de
-una vía sobre los rangos de la variable, equivalente no paramétrico que
-no se deja arrastrar por valores extremos. En otras palabras, la proporción de su variación
-que explica el grupo. Para las categóricas es la V de Cramér, basada en la
-prueba chi-cuadrado de independencia. Ambas se ponderan por los factores
-de expansión. Una variable entra al perfil si su medida supera 0.10 (o
-0.05 en las dos ventanas, bajo pobreza monetaria) y si el resultado se
-sostiene en 300 remuestreos \emph{bootstrap}, para descartar que la
-diferencia entre grupos se deba al azar de la muestra. Así quedan 53 variables bajo pobreza monetaria y 36
-bajo IPM.
+Para el segundo análisis se estima un modelo multiclase sobre los cuatro
+grupos de la matriz de transición (\emph{nunca pobre}, \emph{entra en
+pobreza}, \emph{sale de pobreza} y \emph{siempre pobre}), con los mismos
+algoritmos y el mismo esquema de validación que el modelo binario
+(entrenamiento en 2010$\to$2013 y prueba en 2013$\to$2016). Se estima sin
+ingreso ni gasto (Modelo B): con ellos la comparación sería trivial,
+porque el ingreso define la condición de pobreza en la ola base. Para
+medir qué tan parecidos son dos grupos se usa el AUC-ROC por par: se
+restringe la muestra a los hogares de esos dos grupos y se toma como
+puntaje la probabilidad que el modelo asigna al primero. Un AUC cercano a
+0.5 indica que, con la información de la ola base, los dos grupos no se
+distinguen. Su incertidumbre se mide con un \emph{bootstrap} por
+comunidad sobre la muestra de prueba. El modelo multiclase no reemplaza
+al binario: la pregunta de vulnerabilidad se refiere solo a los hogares
+hoy no pobres y, al asignar a cada hogar su grupo más probable, casi
+nunca identifica a los que entran en pobreza. Se estima solo bajo pobreza
+monetaria; su especificación y resultados completos están en el
+Apéndice~\ref{apx:multiclase}.
 
-Los dos análisis se combinan de la siguiente manera. El análisis SHAP
-decide qué variables se reportan como determinantes: las del núcleo cuya
-dirección es estable. El análisis univariado no agrega variables a esa
-lista, sino que sirve para dos cosas. La primera es confirmar el resultado de SHAP
-sin usar ningún modelo. SHAP muestra en qué variables se apoyan los
-modelos para predecir, pero un modelo puede apoyarse en una variable por
-razones propias de cómo se ajusta, por ejemplo, porque está
-correlacionada con otra. El análisis univariado compara directamente
-los valores de esas variables entre los cuatro grupos: si estas también
-muestran diferencias claras entre los grupos, la importancia de variables 
-según SHAP no depende de la estructura de los modelos de predicción. La segunda es de comparación: 
-como los modelos solo incluyen
-hogares que no eran pobres, no pueden decir a qué grupo se parece el hogar vulnerable, en particular
-si se parece más a quienes salen de la pobreza o a quienes nunca fueron
-pobres; el análisis univariado sí puede, porque incluye a los
-cuatro grupos.
-
-Finalmente, dos ejercicios completan el análisis: se separa a los hogares
-que entran en pobreza según sigan o no pobres en 2016 (transitorios y
-persistentes), y el modelo multiclase descrito en la
-Sección~\ref{subsec:outcome} mide si es posible distinguir a quienes
-entran de quienes salen de la pobreza.
+Finalmente, se separa a los hogares que entran en pobreza según sigan o
+no pobres en 2016 (transitorios y persistentes) y se comparan sus
+promedios en las variables del núcleo SHAP.
 
 \subsection{Especificación de modelos}
 \label{subsec:modelos}
@@ -1022,10 +994,9 @@ Sección~\ref{subsec:desempeno} compara el desempeño fuera de muestra de
 los cinco algoritmos bajo las especificaciones A y B (con y sin ingreso/gasto) del
 hogar y analiza los errores de inclusión y exclusión de los modelos. La
 Sección~\ref{subsec:determinantes} caracteriza a los hogares vulnerables a
-partir de los valores SHAP de esos modelos y usa el perfil univariado de
- los cuatro grupos de la matriz de transición
-como validación y para estudiar lo que el análisis multivariado no permite: comparar
-simultáneamente los perfiles de los cuatro grupos. La
+partir de los valores SHAP de esos modelos y usa un modelo
+multiclase para compararlos con los otros tres grupos de la matriz de
+transición, incluidos los que ya eran pobres. La
 Sección~\ref{subsec:marginal_geo} analiza el efecto de las variables provenientes de
 fuentes geoespaciales públicas y evalúa si agregar DMSP-OLS mejora esa
 predicción, bajo pobreza monetaria e IPM
@@ -1215,7 +1186,7 @@ descriptiva a choques posteriores a la predicción. Las
 implicaciones de este resultado para la focalización se discuten en la
 Sección~\ref{subsec:politica}.
 
-\subsection{Determinantes de la vulnerabilidad: perfil e importancia de variables}
+\subsection{Determinantes de la vulnerabilidad y comparación entre grupos}
 \label{subsec:determinantes}
 \label{subsec:caracterizacion_grupos}
 \label{subsec:importancia_resultados}
@@ -1226,10 +1197,10 @@ qué los distingue. La evidencia principal son los valores SHAP de los
 modelos de la Sección~\ref{subsec:desempeno}: solo se afirma como
 determinante lo que se sostiene en los cinco algoritmos, en las dos
 definiciones de pobreza (monetaria y multidimensional) y en las dos
-ventanas (2010$\to$2013 y 2013$\to$2016). El perfil univariado, que
-compara el promedio de cada variable entre los cuatro grupos de la matriz
-de transición (Sección~\ref{subsec:transiciones}), valida ese resultado
-con un método distinto y complementa el análisis de los valores de SHAP.
+ventanas (2010$\to$2013 y 2013$\to$2016). El modelo multiclase compara a
+los hogares vulnerables con los otros tres grupos de la matriz de
+transición (Sección~\ref{subsec:transiciones}), incluidos los que ya eran
+pobres, que los modelos binarios no incluyen.
 
 Hay cuatro hallazgos principales. \textbf{Primero,} unas pocas variables
 concentran casi toda la información para identificar a los hogares
@@ -1298,21 +1269,18 @@ ocurren.
 \input{tables/tab_shap_signo_nucleo.tex}
 
 \textbf{Tercero,} el hogar que cae en pobreza se parece más al que acaba
-de salir de ella que al que nunca ha sido pobre. El perfil univariado
-confirma primero la estructura del núcleo con un método distinto: 28
-variables son comunes a pobreza monetaria e IPM, y se concentran en
-cuatro categorías de variables: vivienda (9 variables, entre materiales,
-servicios y hacinamiento), educación y empleo (7), ingreso y gasto (4) y
-activos del hogar (3) (Tabla~\ref{tab:perfil_nucleo_comun}). Además, a 
-partir del perfil univariado se encuentra que el hogar que entra en pobreza queda
-más cerca del que sale que del que nunca fue pobre en 47 de 53 variables
-en 2010$\to$2013 y en 49 de 53 en 2013$\to$2016
-(Tabla~\ref{tab:perfil_consolidada}; 29 de 36 y 31 de 35 bajo IPM,
-Apéndice~\ref{apx:perfil_ipm}), incluso en las variables de dirección
-estable del núcleo (Figura~\ref{fig:perfil_nucleo_grupos}). Un modelo
-multiclase sin ingreso confirma esto de forma independiente: en
-2013$\to$2016 separa ``entra'' de ``nunca pobre'' con un AUC de 0.73 a
-0.75, pero apenas separa ``entra'' de ``sale'' (0.53 a 0.56, casi azar; Apéndice~\ref{apx:multiclase}).
+de salir de ella que al que nunca ha sido pobre. El modelo multiclase sin
+ingreso, evaluado en 2013$\to$2016, separa ``entra'' de ``nunca pobre''
+con un AUC de 0.73 a 0.75 según el algoritmo, pero apenas separa
+``entra'' de ``sale'' (0.53 a 0.56, apenas por encima del azar); los
+intervalos de confianza de los dos pares no se superponen en ningún
+algoritmo (Tabla~\ref{tab:multiclase_auc_pares},
+Apéndice~\ref{apx:multiclase}). La Figura~\ref{fig:perfil_nucleo_grupos}
+muestra la misma cercanía variable por variable: en las diez variables
+del núcleo con dirección estable o moderada, el hogar que entra queda más
+cerca del que sale que del que nunca fue pobre en ambas ventanas, con una
+sola excepción (el último grado aprobado por el jefe en
+2013$\to$2016). Este resultado se establece bajo pobreza monetaria.
 ``Entra'' y ``sale'' son dos lados de una misma frontera, no dos tipos de
 hogar. Es la población que \textcite{lopezCalva2014} identifican en Chile,
 México y Perú: hogares que superaron la línea de pobreza sin alcanzar
@@ -1326,17 +1294,15 @@ de ``nunca pobre'' con más dificultad que el que sale (AUC de 0.73 a 0.75,
 frente a 0.81 a 0.83), consistente con que parte de una situación algo
 mejor. Y con la información de la ola base tampoco se distingue bien a
 quien sale de la pobreza de quien permanece en ella (0.60 a 0.63): ni la
-entrada ni la salida se anticipan bien desde el perfil. En el contexto de
+entrada ni la salida se anticipan bien con la información de la ola base. En el contexto de
 una potencial política pública de vulnerabilidad, esto implica que los
 hogares que acaban de salir de la pobreza son los siguientes candidatos a
 caer en ella: retirarlos de los programas en cuanto superan la línea
 podría devolverlos a la pobreza. Y como la salida tampoco se anticipa
-desde el perfil, las reglas de graduación basadas en características
+con la información de la ola base, las reglas de graduación basadas en características
 observadas serían menos confiables que un seguimiento periódico de la
 condición del hogar; una salida gradual, o mantenerlos en seguimiento,
-sería más coherente con este perfil.
-
-\input{tables/tab_perfil_nucleo_comun.tex}
+sería más coherente con este resultado.
 
 \begin{figure}[H]
   \centering
@@ -1345,44 +1311,46 @@ sería más coherente con este perfil.
   y en los que salen de ella, expresado en relación con los promedios de
   los dos grupos extremos: 0 corresponde al promedio de los hogares
   ``siempre pobres'' y 1 al de los ``nunca pobres'' (por ejemplo, 0.5
-  indica un promedio a medio camino entre ambos). Se muestran las ocho
-  variables del núcleo SHAP con dirección estable o moderada que forman
-  parte del perfil univariado de 53 variables. Grupos de
+  indica un promedio a medio camino entre ambos). Se muestran las diez
+  variables del núcleo SHAP con dirección estable o moderada. Grupos de
   \textcite{lopezCalva2014}, pobreza monetaria, transiciones
   2010$\to$2013 ($n=8{,}218$) y 2013$\to$2016 ($n=6{,}911$). Fuente:
   cálculos propios.}
   \label{fig:perfil_nucleo_grupos}
 \end{figure}
 
-\textbf{Cuarto,} entre los hogares que caen, el endeudamiento informal y
-la falta de protección laboral (informalidad laboral) separan a quienes quedan atrapados de
-quienes se recuperan. La tercera ola permite distinguir dos trayectorias:
-pobres transitorios (355 hogares, 58\%), que vuelven a salir antes de
-2016, y persistentes (255 hogares, 42\%), que siguen pobres en 2016
-(Tabla~\ref{tab:perfil_split_trayectoria}). Las diferencias entre ambos
-son sustantivas: 20 de las 52 variables comparadas difieren de forma
-significativa. La más marcada es la deuda informal (17.3\% de los
-transitorios frente a 41.9\% de los persistentes), y en la misma
-dirección los persistentes cotizan menos a pensión y tienen menos acceso
-a deuda formal. El resultado es coherente con \textcite{dercon2002}, para
-quien los mercados formales de crédito y seguros suelen estar ausentes o
-ser incompletos en los países en desarrollo, lo que dificulta suavizar el
-consumo cuando los choques persisten, y con \textcite{hernandez2022}, que
-encuentran con la ELCA que el acceso al crédito reduce la vulnerabilidad.
-Que una parte de quienes caen permanezca en la pobreza es consistente,
-además, con la evidencia de trampas de pobreza en Colombia
-\parencite{castaneda2012}. Estas variables podrían orientar la duración del apoyo: una vez
-un hogar cae, el endeudamiento informal y la falta de cotización
-señalarían a quienes necesitan un apoyo más largo, lo que complementa la
-focalización en dos etapas (Sección~\ref{subsec:politica}).
+\textbf{Cuarto,} entre los hogares que caen, quedan atrapados los que
+cayeron con menos recursos acumulados. La tercera ola permite distinguir
+dos trayectorias: pobres transitorios (355 hogares, 58\%), que vuelven a
+salir antes de 2016, y persistentes (255 hogares, 42\%), que siguen pobres
+en 2016 (Tabla~\ref{tab:split_trayectoria_nucleo}). En las variables del
+núcleo SHAP, los persistentes tenían en 2010 menos activos financieros
+(0.25 frente a 0.63 en promedio), menor índice de riqueza, estrato y
+nivel educativo del hogar y del jefe, y más personas por cuarto: son las
+mismas variables que, con dirección estable, protegen frente a la caída
+(Segundo hallazgo). También cotizaban menos a pensión (11.6\% frente a
+22.8\% de los integrantes del hogar) y tenían menos bienes durables, dos
+variables del núcleo cuyo signo no es estable. Otras diferencias grandes,
+como el estado civil del jefe o los desplazados en la comunidad,
+corresponden a variables sin dirección estable en SHAP y se reportan solo
+como asociaciones. Lo que protege de caer, el patrimonio acumulado, es
+también lo que distingue a quienes logran salir. El resultado es
+coherente con \textcite{dercon2002}, para quien el ahorro y los activos
+funcionan como autoseguro de los hogares frente a los choques, y con la
+evidencia de trampas de pobreza en Colombia \parencite{castaneda2012}.
+Estas variables podrían orientar la duración del apoyo: una vez un hogar
+cae, la falta de activos financieros y de cotización señalaría a quienes
+necesitan un apoyo más largo, lo que complementa la focalización en dos
+etapas (Sección~\ref{subsec:politica}).
 
-\input{tables/tab_perfil_split_trayectoria.tex}
+\input{tables/tab_split_trayectoria_nucleo.tex}
 
 En conjunto, el hogar vulnerable es un hogar no pobre con poca riqueza y
 capital educativo, hacinado y con alta carga de dependencia, que se
 parece más a quien acaba de salir de la pobreza que a quien nunca la
-vivió; esa estructura se sostiene entre algoritmos, definiciones de
-pobreza y ventanas.
+vivió. El núcleo y su dirección se sostienen entre algoritmos,
+definiciones de pobreza y ventanas; la cercanía con quienes salen, bajo
+pobreza monetaria.
 
 \subsection{Contribución marginal de las variables geoespaciales}
 \label{subsec:marginal_geo}
@@ -1402,7 +1370,7 @@ diferencias entre subgrupos.
 
 Frente a las variables geoespaciales se encontraron cuatro hallazgos.
 \textbf{Primero,} la luz nocturna ordena a los hogares según su
-trayectoria de pobreza y reproduce el perfil de la encuesta. En
+trayectoria de pobreza y reproduce lo que muestra la encuesta. En
 2010$\to$2013 separa de forma monótona los cuatro grupos, en media y en
 mediana, bajo pobreza monetaria e IPM: de ``siempre pobre'' a ``nunca
 pobre'', el valor de iluminación nocturna sube en cada paso
@@ -1469,10 +1437,11 @@ $r\approx0.01$ al descontar cuatro variables del núcleo: servicios
 públicos, estrato, bienes durables y personas por cuarto
 (Figura~\ref{fig:residual_dmsp_riqueza}). Tampoco ayuda a resolver el
 problema central de la Sección~\ref{subsec:errores_inclusion}: en el
-modelo multiclase, agregar DMSP-OLS no mejora de forma apreciable la
-separación de ningún par de grupos, y la de ``entra'' frente a ``sale''
-cambia apenas entre $-0.006$ y $+0.011$
-(Tabla~\ref{tab:multiclase_auc_pares}, Apéndice~\ref{apx:multiclase}).
+modelo multiclase, agregar DMSP-OLS cambia el AUC de cada par de
+grupos en menos de 0.025, sin un patrón consistente entre algoritmos, y
+en la separación de ``entra'' frente a ``sale'' ningún cambio es
+distinguible de cero (entre $-0.006$ y $+0.011$;
+Tabla~\ref{tab:multiclase_auc_pares}, Apéndice~\ref{apx:multiclase}).
 La luz nocturna distingue, como la encuesta, a los hogares precarios de
 los que no lo son, pero no a cuáles de los precarios caerán. Un sistema
 que ya cuenta con una encuesta vigente no ganaría precisión al
@@ -1592,12 +1561,13 @@ uno que sí (Sección~\ref{subsec:desempeno}). \textbf{Tercero,} con la
 información de la ola base es difícil separar a quien cae de quien no: los
 hogares marcados que no caen también son precarios, quienes caen reportan
 más choques posteriores, y la información de la ola base distingue a ``entra'' de
-``sale'' casi al azar (Sección~\ref{subsec:errores_inclusion}).
+``sale'' apenas por encima del azar (Secciones~\ref{subsec:errores_inclusion}
+y~\ref{subsec:determinantes}).
 \textbf{Cuarto,} el hogar vulnerable se reconoce por lo que ha acumulado
 (riqueza, educación, activos y vivienda) y se parece más al que acaba de
-salir de la pobreza que al que nunca fue pobre; entre los que caen, la
-deuda informal y la falta de cotización a pensión señalan a quienes
-quedan atrapados (Sección~\ref{subsec:determinantes}). \textbf{Quinto,} y
+salir de la pobreza que al que nunca fue pobre; entre los que caen,
+quedan atrapados los que tenían menos activos financieros, riqueza y
+cotización a pensión (Sección~\ref{subsec:determinantes}). \textbf{Quinto,} y
 en respuesta a la pregunta de investigación, las fuentes geoespaciales
 públicas describen bien la geografía de la pobreza, pero no mejoran la
 identificación de los hogares vulnerables cuando hay una encuesta
@@ -1629,9 +1599,9 @@ limitación de la protección social reactiva a choques en la región, que ha
 dependido sobre todo de ampliar los beneficios de quienes ya estaban en
 los programas y ha dejado por fuera a muchos hogares afectados
 \parencite{costella2023}. Cuarto, como la
-salida de la pobreza tampoco se anticipa desde el perfil, la graduación
-debería ser gradual y con seguimiento, y la deuda informal y la falta de
-cotización podrían orientar la duración del apoyo. Quinto, la iluminación
+salida de la pobreza tampoco se anticipa con la información de la ola
+base, la graduación debería ser gradual y con seguimiento, y la falta de
+activos financieros y de cotización podría orientar la duración del apoyo. Quinto, la iluminación
 nocturna no se justifica como covariable de rutina con una encuesta
 vigente, pero sí para priorizar territorios y como respaldo entre rondas,
 sobre todo en zonas rurales. Todas son asociaciones, no efectos causales,
@@ -1650,6 +1620,9 @@ heterogeneidad por subgrupos es exploratoria y la corrección por
 conglomerados de comunidad no se estimó para todos los algoritmos. En la
 muestra, la separación entre pobres transitorios y persistentes se apoya
 en 610 de 723 hogares, y ELCA no cubre el Chocó rural ni La Guajira.
+La cercanía entre quienes entran y quienes salen de la pobreza se
+establece solo bajo pobreza monetaria, porque el modelo multiclase no se
+estimó bajo IPM.
 
 Los resultados bajo IPM tienen además un límite de medición: el indicador
 de barreras de acceso a salud se mide en 2010 con un proxy distinto al de
@@ -1949,38 +1922,17 @@ retoma en la Sección~\ref{subsec:limitaciones}).
   \label{fig:atricion}
 \end{figure}
 
-\subsection{Soporte del perfil univariado y del núcleo SHAP}
+\subsection{Soporte del núcleo SHAP}
 \label{apx:soporte_shap}
 
-Complemento de la Sección~\ref{subsec:determinantes}: perfil de las 53 variables
-robustas por grupo de transición, concentración de la señal SHAP y sensibilidad
-del núcleo y de su dirección a los umbrales elegidos.
-
-\input{tables/tab_perfil_consolidada.tex}
+Complemento de la Sección~\ref{subsec:determinantes}: concentración de la
+señal SHAP y sensibilidad del núcleo y de su dirección a los umbrales elegidos.
 
 \input{tables/tab_shap_variables_necesarias.tex}
 \end{table}
 
 \input{tables/tab_sensibilidad_shap.tex}
 \end{table}
-
-\subsection{Perfil completo de covariables, pobreza multidimensional (IPM)}
-\label{apx:perfil_ipm}
-
-Complemento de la Sección~\ref{subsec:caracterizacion_grupos}: perfil
-completo de covariables robustas frente a la transición
-2010$\to$2013 bajo pobreza multidimensional (mismo criterio de inclusión
-que en pobreza monetaria -- efecto$>$0.10 con bootstrap, sin deduplicar
-por correlación), una tabla por categoría temática.
-
-\input{tables/tab_perfil_ingreso_y_gasto_ipm.tex}
-\input{tables/tab_perfil_zona_de_residencia_ipm.tex}
-\input{tables/tab_perfil_vivienda_materiales_y_servicios_ipm.tex}
-\input{tables/tab_perfil_vivienda_hacinamiento_ipm.tex}
-\input{tables/tab_perfil_activos_del_hogar_ipm.tex}
-\input{tables/tab_perfil_educacion_empleo_y_seguridad_social_ipm.tex}
-\input{tables/tab_perfil_composicion_del_hogar_ipm.tex}
-\input{tables/tab_perfil_geoespacial_ipm.tex}
 
 \subsection{Desempeño de los modelos bajo pobreza multidimensional (IPM)}
 \label{apx:desempeno_ipm}
@@ -2210,7 +2162,7 @@ de confusión de la Tabla~\ref{tab:matriz_confusion_a}, para el Modelo B
 
 Complemento de las Secciones~\ref{subsec:determinantes} (Tercer hallazgo) y~\ref{subsec:marginal}:
 especificación y desempeño del modelo multiclase mencionado en la
-Sección~\ref{subsec:outcome} y AUC-ROC por par de grupos de la matriz de
+Sección~\ref{subsec:seleccion_perfil} y AUC-ROC por par de grupos de la matriz de
 transición, con y sin las variables de DMSP-OLS. Los hiperparámetros se reportan en la
 Tabla~\ref{tab:hiperparametros} del Anexo~\ref{apx:hiperparametros}.
 

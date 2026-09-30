@@ -61,7 +61,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tabla_shap_nucleo_perfil import ORDEN_CATEGORIAS, etiqueta
+from etiquetas_variables import ORDEN_CATEGORIAS, etiqueta
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
@@ -159,9 +159,8 @@ def generar_tex(nucleo: pd.DataFrame, resumen: pd.DataFrame, sensibilidad: pd.Da
         lineas.append(f"    \\textbf{{{categoria}}} & & & & & & \\\\*")  # "\\*" evita salto de pagina tras el titulo de categoria
         for _, v in bloque.iterrows():
             g = resumen[resumen["variable"] == v["variable"]].set_index("fuente").loc[[f for f, _ in FUENTES]].reset_index()
-            marca = "" if v["en_perfil_53"] else "$^{\\dagger}$"
             celdas = " & ".join(celda(f) for _, f in g.iterrows())
-            lineas.append(f"    \\quad {etiqueta(v['variable'])}{marca} & {v['n_combinaciones']} & {celdas} & {clasificar(v['variable'], sensibilidad)} \\\\")
+            lineas.append(f"    \\quad {etiqueta(v['variable'])} & {v['n_combinaciones']} & {celdas} & {clasificar(v['variable'], sensibilidad)} \\\\")
         lineas.append(r"    \addlinespace")
     if lineas[-1] == r"    \addlinespace":
         lineas.pop()
@@ -179,8 +178,7 @@ def generar_tex(nucleo: pd.DataFrame, resumen: pd.DataFrame, sensibilidad: pd.Da
         r"\emph{Dirección}: Estable = mismo signo en las cuatro fuentes bajo",
         r"las 12 combinaciones de umbrales evaluadas; Moderada = en al menos 8;",
         r"Inestable = en menos. ``cat.'': variable categórica, sin signo a nivel",
-        r"de variable. $^{\dagger}$Variable fuera del perfil univariado de 53",
-        r"variables robustas de la Sección~\ref{subsec:caracterizacion_grupos}.",
+        r"de variable.",
         r"Fuente: cálculos propios.\par}",
         r"}",
     ]

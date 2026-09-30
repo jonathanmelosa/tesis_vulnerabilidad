@@ -61,7 +61,7 @@ from build_pobreza_desagregaciones import (  # noqa: E402
     _llave_compuesta,
     cargar_pesos_muestrales,
 )
-from eda_transicion_covariables import (  # noqa: E402
+from panel_transicion import (  # noqa: E402
     _excluir_hogares_divididos,
     cargar_peso_longitudinal_por_consecutivo,
 )

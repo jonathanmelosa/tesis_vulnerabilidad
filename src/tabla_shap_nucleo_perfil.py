@@ -31,61 +31,15 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tabla_perfil_completo import ETIQUETAS as ETIQUETAS_PERFIL_53
+from etiquetas_variables import ORDEN_CATEGORIAS, etiqueta  # movidas 2026-09-30
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 RUTA_ENTRADA = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "diagnostico_shap_nucleo_perfil.csv"
 OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
 
-# Etiquetas de las 8 variables del núcleo que no están en el perfil
-# univariado de 53 variables de la Sección 5.1 (y por tanto no tienen
-# entrada en ETIQUETAS_PERFIL_53).
-ETIQUETAS_NUEVAS = {
-    # \char`\%{} en vez de \%: babel-spanish redefine \% con un \unskip
-    # que borra el \quad de sangria que va justo antes (la fila quedaba
-    # sin sangria); \char imprime el mismo glifo sin pasar por babel.
-    "pct_ninos_madre_viva": "\\char`\\%{} de niños con madre viva",
-    "pct_ninos_padre_vivo": "\\char`\\%{} de niños con padre vivo",
-    "edad_jefe": "Edad del jefe de hogar",
-    "grado_educ_jefe": "Último grado aprobado por el jefe",  # no son años de escolaridad: el grado se reinicia en cada nivel (2026-09-28)
-    "tvip_puntaje_directo_hogar": "Puntaje de vocabulario infantil (test TVIP)",
-    "tuvo_choque_economico_hogar": "Tuvo un choque económico (hogar)",
-    "tasa_control_preventivo_hogar": "Tasa de controles médicos preventivos (hogar)",
-    "n_desplazados_comunidad": "N.\\textsuperscript{o} de desplazados en la comunidad",
-}
-
-ORDEN_CATEGORIAS = [
-    "Activos del hogar", "Educación, empleo y seguridad social",
-    "Vivienda: materiales y servicios", "Vivienda: hacinamiento",
-    "Composición del hogar", "Desarrollo infantil (6--9 años)", "Salud",
-    "Programas sociales y deuda", "Choques y afrontamiento", "Comunidad",
-]
-
-
-# Variables categóricas cuya etiqueta en `tabla_perfil_completo.py` es una
-# plantilla por nivel ("Material de piso: {nivel}"), pensada para la tabla
-# de perfil de la Sección 5.1 (una fila por categoría). Aquí el SHAP ya
-# está agregado a nivel de VARIABLE completa (todas las categorías
-# sumadas), así que se usa el nombre de la variable sin nivel.
-ETIQUETAS_SIN_NIVEL = {
-    "material_pisos_hogar": "Material de piso del hogar",
-    "estado_civil_jefe": "Estado civil del jefe",
-}
-
-
-def etiqueta(variable: str) -> str:
-    if variable in ETIQUETAS_SIN_NIVEL:
-        return ETIQUETAS_SIN_NIVEL[variable]
-    if variable in ETIQUETAS_PERFIL_53:
-        return ETIQUETAS_PERFIL_53[variable]
-    if variable in ETIQUETAS_NUEVAS:
-        return ETIQUETAS_NUEVAS[variable]
-    raise ValueError(f"Variable del núcleo sin etiqueta legible: {variable}")
-
-
 def formatear_fila(fila: pd.Series) -> str:
-    marca_nueva = "" if fila["en_perfil_53"] else "$^{\\dagger}$"
+    marca_nueva = "" if fila.get("en_perfil_53", True) else "$^{\\dagger}$"  # columna retirada 2026-09-30
     return (
         f"    \\quad {etiqueta(fila['variable'])}{marca_nueva} & "
         f"{fila['n_combinaciones']}/10 \\\\"

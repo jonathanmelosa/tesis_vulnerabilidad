@@ -14,9 +14,19 @@ INPUTS
 
     data/processed/benchmark_resultados/multiclase/registro_modelos_multiclase.csv
         (metricas: promedio de 5 semillas)
-    data/processed/benchmark_resultados/multiclase/auc_pares_multiclase.csv
-        (AUC por par, semilla 42; lo genera
-        `src/05_model/auc_pares_multiclase_predicciones.py`)
+    data/processed/benchmark_resultados/multiclase/diagnostico_bootstrap_cluster_multiclase.csv
+        (AUC por par, semilla 42, con IC95 por bootstrap por comunidad, y
+        cambio al agregar DMSP-OLS con su IC95; lo genera
+        `src/05_model/diagnostico_bootstrap_cluster_multiclase.py`)
+    data/processed/benchmark_resultados/multiclase/auc_pares_multiclase_semillas_detalle.csv
+        (AUC por par con 5 semillas, para reportar en la nota cuanto difiere
+        la semilla 42 del promedio; `src/05_model/auc_pares_multiclase_semillas.py`)
+
+Cambio 2026-09-30: la tabla de AUC por par pasa de una sola corrida sin
+intervalos a AUC con IC95 por bootstrap por comunidad (misma convencion
+que el modelo binario). El punto es el de la semilla 42 para que coincida
+con su intervalo; la nota informa la diferencia maxima con el promedio de
+5 semillas.
 
 OUTPUTS
 
@@ -126,32 +136,55 @@ def tabla_metricas(registro: pd.DataFrame) -> str:
     )
 
 
-def tabla_auc_pares(pares: pd.DataFrame, pares_dmsp: pd.DataFrame) -> str:
-    """Panel superior: AUC por par del Modelo B. Panel inferior (agregado
-    2026-09-28, pedido del usuario): cambio de ese AUC al agregar DMSP-OLS
-    (especificacion B4geoDMSP menos B4), que la Seccion 5.3 usa para mostrar
-    que la luz nocturna no ayuda a separar ningun par de grupos."""
+def tabla_auc_pares(boot: pd.DataFrame, semillas: pd.DataFrame) -> str:
+    """Panel superior: AUC por par del Modelo B con IC95 (bootstrap por
+    comunidad). Panel inferior: cambio al agregar DMSP-OLS (B4geoDMSP - B4)
+    con su IC95; $^{\\dagger}$ marca los intervalos que excluyen el cero."""
     columnas = [f"\\textbf{{{t}}}" if "textbf" not in t else t for _, t in PARES]
     n_col = len(PARES) + 1
+    orden = list(ALGORITMOS.values())
+    boot = boot.assign(algoritmo=boot["algoritmo"].map(ALGORITMOS), par="auc_" + boot["par"])
+    punto = boot.pivot(index="algoritmo", columns="par", values="auc_B4").loc[orden]
+    lo = boot.pivot(index="algoritmo", columns="par", values="auc_B4_ci95_low").loc[orden]
+    hi = boot.pivot(index="algoritmo", columns="par", values="auc_B4_ci95_high").loc[orden]
+    d = boot.pivot(index="algoritmo", columns="par", values="delta_auc").loc[orden]
+    d_lo = boot.pivot(index="algoritmo", columns="par", values="delta_ci95_low").loc[orden]
+    d_hi = boot.pivot(index="algoritmo", columns="par", values="delta_ci95_high").loc[orden]
+    cruza = boot.pivot(index="algoritmo", columns="par", values="cruza_cero").loc[orden]
+    ic = lambda a, b, fmt: f"{{\\scriptsize [{a:{fmt}}, {b:{fmt}}]}}"
+
     filas = [f"    \\multicolumn{{{n_col}}}{{l}}{{\\textit{{AUC-ROC, Modelo B}}}} \\\\"]
-    filas += [
-        f"    {f['algoritmo']} & " + " & ".join(f"{f[c]:.3f}" for c, _ in PARES) + r" \\"
-        for _, f in pares.iterrows()
-    ]
-    delta = pares_dmsp.set_index("algoritmo")[[c for c, _ in PARES]] - pares.set_index("algoritmo")[[c for c, _ in PARES]]
+    for alg in orden:
+        filas.append(f"    {alg} & " + " & ".join(f"{punto.loc[alg, c]:.3f}" for c, _ in PARES) + r" \\")
+        filas.append("     & " + " & ".join(ic(lo.loc[alg, c], hi.loc[alg, c], ".3f") for c, _ in PARES) + r" \\")
     filas += [r"    \addlinespace", f"    \\multicolumn{{{n_col}}}{{l}}{{\\textit{{Cambio al agregar DMSP-OLS}}}} \\\\"]
-    filas += [
-        f"    {alg} & " + " & ".join(f"{fila[c]:+.3f}" for c, _ in PARES) + r" \\"
-        for alg, fila in delta.loc[pares["algoritmo"]].iterrows()
-    ]
+    for alg in orden:
+        celdas = [f"{d.loc[alg, c]:+.3f}" + ("" if cruza.loc[alg, c] else "$^{\\dagger}$") for c, _ in PARES]
+        filas.append(f"    {alg} & " + " & ".join(celdas) + r" \\")
+        filas.append("     & " + " & ".join(ic(d_lo.loc[alg, c], d_hi.loc[alg, c], "+.3f") for c, _ in PARES) + r" \\")
+
+    # Diferencia maxima entre la semilla 42 y el promedio de 5 semillas (B4).
+    det = semillas[semillas["especificacion"] == "B4"]
+    cols = [c for c, _ in PARES]
+    media = det.groupby("algoritmo")[cols].mean()
+    s42 = det[det["semilla"] == 42].set_index("algoritmo")[cols]
+    dif_max = float((s42 - media).abs().to_numpy().max())
+    n_boot = int(boot["n_boot_validas"].min())
+    n_clusters = int(boot["n_clusters"].iloc[0])
+    miles = lambda n: f"{n:,}".replace(",", "{,}")
+    n_hogares = miles(int(boot["n_hogares"].iloc[0]))
+
     nota = (
         "AUC-ROC de cada par de grupos: se restringe a los hogares de los dos "
         "grupos y se usa como puntaje la probabilidad que el modelo asigna al "
-        "primero. Modelo B, conjunto de prueba 2013$\\to$2016, una sola "
-        "corrida (semilla 42). El modelo separa bien los extremos (nunca "
-        "frente a siempre pobre), pero casi no separa a quienes entran de "
-        "quienes salen de la pobreza. El panel inferior es la diferencia entre "
-        "el mismo modelo con las 23 variables de DMSP-OLS y sin ellas."
+        "primero. Modelo B, conjunto de prueba 2013$\\to$2016 "
+        f"($n={n_hogares}$ hogares), semilla 42; el promedio de 5 semillas difiere "
+        f"como máximo en {dif_max:.3f}. Entre corchetes, intervalo de confianza del "
+        f"95\\% por \\emph{{bootstrap}} por comunidad ({miles(n_boot)} remuestras de "
+        f"{miles(n_clusters)} comunidades; los hogares sin comunidad identificada cuentan "
+        "cada uno como una), pareado entre especificaciones en el panel inferior. "
+        "El panel inferior es la diferencia entre el mismo modelo con las 23 "
+        "variables de DMSP-OLS y sin ellas; $^{\\dagger}$: intervalo que excluye el cero."
     )
     return _tabla(
         "AUC-ROC del modelo multiclase por par de grupos de la matriz de transición.",
@@ -164,7 +197,8 @@ def main() -> None:
     salidas = {
         "tab_multiclase_metricas.tex": tabla_metricas(_cargar("registro_modelos_multiclase.csv")),
         "tab_multiclase_auc_pares.tex": tabla_auc_pares(
-            _cargar("auc_pares_multiclase.csv"), _cargar("auc_pares_multiclase.csv", "B4geoDMSP")),
+            pd.read_csv(MULTICLASE / "diagnostico_bootstrap_cluster_multiclase.csv"),
+            pd.read_csv(MULTICLASE / "auc_pares_multiclase_semillas_detalle.csv")),
     }
     for nombre, tex in salidas.items():
         (OUTPUT_DIR / nombre).write_text(tex, encoding="utf-8")

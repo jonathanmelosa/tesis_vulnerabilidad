@@ -68,33 +68,9 @@ from eda_transicion_covariables import (  # noqa: E402
 import eda_transicion_covariables as etc  # noqa: E402
 from eda_perfil_completo import calcular_seleccion_2010_2013  # noqa: E402
 
-MAPA_TRAYECTORIA = {
-    "Entra y sale (transitorio)": "Entra (transitorio)",
-    "Entra y se queda (persistente)": "Entra (persistente)",
-}
-CATEGORIAS_ORDEN_SPLIT = [
-    "Siempre pobre", "Sale de la pobreza",
-    "Entra (transitorio)", "Entra (persistente)", "Nunca pobre",
-]
-
-
-def construir_panel_split() -> pd.DataFrame:
-    pobreza = pd.read_parquet(POBREZA_PATH)
-    llave = _llave_compuesta(pobreza)
-    cargar_pesos_muestrales(pobreza, llave)
-    resultado = construir_matriz_transicion(pobreza, 1, 2, col_pobre="pobre_ingreso", peso_col="peso_longitudinal")
-    panel = resultado["panel_categorias"].copy()
-
-    tray = pd.read_csv(TABLES_DIR / "trayectorias_3olas_monetaria_hogares.csv")
-    tray_map = tray.set_index("consecutivo")["trayectoria"]
-
-    mask_entra = panel["categoria"] == "Entra en pobreza"
-    sub_tray = panel.loc[mask_entra, "consecutivo"].map(tray_map).map(MAPA_TRAYECTORIA)
-
-    nueva_cat = panel["categoria"].astype(str).copy()
-    nueva_cat[mask_entra] = sub_tray.fillna("Entra (sin dato 2016)")
-    panel["categoria"] = nueva_cat
-    return panel
+# MAPA_TRAYECTORIA, CATEGORIAS_ORDEN_SPLIT y construir_panel_split viven en
+# panel_transicion.py (movidos 2026-09-30).
+from panel_transicion import CATEGORIAS_ORDEN_SPLIT, MAPA_TRAYECTORIA, construir_panel_split  # noqa: E402,F401
 
 
 def main() -> None:
