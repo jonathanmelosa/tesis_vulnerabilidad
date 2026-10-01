@@ -1379,8 +1379,7 @@ persistente se concentra en las microrregiones rurales, con
 64--66\% de hogares siempre pobres y luz nocturna muy baja, mientras
 Bogotá concentra los nunca pobres (70\%) con el valor máximo de luz
 (Figura~\ref{fig:mapa_transicion_monetaria}).\footnote{La muestra de ELCA
-es urbana en unas regiones y rural en otras, y no incluye el Chocó rural
-ni La Guajira (Sección~\ref{subsec:limitaciones}).} Las otras dos fuentes
+es urbana en unas regiones y rural en otras.} Las otras dos fuentes
 satelitales muestran el mismo orden en 2010: el radar de ALOS PALSAR, que
 capta el área construida, sube de ``siempre pobre'' a ``nunca pobre'' como
 la luz nocturna, y el índice de vegetación de Landsat (NDVI) baja, porque
@@ -1554,13 +1553,22 @@ consideradas, la iluminación nocturna DMSP-OLS, tiene datos en la ola de
 entrenamiento y en la de prueba, de modo que es la base de la evaluación
 principal. El ejercicio estima modelos con cinco algoritmos de aprendizaje
 supervisado, con y sin ingreso del hogar, bajo pobreza monetaria y multidimensional, con entrenamiento en
-2010$\to$2013 y prueba en 2013$\to$2016.
+2010$\to$2013 y prueba en 2013$\to$2016. A diferencia de los trabajos que
+predicen la entrada en pobreza con registros administrativos y a un año
+\parencite{burger2021,hohberg2018}, aquí la predicción se hace a tres años
+con una encuesta de panel y entrenando con el pasado para evaluar en el
+futuro, como lo haría un sistema de focalización.
 
 Cinco hallazgos se destacan. \textbf{Primero,} la pobreza monetaria cae de
 60.7\% a 42.4\% entre 2010 y 2016, pero con mucho movimiento en ambas
 direcciones: 23.4\% y 19.9\% de los hogares no pobres caen en pobreza en
 cada ventana, mientras más del doble de hogares sale de ella
-(Sección~\ref{subsec:transiciones}). \textbf{Segundo,} la capacidad de
+(Sección~\ref{subsec:transiciones}). La mayoría de quienes entran no queda atrapada:
+de los que caen en 2013, el 58\% vuelve a salir antes de 2016 bajo pobreza
+monetaria y el 67\% bajo IPM. Bajo IPM, además, la entrada es mucho menor
+(12.1\% y 9.7\%) y la salida mayor, coherente con que mide privaciones
+estructurales y no flujos de ingreso; por eso algunas variables, como la
+edad del jefe, cambian de dirección según la definición. \textbf{Segundo,} la capacidad de
 identificar a los vulnerables tiene un techo (AUC-ROC de 0.73 a 0.77) que
 no depende del algoritmo ni del ingreso; con un umbral que capte casi a
 todos, un programa atendería entre 2.4 y 3.1 hogares que no caen por cada
@@ -1587,6 +1595,22 @@ la luz de su zona, pero su cobertura aún es limitada. Como solo pudieron
 evaluarse sensores con datos en 2010 y 2013, los actuales, de mayor
 resolución, son la frontera por explorar
 (Secciones~\ref{subsec:marginal_geo} y~\ref{subsec:limitaciones}).
+
+Leídos en conjunto, estos hallazgos indican que los modelos identifican bien
+la precariedad, pero no quién caerá. La precariedad es condición necesaria
+pero no suficiente: los hogares marcados que no caen también son precarios,
+y el que entra en pobreza es casi indistinguible del que sale. El límite
+está en la información y no en el modelo. La regresión logística rinde casi
+igual que los algoritmos más flexibles, que además eligen árboles poco
+profundos; parte de quién cae depende de choques posteriores a la
+predicción; y la clasificación misma es sensible al umbral, pues mover la
+línea de pobreza un 10\% cambia en unos diez puntos la distribución de las
+transiciones (Anexo~\ref{apx:transiciones_robustez}). Que la luz nocturna,
+medida de forma independiente de la encuesta, reproduzca el mismo gradiente
+y la misma cercanía entre quien entra y quien sale indica que este resultado
+no depende del cuestionario. Esto sugiere que anticipar mejor la caída
+exige información más frecuente y más cercana a los choques, más que
+algoritmos más complejos.
 
 \subsection{Implicaciones para la política pública}
 \label{subsec:politica}
@@ -1625,7 +1649,7 @@ la ELCA es de 2023 en adelante.
 \subsection{Limitaciones y agenda de investigación}
 \label{subsec:limitaciones}
 
-Los principales límites son cinco. En los determinantes, la importancia
+Los principales límites son seis. En los determinantes, la importancia
 SHAP describe cómo el modelo usa cada variable, no un efecto causal ni un
 aporte fuera de muestra; reparte el crédito entre variables
 correlacionadas. En los errores del modelo, los choques se reportan
@@ -1638,7 +1662,10 @@ ALOS PALSAR y Landsat 5 TM), que tienen menor resolución y frecuencia que
 los actuales. VIIRS DNB, Sentinel-1 y Sentinel-2 empezaron a operar
 después de 2012 y no pudieron evaluarse con el panel, y las fotos de
 Street View se concentran en años recientes
-(Anexo~\ref{apx:cobertura_temporal}).
+(Anexo~\ref{apx:cobertura_temporal}). En la representatividad, la atrición no es
+aleatoria: se concentra en hogares urbanos y de estrato alto (16.2\% de los
+urbanos frente a 5.8\% de los rurales entre 2010 y 2013), y se excluyen los
+hogares que se dividieron entre olas.
 
 Los resultados bajo IPM tienen además un límite de medición: el indicador
 de barreras de acceso a salud se mide en 2010 con un proxy distinto al de
@@ -1663,7 +1690,9 @@ familiares. Quinto, contrastar si las variables de acumulación indican
 quién es vulnerable y las de actividad económica reciente cuánto dura esa
 condición. Sexto, repetir la evaluación geoespacial con sensores
 actuales, de mayor resolución y frecuencia (VIIRS DNB, Sentinel-1 y
-Sentinel-2), con un panel que tenga olas posteriores a su lanzamiento: es
+Sentinel-2), con las olas de 2019 y 2022 de la ELCA, administradas por el
+DANE y georreferenciadas, u otro panel con olas posteriores a su
+lanzamiento: es
 un campo reciente, cuyas fuentes mejoran rápido, y lo encontrado aquí con
 sensores de 2010 es un piso, no un techo. En particular, las fotos de
 Street View predicen bien la luz nocturna de su zona y su señal se asocia con caer en
