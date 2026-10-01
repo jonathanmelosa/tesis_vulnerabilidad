@@ -1567,13 +1567,12 @@ cada ventana, mientras más del doble de hogares sale de ella
 de los que caen en 2013, el 58\% vuelve a salir antes de 2016 bajo pobreza
 monetaria y el 67\% bajo IPM. Bajo IPM, además, la entrada es mucho menor
 (12.1\% y 9.7\%) y la salida mayor, coherente con que mide privaciones
-estructurales y no flujos de ingreso; por eso algunas variables, como la
-edad del jefe, cambian de dirección según la definición. \textbf{Segundo,} la capacidad de
+estructurales y no flujos de ingreso. \textbf{Segundo,} la capacidad de
 identificar a los vulnerables tiene un techo (AUC-ROC de 0.73 a 0.77) que
-no depende del algoritmo ni del ingreso; con un umbral que capte casi a
-todos, un programa atendería entre 2.4 y 3.1 hogares que no caen por cada
-uno que sí (Sección~\ref{subsec:desempeno}). \textbf{Tercero,} con la
-información de la ola base es difícil separar a quien cae de quien no: los
+no depende del algoritmo ni del ingreso; con un umbral ajustado para captar casi a
+todos los vulnerables posibles, un programa atendería entre 2.4 y 3.1 hogares no vulnerables por cada
+uno que sí es (Sección~\ref{subsec:desempeno}). \textbf{Tercero,} con la
+información de la ola base es difícil separar a quien cae en pobreza de quien no: los
 hogares marcados que no caen también son precarios, quienes caen reportan
 más choques posteriores, y la información de la ola base distingue a ``entra'' de
 ``sale'' apenas por encima del azar (Secciones~\ref{subsec:errores_inclusion}
@@ -1585,9 +1584,9 @@ quedan atrapados los que tenían menos activos financieros, riqueza y
 cotización a pensión (Sección~\ref{subsec:determinantes}). \textbf{Quinto,} y
 en respuesta a la pregunta de investigación, las fuentes geoespaciales
 públicas describen bien la geografía de la pobreza, pero no mejoran la
-identificación de los hogares vulnerables cuando hay una robusta encuesta
+identificación de los hogares vulnerables cuando hay una encuesta robusta
 vigente. La iluminación nocturna es redundante con unas pocas preguntas
-de la encuesta bajo pobreza monetaria y aporta poco bajo IPM, sobre todo
+de la encuesta bajo pobreza monetaria y aporta un poco bajo IPM, sobre todo
 en zonas rurales; su ventaja es su estabilidad en el tiempo. ALOS PALSAR
 y Landsat 5 TM reproducen el mismo gradiente y, como la luz nocturna, no
 agregan información a la encuesta; las fotos de Street View predicen bien
@@ -1596,7 +1595,7 @@ evaluarse sensores con datos en 2010 y 2013, los actuales, de mayor
 resolución, son la frontera por explorar
 (Secciones~\ref{subsec:marginal_geo} y~\ref{subsec:limitaciones}).
 
-Leídos en conjunto, estos hallazgos indican que los modelos identifican bien
+En conjunto, estos hallazgos indican que los modelos identifican bien
 la precariedad, pero no quién caerá. La precariedad es condición necesaria
 pero no suficiente: los hogares marcados que no caen también son precarios,
 y el que entra en pobreza es casi indistinguible del que sale. El límite
@@ -1608,7 +1607,7 @@ línea de pobreza un 10\% cambia en unos diez puntos la distribución de las
 transiciones (Anexo~\ref{apx:transiciones_robustez}). Que la luz nocturna,
 medida de forma independiente de la encuesta, reproduzca el mismo gradiente
 y la misma cercanía entre quien entra y quien sale indica que este resultado
-no depende del cuestionario. Esto sugiere que anticipar mejor la caída
+no depende de la encuesta. Esto sugiere que anticipar mejor la caída
 exige información más frecuente y más cercana a los choques, más que
 algoritmos más complejos.
 
@@ -1619,13 +1618,13 @@ Los resultados sugieren cinco implicaciones para sistemas de focalización
 como el SISBEN IV y el Registro Social de Hogares, que hoy clasifican a
 los hogares por su estándar de vida y su capacidad presunta de generar
 ingresos; los modelos de este artículo podrían complementarlos con una medida del riesgo de entrada en pobreza de
-los hogares que hoy no son pobres. Primero, la focalización puede apoyarse en variables no
+los hogares que hoy no son pobres. \textbf{Primero}, la focalización puede apoyarse en variables no
 monetarias, que capturan casi toda la señal; cuando la información del
 hogar está desactualizada o incompleta, un conjunto reducido centrado en
-el núcleo podría servir como alternativa. Segundo, el umbral debe depender
+el núcleo podría servir como alternativa. \textbf{Segundo}, el umbral debe depender
 del costo del instrumento: amplio para intervenciones preventivas de bajo
 costo, donde los incluidos por error también son precarios, y concentrado
-en el decil de mayor riesgo para transferencias costosas. Tercero, si la
+en el decil de mayor riesgo para transferencias costosas. \textbf{Tercero}, si la
 asociación con los choques se confirma, la focalización podría hacerse en
 dos etapas, en las que el modelo define
 quién está en riesgo y un choque activa el apoyo, verificando el choque y
@@ -1633,12 +1632,12 @@ no el perfil y actualizando la lista con frecuencia. Esto respondería a una
 limitación de la protección social reactiva a choques en la región, que ha
 dependido sobre todo de ampliar los beneficios de quienes ya estaban en
 los programas y ha dejado por fuera a muchos hogares afectados
-\parencite{costella2023}. Cuarto, como la
+\parencite{costella2023}. \textbf{Cuarto}, como la
 salida de la pobreza tampoco se anticipa con la información de la ola
 base, la graduación debería ser gradual y con seguimiento, y la falta de
-activos financieros y de cotización podría orientar la duración del apoyo. Quinto, la iluminación
+activos financieros y de cotización podría orientar la duración del apoyo. \textbf{Quinto}, la iluminación
 nocturna no se justifica como covariable de rutina con una encuesta
-vigente, pero sí para priorizar territorios y como respaldo entre rondas,
+vigente, pero sí para priorizar territorios y como alternativa a la desactualización entre rondas,
 sobre todo en zonas rurales. Lo mismo vale para el radar y las imágenes
 ópticas: no agregan información a la encuesta, pero reproducen el mismo
 gradiente que la luz nocturna y podrían cumplir esa misma función
@@ -1651,7 +1650,7 @@ la ELCA es de 2023 en adelante.
 
 Los principales límites son seis. En los determinantes, la importancia
 SHAP describe cómo el modelo usa cada variable, no un efecto causal ni un
-aporte fuera de muestra; reparte el crédito entre variables
+aporte fuera de muestra y reparte el efecto entre variables
 correlacionadas. En los errores del modelo, los choques se reportan
 en 2016 y su relación con la caída es descriptiva. En DMSP-OLS, la
 heterogeneidad por subgrupos es exploratoria. En la
@@ -1676,32 +1675,60 @@ quiénes la responden. Por eso, los resultados IPM que dependen de
 2010$\to$2013 deben leerse como condicionales al proxy, y la ventana
 2013$\to$2016 es la comparación más limpia.
 
-La agenda de investigación tiene seis frentes. Primero, confirmar la
-heterogeneidad del aporte de DMSP-OLS bajo IPM con \emph{bootstrap} por
-subgrupo y con la corrección por conglomerados para todos los algoritmos.
-Segundo, evaluar un modelo restringido al núcleo, seleccionado solo con
-2010$\to$2013 y probado en 2013$\to$2016. Tercero, comparar por región,
-lo que no fue posible porque, con 3{,}089 hogares no pobres en
-entrenamiento, las celdas resultan demasiado pequeñas. Cuarto, evaluar si
-fuentes de alta frecuencia, como la precipitación o los índices de
-vegetación, anticipan los choques compartidos, dado que la luz nocturna
-es muy estable y los choques que más distinguen a quien cae son
-familiares. Quinto, contrastar si las variables de acumulación indican
-quién es vulnerable y las de actividad económica reciente cuánto dura esa
-condición. Sexto, repetir la evaluación geoespacial con sensores
-actuales, de mayor resolución y frecuencia (VIIRS DNB, Sentinel-1 y
-Sentinel-2), con las olas de 2019 y 2022 de la ELCA, administradas por el
-DANE y georreferenciadas, u otro panel con olas posteriores a su
-lanzamiento: es
-un campo reciente, cuyas fuentes mejoran rápido, y lo encontrado aquí con
-sensores de 2010 es un piso, no un techo. En particular, las fotos de
-Street View predicen bien la luz nocturna de su zona y su señal se asocia con caer en
-pobreza, pero no hay fotos anteriores a 2012, se concentran en zonas
-urbanas y la representación de un mismo hogar cambia entre olas. Aun así,
-la relación con la luz se mantiene con fotos tomadas más de diez años
-después, lo que sugiere usar fotos posteriores si se corrige el sesgo de
-cobertura, y conviene comparar modelos entrenados con escenas urbanas, que
-en este ejercicio dan el mejor ajuste (Anexo~\ref{apx:gsv}).
+La agenda de investigación que se desprende de estos resultados tiene cinco
+frentes. Primero, pasar del perfil al choque. Quien cae se distingue sobre
+todo por choques familiares posteriores a la predicción, que ni la encuesta
+ni los satélites observan. Registros administrativos de actualización
+frecuente, como el empleo formal, la afiliación y el uso de servicios de
+salud o las actualizaciones del SISBEN IV y del Registro Social de Hogares,
+podrían detectar el choque cuando ocurre; para los choques compartidos,
+como sequías o pérdidas de cosecha, servirían series de precipitación y de
+vegetación de alta frecuencia. La pregunta es cuánto del techo de
+desempeño se supera con señales del choque, frente a seguir refinando el
+perfil del hogar.
+
+Segundo, pasar de la transición binaria a la trayectoria. Como la mayoría
+de quienes caen vuelve a salir y la clasificación es sensible a la
+ubicación de la línea, modelos de duración que estimen la probabilidad de
+caer y de permanecer en la pobreza, o que predigan el bienestar como
+variable continua con su incertidumbre, aprovecharían mejor la
+información. Permitirían además contrastar si las variables de
+acumulación indican quién es vulnerable y las de actividad económica
+reciente, cuánto dura esa condición. Las olas de 2019 y 2022 de la ELCA,
+administradas por el DANE y georreferenciadas, rodean la pandemia de
+COVID-19 y ofrecen una prueba poco común: verificar si los hogares que un
+modelo entrenado antes de 2020 marcó como vulnerables cayeron más ante un
+choque grande y no anticipado.
+
+Tercero, evaluar la teledetección actual con una pregunta mejor planteada.
+Aquí solo pudieron usarse sensores con datos en 2010 y 2013, de menor
+resolución y frecuencia, y con índices construidos a mano. VIIRS DNB,
+Sentinel-1 y Sentinel-2, sobre las olas recientes de la ELCA, permitirían
+aprender directamente de la imagen y medir el cambio del entorno en el
+tiempo, y no solo su nivel. Más que preguntar si el satélite mejora una
+encuesta vigente, conviene medir cuánto se degrada la predicción a medida
+que la encuesta envejece y si la imagen satelital puede actualizarla entre
+rondas. Es un campo reciente, cuyas fuentes mejoran rápido, y lo
+encontrado aquí es un piso, no un techo.
+
+Cuarto, convertir las imágenes a nivel de calle en una fuente utilizable.
+Las fotos de Street View predicen bien la luz nocturna de su zona, la
+relación se mantiene con fotos tomadas más de diez años después y los
+modelos entrenados con escenas urbanas dan el mejor ajuste
+(Anexo~\ref{apx:gsv}). Falta corregir su sesgo de cobertura hacia las
+zonas urbanas e iluminadas, extraer rasgos de la vivienda y de su entorno
+inmediato, y resolver las implicaciones de privacidad de usar imágenes de
+viviendas identificables.
+
+Quinto, pasar de la predicción a la decisión de focalización. Las métricas
+estadísticas no dicen cuánto cuesta cada error: hace falta valorarlos
+según su costo social, verificar si se reparten igual entre zonas, grupos
+étnicos o según el sexo del jefe, y distinguir a quien va a caer de quien
+se beneficiaría de una intervención, que no son lo mismo. Un piloto de la
+focalización en dos etapas propuesta en la Sección~\ref{subsec:politica},
+con el modelo para definir el riesgo y un choque verificado para activar
+el apoyo, conectaría estos resultados con el diseño del SISBEN IV y del
+Registro Social de Hogares.
 
 % ============================================================
 % REFERENCIAS
