@@ -37,6 +37,7 @@
 \usepackage{longtable}
 \usepackage{array}
 \usepackage{caption}
+\captionsetup[figure]{position=top}
 \usepackage{subcaption}
 \usepackage{float}
 % Notas al pie siempre al fondo de la pagina, aunque la pagina quede corta
@@ -144,7 +145,7 @@ frente a usar solo la Encuesta Longitudinal Colombiana (ELCA).
 Se entrenan modelos con cinco algoritmos de aprendizaje supervisado, con y
 sin ingreso y gasto del hogar, en las transiciones 2010--2013 del panel, y
 se evalúan en las de 2013--2016. Los modelos identifican a los hogares
-vulnerables con una capacidad moderada (AUC-ROC de 0.72 a 0.77) que casi no
+vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77) que casi no
 depende del algoritmo ni del ingreso: pocas variables, como
 riqueza, educación, activos y vivienda, concentran la señal, y el hogar
 vulnerable se parece más al que acaba de salir de la pobreza que al que
@@ -154,8 +155,8 @@ la ola base no permite anticipar; entre quienes caen, permanecen en la
 pobreza los que tenían menos activos financieros y menos cotización a pensión.
 La iluminación nocturna, la única fuente con cobertura
 suficiente, describe bien la geografía de la pobreza, pero no mejora la
-predicción monetaria cuando hay una encuesta vigente y aporta poco bajo
-pobreza multidimensional; su valor está en
+predicción de la pobreza monetaria cuando hay una encuesta robusta vigente y 
+aporta pero poco bajo pobreza multidimensional; su valor está en
 priorizar territorios donde no hay encuesta o está desactualizada, porque
 cubre todo el país y cambia poco en el tiempo.
 
@@ -256,7 +257,7 @@ principal; las demás se evalúan de forma exploratoria
 (Sección~\ref{subsec:geo}).
 
 Los resultados muestran que los modelos identifican a los hogares
-vulnerables con una capacidad moderada (AUC-ROC de 0.72 a 0.77), similar
+vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77), similar
 entre algoritmos y casi igual sin el ingreso del hogar; que un núcleo
 pequeño de variables de acumulación concentra la señal, y que el hogar
 vulnerable se parece más al que acaba de salir de la pobreza que al que
@@ -533,7 +534,8 @@ en módulos temáticos (hogar, personas, niños, comunidades, choques,
 activos y gasto). Las olas de 2019 y 2022, administradas por el DANE,
 quedan fuera de esta ventana y se dejan como agenda futura. Se
 excluyen los hogares que se dividieron en dos o más sub-hogares en olas
-posteriores (511 casos entre 2010 y 2013, y 1{,}190 entre 2013 y 2016),
+posteriores: 511 en la ventana 2010$\to$2013 y 1{,}190 en la de 2013$\to$2016
+(los 511 anteriores y 679 que se dividieron hacia 2016),
 para no hacer supuestos sobre su trayectoria. Tras auditar los módulos
 (codificación de caracteres, cobertura por ola, columnas renombradas y
 preguntas filtro; Anexo~\ref{apx:cobertura_modulos}), el resultado es un
@@ -567,7 +569,7 @@ evaluación principal y las otras dos se usan en una variante
 complementaria (Sección~\ref{subsec:desc}). Las imágenes de Google Street
 View se revisaron solo de forma exploratoria: para las coordenadas de los hogares, 
 no hay fotos anteriores a 2012 y el 61\% de las que se encontraron
-son posteriores a 2023 (Anexo~\ref{apx:gsv}).
+son de 2023 en adelante (Anexo~\ref{apx:gsv}).
 
 \subsection{Cobertura, atrición e inventario del panel}
 \label{subsec:desc}
@@ -609,6 +611,9 @@ Apéndice~\ref{apx:transiciones_robustez}}.
 
 \begin{figure}[!htb]
   \centering
+  \caption{Transición de pobreza entre las categorías de \textcite{lopezCalva2014},
+  pobreza monetaria e IPM, 2010$\to$2013 y 2013$\to$2016.}
+  \label{fig:sankey}
   \begin{subfigure}{0.49\textwidth}
     \centering
     \includegraphics[width=0.94\textwidth]{../outputs/figures/pobreza/sankey_transicion_pobreza_2010_2013.png}
@@ -635,12 +640,10 @@ Apéndice~\ref{apx:transiciones_robustez}}.
     \caption{IPM, 2013$\to$2016 ($n=6{,}911$).}
     \label{fig:sankey_ipm_2013_2016}
   \end{subfigure}
-  \caption{Transición de pobreza entre categorías de \textcite{lopezCalva2014},
-  panel emparejado 1 a 1 (mismo universo para monetaria e IPM; excluye 511
-  hogares que se dividieron entre olas en 2010--2013 y 1{,}190 en
-  2013--2016). Arriba: pobreza monetaria por ingreso; abajo:
-  pobreza multidimensional (IPM).}
-  \label{fig:sankey}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Arriba, pobreza monetaria por ingreso; abajo, pobreza multidimensional (IPM). Panel emparejado 1 a 1, con el mismo universo para las dos definiciones; excluye a los hogares que se dividieron entre olas: 511 en 2010$\to$2013 y 1{,}190 en 2013$\to$2016 (los 511 anteriores y 679 que se dividieron hacia 2016). Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 Los paneles
@@ -671,7 +674,7 @@ Un último ejercicio (Tabla~\ref{tab:trayectorias_3olas}) sigue a los
 mismos hogares no pobres en la ola base a lo largo de las tres olas para
 distinguir, dentro de quienes \emph{entran} en pobreza, una entrada
 transitoria de una persistente. Bajo pobreza monetaria, 24.1\% de los no
-pobres en 2010 entra en pobreza en algún momento: 14.0\% salen de
+pobres en 2010 entra en pobreza en 2013: 14.0\% salen de
 nuevo antes de 2016 (``transitorio'') y 10.1\% se quedan (``persistente'').
 Bajo IPM la entrada total es menor (12.2\%) y se reparte parecido (8.2
 transitoria, 4.0 persistente): en ambas definiciones, más de la mitad de
@@ -705,7 +708,7 @@ la situación económica de los hogares a lo largo del tiempo y generar
 una taxonomía de cuatro categorías de acuerdo con la clasificación en dos momentos del tiempo:
  \emph{nunca pobre}, \emph{siempre pobre}, \emph{entra en pobreza} y \emph{sale de pobreza}.
  
-Ahora bien, la pobreza monetaria en este trabajo se estima a partir del cálculo del ingreso per
+La pobreza monetaria en este trabajo se estima a partir del cálculo del ingreso per
 cápita del hogar, de acuerdo con las preguntas correspondientes en la ELCA, y se compara contra la línea de pobreza (LP) oficial 
 del DANE, específica por año y zona\footnote{Se usa la serie MESEP (línea base ENIG 2006--2007,
 actualizada anualmente por IPC), la misma metodología para las tres olas
@@ -765,7 +768,7 @@ principal usa los modelos de la Sección~\ref{subsec:modelos} para
 identificar qué variables anticipan la entrada en pobreza. El segundo
 compara a los hogares vulnerables (\emph{entra en pobreza}) con los otros
 tres grupos de la matriz de transición, incluidos los que ya eran pobres,
-que los modelos binarios no incluyen.
+que los modelos iniciales no incluyen.
 
 En el primer análisis se usan valores SHAP, que miden cuánto sube o baja
 cada variable la probabilidad predicha para cada hogar, con la ventaja 
@@ -785,7 +788,7 @@ Apéndice~\ref{apx:soporte_shap} para validar los resultados.
 Para el segundo análisis se estima un modelo multiclase sobre los cuatro
 grupos de la matriz de transición (\emph{nunca pobre}, \emph{entra en
 pobreza}, \emph{sale de pobreza} y \emph{siempre pobre}), con los mismos
-algoritmos y el mismo esquema de validación que el modelo binario
+algoritmos y una red neuronal adicional, siguiendo el mismo esquema de validación que el modelo binario
 (entrenamiento en 2010$\to$2013 y prueba en 2013$\to$2016). Se estima sin
 ingreso ni gasto (Modelo B): con ellos la comparación sería trivial,
 porque el ingreso define la condición de pobreza en la ola base. Para
@@ -793,11 +796,14 @@ medir qué tan parecidos son dos grupos se usa el AUC-ROC por par: se
 restringe la muestra a los hogares de esos dos grupos y se toma como
 puntaje la probabilidad que el modelo asigna al primero. Un AUC cercano a
 0.5 indica que, con la información de la ola base, los dos grupos no se
-distinguen. Su incertidumbre se mide con un \emph{bootstrap} por
+distinguen (o los modelos no logran diferenciarlos más allá de lo que haría
+el azar). Su incertidumbre se mide con un \emph{bootstrap} por
 comunidad sobre la muestra de prueba. El modelo multiclase no reemplaza
 al binario: la pregunta de vulnerabilidad se refiere solo a los hogares
-hoy no pobres y, al asignar a cada hogar su grupo más probable, casi
-nunca identifica a los que entran en pobreza. Se estima solo bajo pobreza
+no pobres hoy ($t$) que caen en pobreza en el siguiente periodo ($t+1$), 
+y este modelo multiclase al asignar a cada hogar su grupo más probable, casi
+nunca identifica a los que entran en pobreza. El modelo multiclase
+se estima solo bajo pobreza
 monetaria; su especificación y resultados completos están en el
 Apéndice~\ref{apx:multiclase}.
 
@@ -820,11 +826,11 @@ de modelo:
 \noindent donde $X_{it}$ es el vector de características del hogar $i$
 observadas en el periodo $t$ (Sección~\ref{subsec:elco}), 
 incluyendo las variables geoespaciales complementarias, y $F(\cdot)$ es
-la función que relaciona esas características con la probabilidad de
-transición, aproximada de manera distinta según el algoritmo. Se
+una aproximación a la función que relaciona esas características con la probabilidad de
+transición, definida de manera distinta según el algoritmo. Se
 comparan cinco algoritmos de aprendizaje supervisado: una regresión logística regularizada
 (\emph{elastic net}), cuya fuerza y mezcla de penalización se eligen por
-validación cruzada y que sirve de referencia por ser interpretable; Random
+validación cruzada y que sirve de referencia por ser la más básica einterpretable; Random
 Forest, que \textcite{mcbride2018} emplean para mejorar la focalización
 fuera de muestra; y tres implementaciones de \emph{gradient boosting}
 (XGBoost, LightGBM y HistGradientBoosting), que manejan de forma nativa los
@@ -833,10 +839,9 @@ Anexo~\ref{apx:hiperparametros}). El riesgo de multicolinealidad,
 relevante sobre todo para la regresión logística, se analiza en el
 Apéndice~\ref{apx:correlacion}.
 
-Para evaluar el aporte del nivel de ingreso/gasto del hogar, 
+Se evalúa el aporte del nivel de ingreso/gasto del hogar, 
 el predictor más informativo bajo el enfoque de vulnerabilidad de
-\textcite{chaudhuri2002}, que compara qué tan cerca está un hogar del
-umbral de pobreza, con cada uno de los cinco algoritmos se estiman dos
+\textcite{chaudhuri2002}, con cada uno de los cinco algoritmos en dos
 especificaciones de covariables: el \textbf{Modelo A} incluye el ingreso y
 gasto per cápita real del hogar en el periodo base y la brecha frente a la
 Línea de Pobreza (LP), de escala-invariante (se mantiene constante
@@ -875,24 +880,27 @@ elegidas al azar dentro de un rango razonable para cada hiperparámetro, en
 lugar de todas las combinaciones posibles (\emph{grid search}), cuyo costo
 de cómputo habría sido prohibitivo para 5 algoritmos, 4 especificaciones,
 3 estrategias de balanceo (Sección~\ref{subsec:desbalance}) y dos
-variables objetivo. Cada combinación se evalúa con validación cruzada
-estratificada de 10 particiones: el conjunto de entrenamiento se divide en
-10 bloques que conservan la proporción de hogares que entran en pobreza,
-se entrena 10 veces dejando por fuera un bloque distinto y se evalúa sobre
-él. Promediar las 10 evaluaciones castiga a las combinaciones que
-memorizan particularidades de los datos en vez de aprender un patrón que
-generaliza. Los hiperparámetros elegidos para cada uno de los modelos
-reportados se presentan en la Tabla~\ref{tab:hiperparametros} del
-Anexo~\ref{apx:hiperparametros}.
-
-Para verificar que 30 iteraciones no se
+variables objetivo\footnote{Con clases desbalanceadas, las probabilidades predichas tienden a
+concentrarse en valores bajos, de modo que el umbral convencional de 0.5
+clasifica a muy pocos hogares como vulnerables. Por eso el umbral de cada
+modelo también se elige por validación cruzada: sobre las probabilidades
+\emph{out-of-fold} se prueba una grilla de umbrales entre 0.02 y 0.98 y se
+elige el que maximiza F$_2$. Para verificar que 30 iteraciones no se
 quedan cortas, se extendió la búsqueda a 50 iteraciones para el caso más
 ambiguo de la comparación de balanceo (HistGradientBoosting-A,
 Sección~\ref{subsec:desbalance}): el mejor puntaje acumulado ya no mejora entre las
 iteraciones 20 y 40 (0.7603 en ambas), y gana solo 0.0006 adicional hacia
 la iteración 50 --evidencia de que la búsqueda con 30 iteraciones ya
 opera cerca de su techo para este caso, no de que se haya interrumpido
-prematuramente.
+prematuramente.}. Cada combinación se evalúa con validación cruzada
+estratificada de 10 particiones: el conjunto de entrenamiento se divide en
+10 bloques que conservan la proporción de hogares que entran en pobreza,
+se entrena 10 veces dejando por fuera un bloque distinto y se evalúa sobre
+él. Promediar las 10 evaluaciones castiga a las combinaciones que
+memorizan particularidades de los datos en vez de aprender un patrón que
+generaliza. Los hiperparámetros encontrados para cada uno de los modelos
+reportados se presentan en la Tabla~\ref{tab:hiperparametros} del
+Anexo~\ref{apx:hiperparametros}.
 
 La métrica que decide qué combinación
 gana esa búsqueda es el AUC-ROC: la probabilidad de que, al tomar al azar
@@ -910,20 +918,26 @@ positivos, que puede esconder un número \emph{absoluto} alto de falsos
 positivos cuando los hogares que entran en pobreza son pocos
 \parencite{davis2006,saito2015}. Esto no lo invalida como medida de
 ordenamiento, pero sí limita lo que dice, por sí solo, sobre la utilidad
-del modelo para una política con cobertura limitada. Por eso se reportan
-también el \emph{recall}, la precisión y el F1 al umbral de clasificación
+del modelo para una política social con recursos limitados. Por eso se reportan
+y analizan también el \emph{recall}, la precisión y el F1 al umbral de clasificación
 elegido con F$_2$ (Sección~\ref{subsec:desbalance}), junto con la matriz
 de confusión completa; el F1 se incluye por ser la referencia más usada en
-la literatura, aunque no es el criterio que fija el umbral. El
-\emph{recall} es la fracción de los hogares que efectivamente entran en
+la literatura, aunque no es el criterio que fija el umbral. Este se escoge para 
+maximizar F$_2$ porque, en focalización, dejar sin detectar a un
+persona vulnerable es más perjudicial que detectar a una persona que no lo es y es
+más costoso en términos de impacto social. El F1 y el F2 son promedios 
+armónicos de precisión y \emph{recall}, con pesos distintos: F1 los pondera igual 
+y F2 le da el doble de peso al \emph{recall}.
+
+El \emph{recall} es la fracción de los hogares que efectivamente entran en
 pobreza que el modelo marca como en riesgo (cuánta de la pobreza futura se
 captura), y la precisión es la fracción de los hogares marcados que
 efectivamente entran (cuántas de las alertas son acertadas). Ambas
 dependen del umbral y se mueven en direcciones opuestas: con un mismo
 modelo, bajar el umbral sube el \emph{recall} a costa de la precisión, y
-viceversa. El umbral solo elige un punto dentro de lo que la capacidad de
-ordenamiento del modelo, medida por su AUC-ROC, permite. Además, se
-reporta la precisión en el decil de mayor riesgo, que no depende de un
+viceversa.  
+
+Se reporta también la precisión en el decil de mayor riesgo, que no depende de un
 umbral de clasificación y responde directamente la pregunta de un
 programa con presupuesto limitado: si solo puede atender al 10\% de los
 hogares que el modelo considera de mayor riesgo, ¿qué proporción de ellos
@@ -972,18 +986,6 @@ y 0.004 dentro de cada semilla. Se usa siempre la semilla fijada de
 antemano (42); las diferencias entre estrategias están dentro del ruido
 del particionado.}
 
-Con clases desbalanceadas, las probabilidades predichas tienden a
-concentrarse en valores bajos, de modo que el umbral convencional de 0.5
-clasifica a muy pocos hogares como vulnerables. Por eso el umbral de cada
-modelo también se elige por validación cruzada: sobre las probabilidades
-\emph{out-of-fold} se prueba una grilla de umbrales entre 0.02 y 0.98 y se
-elige el que maximiza F$_2$. A diferencia del F1, que pesa igual el
-\emph{recall} y la precisión, F$_2$ pesa el doble el \emph{recall}, porque
-en focalización dejar sin detectar a un hogar que entrará en pobreza es
-más costoso que incluir a uno que no caerá. El umbral no cambia el modelo
-ni su AUC-ROC; solo determina cómo se reportan el \emph{recall}, la
-precisión y el F1.
-
 \section{Resultados}
 \label{sec:resultados}
 
@@ -1010,23 +1012,10 @@ efecto es igual en la población o se concentra en subgrupos específicos
 \subsubsection{Desempeño de los modelos}
 \label{subsec:desempeno_modelos}
 
-La Tabla~\ref{tab:desempeno_modelos} presenta el desempeño de los cinco
-algoritmos bajo las dos especificaciones de covariables (Modelo A, con
-ingreso/gasto; Modelo B, sin ellos), evaluado sobre el conjunto de prueba
-completamente fuera de muestra (2013$\to$2016), con la estrategia de
-balanceo de clases y el umbral de clasificación ya elegidos por validación
-cruzada dentro del periodo de entrenamiento (Secciones~\ref{subsec:validacion}
-y \ref{subsec:desbalance}; la estrategia de balanceo y los
-hiperparámetros elegidos para cada modelo se reportan en el
-Anexo~\ref{apx:hiperparametros}).
-
-\input{tables/tab_desempeno_modelos_fbeta2_cv10.tex}
-\end{table}
-
 Frente al desempeño de los modelos se encontraron dos hallazgos.
 \textbf{Primero,} el algoritmo elegido
-no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco).
-Bajo IPM ocurre lo mismo, en un rango de AUC-ROC igual de estrecho (0.725--0.747; Tabla~\ref{tab:desempeno_modelos_ipm},
+no cambia el poder de discriminación de los vulnerables (AUC-ROC 0.731--0.767 en los cinco, Tabla~\ref{tab:desempeno_modelos}).
+Bajo IPM ocurre lo mismo, en un rango de AUC-ROC igual de estrecho (0.725--0.741; Tabla~\ref{tab:desempeno_modelos_ipm},
 Apéndice~\ref{apx:desempeno_ipm}).
 Un AUC-ROC de 0.75 significa que, si se toma al azar un hogar que entra en pobreza y uno que no,
 el modelo correctamente asigna mayor riesgo al primero solo 3 de cada 4 veces.
@@ -1040,9 +1029,9 @@ siguiente con menos de 20\% de falsos positivos en la mayoría de los
 años, proporción que sube a cerca de 30\% con un horizonte de tres años.
 Aquí la predicción se hace a tres años y con una encuesta, no con
 registros administrativos, lo que hace esperable un techo más bajo.
+
 Que incluso la regresión logística regularizada, el algoritmo más simple,
-quede cerca de los demás (prácticamente igual sin ingreso (0.739
-frente a 0.742) y 0.02 por debajo con ingreso) y que los algoritmos de
+quede cerca de los demás (AUC-ROC de 0.739 frente a 0.742 del Random Forest, el de mejor desempeño) y que los algoritmos de
 \emph{boosting} elijan árboles poco profundos (profundidad 3 o 4) sugiere
 que las interacciones complejas entre variables aportan poco. El límite al
 desempeño parece estar en la información que contienen las covariables más
@@ -1051,6 +1040,8 @@ sino que modelarlos aporta poco a la discriminación. Lo que sí varía es la
 dirección de algunas variables según la definición de pobreza: la edad del
 jefe de hogar, por ejemplo, se asocia con menor riesgo bajo pobreza
 monetaria y con mayor riesgo bajo IPM (Sección~\ref{subsec:determinantes}).
+
+\input{tables/tab_desempeno_modelos_fbeta2_cv10.tex}
 
 \textbf{Segundo,} la capacidad de identificar vulnerables apenas cambia
 si se excluyen las variables de ingreso/gasto del hogar de las
@@ -1064,12 +1055,13 @@ implica que el ingreso no importe (Sección~
 \ref{subsec:caracterizacion_grupos}), sino que su contenido informativo
 ya está sustancialmente capturado por otras variables del núcleo del
 perfil (Ej. Riqueza, educación, bienes durables Sección~\ref{subsec:determinantes}).
-Este resultado es coherente con dos líneas de la literatura.
+
+El segundo resultado es coherente con dos líneas de la literatura.
 \textcite{lopezCalva2014} interpretan el ingreso observado como una medida
 resumen de los activos del hogar y, por eso, construyen un ingreso
 permanente a partir de esos activos y de características socioeconómicas;
 y los \emph{proxy means tests} descansan en que un conjunto de
-características del hogar fáciles de verificar aproxima su bienestar sin
+características del hogar, fáciles de verificar, aproximan su bienestar sin
 medir el ingreso \parencite{mcbride2018}.
 Bajo IPM la brecha es aún menor, y para Random Forest y XGBoost es negativa 
 (el Modelo B (sin ingreso/gasto) supera al
@@ -1125,45 +1117,48 @@ modo que un programa así llegaría a uno de cada cuatro vulnerables.
 
 \input{tables/tab_matriz_confusion_modelo_a.tex}
 
-\textbf{Cuarto,} los falsos positivos no son errores aleatorios, son
-hogares que no cayeron en pobreza, pero cuya situación en la ola base es
-mucho más precaria que la de los hogares que el modelo acierta en no
-marcar. Para verlo, se compararon los hogares que los modelos marcan como
-vulnerables pero no caen en pobreza (falsos positivos) con los que
-tampoco caen y el modelo no marca (verdaderos negativos), para
-HistGradientBoosting y XGBoost con el Modelo A. Los dos grupos difieren en
-casi todas las variables del núcleo SHAP: en HistGradientBoosting, los
-falsos positivos tienen un índice de riqueza mucho menor (0.30 frente a
-1.65), menor educación máxima en el hogar (3.2 frente a 5.5), menos bienes
-durables y servicios públicos, menor estrato, menos acceso a internet y
-más hacinamiento; solo se parecen en los choques y la edad del jefe. Sin
-embargo, lo que lleva al modelo a marcarlos se concentra en pocas
-variables. Según los valores SHAP, en HistGradientBoosting son el índice
-de riqueza, la educación máxima del hogar y los bienes durables; en
-XGBoost, el ingreso y el gasto per cápita y su brecha frente a la línea de
-pobreza, seguidos de la educación. 
+\textbf{Cuarto,} los falsos positivos no son errores aleatorios: son hogares
+que no cayeron en pobreza pero que en la ola base estaban en una situación más precaria
+que los verdaderos negativos, y el modelo los marca no
+porque alguna variable suba su riesgo predicho, sino porque les falta
+la riqueza, la educación y el ingreso que bajan el riesgo de esos
+verdaderos negativos. Para mostrarlo se compararon, con el Modelo A,
+pobreza monetaria, y los cinco algoritmos, los hogares que no cayeron en pobreza 
+y el modelo marca
+(falsos positivos) con los que no marca y no caen (verdaderos negativos): como ambos
+tuvieron el mismo desenlace (no caen), solo los separa la decisión del modelo.
+En los valores de las variables del núcleo SHAP
+(Sección~\ref{subsec:determinantes}), los falsos
+positivos tienen en los cinco algoritmos un índice de riqueza mucho menor
+(0.26--0.40 frente a 1.65--1.82), menor educación máxima en el hogar
+(3.2--3.4 frente a 5.4--5.8), menos bienes durables, servicios públicos e
+internet, menor estrato y más hacinamiento; solo se parecen en los choques
+y la edad del jefe. Como estas variables están correlacionadas entre sí 
+(los hogares con más riqueza suelen tener también más educación, 
+bienes y servicios), esta comparación no dice cuál de ellas usa el modelo para marcarlos.
 
-La riqueza y la educación no elevan el
-riesgo que los modelos asignan a los falsos positivos: en los verdaderos
-negativos, su nivel alto reduce con fuerza el riesgo predicho, mientras
-que en los falsos positivos casi no lo modifica. Es decir, los modelos no
-los marcan porque tengan una característica que los haga especialmente
-riesgosos, sino porque no tienen la riqueza y la educación que llevan a
-los verdaderos negativos a quedar por debajo del umbral. Solo algunas
-variables sí empujan su riesgo hacia arriba: en HistGradientBoosting, los
-bienes durables, los servicios públicos, el estrato y tener un jefe
-jornalero; en XGBoost, sobre todo el ingreso per cápita. Así, los modelos
-distinguen bien a los hogares precarios de los que no lo son; lo que
-distingue solo en parte es cuáles de los hogares precarios efectivamente
+Para saberlo se compararon los valores SHAP con signo, que miden
+cuánto sube (si son positivos) o baja (si son negativos) cada variable el
+riesgo de caída en pobreza predicho de cada hogar. Entre las seis variables que más separan a
+los dos grupos en cada algoritmo están, en los cinco, los bienes durables
+y el ingreso per cápita o el índice de riqueza (según el algoritmo), y en
+cuatro la educación máxima del hogar (séptima en Random Forest). En 25 de los
+30 casos (seis variables por algoritmo), la brecha se debe sobre todo a
+que las variables reducen con fuerza el riesgo de caída en pobreza de los verdaderos negativos y
+modifican mucho menos el de los falsos positivos. Las excepciones son los
+bienes durables y los servicios públicos, que en algunos algoritmos suben
+el riesgo de los falsos positivos más de lo que bajan el de los
+verdaderos negativos. Así, los modelos distinguen bien a los hogares
+precarios de los que no lo son, pero solo en parte cuáles de ellos
 caerán.
 
 \textbf{Quinto,} quienes efectivamente caen reportan más choques
 posteriores a la predicción que quienes no caen. Comparando choques reportados en la ola de
 destino (2016, posteriores al momento de la predicción y por tanto no
 usados por el modelo) entre verdaderos positivos y falsos positivos, los
-primeros reportaron más choques en la ola de 2016: 3.1
-choques en promedio frente a 2.2 (ambos algoritmos), y 81--82\% tuvo al
-menos un choque frente a 71--72\% de los falsos positivos --consistente
+primeros reportaron más choques en la ola de 2016: 3.1--3.2
+choques en promedio frente a 2.2--2.3 (en los cinco algoritmos), y 81--82\% tuvo al
+menos un choque frente a 71--73\% de los falsos positivos. Esto esconsistente
 con el enfoque de vulnerabilidad de \textcite{chaudhuri2002}: el modelo
 identifica correctamente al hogar en el margen, y parte de quién realiza
 el riesgo podría depender de choques que la ola base no permite
@@ -1209,20 +1204,20 @@ de la importancia SHAP en cada combinación de algoritmo y especificación,
 y las diez primeras, entre el 44\% y el 72\%
 (Tabla~\ref{tab:shap_variables_necesarias}, Apéndice~\ref{apx:soporte_shap}).
 Las 22 variables que están en ese grupo en al menos la mitad de las
-combinaciones forman el núcleo del perfil vulnerable
+combinaciones forman el \emph{núcleo del perfil vulnerable}
 (Tabla~\ref{tab:shap_signo_nucleo}). Cuatro aparecen en todas las
 combinaciones: servicios públicos, estrato, bienes durables y personas por
-cuarto. Siete se mantienen en el núcleo bajo las dos definiciones de
+habitación. Siete se mantienen en el núcleo bajo las dos definiciones de
 pobreza y en las dos ventanas: riqueza, educación máxima del hogar, nivel
-educativo del jefe, personas por cuarto, razón de dependencia, puntaje
+educativo del jefe, personas por habitación, razón de dependencia, puntaje
 TVIP\footnote{Puntaje promedio de los niños del hogar en el Test de
 Vocabulario en Imágenes Peabody (TVIP), que mide el vocabulario receptivo
 como indicador del desarrollo cognitivo. Se usa el puntaje bruto, sin
 ajustar por edad, de modo que refleja en parte la edad de los niños
 evaluados.} y material del piso. El núcleo tampoco depende de los
 criterios elegidos para definirlo: las 22 variables se conservan con
-criterios más laxos, y riqueza, educación máxima, razón de dependencia y
-personas por cuarto sobreviven incluso a los más estrictos
+criterios más laxos, y riqueza, educación máxima y razón de dependencia
+sobreviven incluso a los más estrictos
 (Tabla~\ref{tab:sensibilidad_shap}). Esto no implica que la información
 completa del hogar sobra, porque disponer de todas las variables
 sigue siendo el escenario preferible. Pero cuando esa información no está
@@ -1251,14 +1246,14 @@ núcleo no tienen una dirección clara: los bienes durables, los servicios
 públicos y la cotización a pensión tienen signo mayoritariamente negativo
 pero no estable entre fuentes, y el acceso a internet, el puntaje TVIP, el
 choque económico, el porcentaje de niños con madre o padre vivo, la edad
-del jefe y los desplazados en la comunidad cambian de signo entre
+del jefe y la existencia de desplazados en la comunidad cambian de signo entre
 definiciones o ventanas; por eso se reportan como asociaciones, no como
 determinantes. Estas direcciones coinciden con las que encuentran
 \textcite{hernandez2022} con la misma ELCA bajo pobreza multidimensional,
 donde los años de educación, el empleo asalariado y el acceso al crédito
 reducen la vulnerabilidad, y con la literatura que asocia el capital
 humano con la pobreza crónica y la riqueza con una menor pobreza
-transitoria \parencite{jalan2000}, y que identifica el ahorro como una
+transitoria \parencite{jalan2000}, o que identifica el ahorro como una
 forma de autoseguro de los hogares frente a los choques
 \parencite{dercon2002}. El signo describe cómo el modelo usa cada variable, no un
 efecto causal, pero indica dónde tendría más sentido enfocar la
@@ -1289,10 +1284,12 @@ con la pobreza transitoria de \textcite{jalan2000}, en la que hogares no
 pobres en tiempos normales pueden caer de repente en la pobreza. Parte de
 esa cercanía puede reflejar también error de medición del ingreso cerca de
 la línea, al que las transiciones son sensibles
-(Anexo~\ref{apx:transiciones_robustez}). El mismo modelo aporta dos matices. El hogar que entra se distingue
-de ``nunca pobre'' con más dificultad que el que sale (AUC de 0.73 a 0.75,
-frente a 0.81 a 0.83), consistente con que parte de una situación algo
-mejor. Y con la información de la ola base tampoco se distingue bien a
+(Anexo~\ref{apx:transiciones_robustez}). El mismo modelo aporta dos matices. 
+Frente a ``nunca pobre'', el hogar que entra es algo más difícil de 
+distinguir que el que sale (AUC de 0.73 a 0.75, frente a 0.81 a 0.83): 
+aunque los dos están cerca entre sí, el que entra parte de una situación 
+algo mejor, pues en la ola base todavía no era pobre. 
+Adicionalmente, con la información de la ola base tampoco se distingue bien a
 quien sale de la pobreza de quien permanece en ella (0.60 a 0.63): ni la
 entrada ni la salida se anticipan bien con la información de la ola base. En el contexto de
 una potencial política pública de vulnerabilidad, esto implica que los
@@ -1306,17 +1303,14 @@ sería más coherente con este resultado.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_nucleo_grupos_monetaria.png}
-  \caption{Promedio de cada variable en los hogares que entran en pobreza
-  y en los que salen de ella, expresado en relación con los promedios de
-  los dos grupos extremos: 0 corresponde al promedio de los hogares
-  ``siempre pobres'' y 1 al de los ``nunca pobres'' (por ejemplo, 0.5
-  indica un promedio a medio camino entre ambos). Se muestran las diez
-  variables del núcleo SHAP con dirección estable o moderada. Grupos de
-  \textcite{lopezCalva2014}, pobreza monetaria, transiciones
-  2010$\to$2013 ($n=8{,}218$) y 2013$\to$2016 ($n=6{,}911$). Fuente:
-  cálculos propios.}
+  \caption{Posición de los hogares que entran y que salen de la pobreza entre los grupos extremos,
+  variables del núcleo SHAP, pobreza monetaria, 2010$\to$2013 y 2013$\to$2016.}
   \label{fig:perfil_nucleo_grupos}
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_transicion_covariables/perfil_nucleo_grupos_monetaria.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Promedio de cada variable en cada grupo, expresado en relación con los promedios de los dos grupos extremos: 0 corresponde al promedio de los hogares ``siempre pobres'' y 1 al de los ``nunca pobres'' (por ejemplo, 0.5 indica un promedio a medio camino entre ambos). Se muestran las diez variables del núcleo SHAP con dirección estable o moderada. Grupos de \textcite{lopezCalva2014}; $n=8{,}218$ en 2010$\to$2013 y $n=6{,}911$ en 2013$\to$2016. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \textbf{Cuarto,} entre los hogares que caen, quedan atrapados los que
@@ -1381,18 +1375,22 @@ mediana (10.7) está a 2.9 puntos de ``sale'' y a 38.4 de ``nunca pobre'';
 bajo pobreza monetaria el patrón es débil en 2010$\to$2013, con ``entra''
 casi a medio camino, pero se recupera en 2013$\to$2016, donde queda a 8.9
 puntos de ``sale'' y a 38.3 de ``nunca pobre''. Por región, la pobreza
-persistente se concentra en las microrregiones rurales andinas, con
+persistente se concentra en las microrregiones rurales, con
 64--66\% de hogares siempre pobres y luz nocturna muy baja, mientras
 Bogotá concentra los nunca pobres (70\%) con el valor máximo de luz
 (Figura~\ref{fig:mapa_transicion_monetaria}).\footnote{La muestra de ELCA
 es urbana en unas regiones y rural en otras, y no incluye el Chocó rural
-ni La Guajira (Sección~\ref{subsec:limitaciones}). ALOS PALSAR sigue el
-mismo gradiente que DMSP-OLS y el NDVI de Landsat lo invierte, por
-ruralidad, pero ambas fuentes solo tienen datos en 2010 y no se pueden
-poner a prueba en 2013$\to$2016.} Que una fuente completamente
-independiente de la encuesta, medida desde el espacio, reproduzca el
-gradiente y la cercanía entre ``entra'' y ``sale'' indica que ese patrón
-no depende de cómo se construyó el cuestionario. Para la política, esto
+ni La Guajira (Sección~\ref{subsec:limitaciones}).} Las otras dos fuentes
+satelitales muestran el mismo orden en 2010: el radar de ALOS PALSAR, que
+capta el área construida, sube de ``siempre pobre'' a ``nunca pobre'' como
+la luz nocturna, y el índice de vegetación de Landsat (NDVI) baja, porque
+es mayor en las zonas rurales, donde se concentra la pobreza persistente.
+En ambas, ``entra'' queda más cerca de ``sale'' que de ``nunca pobre''.
+Como solo tienen datos en 2010, no se pueden poner a prueba en
+2013$\to$2016. Es de resaltar que fuentes completamente
+independientes de la encuesta, medidas desde el espacio, reproduzcan el
+gradiente y la cercanía entre ``entra'' y ``sale'' es indicador de que ese patrón
+no depende de cómo se construyó el cuestionario. Para una eventual política pública, esto
 hace de la luz nocturna un indicador gratuito y de cobertura universal
 del gradiente socioeconómico, útil para priorizar territorios donde no hay
 encuesta \parencite{hofer2025}, aunque no para seleccionar hogares dentro de ellos, como
@@ -1400,18 +1398,26 @@ muestra el siguiente hallazgo.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_transicion_covariables/dmsp_monotonico_categoria.png}
-  \caption{Iluminación nocturna (DMSP-OLS) por grupo de transición, media
-  y mediana, pobreza monetaria e IPM (2010$\to$2013).}
+  \caption{Iluminación nocturna (DMSP-OLS) por grupo de transición, pobreza monetaria e IPM,
+  2010$\to$2013.}
   \label{fig:dmsp_monotonico}
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_transicion_covariables/dmsp_monotonico_categoria.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Barra: media ponderada por el factor de expansión longitudinal; línea vertical: mediana. Escala de DMSP-OLS de 0 a 63. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.65\textwidth]{../outputs/figures/mapa_territorial_divipola/prueba_estilo_tramas_regional.png}
-  \caption{Grupo de transición dominante por región e iluminación
-  nocturna (DMSP), pobreza monetaria, 2010$\to$2013.}
+  \caption{Grupo de transición dominante por región e iluminación nocturna (DMSP-OLS), pobreza
+  monetaria, 2010$\to$2013.}
   \label{fig:mapa_transicion_monetaria}
+  \includegraphics[width=0.65\textwidth]{../outputs/figures/mapa_territorial_divipola/prueba_estilo_tramas_regional.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Las proporciones de cada grupo por región son reales; su ubicación dentro de cada región es simulada. Fondo: iluminación nocturna de 2010. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \textbf{Segundo,} bajo pobreza monetaria, agregar la luz nocturna a la
@@ -1424,8 +1430,12 @@ el cero en las diez (Tablas~\ref{tab:marginal_dmsp_fbeta2_cv10}
 y~\ref{tab:significancia_dmsp_ipm}, Apéndice~\ref{apx:marginal_dmsp}). No se debe a sobreajuste: la
 diferencia entre el AUC de validación cruzada y el de prueba prácticamente
 no cambia al agregar DMSP-OLS (a lo sumo 0.002 en ocho de las diez
-combinaciones y 0.008 en LightGBM con el Modelo A). El
+combinaciones, 0.008 en LightGBM con el Modelo A y una reducción de 0.005
+en LightGBM con el Modelo B). El
 resultado se repite al agregar las tres fuentes geoespaciales juntas
+(DMSP-OLS, ALOS PALSAR y Landsat 5 TM): con validación cruzada dentro de
+2010$\to$2013, el AUC-ROC cambia entre $-0.006$ y $0.000$ en los seis
+modelos estimados y no mejora en ninguno
 (Tabla~\ref{tab:geo3_cv}, Apéndice~\ref{apx:geo3_cv}).\footnote{Se probó
 además si DMSP-OLS aporta más al eliminar de la encuesta las dos
 preguntas que la vuelven redundante (solo la regresión logística mejora de
@@ -1442,8 +1452,9 @@ grupos en menos de 0.025, sin un patrón consistente entre algoritmos, y
 en la separación de ``entra'' frente a ``sale'' ningún cambio es
 distinguible de cero (entre $-0.006$ y $+0.011$;
 Tabla~\ref{tab:multiclase_auc_pares}, Apéndice~\ref{apx:multiclase}).
-La luz nocturna distingue, como la encuesta, a los hogares precarios de
-los que no lo son, pero no a cuáles de los precarios caerán. Un sistema
+
+La luz nocturna distingue, como la encuesta, a los hogares en situación precaria de
+los que no lo están, pero no a cuáles de esa situación caerán. Un sistema
 que ya cuenta con una encuesta vigente no ganaría precisión al
 integrarla. Es coherente con la evidencia previa: en \textcite{jean2016}
 la luz nocturna sola predice peor que un modelo que la combina con
@@ -1458,18 +1469,14 @@ estimar entre encuestas.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.62\textwidth]{../outputs/figures/modelos/05_residual_dmsp_riqueza.png}
-  \caption{Correlación de la luz nocturna (DMSP-OLS) con caer en pobreza
-  monetaria, antes y después de descontar cuatro variables del núcleo:
-  servicios públicos, estrato, bienes durables y personas por cuarto. La
-  correlación inicial (gris oscuro) es comparable a la de esas cuatro
-  variables (gris claro), pero cae casi a cero al descontarlas (rojo). La
-  barra roja es una correlación parcial: se residualizan tanto la luz
-  nocturna como el resultado frente a las cuatro variables de referencia,
-  y se correlacionan los residuos (teorema de Frisch--Waugh--Lovell).
-  $n=2{,}150$, restringido por datos faltantes de estrato. Fuente:
-  cálculos propios.}
+  \caption{Correlación de la iluminación nocturna (DMSP-OLS) con caer en pobreza antes y después de
+  descontar cuatro variables del núcleo, pobreza monetaria, 2010$\to$2013.}
   \label{fig:residual_dmsp_riqueza}
+  \includegraphics[width=0.62\textwidth]{../outputs/figures/modelos/05_residual_dmsp_riqueza.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Las cuatro variables son servicios públicos, estrato, bienes durables y personas por cuarto. La correlación inicial (gris oscuro) es comparable a la de esas cuatro variables (gris claro), pero cae casi a cero al descontarlas (rojo). La barra roja es una correlación parcial: se residualizan tanto la luz nocturna como el resultado frente a las cuatro variables, y se correlacionan los residuos (teorema de Frisch--Waugh--Lovell). $n=2{,}150$, restringido por datos faltantes de estrato. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \subsubsection{Aporte bajo pobreza multidimensional y por subgrupos}
@@ -1483,7 +1490,7 @@ poco y solo en dos algoritmos. XGBoost mejora en ambas especificaciones
 de cero (Tabla~\ref{tab:marginal_dmsp_ipm_significancia}; detalle de la
 significancia en la Tabla~\ref{tab:significancia_dmsp_ipm} del
 Apéndice~\ref{apx:marginal_dmsp}). El aporte
-es real, pero demasiado pequeño para cambiar por sí solo una decisión de
+existe, pero es demasiado pequeño para cambiar por sí solo una decisión de
 focalización. Una explicación posible de que aparezca bajo IPM y no bajo
 pobreza monetaria es que el IPM incluye privaciones de vivienda y de
 servicios públicos, más ligadas a la infraestructura que refleja la luz
@@ -1495,7 +1502,7 @@ poca.
 
 \textbf{Cuarto,} en LightGBM, el algoritmo con el patrón más claro, ese
 aporte se concentra justo donde la encuesta es más débil. Bajo pobreza
-monetaria no hay diferencias entre subgrupos: solo 1 de 70 combinaciones
+monetaria no hay diferencias entre subgrupos: solo 1 de 120 combinaciones
 de algoritmo, grupo y especificación cambia el AUC-ROC en 0.02 o más
 (Tabla~\ref{tab:heterogeneidad_dmsp},
 Apéndice~\ref{apx:heterogeneidad_dmsp}). Bajo IPM, LightGBM sin ingreso
@@ -1520,7 +1527,7 @@ hipótesis que queda por verificar. Si el patrón se confirma, el
 complemento satelital tendría más sentido focalizado geográficamente, en
 las zonas rurales y de estratos bajos donde la encuesta es más débil, que
 como insumo nacional, en línea con \textcite{newhouse2025}, para quienes
-la imagen satelital mejora las estimaciones de pobreza justamente en las
+la imagen satelital mejora las estimaciones de pobreza en las
 áreas donde la encuesta tiene pocas observaciones.
 
 En suma, la luz nocturna describe bien la geografía de la pobreza, pero
@@ -1552,7 +1559,7 @@ supervisado, con y sin ingreso del hogar, bajo pobreza monetaria y multidimensio
 Cinco hallazgos se destacan. \textbf{Primero,} la pobreza monetaria cae de
 60.7\% a 42.4\% entre 2010 y 2016, pero con mucho movimiento en ambas
 direcciones: 23.4\% y 19.9\% de los hogares no pobres caen en pobreza en
-cada ventana, mientras casi el doble de hogares sale de ella
+cada ventana, mientras más del doble de hogares sale de ella
 (Sección~\ref{subsec:transiciones}). \textbf{Segundo,} la capacidad de
 identificar a los vulnerables tiene un techo (AUC-ROC de 0.73 a 0.77) que
 no depende del algoritmo ni del ingreso; con un umbral que capte casi a
@@ -1570,12 +1577,16 @@ quedan atrapados los que tenían menos activos financieros, riqueza y
 cotización a pensión (Sección~\ref{subsec:determinantes}). \textbf{Quinto,} y
 en respuesta a la pregunta de investigación, las fuentes geoespaciales
 públicas describen bien la geografía de la pobreza, pero no mejoran la
-identificación de los hogares vulnerables cuando hay una encuesta
+identificación de los hogares vulnerables cuando hay una robusta encuesta
 vigente. La iluminación nocturna es redundante con unas pocas preguntas
 de la encuesta bajo pobreza monetaria y aporta poco bajo IPM, sobre todo
-en zonas rurales; su ventaja es su estabilidad en el tiempo. ALOS PALSAR,
-Landsat 5 TM y Street View no tienen cobertura suficiente para una
-conclusión firme (Sección~\ref{subsec:marginal_geo}).
+en zonas rurales; su ventaja es su estabilidad en el tiempo. ALOS PALSAR
+y Landsat 5 TM reproducen el mismo gradiente y, como la luz nocturna, no
+agregan información a la encuesta; las fotos de Street View predicen bien
+la luz de su zona, pero su cobertura aún es limitada. Como solo pudieron
+evaluarse sensores con datos en 2010 y 2013, los actuales, de mayor
+resolución, son la frontera por explorar
+(Secciones~\ref{subsec:marginal_geo} y~\ref{subsec:limitaciones}).
 
 \subsection{Implicaciones para la política pública}
 \label{subsec:politica}
@@ -1584,7 +1595,7 @@ Los resultados sugieren cinco implicaciones para sistemas de focalización
 como el SISBEN IV y el Registro Social de Hogares, que hoy clasifican a
 los hogares por su estándar de vida y su capacidad presunta de generar
 ingresos; los modelos de este artículo podrían complementarlos con una medida del riesgo de entrada en pobreza de
-los hogares hoy no pobres. Primero, la focalización puede apoyarse en variables no
+los hogares que hoy no son pobres. Primero, la focalización puede apoyarse en variables no
 monetarias, que capturan casi toda la señal; cuando la información del
 hogar está desactualizada o incompleta, un conjunto reducido centrado en
 el núcleo podría servir como alternativa. Segundo, el umbral debe depender
@@ -1604,25 +1615,30 @@ base, la graduación debería ser gradual y con seguimiento, y la falta de
 activos financieros y de cotización podría orientar la duración del apoyo. Quinto, la iluminación
 nocturna no se justifica como covariable de rutina con una encuesta
 vigente, pero sí para priorizar territorios y como respaldo entre rondas,
-sobre todo en zonas rurales. Todas son asociaciones, no efectos causales,
-y requieren evaluación antes de convertirse en intervenciones.
+sobre todo en zonas rurales. Lo mismo vale para el radar y las imágenes
+ópticas: no agregan información a la encuesta, pero reproducen el mismo
+gradiente que la luz nocturna y podrían cumplir esa misma función
+territorial. Las fotos de calle predicen bien la luz nocturna de su zona y
+su cobertura crece rápido: el 61\% de las encontradas para los hogares de
+la ELCA es de 2023 en adelante.
 
 \subsection{Limitaciones y agenda de investigación}
 \label{subsec:limitaciones}
 
-Los principales límites son cuatro. En los determinantes, la importancia
+Los principales límites son cinco. En los determinantes, la importancia
 SHAP describe cómo el modelo usa cada variable, no un efecto causal ni un
 aporte fuera de muestra; reparte el crédito entre variables
-correlacionadas, y el núcleo se eligió con información de ambas ventanas,
-incluida la de prueba. En los errores del modelo, los choques se reportan
+correlacionadas. En los errores del modelo, los choques se reportan
 en 2016 y su relación con la caída es descriptiva. En DMSP-OLS, la
-heterogeneidad por subgrupos es exploratoria y la corrección por
-conglomerados de comunidad no se estimó para todos los algoritmos. En la
+heterogeneidad por subgrupos es exploratoria. En la
 muestra, la separación entre pobres transitorios y persistentes se apoya
-en 610 de 723 hogares, y ELCA no cubre el Chocó rural ni La Guajira.
-La cercanía entre quienes entran y quienes salen de la pobreza se
-establece solo bajo pobreza monetaria, porque el modelo multiclase no se
-estimó bajo IPM.
+en 610 de 723 hogares. En las fuentes geoespaciales, los resultados
+corresponden a los únicos sensores con datos en 2010 y 2013 (DMSP-OLS,
+ALOS PALSAR y Landsat 5 TM), que tienen menor resolución y frecuencia que
+los actuales. VIIRS DNB, Sentinel-1 y Sentinel-2 empezaron a operar
+después de 2012 y no pudieron evaluarse con el panel, y las fotos de
+Street View se concentran en años recientes
+(Anexo~\ref{apx:cobertura_temporal}).
 
 Los resultados bajo IPM tienen además un límite de medición: el indicador
 de barreras de acceso a salud se mide en 2010 con un proxy distinto al de
@@ -1645,11 +1661,18 @@ vegetación, anticipan los choques compartidos, dado que la luz nocturna
 es muy estable y los choques que más distinguen a quien cae son
 familiares. Quinto, contrastar si las variables de acumulación indican
 quién es vulnerable y las de actividad económica reciente cuánto dura esa
-condición. Sexto, evaluar ALOS PALSAR, Landsat 5 TM y Google Street View
-cuando exista cobertura temporal suficiente: las fotos de Street View
-predicen bien la luz nocturna de su zona y su señal se asocia con caer en
+condición. Sexto, repetir la evaluación geoespacial con sensores
+actuales, de mayor resolución y frecuencia (VIIRS DNB, Sentinel-1 y
+Sentinel-2), con un panel que tenga olas posteriores a su lanzamiento: es
+un campo reciente, cuyas fuentes mejoran rápido, y lo encontrado aquí con
+sensores de 2010 es un piso, no un techo. En particular, las fotos de
+Street View predicen bien la luz nocturna de su zona y su señal se asocia con caer en
 pobreza, pero no hay fotos anteriores a 2012, se concentran en zonas
-urbanas y son poco estables entre olas (Anexo~\ref{apx:gsv}).
+urbanas y la representación de un mismo hogar cambia entre olas. Aun así,
+la relación con la luz se mantiene con fotos tomadas más de diez años
+después, lo que sugiere usar fotos posteriores si se corrige el sesgo de
+cobertura, y conviene comparar modelos entrenados con escenas urbanas, que
+en este ejercicio dan el mejor ajuste (Anexo~\ref{apx:gsv}).
 
 % ============================================================
 % REFERENCIAS
@@ -1688,7 +1711,7 @@ Figura~\ref{fig:top_correlaciones}.
 
 La inmensa mayoría son redundancias esperadas por construcción, no
 hallazgos: la versión nominal y real del ingreso/gasto per cápita
-correlacionan sobre 0.97 con su propia brecha a la LP; \texttt{lp} y
+correlacionan 0.96 o más con su propia brecha a la LP; \texttt{lp} y
 \texttt{li} correlacionan 0.87 (ambas son la misma línea oficial del
 DANE, apenas escaladas distinto); \texttt{estrato\_hogar} y su versión
 verificada correlacionan 0.95; afiliación/cotización a pensión y salud
@@ -1707,8 +1730,9 @@ robustos a esta colinealidad porque cada partición usa una sola variable a
 la vez.
 
 Un hallazgo no trivial es que \texttt{dmsp\_stable\_lights} correlaciona
-0.87 con la línea de pobreza \texttt{lp} y 0.81 con el número de
-servicios públicos del hogar (\texttt{n\_servicios\_publicos\_hogar}).
+0.86 con la línea de pobreza \texttt{lp} y 0.87 con el número de
+servicios públicos del hogar (\texttt{n\_servicios\_publicos\_hogar}), que a
+su vez correlacionan 0.81 entre sí.
 Esto se puede deber a que la LP oficial del DANE es distinta para zona
 urbana y rural (típicamente mayor en zona urbana), y el acceso a
 servicios públicos también está fuertemente urbanizado, de modo que la
@@ -1724,16 +1748,14 @@ Sección~\ref{subsec:marginal}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.85\textwidth]{../outputs/figures/eda_variables_modelo/04b_top_correlaciones.png}
-  \caption{Pares de variables con correlación de Pearson $|r|>0.7$
-  (calculados sobre al menos 500 observaciones conjuntas no-nulas),
-  ordenados por magnitud de la correlación. La mayoría corresponde a
-  redundancias esperables (medidas nominal vs.\ real de un mismo
-  concepto, o un indicador individual y su agregado a nivel de hogar);
-  la más relevante para este trabajo es la de \texttt{dmsp\_stable\_lights}
-  con \texttt{lp}, \texttt{li} y \texttt{n\_servicios\_publicos\_hogar}, que
-  se retoma en la Sección~\ref{subsec:marginal}. Fuente: cálculos propios.}
+  \caption{Pares de covariables con correlación de Pearson mayor que 0.7 en valor absoluto,
+  2010, 2013 y 2016.}
   \label{fig:top_correlaciones}
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/eda_variables_modelo/04b_top_correlaciones.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Correlaciones calculadas sobre al menos 500 observaciones conjuntas no nulas y ordenadas por magnitud; en rojo, las negativas. La mayoría corresponde a redundancias esperables (medidas nominal y real de un mismo concepto, o un indicador individual y su agregado a nivel de hogar); la más relevante para este trabajo es la de la iluminación nocturna con las líneas de pobreza e indigencia y con el número de servicios públicos, que se retoma en la Sección~\ref{subsec:marginal}. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \subsection{Incidencia, FGT y robustez de las transiciones de pobreza monetaria}
@@ -1766,10 +1788,13 @@ depende de la medida de bienestar elegida.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.75\textwidth]{../outputs/figures/pobreza/01_incidencia_ingreso_vs_gasto.png}
-  \caption{Incidencia de pobreza monetaria (P0) por ingreso y por gasto,
-  contra la línea de pobreza (LP), 2010--2016.}
+  \caption{Incidencia de la pobreza monetaria por ingreso y por gasto, 2010, 2013 y 2016.}
   \label{fig:incidencia_ingreso_gasto}
+  \includegraphics[width=0.75\textwidth]{../outputs/figures/pobreza/01_incidencia_ingreso_vs_gasto.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Incidencia (P0) frente a la línea de pobreza oficial. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 La Figura~\ref{fig:fgt_trio} descompone la pobreza por ingreso en sus tres
@@ -1785,10 +1810,13 @@ la situación relativa de los hogares que permanecieron pobres.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{../outputs/figures/pobreza/02_fgt_incidencia_brecha_severidad.png}
-  \caption{Indicadores FGT de pobreza por ingreso contra la LP: incidencia
-  (P0), brecha (P1) y severidad (P2), por ola.}
+  \caption{Indicadores FGT de la pobreza monetaria por ingreso, 2010, 2013 y 2016.}
   \label{fig:fgt_trio}
+  \includegraphics[width=0.8\textwidth]{../outputs/figures/pobreza/02_fgt_incidencia_brecha_severidad.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Incidencia (P0), brecha (P1) y severidad (P2) frente a la línea de pobreza oficial. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \subsubsection{Ejercicios de robustez}
@@ -1844,8 +1872,8 @@ urbano)--, lo que subestima mecánicamente el ingreso rural de 2010 frente
 al de 2013 y 2016, donde la pregunta sí existe. Para dimensionar el efecto
 de esta fuente de ingreso sobre las transiciones, se reclasificó la
 pobreza excluyendo \texttt{ing\_ayudas} de las tres olas y se repitió la
-matriz 2010$\rightarrow$2013. El efecto es el más grande de los cuatro
-ejercicios de reclasificación del ingreso: \emph{siempre pobre} sube de
+matriz 2010$\rightarrow$2013. El efecto es el mayor de las dos
+reclasificaciones del ingreso: \emph{siempre pobre} sube de
 43.9\% a 46.8\%, y \emph{nunca pobre} baja de 28.8\% a 27.2\%. Esto es
 consistente con que las ayudas en dinero son una fuente de ingreso más
 extendida en la población (no un evento raro como el ingreso excepcional),
@@ -1873,10 +1901,14 @@ ingreso más que un patrón estructural de vulnerabilidad.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/08_sensibilidad_banda.png}
-  \caption{Sensibilidad de la distribución de categorías de transición a
-  una banda $\pm$10\% alrededor de la línea de pobreza oficial.}
+  \caption{Sensibilidad de los grupos de transición a una banda de $\pm$10\% alrededor de la línea
+  de pobreza, pobreza monetaria, 2010$\to$2013 y 2013$\to$2016.}
   \label{fig:sensibilidad_banda}
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/08_sensibilidad_banda.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Distribución de los hogares del panel emparejado entre los cuatro grupos con la línea de pobreza oficial (LP) y con líneas 10\% más baja y 10\% más alta. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 La Figura~\ref{fig:robustez_transiciones} resume conjuntamente los tres
@@ -1885,10 +1917,14 @@ excepcional, sin ayudas en dinero) frente a la especificación oficial.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/07_robustez_transiciones.png}
-  \caption{Robustez de la distribución de categorías de transición a
-  especificaciones alternativas del ingreso del hogar.}
+  \caption{Robustez de los grupos de transición a definiciones alternativas del ingreso del hogar,
+  pobreza monetaria, 2010$\to$2013 y 2013$\to$2016.}
   \label{fig:robustez_transiciones}
+  \includegraphics[width=0.95\textwidth]{../outputs/figures/pobreza/07_robustez_transiciones.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Base: ingreso de la definición oficial, sin ponderar. Sin excepcional: sin los ingresos excepcionales (herencias, pólizas, venta de inmuebles o negocios y otros). Sin ing. ayudas: sin el ingreso por ayudas, solo disponible en 2010$\to$2013. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \paragraph{Atrición del panel.} Además de los hogares excluidos de las
@@ -1916,10 +1952,13 @@ retoma en la Sección~\ref{subsec:limitaciones}).
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.55\textwidth]{../outputs/figures/pobreza/09_atricion_panel.png}
-  \caption{Atrición total del panel entre olas consecutivas (hogares que
-  no aparecen en absoluto en la ola siguiente).}
+  \caption{Atrición total del panel entre olas consecutivas, 2010$\to$2013 y 2013$\to$2016.}
   \label{fig:atricion}
+  \includegraphics[width=0.55\textwidth]{../outputs/figures/pobreza/09_atricion_panel.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Hogares de la ola inicial que no aparecen en absoluto en la ola siguiente. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \subsection{Soporte del núcleo SHAP}
@@ -1929,10 +1968,8 @@ Complemento de la Sección~\ref{subsec:determinantes}: concentración de la
 señal SHAP y sensibilidad del núcleo y de su dirección a los umbrales elegidos.
 
 \input{tables/tab_shap_variables_necesarias.tex}
-\end{table}
 
 \input{tables/tab_sensibilidad_shap.tex}
-\end{table}
 
 \subsection{Desempeño de los modelos bajo pobreza multidimensional (IPM)}
 \label{apx:desempeno_ipm}
@@ -1992,11 +2029,16 @@ resultados del diagnóstico exploratorio de las fotografías de Google
 Street View. La Tabla~\ref{tab:gsv_prediccion_luz} mide qué tan bien
 predicen las representaciones de las fotos la luz nocturna de su zona y
 qué tan estables son entre olas; la Tabla~\ref{tab:gsv_pobreza}, su
-cobertura y su relación con la caída en pobreza.
+cobertura y su relación con la caída en pobreza; y la
+Tabla~\ref{tab:gsv_desfase_modelos}, si la relación con la luz se
+mantiene con fotos tomadas años después y si depende del modelo de
+imagen.
 
 \input{tables/tab_gsv_prediccion_luz.tex}
 
 \input{tables/tab_gsv_pobreza.tex}
+
+\input{tables/tab_gsv_desfase_modelos.tex}
 
 \subsection{Cobertura de covariables por módulo}
 \label{apx:cobertura_modulos}
@@ -2045,9 +2087,9 @@ cobertura por módulo.
 
 \begin{table}[H]
   \centering
-  \caption{Cobertura de covariables por módulo en el dataset consolidado}
+  \caption{Cobertura de las covariables por módulo de la ELCA, 2010, 2013 y 2016.}
   \label{tab:cobertura_modulos}
-  \small
+  \footnotesize
   \begin{tabular}{lp{2.6cm}p{2.4cm}p{3.2cm}}
     \toprule
     \textbf{Módulo} & \textbf{Candidatas auditadas} & \textbf{Usadas en el modelo} & \textbf{Cobertura (\% del panel)} \\
@@ -2064,14 +2106,13 @@ cobertura por módulo.
     \footnotesize \textit{Nota:} ``Candidatas auditadas'' es el número de
     columnas del módulo que superaron los cuatro filtros de calidad de la
     auditoría descrita arriba; ``usadas en el modelo'' es el
-    subconjunto final tras la construcción de \emph{features} -- excepto
+    subconjunto final tras la construcción de variables, excepto
     en Hogar, donde por la magnitud de la compresión hacia variables
     compuestas (61 columnas finales) se reporta en cambio el número de
     candidatas crudas absorbidas, directas o dentro de un compuesto
     (ver ``Bloque de \emph{features} de Hogar''). No
     incluye llaves de identidad (p. ej. el consecutivo del hogar en
-    Comunidades). Fuente: cálculos propios con base en ELCA 2010, 2013 y
-    2016.
+    Comunidades). Fuente: cálculos propios.
   \end{minipage}
 \end{table}
 
@@ -2095,10 +2136,13 @@ la Tabla~\ref{tab:temas_variables}.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\textwidth]{../outputs/figures/eda_variables_modelo/01_inventario_por_modulo.png}
-  \caption{Inventario de las 177 variables finales del dataset consolidado de la ELCA,
-  por módulo temático y tipo de dato. Fuente: cálculos propios.}
+  \caption{Variables de la ELCA usadas en los modelos por módulo temático y tipo de dato.}
   \label{fig:inventario_modulos}
+  \includegraphics[width=0.8\textwidth]{../outputs/figures/eda_variables_modelo/01_inventario_por_modulo.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} No incluye las variables geoespaciales. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 Las mismas 177 variables, agrupadas por el tema que cubren en lugar del
@@ -2139,13 +2183,15 @@ realizar supuestos adicionales sobre su composición, vulnerabilidad y covariabl
 
 \begin{figure}[H]
   \centering
+  \caption{Hogares por ola y pérdida de hogares entre olas de la ELCA, 2010, 2013 y 2016.}
+  \label{fig:panel_atricion}
   \includegraphics[width=0.48\textwidth]{../outputs/figures/eda_hogares/01_hogares_por_ola.png}
   \hfill
   \includegraphics[width=0.48\textwidth]{../outputs/figures/eda_hogares/03_attrition_tasas.png}
-  \caption{Izquierda: hogares únicos por ola. Derecha: tasa de pérdida de
-  hogares entre olas consecutivas y acumulada 2010--2016. Fuente: cálculos
-  propios.}
-  \label{fig:panel_atricion}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Izquierda: hogares únicos por ola. Derecha: porcentaje de hogares de la ola inicial que no aparecen en la siguiente, entre olas consecutivas y acumulado 2010$\to$2016. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \subsection{Matriz de confusión del Modelo B}
@@ -2267,10 +2313,10 @@ que se les da en este estudio.
 
 \begin{table}[H]
   \centering
-  \caption{Qué mide cada fuente nueva, qué variables construye, y qué
-  aproxima cada una.}
+  \caption{Mecanismo, variables construidas e interpretación de las tres
+  fuentes geoespaciales.}
   \label{tab:variables_pedagogico}
-  \small
+  \footnotesize
   \begin{tabular}{>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{3.1cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{4.0cm}}
     \toprule
     \textbf{Fuente} & \textbf{Mecanismo físico} & \textbf{Variables (estado / ventana acum.)} & \textbf{Qué aproxima} \\
@@ -2285,7 +2331,7 @@ que se les da en este estudio.
     Retrodispersión de radar en banda-L (HH, HV) sobre estructuras y vegetación &
     Estado: HH, HV (dB), razón HH/HV, índice normalizado\newline
     Acumulada: media, tendencia, crecimiento de cada una &
-    Densidad y consolidación del entorno construido vs. vegetación (nivel); si la zona se venía densificando/deforestando antes de 2010 (ventana acumulada) \\
+    Densidad y consolidación del entorno construido frente a la vegetación (nivel); si la zona se venía densificando/deforestando antes de 2010 (ventana acumulada) \\
     \addlinespace
     Landsat 5 TM\newline {\footnotesize (52 var.: 16 estado + 36 acum.)} &
     Reflectancia óptica multiespectral (visible, infrarrojo cercano, infrarrojo de onda corta) &
@@ -2296,8 +2342,9 @@ que se les da en este estudio.
   \end{tabular}
   \begin{minipage}{0.95\textwidth}
     \vspace{4pt}
-    \footnotesize \textit{Nota:} las especificaciones principales (Modelos
-    A y B con DMSP-OLS, holdout temporal) agregan solo las 23 variables de
+    \footnotesize \textit{Nota:} Las especificaciones principales (Modelos
+    A y B con DMSP-OLS, evaluados en el conjunto de prueba 2013$\to$2016)
+    agregan solo las 23 variables de
     DMSP-OLS; la variante con las tres fuentes agrega las 127, evaluada con
     validación cruzada dentro de 2010$\to$2013 (Tabla~\ref{tab:geo3_cv}).
     Cada variable de ventana acumulada se resume en nueve estadísticos:
@@ -2369,21 +2416,20 @@ capturar información relevante para la predicción de vulnerabilidad
 a la pobreza. Sin embargo, su cobertura es limitada en Colombia
 y no alcanza a cubrir ninguna de las olas suficientemente: no se encontró
 ninguna foto para los hogares de la ELCA que se hubiera tomado antes de 2012 y el 61\% de las fotos
-disponibles se habían tomado posterior a 2023. Por esta razón,
+disponibles se habían tomado de 2023 en adelante. Por esta razón,
 se decidió no incluirla en el análisis principal, aunque se tuvo en cuenta
 para la construcción de variables geoespaciales complementarias y para la discusión de resultados
 (Anexo~\ref{apx:gsv}).
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.95\textwidth]{figures/fig_cobertura_temporal_fuentes.png}
-  \caption{Cobertura temporal real de cada fuente geoespacial evaluada,
-  frente a las tres olas de la ELCA con coordenadas disponibles. El
-  patrón diagonal indica corrida real y completa sobre
-  hogares del estudio; el resto se revisó cobertura según catálogo. En la barra de GSV, la
-  intensidad del color es proporcional a la densidad real de fotos por
-  año —la gran mayoría de las fotos son de 2023 en adelante.}
+  \caption{Cobertura temporal de las fuentes geoespaciales evaluadas frente a las olas de la ELCA.}
   \label{fig:cobertura_temporal_fuentes}
+  \includegraphics[width=0.95\textwidth]{figures/fig_cobertura_temporal_fuentes.png}
+  \begin{minipage}{0.95\textwidth}
+    \vspace{4pt}
+    \footnotesize \textit{Nota:} Franjas rojas verticales: olas de la ELCA con coordenadas disponibles. El patrón diagonal indica una corrida real y completa sobre los hogares del estudio; en el resto se revisó la cobertura según el catálogo. En la barra de Google Street View, la intensidad del color es proporcional a la densidad real de fotos por año; la gran mayoría son de 2023 en adelante. Fuente: cálculos propios.
+  \end{minipage}
 \end{figure}
 
 \end{document}

@@ -20,6 +20,13 @@ INPUTS
 
 OUTPUTS
     outputs/tables/eda_transicion_covariables/otras_fuentes_geoespaciales_monetaria_2010_2013.csv
+    outputs/tables/eda_transicion_covariables/otras_fuentes_geoespaciales_mediana_monetaria_2010_2013.csv
+        (mediana SIN ponderar por grupo, misma convencion que la mediana de
+        DMSP en eda_transicion_covariables.py -- robustez del orden, agregado
+        2026-10-01 al subir este resultado de nota al pie al texto)
+    outputs/tables/eda_transicion_covariables/otras_fuentes_geoespaciales_por_zona_2010.csv
+        (mediana por zona urbana/rural en 2010 -- respalda la lectura de que
+        el NDVI invierte el gradiente por ruralidad)
 
 COMO CORRER
     cd src/02_build && python eda_otras_fuentes_geoespaciales.py
@@ -79,6 +86,21 @@ def main() -> None:
     out_path = TABLES_DIR / "otras_fuentes_geoespaciales_monetaria_2010_2013.csv"
     tabla.to_csv(out_path, index=False)
     print(f"\nGuardado: {out_path}")
+
+    medianas = df.groupby("categoria", observed=True)[variables].median().reindex(CATEGORIAS_ORDEN)
+    print("\nMediana sin ponderar por grupo:")
+    print(medianas.round(3).to_string())
+    out_mediana = TABLES_DIR / "otras_fuentes_geoespaciales_mediana_monetaria_2010_2013.csv"
+    medianas.to_csv(out_mediana)
+    print(f"Guardado: {out_mediana}")
+
+    zona = pobreza[pobreza["ola"] == 1].drop_duplicates("consecutivo").set_index("consecutivo")["zona"]
+    por_zona = geo.join(zona, how="inner").groupby("zona")[variables].agg(["median", "size"])
+    print("\nMediana por zona (2010):")
+    print(por_zona.round(3).to_string())
+    out_zona = TABLES_DIR / "otras_fuentes_geoespaciales_por_zona_2010.csv"
+    por_zona.to_csv(out_zona)
+    print(f"Guardado: {out_zona}")
 
 
 if __name__ == "__main__":

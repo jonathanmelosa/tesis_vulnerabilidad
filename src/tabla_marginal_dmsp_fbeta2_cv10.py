@@ -28,6 +28,10 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 CONFIG = {
@@ -94,16 +98,15 @@ def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
         # Caption corto y tabla autocontenida (2026-09-28, pedido del usuario):
         # la tabla pasa al anexo con \\input; ya no remite a las versiones
         # F1/folds=3, que no estan en el documento.
-        r"  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin",
-        r"  DMSP-OLS, pobreza monetaria (entrenamiento 2010$\to$2013, prueba",
-        r"  2013$\to$2016).}",
+        r"  \caption{AUC-ROC y precisión en el decil de mayor riesgo con y sin",
+        r"  DMSP-OLS en el conjunto de prueba, pobreza monetaria, 2013$\to$2016.}",
         r"  \label{tab:marginal_dmsp_fbeta2_cv10}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
         r"  \resizebox{\textwidth}{!}{%",
         r"  \begin{tabular}{llccccccccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Precision top-10\%} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{Recall} & \textbf{Precision} & \textbf{F1} & \textbf{Brecha CV} \\",
+        r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{Prec.-top10} & \textbf{IC95\%} & \textbf{Umbral} & \textbf{\emph{Recall}} & \textbf{Precisión} & \textbf{F1} & \textbf{Brecha CV} \\",
         r"    \midrule",
     ]
     for i, (espec_base, espec_geo) in enumerate(cfg["pares_especificacion"]):
@@ -118,17 +121,18 @@ def generar_tex(df: pd.DataFrame, cfg: dict) -> str:
         r"    \bottomrule", r"  \end{tabular}%", r"  }",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} promedio de 5 semillas; IC95\% sobre",
-        r"    las semillas. \emph{Recall}, precisión y F1 se miden al umbral ya",
+        r"    \footnotesize \textit{Nota:} Entrenamiento en 2010$\to$2013. Promedio de 5 semillas; IC95\% sobre",
+        r"    las semillas. Prec.-top10: precisión en el 10\% de hogares con mayor riesgo",
+        r"    predicho. \emph{Recall}, precisión y F1 se miden al umbral ya",
         r"    elegido para cada algoritmo y especificación por validación cruzada",
         r"    maximizando F$_2$ (Sección~\ref{subsec:desbalance}). Brecha CV: AUC",
         r"    de validación cruzada menos AUC en prueba; si agregar DMSP-OLS",
         r"    sobreajustara, se ensancharía frente a la especificación sin",
-        r"    DMSP-OLS. Fuente: cálculos propios.",
+        r"    DMSP-OLS. " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas)
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:

@@ -28,8 +28,9 @@ vs. persistente.
 
 METODOLOGIA
     Reutiliza literalmente `entrenar()` y `clasificar_celda()` de
-    `diagnostico_fp_vs_vn.py` (mismo pipeline ganador de
-    HistGradientBoosting/XGBoost, Modelo A, mismo umbral de
+    `diagnostico_fp_vs_vn.py` (mismo pipeline ganador de los cinco
+    algoritmos desde 2026-10-01 -- antes HistGradientBoosting/XGBoost --,
+    Modelo A, mismo umbral de
     `registro_modelos_fbeta2_cv10.csv` -- no se reentrena nada nuevo).
     Identifica los hogares FP y VP del holdout de prueba (2013->2016),
     les pega los choques de la ola 3 (2016,
@@ -47,10 +48,14 @@ INPUTS
 OUTPUTS
 
     data/processed/benchmark_resultados/diagnostico_choques_fp_vs_vp_modelo_a.csv
+    data/processed/benchmark_resultados/diagnostico_choques_fp_vs_vp_rangos_modelo_a.csv
+    (rango entre los cinco algoritmos citado en el Hallazgo 5, ver
+    `resumir_rangos()`)
 
 COMO CORRER
 
     cd src/05_model && python -u diagnostico_choques_fp_vs_vp.py
+    cd src/05_model && python -u diagnostico_choques_fp_vs_vp.py --solo-resumen
 """
 
 import sys
@@ -68,9 +73,30 @@ OLA_DESTINO = 3  # 2016 -- lo vivido durante la ventana que se predice (2013->20
 COLUMNAS_EXCLUIR_CHOQUES = ["consecutivo", "llave", "llave_n16", "ola", "zona"]
 
 RUTA_SALIDA = mu.RESULTADOS_DIR / "diagnostico_choques_fp_vs_vp_modelo_a.csv"
+RUTA_RESUMEN = mu.RESULTADOS_DIR / "diagnostico_choques_fp_vs_vp_rangos_modelo_a.csv"
+
+
+def resumir_rangos(tabla: pd.DataFrame) -> pd.DataFrame:
+    """Rango (min-max) entre algoritmos del promedio de cada variable de
+    choques en FP y en VP -- las cifras que cita el Hallazgo 5."""
+    return (
+        tabla.groupby("variable")
+        .agg(fp_min=("media_fp", "min"), fp_max=("media_fp", "max"),
+             vp_min=("media_vp", "min"), vp_max=("media_vp", "max"),
+             n_algoritmos_vp_mayor=("diferencia_vp_menos_fp", lambda x: int((x > 0).sum())))
+        .round(3)
+        .reset_index()
+    )
 
 
 def main() -> None:
+    if "--solo-resumen" in sys.argv:
+        rangos = resumir_rangos(pd.read_csv(RUTA_SALIDA))
+        rangos.to_csv(RUTA_RESUMEN, index=False)
+        print(rangos.to_string(index=False))
+        print(f"\nGuardado: {RUTA_RESUMEN}")
+        return
+
     registro = pd.read_csv(REGISTRO)
     test_crudo = pd.read_parquet(mu.DATA_DIR / f"modelo_{ESPEC}_2013_2016.parquet")
 
@@ -113,6 +139,7 @@ def main() -> None:
 
     RUTA_SALIDA.parent.mkdir(parents=True, exist_ok=True)
     tabla.to_csv(RUTA_SALIDA, index=False)
+    resumir_rangos(tabla).to_csv(RUTA_RESUMEN, index=False)
 
     print("\n=== Choques ola 3 (2016), VP vs. FP, mayor |diferencia| primero ===")
     print(tabla.to_string(index=False))

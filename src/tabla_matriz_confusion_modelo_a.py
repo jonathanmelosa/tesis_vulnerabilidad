@@ -41,6 +41,10 @@ COMO CORRER
 from pathlib import Path
 
 import pandas as pd
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRO_MONETARIA = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_fbeta2_cv10.csv"
@@ -113,8 +117,8 @@ def generar_tex(matriz: pd.DataFrame, clave: str, etiqueta: str) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        f"  \\caption{{Matriz de confusión del Modelo {etiqueta} en el conjunto de prueba",
-        r"  (2013$\to$2016), pobreza monetaria e IPM.}",
+        f"  \\caption{{Matriz de confusión del Modelo {etiqueta} en el conjunto de prueba,",
+        r"  pobreza monetaria e IPM, 2013$\to$2016.}",
         f"  \\label{{tab:matriz_confusion_{clave}}}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
@@ -156,11 +160,11 @@ def generar_tex(matriz: pd.DataFrame, clave: str, etiqueta: str) -> str:
         r"    \emph{recall} y la precisión que se derivan de ella difieren",
         r"    levemente de los promedios de 5 semillas de la",
         r"    Tabla~\ref{tab:desempeno_modelos}.",
-        r"    Fuente: cálculos propios.",
+        "    " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas) + "\n"
+    return aplicar_signo_menos("\n".join(lineas)) + "\n"
 
 
 def main() -> None:

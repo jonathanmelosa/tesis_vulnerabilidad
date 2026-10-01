@@ -13,10 +13,15 @@ Tablas -> outputs/tables/eda_hogares/
 Figuras -> outputs/figures/eda_hogares/
 """
 
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+
+# Estilo comun de las figuras del documento (2026-10-01).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import estilo_figuras as ef  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_PATH = PROJECT_ROOT / "data" / "processed" / "hogar_elca_longitudinal_clean.parquet"
@@ -30,29 +35,17 @@ WAVE_LABELS = {1: "2010", 2: "2013", 3: "2016"}
 
 # Paleta fija y reducida, segura para daltonismo (evita usar color como unico
 # canal para mas de dos categorias; siempre acompanada de etiquetas/leyenda).
-COLOR_SINGLE = "#4C72B0"
-COLOR_URBANO = "#4C72B0"
-COLOR_RURAL = "#DD8452"
-COLOR_LOST = "#C44E52"
+COLOR_SINGLE = ef.COLOR_SERIE
+COLOR_URBANO = ef.PALETA["azul"]
+COLOR_RURAL = ef.PALETA["naranja"]
+COLOR_LOST = ef.PALETA["rojo"]
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 120,
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "axes.grid": True,
-        "axes.grid.axis": "y",
-        "grid.color": "#E0E0E0",
-        "grid.linewidth": 0.6,
-        "font.size": 10,
-    }
-)
+ef.aplicar_estilo()
 
 
 def savefig(fig: plt.Figure, name: str) -> None:
     fig.tight_layout()
-    fig.savefig(FIGURES_DIR / name, bbox_inches="tight")
-    plt.close(fig)
+    ef.guardar(fig, FIGURES_DIR / name)
 
 
 def bar_with_labels(ax, x, heights, color=COLOR_SINGLE, fmt="{:,.0f}"):
@@ -65,7 +58,8 @@ def bar_with_labels(ax, x, heights, color=COLOR_SINGLE, fmt="{:,.0f}"):
             textcoords="offset points",
             ha="center",
             va="bottom",
-            fontsize=9,
+            fontsize=ef.TAM_LETRA_PEQUENA,
+            color=ef.INK_SECUNDARIO,
         )
     return bars
 
@@ -107,10 +101,10 @@ def analizar_hogares_por_ola(df: pd.DataFrame) -> pd.DataFrame:
     )
     conteo_ola.to_frame("n_hogares").to_csv(TABLES_DIR / "01_hogares_por_ola.csv")
 
-    fig, ax = plt.subplots(figsize=(5, 4))
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.48), 2.6))
     bar_with_labels(ax, conteo_ola.index, conteo_ola.values)
-    ax.set_title("Hogares unicos por ola")
-    ax.set_ylabel("Numero de hogares")
+    ax.set_ylim(0, conteo_ola.max() * 1.15)
+    ax.set_ylabel("Número de hogares")
     savefig(fig, "01_hogares_por_ola.png")
     return conteo_ola
 
@@ -230,9 +224,10 @@ def analizar_attrition(df: pd.DataFrame) -> dict:
     resumen["caida_neta_%"] = ((1 - resumen["hogares_fin"] / resumen["hogares_base"]) * 100).round(2)
     resumen.to_csv(TABLES_DIR / "03_attrition_resumen.csv")
 
-    fig, ax = plt.subplots(figsize=(5, 4))
-    bar_with_labels(ax, resumen.index, resumen["tasa_perdida_%"].values, fmt="{:.1f}%")
-    ax.set_title("Tasa de perdida de hogares entre olas")
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.48), 2.6))
+    periodos = [i.replace("->", f" {ef.FLECHA}\n") for i in resumen.index]
+    bar_with_labels(ax, periodos, resumen["tasa_perdida_%"].values, fmt="{:.1f}%")
+    ax.set_ylim(0, resumen["tasa_perdida_%"].max() * 1.15)
     ax.set_ylabel("% de hogares perdidos")
     savefig(fig, "03_attrition_tasas.png")
 

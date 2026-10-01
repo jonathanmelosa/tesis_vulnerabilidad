@@ -46,11 +46,17 @@ Output:
     outputs/figures/eda_variables_modelo/
 """
 
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+# Estilo y etiquetas comunes de las figuras del documento (2026-10-01).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import estilo_figuras as ef  # noqa: E402
+from etiquetas_variables import etiqueta as _etiqueta_nucleo  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PROCESSED = PROJECT_ROOT / "data" / "processed"
@@ -178,24 +184,54 @@ COLOR_POBRE = "#C44E52"
 COLOR_NOPOBRE = "#55A868"
 PALETTE_MODULOS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B2", "#937860", "#CCB974"]
 
-plt.rcParams.update(
-    {
-        "figure.dpi": 120,
-        "axes.spines.top": False,
-        "axes.spines.right": False,
-        "axes.grid": True,
-        "axes.grid.axis": "y",
-        "grid.color": "#E0E0E0",
-        "grid.linewidth": 0.6,
-        "font.size": 10,
-    }
-)
+ef.aplicar_estilo()
+
+# Etiquetas legibles de las variables de la figura de correlaciones que no
+# estan en etiquetas_variables.py (definiciones tomadas de los scripts de
+# 04_features que construyen cada variable).
+ETIQUETAS_CORRELACION = {
+    "afrontamiento_erosivo_hogar": "Afrontamiento erosivo ante choques",
+    "ahorra_jefe": "Jefe ahorra",
+    "gasto_percapita_hogar": "Gasto per cápita (nominal)",
+    "ingreso_percapita_hogar": "Ingreso per cápita (nominal)",
+    "jornalero_jefe": "Jefe jornalero",
+    "n_ninos_5": "N.º de niños menores de 6 años",
+    "n_tipos_ayuda_recibida_hogar": "N.º de tipos de ayuda recibida",
+    "n_tipos_choque_hogar": "N.º de tipos de choque",
+    "n_tipos_organizacion_jefe": "N.º de organizaciones del jefe",
+    "participa_organizacion_jefe": "Jefe participa en organizaciones",
+    "pct_adultos_fue_jornalero": "% de adultos que fueron jornaleros",
+    "pct_hogar_participa_organizacion": "% de adultos en organizaciones",
+    "peso_promedio_nino_hogar": "Peso promedio de los niños",
+    "recibio_ayuda_fam_colombia_hogar": "Recibió ayuda de familiares en Colombia",
+    "redujo_alimentos_choque_hogar": "Redujo alimentos ante choques",
+    "talla_promedio_nino_hogar": "Talla promedio de los niños",
+    "tasa_ahorro_hogar": "% de adultos que ahorran",
+    "tuvo_algun_choque_hogar": "Tuvo algún choque",
+}
+
+
+# Nombres de modulo con tildes para la figura de inventario.
+NOMBRES_MODULO = {
+    "Monetario/pobreza": "Monetario y pobreza",
+    "Personas (9 bloques)": "Personas (9 bloques)",
+    "Comunidades": "Comunidades",
+    "Ninos (6-9 anios)": "Niños (6 a 9 años)",
+    "Choques": "Choques",
+    "Hogar/vivienda/activos": "Hogar, vivienda y activos",
+}
+
+
+def etiqueta_legible(variable: str) -> str:
+    if variable in ETIQUETAS_CORRELACION:
+        return ETIQUETAS_CORRELACION[variable]
+    texto = _etiqueta_nucleo(variable)
+    return texto.replace("N.\\textsuperscript{o}", "N.º").replace("\\%", "%")
 
 
 def savefig(fig: plt.Figure, name: str) -> None:
     fig.tight_layout()
-    fig.savefig(FIGURES_DIR / name, bbox_inches="tight")
-    plt.close(fig)
+    ef.guardar(fig, FIGURES_DIR / name)
 
 
 def llave_compuesta(df: pd.DataFrame) -> pd.Series:
@@ -262,20 +298,22 @@ def figura_inventario_por_modulo(inv: pd.DataFrame) -> None:
     tabla = tabla.loc[orden]
     tipos = [t for t in ["Numerica", "Categorica", "Booleana"] if t in tabla.columns]
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.8), 3.2))
     bottom = np.zeros(len(tabla))
-    colores = {"Numerica": "#4C72B0", "Categorica": "#DD8452", "Booleana": "#55A868"}
+    colores = {"Numerica": ef.PALETA["azul"], "Categorica": ef.PALETA["naranja"], "Booleana": ef.PALETA["aguamarina"]}
+    nombres_tipo = {"Numerica": "Numérica", "Categorica": "Categórica", "Booleana": "Booleana"}
     for tipo in tipos:
         vals = tabla[tipo].values
-        ax.bar(tabla.index, vals, bottom=bottom, label=tipo, color=colores[tipo])
+        ax.bar(tabla.index, vals, bottom=bottom, label=nombres_tipo[tipo], color=colores[tipo])
         bottom += vals
     for i, total in enumerate(tabla.sum(axis=1).values):
-        ax.annotate(f"{int(total)}", xy=(i, total), xytext=(0, 3), textcoords="offset points", ha="center", fontsize=9)
-    ax.set_ylim(0, tabla.sum(axis=1).max() * 1.1)
-    ax.set_ylabel("Numero de variables")
-    ax.set_title("Inventario de variables finales por modulo tematico")
-    ax.legend(title="Tipo", frameon=False)
-    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+        ax.annotate(f"{int(total)}", xy=(i, total), xytext=(0, 3), textcoords="offset points",
+                    ha="center", fontsize=ef.TAM_LETRA_PEQUENA)
+    ax.set_ylim(0, tabla.sum(axis=1).max() * 1.12)
+    ax.set_ylabel("Número de variables")
+    ax.legend(title="Tipo")
+    ax.set_xticks(range(len(tabla)))
+    ax.set_xticklabels([NOMBRES_MODULO.get(m, m) for m in tabla.index], rotation=30, ha="right")
     savefig(fig, "01_inventario_por_modulo.png")
 
 
@@ -469,25 +507,24 @@ def figura_top_correlaciones(tabla_pares: pd.DataFrame) -> None:
     cada barra es un par identificable, ordenado por |r|, coloreado por
     signo y anotado con el modulo tematico de origen."""
     pares = tabla_pares.sort_values("r", key=lambda s: s.abs(), ascending=True).reset_index(drop=True)
-    etiquetas = [f"{r.variable_1}  –  {r.variable_2}" for r in pares.itertuples()]
-    colores = ["#C44E52" if r < 0 else "#4C72B0" for r in pares["r"]]
+    etiquetas = [f"{etiqueta_legible(r.variable_1)} – {etiqueta_legible(r.variable_2)}" for r in pares.itertuples()]
+    colores = [ef.PALETA["rojo"] if r < 0 else ef.COLOR_SERIE for r in pares["r"]]
 
-    fig, ax = plt.subplots(figsize=(9, 0.32 * len(pares) + 1.5))
-    ax.barh(range(len(pares)), pares["r"], color=colores)
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.95), 0.16 * len(pares) + 0.6))
+    ax.barh(range(len(pares)), pares["r"], color=colores, height=0.7)
     ax.set_yticks(range(len(pares)))
-    ax.set_yticklabels(etiquetas, fontsize=8)
-    ax.axvline(0, color="black", linewidth=0.8)
-    ax.set_xlim(-1, 1)
-    ax.set_xlabel("Correlacion de Pearson (r)")
-    for i, (r, n) in enumerate(zip(pares["r"], pares["n_conjunto"])):
-        offset = 0.02 if r >= 0 else -0.02
-        ha = "left" if r >= 0 else "right"
-        ax.annotate(f"{r:.2f}", xy=(r, i), xytext=(offset, 0), textcoords="offset points",
-                    va="center", ha=ha, fontsize=7)
-    ax.set_title(
-        f"Pares de variables mas correlacionados ({len(pares)} pares con |r| > 0.7, "
-        f"n conjunto ≥ {MIN_N_CORR})"
-    )
+    ax.set_yticklabels(etiquetas, fontsize=ef.TAM_LETRA_PEQUENA - 1)
+    ax.grid(axis="x")
+    ax.grid(axis="y", visible=False)
+    ax.axvline(0, color=ef.INK_SECUNDARIO, linewidth=0.8)
+    ax.set_xlim(-1, 1.15)
+    ax.set_xlabel("Correlación de Pearson ($r$)")
+    for i, r in enumerate(pares["r"]):
+        # Las negativas se rotulan a la derecha del cero para no chocar con
+        # la etiqueta del par.
+        x_texto = r if r >= 0 else 0
+        ax.annotate(f"{r:.2f}".replace("-", "\u2212"), xy=(x_texto, i), xytext=(2, 0), textcoords="offset points",
+                    va="center", ha="left", fontsize=ef.TAM_LETRA_PEQUENA - 1, color=ef.INK_SECUNDARIO)
     savefig(fig, "04b_top_correlaciones.png")
     print(f"Guardado 04b_top_correlaciones.png ({len(pares)} pares)")
 

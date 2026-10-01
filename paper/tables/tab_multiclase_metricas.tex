@@ -1,13 +1,13 @@
 \begin{table}[H]
   \centering
-  \caption{Desempeño del modelo multiclase (cuatro grupos) en el conjunto de prueba.}
+  \caption{Desempeño del modelo multiclase (cuatro grupos) en el conjunto de prueba, pobreza monetaria, 2013$\to$2016.}
   \label{tab:multiclase_metricas}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
   \resizebox{\textwidth}{!}{%
   \begin{tabular}{lcccccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{Balanceo} & \textbf{\shortstack{Exactitud}} & \textbf{\shortstack{Exactitud\\balanceada}} & \textbf{\shortstack{F1\\macro}} & \textbf{\shortstack{AUC-ROC\\macro}} & \textbf{\shortstack{AUC entra\\vs.\ resto}} & \textbf{\shortstack{Recall\\entra}} & \textbf{\shortstack{Prec.-top10\\entra}} \\
+    \textbf{Algoritmo} & \textbf{Balanceo} & \textbf{\shortstack{Exactitud}} & \textbf{\shortstack{Exactitud\\balanceada}} & \textbf{\shortstack{F1\\macro}} & \textbf{\shortstack{AUC-ROC\\macro}} & \textbf{\shortstack{AUC entra\\frente al resto}} & \textbf{\shortstack{Recall\\entra}} & \textbf{\shortstack{Prec.-top10\\entra}} \\
     \midrule
     XGBoost & ninguno & 0.582 & 0.426 & 0.384 & 0.732 & 0.596 & 0.002 & 0.111 \\
     LightGBM & ninguno & 0.573 & 0.422 & 0.385 & 0.730 & 0.593 & 0.002 & 0.116 \\

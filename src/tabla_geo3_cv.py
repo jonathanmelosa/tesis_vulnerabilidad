@@ -35,6 +35,10 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS_DIR = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
 OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
@@ -70,17 +74,15 @@ def generar_tex(base: pd.DataFrame, geo: pd.DataFrame) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{AUC-ROC y precisión en el decil de mayor riesgo, con y sin las",
-        r"  127 variables de las tres fuentes geoespaciales (DMSP-OLS, ALOS PALSAR",
-        r"  y Landsat 5 TM), pobreza monetaria. Validación cruzada de 10",
-        r"  particiones dentro de la transición 2010$\to$2013, media e IC95\%",
-        r"  sobre 5 semillas.}",
+        r"  \caption{AUC-ROC y precisión en el decil de mayor riesgo con y sin las",
+        r"  tres fuentes geoespaciales en validación cruzada, pobreza monetaria,",
+        r"  2010$\to$2013.}",
         r"  \label{tab:geo3_cv}",
         r"  \footnotesize",
-        r"  \setlength{\tabcolsep}{4pt}",
+        r"  \setlength{\tabcolsep}{3pt}",
         r"  \begin{tabular}{llccccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{N.º var.} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{$\Delta$AUC} & \textbf{Precision top-10\%} \\",
+        r"    \textbf{Algoritmo} & \textbf{Especificación} & \textbf{N.º var.} & \textbf{AUC-ROC} & \textbf{IC95\%} & \textbf{$\Delta$AUC} & \textbf{Prec.-top10} \\",
         r"    \midrule",
     ]
     bloques = []
@@ -106,16 +108,20 @@ def generar_tex(base: pd.DataFrame, geo: pd.DataFrame) -> str:
         r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} ALOS PALSAR y Landsat 5 TM no tienen",
-        r"    dato en 2013, por lo que esta variante no admite el holdout temporal",
+        r"    \footnotesize \textit{Nota:} Las tres fuentes suman 127 variables (DMSP-OLS,",
+        r"    ALOS PALSAR y Landsat 5 TM). Validación cruzada de 10 particiones dentro",
+        r"    de 2010$\to$2013; media e IC95\% sobre 5 semillas. ALOS PALSAR y Landsat 5 TM",
+        r"    no tienen dato en 2013, por lo que esta variante no admite la evaluación en",
+        r"    el conjunto de prueba 2013$\to$2016"
         r"    de la Tabla~\ref{tab:marginal_dmsp_fbeta2_cv10}: las métricas se calculan sobre",
         r"    probabilidades \emph{out-of-fold} y son comparables entre sí, no contra",
         r"    esa tabla. Solo se estimaron modelos con los tres algoritmos mostrados.",
-        r"    N.º var.: covariables que recibe el modelo. Fuente: cálculos propios.",
+        r"    N.º var.: covariables que recibe el modelo. Prec.-top10: precisión en el",
+        r"    10\% de hogares con mayor riesgo predicho. " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas)
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:

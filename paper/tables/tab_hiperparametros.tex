@@ -1,5 +1,8 @@
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\textwidth}l l c>{\raggedright\arraybackslash}p{0.40\textwidth}}
-  \caption{Hiperparámetros finales, estrategia de balanceo y umbral de clasificación de todos los modelos reportados.}
+{\footnotesize
+\captionsetup{font=normalsize}
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{lllc>{\raggedright\arraybackslash}p{0.36\textwidth}}
+  \caption{Hiperparámetros finales, estrategia de balanceo y umbral de clasificación de los modelos reportados.}
   \label{tab:hiperparametros} \\
   \toprule
   \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{Hiperparámetros} \\
@@ -11,7 +14,7 @@
   \endhead
   \bottomrule
   \endlastfoot
-  \multicolumn{5}{l}{\textbf{Pobreza monetaria, holdout temporal}} \\*
+  \multicolumn{5}{l}{\textit{Pobreza monetaria, conjunto de prueba 2013$\to$2016}} \\*
   Logística regularizada & A & balanced & 0.37 & C = 0.00603; l1\_ratio = 0.156 \\
   Logística regularizada & B & balanced & 0.35 & C = 0.00603; l1\_ratio = 0.156 \\
   Logística regularizada & A + DMSP & balanced & 0.37 & C = 0.00603; l1\_ratio = 0.156 \\
@@ -33,7 +36,7 @@
   HistGradientBoosting & A + DMSP & balanced & 0.31 & l2\_regularization = 2.55; learning\_rate = 0.0129; max\_depth = 3; max\_iter = 228; max\_leaf\_nodes = 58 \\
   HistGradientBoosting & B + DMSP & ninguno & 0.14 & l2\_regularization = 2.55; learning\_rate = 0.0129; max\_depth = 3; max\_iter = 228; max\_leaf\_nodes = 58 \\
   \midrule
-  \multicolumn{5}{l}{\textbf{IPM, holdout temporal}} \\*
+  \multicolumn{5}{l}{\textit{Pobreza multidimensional (IPM), conjunto de prueba 2013$\to$2016}} \\*
   Logística regularizada & A & ninguno & 0.10 & C = 0.0362; l1\_ratio = 0.52 \\
   Logística regularizada & B & ninguno & 0.11 & C = 0.0362; l1\_ratio = 0.52 \\
   Logística regularizada & A + DMSP & ninguno & 0.11 & C = 0.0362; l1\_ratio = 0.52 \\
@@ -55,7 +58,7 @@
   HistGradientBoosting & A + DMSP & ninguno & 0.10 & l2\_regularization = 4.38; learning\_rate = 0.0836; max\_depth = 3; max\_iter = 233; max\_leaf\_nodes = 42 \\
   HistGradientBoosting & B + DMSP & ninguno & 0.10 & l2\_regularization = 4.38; learning\_rate = 0.0836; max\_depth = 3; max\_iter = 233; max\_leaf\_nodes = 42 \\
   \midrule
-  \multicolumn{5}{l}{\textbf{Tres fuentes geoespaciales, validación cruzada (2010$\to$2013)}} \\*
+  \multicolumn{5}{l}{\textit{Tres fuentes geoespaciales, pobreza monetaria, validación cruzada en 2010$\to$2013}} \\*
   Logística regularizada & A & balanced & 0.37 & C = 0.00603; l1\_ratio = 0.156 \\
   Logística regularizada & B & balanced & 0.35 & C = 0.00603; l1\_ratio = 0.156 \\
   Logística regularizada & A + 3 fuentes & oversampling & 0.37 & C = 0.00277; l1\_ratio = 0.196 \\
@@ -69,7 +72,7 @@
   HistGradientBoosting & A + 3 fuentes & balanced & 0.32 & l2\_regularization = 2.55; learning\_rate = 0.0129; max\_depth = 3; max\_iter = 228; max\_leaf\_nodes = 58 \\
   HistGradientBoosting & B + 3 fuentes & ninguno & 0.14 & l2\_regularization = 2.55; learning\_rate = 0.0129; max\_depth = 3; max\_iter = 228; max\_leaf\_nodes = 58 \\
   \midrule
-  \multicolumn{5}{l}{\textbf{Multiclase (cuatro grupos)}} \\*
+  \multicolumn{5}{l}{\textit{Multiclase (cuatro grupos), pobreza monetaria, conjunto de prueba 2013$\to$2016}} \\*
   Logística regularizada & A & ninguno & -- & C = 0.0746; l1\_ratio = 0.951 \\
   Logística regularizada & B & ninguno & -- & C = 0.0746; l1\_ratio = 0.951 \\
   Random Forest & A & ninguno & -- & max\_depth = 11; max\_features = 0.228; min\_samples\_leaf = 20; n\_estimators = 334 \\
@@ -83,3 +86,9 @@
   Red neuronal (MLP) & A & ninguno & -- & alpha = 0.0207; hidden\_layer\_sizes = (64); learning\_rate\_init = 0.00852 \\
   Red neuronal (MLP) & B & ninguno & -- & alpha = 3.08e-05; hidden\_layer\_sizes = (128, 64); learning\_rate\_init = 0.00464 \\
 \end{longtable}
+\vspace{-\LTpost}
+\textit{Nota:} Espec.: especificación (A con ingreso y gasto del hogar, B sin
+ellos). Umbral: promedio sobre las semillas del umbral elegido por validación
+cruzada maximizando F$_2$; ``--'': sin umbral (el modelo multiclase asigna el
+grupo más probable) o no registrado. Fuente: cálculos propios.\par
+}

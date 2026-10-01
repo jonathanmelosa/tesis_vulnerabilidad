@@ -214,8 +214,8 @@ def graf_sankey(conteo: pd.DataFrame, pct: pd.DataFrame, ano_inicial: int, ano_f
     ax.set_ylim(-n_total * 0.17, n_total * 1.10)
     ax.axis("off")
     ax.set_title(
-        f"Transicion de {medida}, {ano_inicial} → {ano_final}\n"
-        f"Metodologia Lopez-Calva y Ortiz-Juarez (2014) (n = {n_total:,} hogares)",
+        f"Transición de {medida}, {ano_inicial} → {ano_final}\n"
+        f"Metodología López-Calva y Ortiz-Juárez (2014) (n = {n_total:,} hogares)",
         fontsize=11.5, pad=10,
     )
 

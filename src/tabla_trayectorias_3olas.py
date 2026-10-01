@@ -26,6 +26,9 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 CONFIG = {
@@ -56,14 +59,14 @@ def generar_tex(monetaria: pd.DataFrame, ipm: pd.DataFrame) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Trayectorias a 3 olas (2010$\to$2013$\to$2016) de hogares",
-        r"  NO pobres en 2010, panel emparejado 1 a 1, monetaria vs. IPM.}",
+        r"  \caption{Trayectorias de los hogares no pobres en 2010 en las tres",
+        r"  olas, pobreza monetaria e IPM, 2010$\to$2013$\to$2016.}",
         r"  \label{tab:trayectorias_3olas}",
         r"  \footnotesize",
         r"  \begin{tabular}{lcccc}",
         r"    \toprule",
         r"    & \multicolumn{2}{c}{\textbf{Monetaria}} & \multicolumn{2}{c}{\textbf{IPM}} \\",
-        r"    \textbf{Trayectoria} & \textbf{n} & \textbf{\%} & \textbf{n} & \textbf{\%} \\",
+        r"    \textbf{Trayectoria} & $\boldsymbol{n}$ & \textbf{\%} & $\boldsymbol{n}$ & \textbf{\%} \\",
         r"    \midrule",
     ]
     for trayectoria in ORDEN_TRAYECTORIAS:
@@ -77,15 +80,14 @@ def generar_tex(monetaria: pd.DataFrame, ipm: pd.DataFrame) -> str:
         r"  \end{tabular}",
         r"  \begin{minipage}{0.85\textwidth}",
         r"    \vspace{4pt}",
-        rf"    \footnotesize \textit{{Nota:}} $n$={n_monetaria:,} hogares no pobres en 2010 bajo".replace(",", "{,}"),
-        rf"    pobreza monetaria; $n$={n_ipm:,} bajo IPM (universos distintos porque".replace(",", "{,}"),
-        r"    no-pobre-monetaria y no-pobre-IPM en 2010 no son el mismo conjunto de",
-        r"    hogares). \% sobre ese universo, sin ponderar. Fuente: cálculos",
-        r"    propios.",
+        rf"    \footnotesize \textit{{Nota:}} Panel emparejado 1 a 1. $n$={n_monetaria:,} hogares no pobres en 2010 bajo".replace(",", "{,}"),
+        rf"    pobreza monetaria y $n$={n_ipm:,} bajo IPM (universos distintos porque".replace(",", "{,}"),
+        r"    los hogares no pobres en 2010 no son los mismos en las dos",
+        r"    definiciones). \% sobre ese universo, sin ponderar. " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas)
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:

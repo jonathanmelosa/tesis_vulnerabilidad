@@ -22,9 +22,13 @@ COMO CORRER
     python src/tabla_desempeno_modelos_ipm.py
 """
 
+import sys
 from pathlib import Path
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRO = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "registro_modelos_ipm.csv"
@@ -42,7 +46,7 @@ NOMBRES_ALGORITMO = {
 
 def formatear_fila(fila: pd.Series) -> str:
     return (
-        f"    {fila['algoritmo']:<24s} & {fila['especificacion']} & "
+        f"    {fila['algoritmo']:<24s} & {fila['especificacion'].replace('ipm', '')} & "
         f"{fila['umbral_clasificacion_media']:.2f} & {fila['auc_roc_media']:.3f} & "
         f"{fila['recall_media']:.3f} & {fila['precision_media']:.3f} & "
         f"{fila['precision_top10_media']:.3f} & {fila['f1_media']:.3f} \\\\"
@@ -57,19 +61,14 @@ def main() -> None:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Desempeño de los cinco algoritmos bajo pobreza",
-        r"  multidimensional (IPM), holdout temporal (train 2010$\to$2013,",
-        r"  test 2013$\to$2016). Misma metodología robusta que la",
-        r"  Tabla~\ref{tab:desempeno_modelos} (monetaria), covariables",
-        r"  idénticas -- único factor que cambia es la variable de",
-        r"  resultado. Prec.-top10: precisión entre el 10\% de hogares de",
-        r"  mayor riesgo.}",
+        r"  \caption{Desempeño de los cinco algoritmos en el conjunto de prueba,",
+        r"  pobreza multidimensional (IPM), 2013$\to$2016.}",
         r"  \label{tab:desempeno_modelos_ipm}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
         r"  \begin{tabular}{llcccccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{Recall} & \textbf{Precision} & \textbf{Prec.-top10} & \textbf{F1} \\",
+        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Umbral} & \textbf{AUC-ROC} & \textbf{\emph{Recall}} & \textbf{Precisión} & \textbf{Prec.-top10} & \textbf{F1} \\",
         r"    \midrule",
     ]
     for i, espec in enumerate(ESPECIFICACIONES):
@@ -78,11 +77,24 @@ def main() -> None:
             lineas.append(formatear_fila(fila))
         if i < len(ESPECIFICACIONES) - 1:
             lineas.append(r"    \addlinespace")
-    lineas += [r"    \bottomrule", r"  \end{tabular}", r"\end{table}"]
+    lineas += [
+        r"    \bottomrule",
+        r"  \end{tabular}",
+        r"  \begin{minipage}{0.95\textwidth}",
+        r"    \vspace{4pt}",
+        r"    \footnotesize \textit{Nota:} Promedio de 5 semillas, entrenamiento en",
+        r"    2010$\to$2013. Misma metodología y covariables que la",
+        r"    Tabla~\ref{tab:desempeno_modelos}; solo cambia la variable de",
+        r"    resultado. Espec.: especificación (A con ingreso y gasto del hogar,",
+        r"    B sin ellos). Prec.-top10: precisión en el 10\% de hogares con mayor",
+        r"    riesgo predicho. " + FUENTE,
+        r"  \end{minipage}",
+        r"\end{table}",
+    ]
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     out_path = OUTPUT_DIR / "tab_desempeno_modelos_ipm.tex"
-    out_path.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    out_path.write_text(aplicar_signo_menos("\n".join(lineas)) + "\n", encoding="utf-8")
     print(f"Guardado: {out_path}")
     print("\n".join(lineas))
 

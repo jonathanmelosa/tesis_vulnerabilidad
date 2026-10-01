@@ -36,6 +36,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 from etiquetas_variables import CATEGORIA  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
+
 INVENTARIO_PATH = REPO_ROOT / "outputs" / "tables" / "eda_variables_modelo" / "01_inventario_variables.csv"
 OUTPUT_PATH = REPO_ROOT / "paper" / "tables" / "tab_temas_variables.tex"
 N_ESPERADO = 177
@@ -146,7 +150,7 @@ def main() -> None:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Temas cubiertos por las 177 variables finales del dataset consolidado de la ELCA.}",
+        r"  \caption{Temas cubiertos por las 177 variables de la ELCA usadas en los modelos.}",
         r"  \label{tab:temas_variables}",
         r"  \footnotesize",
         r"  \begin{tabular}{>{\raggedright\arraybackslash}p{4.2cm}r>{\raggedright\arraybackslash}p{8.6cm}}",
@@ -163,15 +167,14 @@ def main() -> None:
         r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} clasificación temática propia, independiente del",
+        r"    \footnotesize \textit{Nota:} Clasificación temática propia, independiente del",
         r"    módulo de la ELCA del que proviene cada variable; los temas son los mismos que",
         r"    agrupan el núcleo SHAP (Tabla~\ref{tab:shap_signo_nucleo}). No incluye las variables geoespaciales",
-        r"    (Anexo~\ref{apx:variables_geo}). Fuente: cálculos propios con base en ELCA",
-        r"    2010, 2013 y 2016.",
+        r"    (Anexo~\ref{apx:variables_geo}). " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    tex = "\n".join(lineas)
+    tex = aplicar_signo_menos("\n".join(lineas))
     OUTPUT_PATH.write_text(tex + "\n", encoding="utf-8")
     print(f"Guardado: {OUTPUT_PATH}\n")
     print(conteo.to_string())

@@ -1,13 +1,13 @@
 \begin{table}[H]
   \centering
-  \caption{AUC-ROC del modelo multiclase por par de grupos de la matriz de transición.}
+  \caption{AUC-ROC del modelo multiclase por par de grupos de la matriz de transición, pobreza monetaria, 2013$\to$2016.}
   \label{tab:multiclase_auc_pares}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
   \resizebox{\textwidth}{!}{%
   \begin{tabular}{lcccccc}
     \toprule
-    \textbf{Algoritmo} & \textbf{\shortstack{Nunca vs.\\siempre}} & \textbf{\shortstack{Nunca vs.\\entra}} & \textbf{\shortstack{Nunca vs.\\sale}} & \textbf{\shortstack{Entra vs.\\siempre}} & \textbf{\shortstack{Sale vs.\\siempre}} & \shortstack{\textbf{Entra vs.}\\\textbf{sale}} \\
+    \textbf{Algoritmo} & \textbf{\shortstack{Nunca frente\\a siempre}} & \textbf{\shortstack{Nunca frente\\a entra}} & \textbf{\shortstack{Nunca frente\\a sale}} & \textbf{\shortstack{Entra frente\\a siempre}} & \textbf{\shortstack{Sale frente\\a siempre}} & \shortstack{\textbf{Entra frente}\\\textbf{a sale}} \\
     \midrule
     \multicolumn{7}{l}{\textit{AUC-ROC, Modelo B}} \\
     XGBoost & 0.927 & 0.752 & 0.830 & 0.676 & 0.595 & 0.534 \\
@@ -24,18 +24,18 @@
      & {\scriptsize [0.885, 0.906]} & {\scriptsize [0.714, 0.756]} & {\scriptsize [0.789, 0.821]} & {\scriptsize [0.665, 0.710]} & {\scriptsize [0.608, 0.650]} & {\scriptsize [0.530, 0.593]} \\
     \addlinespace
     \multicolumn{7}{l}{\textit{Cambio al agregar DMSP-OLS}} \\
-    XGBoost & -0.001 & +0.001 & -0.001 & +0.005 & +0.013$^{\dagger}$ & +0.011 \\
-     & {\scriptsize [-0.002, +0.001]} & {\scriptsize [-0.003, +0.005]} & {\scriptsize [-0.004, +0.002]} & {\scriptsize [-0.008, +0.018]} & {\scriptsize [+0.003, +0.023]} & {\scriptsize [-0.006, +0.028]} \\
-    LightGBM & +0.000 & -0.004 & +0.003 & +0.013 & +0.011$^{\dagger}$ & +0.009 \\
-     & {\scriptsize [-0.002, +0.002]} & {\scriptsize [-0.008, +0.001]} & {\scriptsize [-0.001, +0.005]} & {\scriptsize [-0.000, +0.025]} & {\scriptsize [+0.000, +0.022]} & {\scriptsize [-0.009, +0.026]} \\
-    HistGradientBoosting & -0.000 & -0.004 & +0.004$^{\dagger}$ & -0.008 & -0.003 & -0.006 \\
-     & {\scriptsize [-0.003, +0.002]} & {\scriptsize [-0.010, +0.003]} & {\scriptsize [+0.000, +0.009]} & {\scriptsize [-0.023, +0.006]} & {\scriptsize [-0.015, +0.009]} & {\scriptsize [-0.026, +0.013]} \\
-    Random Forest & -0.002$^{\dagger}$ & -0.004$^{\dagger}$ & -0.002 & -0.009 & -0.004 & -0.006 \\
-     & {\scriptsize [-0.004, -0.001]} & {\scriptsize [-0.008, -0.001]} & {\scriptsize [-0.004, +0.000]} & {\scriptsize [-0.018, +0.001]} & {\scriptsize [-0.013, +0.004]} & {\scriptsize [-0.019, +0.007]} \\
-    Red neuronal (MLP) & -0.002 & -0.004 & -0.002 & +0.024$^{\dagger}$ & +0.010 & +0.005 \\
-     & {\scriptsize [-0.006, +0.003]} & {\scriptsize [-0.013, +0.004]} & {\scriptsize [-0.009, +0.004]} & {\scriptsize [+0.007, +0.040]} & {\scriptsize [-0.007, +0.028]} & {\scriptsize [-0.016, +0.027]} \\
-    Logística regularizada & +0.001 & -0.001 & +0.001 & -0.001 & -0.003 & +0.002 \\
-     & {\scriptsize [-0.000, +0.001]} & {\scriptsize [-0.002, +0.001]} & {\scriptsize [-0.000, +0.002]} & {\scriptsize [-0.005, +0.003]} & {\scriptsize [-0.008, +0.002]} & {\scriptsize [-0.003, +0.006]} \\
+    XGBoost & $-$0.001 & +0.001 & $-$0.001 & +0.005 & +0.013$^{\dagger}$ & +0.011 \\
+     & {\scriptsize [$-$0.002, +0.001]} & {\scriptsize [$-$0.003, +0.005]} & {\scriptsize [$-$0.004, +0.002]} & {\scriptsize [$-$0.008, +0.018]} & {\scriptsize [+0.003, +0.023]} & {\scriptsize [$-$0.006, +0.028]} \\
+    LightGBM & +0.000 & $-$0.004 & +0.003 & +0.013 & +0.011$^{\dagger}$ & +0.009 \\
+     & {\scriptsize [$-$0.002, +0.002]} & {\scriptsize [$-$0.008, +0.001]} & {\scriptsize [$-$0.001, +0.005]} & {\scriptsize [$-$0.000, +0.025]} & {\scriptsize [+0.000, +0.022]} & {\scriptsize [$-$0.009, +0.026]} \\
+    HistGradientBoosting & $-$0.000 & $-$0.004 & +0.004$^{\dagger}$ & $-$0.008 & $-$0.003 & $-$0.006 \\
+     & {\scriptsize [$-$0.003, +0.002]} & {\scriptsize [$-$0.010, +0.003]} & {\scriptsize [+0.000, +0.009]} & {\scriptsize [$-$0.023, +0.006]} & {\scriptsize [$-$0.015, +0.009]} & {\scriptsize [$-$0.026, +0.013]} \\
+    Random Forest & $-$0.002$^{\dagger}$ & $-$0.004$^{\dagger}$ & $-$0.002 & $-$0.009 & $-$0.004 & $-$0.006 \\
+     & {\scriptsize [$-$0.004, $-$0.001]} & {\scriptsize [$-$0.008, $-$0.001]} & {\scriptsize [$-$0.004, +0.000]} & {\scriptsize [$-$0.018, +0.001]} & {\scriptsize [$-$0.013, +0.004]} & {\scriptsize [$-$0.019, +0.007]} \\
+    Red neuronal (MLP) & $-$0.002 & $-$0.004 & $-$0.002 & +0.024$^{\dagger}$ & +0.010 & +0.005 \\
+     & {\scriptsize [$-$0.006, +0.003]} & {\scriptsize [$-$0.013, +0.004]} & {\scriptsize [$-$0.009, +0.004]} & {\scriptsize [+0.007, +0.040]} & {\scriptsize [$-$0.007, +0.028]} & {\scriptsize [$-$0.016, +0.027]} \\
+    Logística regularizada & +0.001 & $-$0.001 & +0.001 & $-$0.001 & $-$0.003 & +0.002 \\
+     & {\scriptsize [$-$0.000, +0.001]} & {\scriptsize [$-$0.002, +0.001]} & {\scriptsize [$-$0.000, +0.002]} & {\scriptsize [$-$0.005, +0.003]} & {\scriptsize [$-$0.008, +0.002]} & {\scriptsize [$-$0.003, +0.006]} \\
     \bottomrule
   \end{tabular}%
   }

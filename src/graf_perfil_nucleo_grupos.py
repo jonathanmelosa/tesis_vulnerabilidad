@@ -83,22 +83,17 @@ ETIQUETAS = {
     "razon_dependencia_demografica": "Razón de dependencia",
 }
 
-# Misma paleta categorica que el resto de la tesis.
-COLOR_SALE = "#1baf7a"
-COLOR_ENTRA = "#eb6834"
-INK_PRIMARIO = "#0b0b0b"
-INK_SECUNDARIO = "#52514e"
-INK_MUTED = "#898781"
-GRIDLINE = "#e1e0d9"
-SURFACE = "#fcfcfb"
+# Estilo comun de las figuras del documento (2026-10-01).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import estilo_figuras as ef  # noqa: E402
 
-plt.rcParams.update({
-    "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "axes.edgecolor": GRIDLINE,
-    "axes.labelcolor": INK_SECUNDARIO, "text.color": INK_PRIMARIO,
-    "xtick.color": INK_MUTED, "ytick.color": INK_SECUNDARIO, "font.family": "sans-serif",
-    "font.size": 10.5, "axes.grid": True, "grid.color": GRIDLINE, "grid.linewidth": 0.6,
-    "axes.spines.top": False, "axes.spines.right": False, "axes.spines.left": False,
-})
+COLOR_SALE = ef.COLOR_CATEGORIA["Sale de la pobreza"]
+COLOR_ENTRA = ef.COLOR_CATEGORIA["Entra en pobreza"]
+INK_SECUNDARIO = ef.INK_SECUNDARIO
+INK_MUTED = ef.INK_MUTED
+
+ef.aplicar_estilo()
+plt.rcParams.update({"axes.spines.left": False})
 
 
 def variables_a_graficar() -> list:
@@ -157,13 +152,13 @@ def main() -> None:
     pos.to_csv(TABLES_DIR / "perfil_nucleo_grupos_posicion_monetaria.csv", index=False)
 
     orden = pos[pos["ventana"] == VENTANAS[0][0]].sort_values("pos_entra")["variable"].tolist()
-    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.6), sharey=True)
+    fig, axes = plt.subplots(1, 2, figsize=(ef.ancho(0.95), 3.4), sharey=True)
     for ax, (ventana, rotulo, archivo, *_) in zip(axes, VENTANAS):
         g = pos[pos["ventana"] == ventana].set_index("variable").loc[orden]
         y = range(len(orden))
         ax.hlines(y, g["pos_sale"], g["pos_entra"], color=INK_MUTED, linewidth=1.4, zorder=2)
-        ax.scatter(g["pos_sale"], y, s=70, color=COLOR_SALE, marker="o", zorder=3, label="Sale de la pobreza")
-        ax.scatter(g["pos_entra"], y, s=70, color=COLOR_ENTRA, marker="D", zorder=4, label="Entra en pobreza")
+        ax.scatter(g["pos_sale"], y, s=28, color=COLOR_SALE, marker="o", zorder=3, label="Sale de la pobreza")
+        ax.scatter(g["pos_entra"], y, s=24, color=COLOR_ENTRA, marker="D", zorder=4, label="Entra en pobreza")
         ax.axvline(0, color=INK_MUTED, linewidth=1.0)
         ax.axvline(1, color=INK_MUTED, linewidth=1.0)
         ax.set_yticks(list(y))
@@ -171,23 +166,16 @@ def main() -> None:
         ax.set_xlim(-0.12, 1.12)
         ax.set_xticks([0, 0.5, 1])
         ax.set_xticklabels(["Siempre\npobre", "0.5", "Nunca\npobre"])
-        ax.set_title(f"{rotulo} (n = {n_panel(archivo):,})", fontsize=12, loc="left", pad=10)
+        ax.set_title(f"{rotulo} (n = {n_panel(archivo):,})")
     fig.supxlabel("Posición entre las medias de Siempre pobre (0) y Nunca pobre (1)",
-                  fontsize=10.5, color=INK_SECUNDARIO, y=0.02)
+                  fontsize=ef.TAM_LETRA, color=INK_SECUNDARIO, y=0.02)
     handles, rotulos = axes[0].get_legend_handles_labels()
-    fig.legend(handles, rotulos, loc="lower center", bbox_to_anchor=(0.5, -0.08), frameon=False, ncol=2, fontsize=10)
-    fig.suptitle(
-        "Los hogares que entran en pobreza quedan más cerca de los que salen que de los que nunca fueron pobres\n"
-        "(variables del núcleo SHAP con dirección estable o moderada; pobreza monetaria; metodología López-Calva y Ortiz-Juárez, 2014)",
-        fontsize=12, y=1.04,
-    )
-    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    fig.legend(handles, rotulos, loc="lower center", bbox_to_anchor=(0.5, -0.06), ncol=2)
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
     fig.subplots_adjust(wspace=0.06)
 
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURES_DIR / "perfil_nucleo_grupos_monetaria.png"
-    fig.savefig(out, dpi=200, bbox_inches="tight", facecolor=SURFACE)
-    plt.close(fig)
+    ef.guardar(fig, out)
     print(pos.round(3).to_string(index=False))
     n_cerca = int(pos["entra_mas_cerca_de_sale"].sum())
     print(f"'Entra' mas cerca de 'Sale' que de 'Nunca pobre': {n_cerca} de {len(pos)} combinaciones variable x ventana")

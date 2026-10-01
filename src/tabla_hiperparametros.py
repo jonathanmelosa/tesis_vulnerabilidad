@@ -43,21 +43,25 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
 OUTPUT_PATH = REPO_ROOT / "paper" / "tables" / "tab_hiperparametros.tex"
 
 BLOQUES = [
-    ("Pobreza monetaria, holdout temporal",
+    ("Pobreza monetaria, conjunto de prueba 2013$\\to$2016",
      [("registro_modelos_fbeta2_cv10.csv", None)],
      {"A": "A", "B": "B", "AgeoDMSP": "A + DMSP", "BgeoDMSP": "B + DMSP"}),
-    ("IPM, holdout temporal",
+    ("Pobreza multidimensional (IPM), conjunto de prueba 2013$\\to$2016",
      [("registro_modelos_ipm.csv", None)],
      {"Aipm": "A", "Bipm": "B", "AipmgeoDMSP": "A + DMSP", "BipmgeoDMSP": "B + DMSP"}),
-    ("Tres fuentes geoespaciales, validación cruzada (2010$\\to$2013)",
+    ("Tres fuentes geoespaciales, pobreza monetaria, validación cruzada en 2010$\\to$2013",
      [("registro_modelos_geo3_baseline.csv", None), ("registro_modelos_geo3_robusto.csv", None)],
      {"A": "A", "B": "B", "Ageo3": "A + 3 fuentes", "Bgeo3": "B + 3 fuentes"}),
-    ("Multiclase (cuatro grupos)",
+    ("Multiclase (cuatro grupos), pobreza monetaria, conjunto de prueba 2013$\\to$2016",
      [("multiclase/registro_modelos_multiclase.csv", ["A4", "B4"])],
      {"A4": "A", "B4": "B"}),
 ]
@@ -126,9 +130,13 @@ def cargar_bloque(fuentes, especs_validas) -> pd.DataFrame:
 
 
 def main() -> None:
+    # Mismo tamano de letra y formato de nota que el resto de tablas (2026-10-01).
     lineas = [
-        r"\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\textwidth}l l c>{\raggedright\arraybackslash}p{0.40\textwidth}}",
-        r"  \caption{Hiperparámetros finales, estrategia de balanceo y umbral de clasificación de todos los modelos reportados.}",
+        r"{\footnotesize",
+        r"\captionsetup{font=normalsize}",
+        r"\setlength{\tabcolsep}{4pt}",
+        r"\begin{longtable}{lllc>{\raggedright\arraybackslash}p{0.36\textwidth}}",
+        r"  \caption{Hiperparámetros finales, estrategia de balanceo y umbral de clasificación de los modelos reportados.}",
         r"  \label{tab:hiperparametros} \\",
         r"  \toprule",
         r"  \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Balanceo} & \textbf{Umbral} & \textbf{Hiperparámetros} \\",
@@ -153,7 +161,7 @@ def main() -> None:
         df = df.sort_values(["orden_alg", "orden_esp"])
         if i > 0:
             lineas.append(r"  \midrule")
-        lineas.append(f"  \\multicolumn{{5}}{{l}}{{\\textbf{{{titulo}}}}} \\\\*")
+        lineas.append(f"  \\multicolumn{{5}}{{l}}{{\\textit{{{titulo}}}}} \\\\*")
         for _, f in df.iterrows():
             lineas.append(
                 f"  {f['alg']} & {especs[f['especificacion']]} & {f['balanceo_elegido']} & {_umbral(f)} & "
@@ -161,8 +169,16 @@ def main() -> None:
             )
         n_total += len(df)
         print(f"{titulo}: {len(df)} modelos")
-    lineas.append(r"\end{longtable}")
-    OUTPUT_PATH.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    lineas += [
+        r"\end{longtable}",
+        r"\vspace{-\LTpost}",
+        r"\textit{Nota:} Espec.: especificación (A con ingreso y gasto del hogar, B sin",
+        r"ellos). Umbral: promedio sobre las semillas del umbral elegido por validación",
+        r"cruzada maximizando F$_2$; ``--'': sin umbral (el modelo multiclase asigna el",
+        r"grupo más probable) o no registrado. " + FUENTE + r"\par",
+        r"}",
+    ]
+    OUTPUT_PATH.write_text(aplicar_signo_menos("\n".join(lineas)) + "\n", encoding="utf-8")
     print(f"\nGuardado: {OUTPUT_PATH} ({n_total} modelos)")
 
 

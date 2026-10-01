@@ -34,6 +34,10 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS_DIR = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
 OUTPUT_DIR = REPO_ROOT / "paper" / "tables"
@@ -76,14 +80,15 @@ def generar_tex(df: pd.DataFrame, especificaciones: list, etiquetas_espec: dict,
         rf"  \caption{{{caption}}}",
         rf"  \label{{{label}}}",
         r"  \footnotesize",
-        r"  \setlength{\tabcolsep}{3.5pt}",
-        r"  \resizebox{\textwidth}{!}{%",
+        # Sin \resizebox (2026-10-01): la tabla cabe al ancho del texto y el
+        # escalado la agrandaba, con letra mayor que el resto de tablas.
+        r"  \setlength{\tabcolsep}{3pt}",
         r"  \begin{tabular}{llrr" + "r" * len(ALGORITMOS_ORDEN) + "}",
         r"    \toprule",
     ]
     encabezado_algos = " & ".join([f"\\textbf{{{NOMBRES_CORTOS[a]}}}" for a in ALGORITMOS_ORDEN])
     lineas.append(
-        r"    \textbf{Eje} & \textbf{Grupo} & \textbf{Esp.} & \textbf{n} & " + encabezado_algos + r" \\"
+        r"    \textbf{Eje} & \textbf{Grupo} & \textbf{Espec.} & $\boldsymbol{n}$ & " + encabezado_algos + r" \\"
     )
     lineas.append(r"    \midrule")
 
@@ -105,7 +110,7 @@ def generar_tex(df: pd.DataFrame, especificaciones: list, etiquetas_espec: dict,
                     celdas.append(f"\\textbf{{{delta:+.3f}}}" if abs(delta) >= 0.02 else f"{delta:+.3f}")
                 prefijo_eje = eje_bonito if (gi == 0 and ei == 0) else ""
                 lineas.append(
-                    f"    {prefijo_eje} & {GRUPOS_RENOMBRADOS.get(grupo, grupo)} & {etiquetas_espec[espec]} & {n:,} & "
+                    f"    {prefijo_eje} & {GRUPOS_RENOMBRADOS.get(grupo, grupo)} & {etiquetas_espec[espec]} & {n:,} & ".replace(",", "{,}")
                     + " & ".join(celdas) + r" \\"
                 )
             if not (gi == len(grupos) - 1):
@@ -114,8 +119,19 @@ def generar_tex(df: pd.DataFrame, especificaciones: list, etiquetas_espec: dict,
     if lineas[-1] == r"    \midrule":
         lineas.pop()
 
-    lineas += [r"    \bottomrule", r"  \end{tabular}%", r"  }", r"\end{table}"]
-    return "\n".join(lineas)
+    lineas += [
+        r"    \bottomrule", r"  \end{tabular}",
+        r"  \begin{minipage}{0.95\textwidth}",
+        r"    \vspace{4pt}",
+        r"    \footnotesize \textit{Nota:} Cambio en el AUC-ROC del conjunto de prueba al",
+        r"    agregar DMSP-OLS, por subgrupo. En \textbf{negrita}: $|\Delta|\geq 0.02$.",
+        r"    Se omiten los grupos con $n<30$. Espec.: especificación (A con ingreso y",
+        r"    gasto del hogar, B sin ellos). XGB: XGBoost; RF: Random Forest; LGBM:",
+        r"    LightGBM; HGB: HistGradientBoosting; Log.: logística regularizada. " + FUENTE,
+        r"  \end{minipage}",
+        r"\end{table}",
+    ]
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:
@@ -126,13 +142,8 @@ def main() -> None:
         dmsp, ["A", "B"], {"A": "A", "B": "B"},
         label="tab:heterogeneidad_dmsp",
         caption=(
-            r"$\Delta$AUC-ROC de agregar DMSP-OLS por subgrupo, pobreza "
-            r"monetaria. En \textbf{negrita}: $|\Delta|\geq 0.02$. Grupos con "
-            r"$n<30$ omitidos (no confiables). XGB=XGBoost, RF=Random Forest, "
-            r"LGBM=LightGBM, HGB=HistGradientBoosting, Log.=Logística "
-            r"regularizada. Fuente: cálculos propios, "
-            r"\texttt{diagnostico\_heterogeneidad\_dmsp.csv} "
-            r"(\texttt{src/05\_model/diagnostico\_heterogeneidad\_dmsp.py})."
+            r"Cambio en el AUC-ROC al agregar DMSP-OLS por subgrupo, pobreza "
+            r"monetaria, 2013$\to$2016."
         ),
     )
     (OUTPUT_DIR / "tab_heterogeneidad_dmsp.tex").write_text(tex_dmsp, encoding="utf-8")
@@ -143,13 +154,8 @@ def main() -> None:
         ipm, ["Aipm", "Bipm"], {"Aipm": "A", "Bipm": "B"},
         label="tab:heterogeneidad_ipm",
         caption=(
-            r"$\Delta$AUC-ROC de agregar DMSP-OLS por subgrupo, pobreza "
-            r"multidimensional (IPM). En \textbf{negrita}: $|\Delta|\geq 0.02$. "
-            r"Grupos con $n<30$ omitidos (no confiables). XGB=XGBoost, "
-            r"RF=Random Forest, LGBM=LightGBM, HGB=HistGradientBoosting, "
-            r"Log.=Logística regularizada. Fuente: cálculos propios, "
-            r"\texttt{diagnostico\_heterogeneidad\_ipm.csv} "
-            r"(\texttt{src/05\_model/diagnostico\_heterogeneidad\_ipm.py})."
+            r"Cambio en el AUC-ROC al agregar DMSP-OLS por subgrupo, pobreza "
+            r"multidimensional (IPM), 2013$\to$2016."
         ),
     )
     (OUTPUT_DIR / "tab_heterogeneidad_ipm.tex").write_text(tex_ipm, encoding="utf-8")

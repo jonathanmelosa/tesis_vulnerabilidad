@@ -62,6 +62,10 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from etiquetas_variables import ORDEN_CATEGORIAS, etiqueta
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
@@ -139,7 +143,8 @@ def generar_tex(nucleo: pd.DataFrame, resumen: pd.DataFrame, sensibilidad: pd.Da
         r"\begin{longtable}{lcccccc}",
         # Titulo corto (2026-09-28, pedido del usuario); la explicacion de
         # columnas y signos pasa a la nota bajo la tabla.
-        r"  \caption{Núcleo de variables del análisis SHAP y su dirección.}",
+        r"  \caption{Núcleo de variables del análisis SHAP y su dirección, pobreza",
+        r"  monetaria e IPM, 2010$\to$2013 y 2013$\to$2016.}",
         r"  \label{tab:shap_signo_nucleo} \\",
         *encabezado,
         r"  \endfirsthead",
@@ -179,10 +184,10 @@ def generar_tex(nucleo: pd.DataFrame, resumen: pd.DataFrame, sensibilidad: pd.Da
         r"las 12 combinaciones de umbrales evaluadas; Moderada = en al menos 8;",
         r"Inestable = en menos. ``cat.'': variable categórica, sin signo a nivel",
         r"de variable.",
-        r"Fuente: cálculos propios.\par}",
+        FUENTE + r"\par}",
         r"}",
     ]
-    return "\n".join(lineas)
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:

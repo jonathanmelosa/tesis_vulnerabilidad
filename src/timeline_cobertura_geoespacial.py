@@ -115,6 +115,8 @@ FUENTES = [
 OLAS_ELCA = [2010, 2013, 2016]
 
 fig, ax = plt.subplots(figsize=(9.5, 5.2))
+fig.patch.set_facecolor("#fcfcfb")
+ax.set_facecolor("#fcfcfb")
 
 n = len(FUENTES)
 alto_barra = 0.6
@@ -190,11 +192,8 @@ ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(False)
 ax.grid(axis="x", color="#e5e4dd", linewidth=0.6, zorder=0)
-ax.set_title(
-    "Cobertura temporal real de las fuentes geoespaciales evaluadas\n"
-    "frente a las olas de la ELCA (líneas verticales)",
-    fontsize=11, pad=34,
-)
+# Sin titulo dentro de la imagen (estilo comun, 2026-10-01): el titulo es
+# el \caption de main.tex.
 
 leyenda = [
     mpatches.Patch(facecolor="#8a8a86", alpha=1.0, hatch="//", edgecolor="#2b2b28", label="Corrida real confirmada sobre hogares ELCA"),
@@ -209,5 +208,5 @@ ax.legend(handles=leyenda, loc="upper center", bbox_to_anchor=(0.42, -0.12),
 fig.tight_layout()
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 out_path = FIG_DIR / "fig_cobertura_temporal_fuentes.png"
-fig.savefig(out_path, dpi=300, bbox_inches="tight")
+fig.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="#fcfcfb")  # SURFACE de estilo_figuras.py
 print(f"Figura guardada en: {out_path}")

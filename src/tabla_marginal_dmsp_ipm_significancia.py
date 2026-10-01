@@ -53,6 +53,9 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS_DIR = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
 
@@ -137,15 +140,14 @@ def generar_tex(registro: pd.DataFrame, boot: pd.DataFrame, cfg: dict) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Contribución marginal de DMSP-OLS bajo pobreza",
-        r"  multidimensional (IPM) (entrenamiento 2010$\to$2013, prueba",
-        r"  2013$\to$2016).}",
+        r"  \caption{Contribución marginal de DMSP-OLS en el conjunto de prueba,",
+        r"  pobreza multidimensional (IPM), 2013$\to$2016.}",
         r"  \label{tab:marginal_dmsp_ipm_significancia}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{6pt}",
         r"  \begin{tabular}{llcccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Esp.} & \textbf{AUC base} & \textbf{AUC +DMSP} & "
+        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{AUC base} & \textbf{AUC +DMSP} & "
         r"$\boldsymbol{\Delta}$\textbf{AUC} & $\boldsymbol{\Delta}$\textbf{Prec.-top10} \\",
         r"    \midrule",
     ]
@@ -159,17 +161,17 @@ def generar_tex(registro: pd.DataFrame, boot: pd.DataFrame, cfg: dict) -> str:
         r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} AUC: promedio de 5 semillas.",
+        r"    \footnotesize \textit{Nota:} Entrenamiento en 2010$\to$2013. AUC: promedio de 5 semillas.",
         r"    $\Delta$AUC: \emph{bootstrap} pareado sobre el conjunto de prueba",
         r"    (una semilla); en \textbf{negrita}, diferencias cuyo IC95\% no",
         r"    cruza cero. Intervalos, valores $p$ y corrección por",
         r"    conglomerados de comunidad en la",
         r"    Tabla~\ref{tab:significancia_dmsp_ipm} del",
-        r"    Anexo~\ref{apx:marginal_dmsp}. Fuente: cálculos propios.",
+        r"    Anexo~\ref{apx:marginal_dmsp}. " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas)
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def _filas_significancia(boot: pd.DataFrame, boot_cl: pd.DataFrame, especs: list, cfg: dict) -> list:
@@ -208,14 +210,14 @@ def generar_tex_anexo(boot: pd.DataFrame, boot_cl: pd.DataFrame,
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Significancia del cambio de AUC-ROC al agregar DMSP-OLS,",
-        r"  pobreza monetaria y multidimensional (IPM).}",
+        r"  \caption{Significancia del cambio en el AUC-ROC al agregar DMSP-OLS,",
+        r"  pobreza monetaria e IPM, 2013$\to$2016.}",
         r"  \label{tab:significancia_dmsp_ipm}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{6pt}",
         r"  \begin{tabular}{llcccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Esp.} & $\boldsymbol{\Delta}$\textbf{AUC} & "
+        r"    \textbf{Algoritmo} & \textbf{Espec.} & $\boldsymbol{\Delta}$\textbf{AUC} & "
         r"\textbf{IC95\%} & $\boldsymbol{p}$ & $\boldsymbol{p}$ \textbf{por comunidad} \\",
         r"    \midrule",
         f"    \\multicolumn{{{n_col}}}{{l}}{{\\textit{{Pobreza monetaria}}}} \\\\",
@@ -230,16 +232,16 @@ def generar_tex_anexo(boot: pd.DataFrame, boot_cl: pd.DataFrame,
         r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} \emph{bootstrap} pareado sobre el",
-        r"    conjunto de prueba 2013$\to$2016 (una semilla). $p$ por comunidad:",
+        r"    \footnotesize \textit{Nota:} $\Delta$AUC, IC95\% y $p$: \emph{bootstrap} pareado sobre el",
+        r"    conjunto de prueba (una semilla). $p$ por comunidad:",
         f"    remuestreo agrupado por comunidad ({n_cl:,} comunidades)".replace(",", "{,}") + ",",
         r"    porque hogares de una misma comunidad comparten en buena medida el",
         r"    mismo píxel de luz nocturna (resolución de $\sim$1\,km); ``--'':",
-        r"    corrección no estimada. Fuente: cálculos propios.",
+        r"    corrección no estimada. " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas)
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:

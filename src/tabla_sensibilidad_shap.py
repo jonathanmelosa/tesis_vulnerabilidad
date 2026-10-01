@@ -28,9 +28,14 @@ COMO CORRER
     python src/tabla_sensibilidad_shap.py
 """
 
+import sys
 from pathlib import Path
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
@@ -39,9 +44,9 @@ RUTA_TEX = REPO_ROOT / "paper" / "tables" / "tab_sensibilidad_shap.tex"
 
 def panel_nucleo(df: pd.DataFrame) -> list:
     lineas = [
-        r"    \multicolumn{5}{l}{\textbf{A. Núcleo: masa SHAP acumulada y mínimo de combinaciones (de 10)}} \\",
+        r"    \multicolumn{5}{l}{\textit{A. Núcleo: masa SHAP acumulada y mínimo de combinaciones (de 10)}} \\",
         r"    \midrule",
-        r"    Masa & Mín. comb. & Núcleo & Conserva de las 22 & Universales en las 4 fuentes (de 7) \\",
+        r"    Masa & Mín. comb. & Núcleo & Conserva de las 22 & \shortstack{Universales en las\\4 fuentes (de 7)} \\",
         r"    \midrule",
     ]
     for _, f in df.iterrows():
@@ -56,7 +61,7 @@ def panel_nucleo(df: pd.DataFrame) -> list:
 def panel_signo(df: pd.DataFrame) -> list:
     lineas = [
         r"    \midrule",
-        r"    \multicolumn{5}{l}{\textbf{B. Dirección: |$\rho$| mínimo y proporción mínima de signo}} \\",
+        r"    \multicolumn{5}{l}{\textit{B. Dirección: $|\rho|$ mínimo y proporción mínima de signo}} \\",
         r"    \midrule",
         r"    $|\rho|$ mín. & Prop. mín. & Consistentes (de 20) & & \\",
         r"    \midrule",
@@ -74,19 +79,29 @@ def main() -> None:
         r"\begin{table}[H]",
         r"  \centering",
         r"  \caption{Sensibilidad del núcleo SHAP y de su dirección a los umbrales",
-        r"  elegidos (Sección~\ref{subsec:importancia_resultados}). ``(base)'': criterio",
-        r"  usado en el texto. El núcleo de 22 variables se conserva por completo con",
-        r"  criterios más laxos; con los más estrictos queda un subconjunto.}",
+        r"  elegidos, pobreza monetaria e IPM, 2010$\to$2013 y 2013$\to$2016.}",
         r"  \label{tab:sensibilidad_shap}",
         r"  \footnotesize",
         r"  \begin{tabular}{ccccc}",
         r"    \toprule",
     ]
-    lineas += panel_nucleo(nucleo) + panel_signo(signo) + [r"    \bottomrule", r"  \end{tabular}"]
-    tex = "\n".join(lineas)
+    lineas += panel_nucleo(nucleo) + panel_signo(signo) + [
+        r"    \bottomrule",
+        r"  \end{tabular}",
+        r"  \begin{minipage}{0.95\textwidth}",
+        r"    \vspace{4pt}",
+        r"    \footnotesize \textit{Nota:} ``(base)'': criterio usado en el texto",
+        r"    (Sección~\ref{subsec:importancia_resultados}). El núcleo de 22 variables",
+        r"    se conserva por completo con criterios más laxos; con los más estrictos",
+        r"    queda un subconjunto. Las cuatro fuentes son las dos definiciones de",
+        r"    pobreza en las dos ventanas. " + FUENTE,
+        r"  \end{minipage}",
+        r"\end{table}",
+    ]
+    tex = aplicar_signo_menos("\n".join(lineas))
     RUTA_TEX.parent.mkdir(parents=True, exist_ok=True)
     RUTA_TEX.write_text(tex, encoding="utf-8")
-    print(f"Tabla exportada (cuerpo de tabular; el cierre \\end{{table}} sigue a mano en main.tex): {RUTA_TEX}")
+    print(f"Tabla exportada: {RUTA_TEX}")
     print("\n" + tex)
 
 

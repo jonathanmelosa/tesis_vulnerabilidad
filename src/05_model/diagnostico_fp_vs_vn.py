@@ -17,9 +17,11 @@ variable adicional de "le toco un choque distinto" que contamina la
 comparacion contra VP (que si cayeron).
 
 METODOLOGIA
-    Reconstruye el pipeline ganador de HistGradientBoosting y XGBoost
-    (Modelo A, monetaria -- los dos ya nombrados en la Seccion 5.1.2 por
-    su contraste de tasa de verdaderos negativos, 40% vs. 26%) desde
+    Reconstruye el pipeline ganador de los cinco algoritmos del benchmark
+    (Modelo A, monetaria -- ampliado de HistGradientBoosting/XGBoost a los
+    cinco el 2026-10-01, pedido explicito del usuario, para seguir el
+    mismo criterio de la Seccion 5.2: solo se afirma lo que se sostiene
+    en todos los algoritmos) desde
     `registro_modelos_fbeta2_cv10.csv`, UN solo fit sobre el conjunto de
     entrenamiento (sin repetir RandomizedSearchCV, mismo patron que
     `diagnostico_shap_ab.py`). Predice sobre el holdout de prueba
@@ -47,10 +49,18 @@ OUTPUTS
     en VN, y la diferencia)
     data/processed/benchmark_resultados/diagnostico_fp_vs_vn_categoricas_modelo_a.csv
     (una fila por variable categorica x algoritmo x categoria)
+    data/processed/benchmark_resultados/diagnostico_fp_vs_vn_rangos_modelo_a.csv
+    (rango entre los cinco algoritmos, ver `resumir_rangos()`)
+
+    Nota: los conteos FP/VN de aqui no coinciden con
+    `tab_matriz_confusion_modelo_a.tex`: esa tabla usa la corrida de
+    semilla 42 del registro, y este script reentrena una vez y aplica el
+    umbral PROMEDIO de CV (`umbral_clasificacion_media`).
 
 COMO CORRER
 
     cd src/05_model && python -u diagnostico_fp_vs_vn.py
+    cd src/05_model && python -u diagnostico_fp_vs_vn.py --solo-resumen
 """
 
 import sys
@@ -66,10 +76,30 @@ from diagnostico_shap import entrenar
 REGISTRO = mu.RESULTADOS_DIR / "registro_modelos_fbeta2_cv10.csv"
 NUCLEO_PATH = mu.RESULTADOS_DIR / "diagnostico_shap_nucleo_perfil.csv"
 ESPEC = "A"
-ALGORITMOS = ["HistGradientBoosting (sklearn)", "XGBoost"]
+ALGORITMOS = [
+    "HistGradientBoosting (sklearn)",
+    "XGBoost",
+    "LightGBM",
+    "Random Forest",
+    "Logistica regularizada (elastic net, benchmark)",
+]
 
 RUTA_SALIDA_NUM = mu.RESULTADOS_DIR / "diagnostico_fp_vs_vn_modelo_a.csv"
 RUTA_SALIDA_CAT = mu.RESULTADOS_DIR / "diagnostico_fp_vs_vn_categoricas_modelo_a.csv"
+RUTA_RESUMEN = mu.RESULTADOS_DIR / "diagnostico_fp_vs_vn_rangos_modelo_a.csv"
+
+
+def resumir_rangos(tabla_num: pd.DataFrame) -> pd.DataFrame:
+    """Rango (min-max) entre algoritmos del promedio de cada variable en FP
+    y en VN -- las cifras que cita el Hallazgo 4 (Seccion 5.1.2)."""
+    return (
+        tabla_num.groupby("variable")
+        .agg(fp_min=("media_fp", "min"), fp_max=("media_fp", "max"),
+             vn_min=("media_vn", "min"), vn_max=("media_vn", "max"),
+             n_algoritmos_fp_menor=("diferencia_fp_menos_vn", lambda x: int((x < 0).sum())))
+        .round(2)
+        .reset_index()
+    )
 
 
 def clasificar_celda(y_real: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
@@ -82,6 +112,13 @@ def clasificar_celda(y_real: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:
+    if "--solo-resumen" in sys.argv:
+        rangos = resumir_rangos(pd.read_csv(RUTA_SALIDA_NUM))
+        rangos.to_csv(RUTA_RESUMEN, index=False)
+        print(rangos.to_string(index=False))
+        print(f"\nGuardado: {RUTA_RESUMEN}")
+        return
+
     registro = pd.read_csv(REGISTRO)
     nucleo = pd.read_csv(NUCLEO_PATH)
     test_crudo = pd.read_parquet(mu.DATA_DIR / f"modelo_{ESPEC}_2013_2016.parquet")
@@ -138,6 +175,7 @@ def main() -> None:
 
     tabla_num.to_csv(RUTA_SALIDA_NUM, index=False)
     tabla_cat.to_csv(RUTA_SALIDA_CAT, index=False)
+    resumir_rangos(tabla_num).to_csv(RUTA_RESUMEN, index=False)
 
     print("\n=== Variables numéricas, mayor |diferencia FP - VN| primero ===")
     print(tabla_num.to_string(index=False))

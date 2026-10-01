@@ -30,6 +30,10 @@ from pathlib import Path
 import pandas as pd
 
 from etiquetas_variables import etiqueta
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 RUTA_SPLIT = REPO_ROOT / "outputs" / "tables" / "eda_transicion_covariables" / "split_trayectoria_nucleo_monetaria.csv"
@@ -69,36 +73,36 @@ def main() -> None:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Hogares que entran en pobreza en 2010$\to$2013 según su trayectoria a 2016: "
-        rf"transitorios ($n={n_t}$, vuelven a salir) frente a persistentes ($n={n_p}$, siguen pobres), "
-        r"en las variables del núcleo SHAP.}",
+        r"  \caption{Hogares que entran en pobreza según su trayectoria posterior: "
+        r"transitorios frente a persistentes, pobreza monetaria, 2010$\to$2013$\to$2016.}",
         r"  \label{tab:split_trayectoria_nucleo}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{4pt}",
-        r"  \resizebox{\textwidth}{!}{%",
-        r"  \begin{tabular}{lrrrrrr}",
+        # Sin \resizebox (2026-10-01): primera columna en parrafo para que la
+        # tabla quepa con el mismo tamano de letra que las demas.
+        r"  \begin{tabular}{>{\raggedright\arraybackslash}p{5.2cm}rrrrrr}",
         r"    \toprule",
         r"    \textbf{Variable (ola 2010)} & \textbf{Siempre} & \textbf{Sale} & \textbf{Transitorio} "
         r"& \textbf{Persistente} & \textbf{Nunca} & \textbf{\shortstack{Dif.\\estand.}} \\",
         r"    \midrule",
         *filas,
         r"    \bottomrule",
-        r"  \end{tabular}%",
-        r"  }",
+        r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        r"    \footnotesize \textit{Nota:} promedios ponderados por el factor de expansión longitudinal, "
-        r"pobreza monetaria. Se muestran los "
+        rf"    \footnotesize \textit{{Nota:}} Transitorios ($n={n_t}$): entran en pobreza en "
+        rf"2010$\to$2013 y vuelven a salir en 2016; persistentes ($n={n_p}$): siguen pobres. "
+        r"Promedios ponderados por el factor de expansión longitudinal. Se muestran los "
         rf"{len(sub)} de {n_total} indicadores del núcleo SHAP (las variables categóricas, un "
         r"indicador por nivel) cuya diferencia estandarizada entre persistentes y transitorios es de "
         r"al menos 0.20 en valor absoluto; el signo negativo indica un valor menor en los persistentes. "
         r"$^{\ddagger}$: variable sin dirección estable o moderada en SHAP (o categórica, sin "
         r"dirección medida), que se lee solo como asociación. De los 723 hogares que entran en "
-        r"pobreza entre 2010 y 2013, 610 tienen dato de 2016. Fuente: cálculos propios.",
+        r"pobreza entre 2010 y 2013, 610 tienen dato de 2016. " + FUENTE,
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    OUTPUT_PATH.write_text("\n".join(lineas) + "\n", encoding="utf-8")
+    OUTPUT_PATH.write_text(aplicar_signo_menos("\n".join(lineas)) + "\n", encoding="utf-8")
     print("\n".join(filas))
     print(f"Tabla exportada: {OUTPUT_PATH}")
 

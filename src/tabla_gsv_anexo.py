@@ -19,6 +19,12 @@ Contenido:
      AUC-ROC de un modelo solo con las fotos, con y sin luz nocturna
      (validacion cruzada dentro del conjunto de prueba, porque no hay fotos
      anteriores a 2012 para entrenar en 2010).
+  3. (2026-10-01, pedido del usuario) Panel A: correlacion entre el primer
+     componente de la foto y la luz nocturna de 2013 segun cuantos anios
+     despues se tomo la foto (Analisis 1b de `diagnostico_embeddings_dmsp.py`).
+     Panel B: diferencia de R2 de Places365 (ResNet-50 entrenada con
+     escenas) frente a los otros modelos, con IC95% por bootstrap pareado
+     (`diagnostico_embeddings_places365_vs_imagenet.py`).
 
 INPUTS (data/processed/benchmark_resultados/)
 
@@ -28,20 +34,27 @@ INPUTS (data/processed/benchmark_resultados/)
     diagnostico_embeddings_dmsp_sesgo_cobertura.csv
     diagnostico_embeddings_dmsp_ext_bootstrap_coefs.csv
     diagnostico_embeddings_dmsp_ext_modelo_c.csv
+    diagnostico_embeddings_dmsp_degradacion_desfase.csv
+    diagnostico_embeddings_places365_vs_imagenet.csv
 
 OUTPUTS
 
     paper/tables/tab_gsv_prediccion_luz.tex
     paper/tables/tab_gsv_pobreza.tex
+    paper/tables/tab_gsv_desfase_modelos.tex
 
 COMO CORRER
 
     python src/tabla_gsv_anexo.py
 """
 
+import sys
 from pathlib import Path
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 RESULTADOS = REPO_ROOT / "data" / "processed" / "benchmark_resultados"
@@ -70,7 +83,7 @@ def _miles(n: int) -> str:
 
 
 def _envolver(caption: str, label: str, cuerpo: list, columnas: str, nota: str) -> str:
-    return "\n".join([
+    return aplicar_signo_menos("\n".join([
         r"\begin{table}[H]",
         r"  \centering",
         f"  \\caption{{{caption}}}",
@@ -84,10 +97,10 @@ def _envolver(caption: str, label: str, cuerpo: list, columnas: str, nota: str) 
         r"  \end{tabular}",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        f"    \\footnotesize \\textit{{Nota:}} {nota} Fuente: cálculos propios.",
+        f"    \\footnotesize \\textit{{Nota:}} {nota} {FUENTE}",
         r"  \end{minipage}",
         r"\end{table}",
-    ]) + "\n"
+    ])) + "\n"
 
 
 def tabla_prediccion_luz() -> str:
@@ -116,7 +129,8 @@ def tabla_prediccion_luz() -> str:
         "nocturna y 0.600 de los bienes durables."
     )
     return _envolver(
-        "Google Street View: predicción de la luz nocturna y estabilidad en el tiempo.",
+        "Predicción de la luz nocturna a partir de las fotos de Google Street View "
+        "y estabilidad en el tiempo, 2013 (exploratorio).",
         "tab:gsv_prediccion_luz", cuerpo, "lccc", nota,
     )
 
@@ -154,8 +168,72 @@ def tabla_pobreza() -> str:
         "componentes de Places365."
     )
     return _envolver(
-        "Google Street View: cobertura y relación con la caída en pobreza (exploratorio).",
+        "Cobertura de las fotos de Google Street View y su relación con la caída en "
+        "pobreza, pobreza monetaria, 2013$\\to$2016 (exploratorio).",
         "tab:gsv_pobreza", cuerpo, "lcc", nota,
+    )
+
+
+BINS_DESFASE = ["0 (mismo anio)", "1-2 anios", "3-5 anios", "6-10 anios", "11+ anios"]
+ETIQUETA_BIN = {"0 (mismo anio)": "Mismo año", "1-2 anios": "1--2 años", "3-5 anios": "3--5 años",
+                "6-10 anios": "6--10 años", "11+ anios": "11 o más años"}
+VENTANA_ETIQUETA = {"original 2011-2013": "2011--2013", "ampliada 2011-2015": "2011--2015"}
+
+
+def tabla_desfase_modelos() -> str:
+    desf = _leer("degradacion_desfase")
+    comp = pd.read_csv(RESULTADOS / "diagnostico_embeddings_places365_vs_imagenet.csv")
+    cuerpo = [
+        r"    \multicolumn{6}{l}{\textit{A. Correlación (valor absoluto) entre la foto y la luz nocturna de 2013, según el desfase de la foto}} \\",
+        r"    \midrule",
+        r"    \textbf{Desfase} & $\boldsymbol{n}$ & "
+        + " & ".join(rf"\textbf{{{n}}}" for n in EMBEDDINGS.values()) + r" \\",
+        r"    \midrule",
+    ]
+    for b in BINS_DESFASE:
+        sub = desf[desf["bin_desfase"] == b].set_index("embedding")
+        vals = " & ".join(f"{abs(sub.loc[c, 'r']):.2f}" for c in EMBEDDINGS)
+        cuerpo.append(f"    {ETIQUETA_BIN[b]} & {_miles(int(sub['n'].iloc[0]))} & {vals} \\\\")
+    cuerpo += [
+        r"    \addlinespace",
+        r"    \multicolumn{6}{l}{\textit{B. $R^2$ de Places365 menos $R^2$ de cada modelo al predecir la luz nocturna (IC95\%)}} \\",
+        r"    \midrule",
+        r"    \textbf{Ventana} & $\boldsymbol{n}$ & \textbf{$R^2$ Places365} & \textbf{CLIP} & \textbf{VGG19} & \textbf{ResNet50} \\",
+        r"    \midrule",
+    ]
+    for v, etiqueta in VENTANA_ETIQUETA.items():
+        sub = comp[comp["ventana"] == v].set_index("comparado_con")
+        celdas = " & ".join(
+            # `{}` tras `\\`: sin el, LaTeX lee `\\[...]` como espacio vertical opcional.
+            rf"\shortstack{{{sub.loc[c, 'dif_places365_menos_comparado']:+.3f}\\{{}}"
+            rf"[{sub.loc[c, 'ic95_inf']:+.3f}, {sub.loc[c, 'ic95_sup']:+.3f}]}}"
+            for c in ["embedding_clip", "embedding_vgg19", "embedding_resnet50"]
+        )
+        cuerpo.append(
+            f"    {etiqueta} & {_miles(int(sub['n'].iloc[0]))} & {sub['r2_places365'].iloc[0]:.3f} & {celdas} \\\\"
+        )
+        cuerpo.append(r"    \addlinespace")
+    nota = (
+        "Panel A: correlación de Pearson entre el primer componente de la "
+        "representación de la foto (eje común a todos los desfases) y la luz "
+        "nocturna media (DMSP-OLS) de 2013, para hogares con una sola foto, "
+        "según cuántos años después de 2013 se tomó; se reporta el valor "
+        "absoluto porque el signo del componente es arbitrario. Un solo "
+        "componente no resume igual de bien todos los modelos: con la "
+        "representación completa, VGG19 predice la luz con un $R^2$ de 0.64 a "
+        r"0.71 (Tabla~\ref{tab:gsv_prediccion_luz}). Los grupos de desfase "
+        "tienen hogares distintos, por lo que no son una curva de degradación "
+        "de una misma muestra. Panel B: mismos hogares y particiones para los "
+        r"cuatro modelos; IC95\% por bootstrap pareado de hogares (2{,}000 "
+        "remuestreos); la diferencia es positiva con las cinco semillas de "
+        "validación cruzada probadas. Places365 y ResNet50 comparten "
+        "arquitectura (ResNet-50) y solo difieren en el entrenamiento: escenas "
+        "frente a objetos (ImageNet)."
+    )
+    return _envolver(
+        "Relación entre las fotos de Google Street View y la luz nocturna según el "
+        "desfase de la foto y el modelo de imagen, 2013 (exploratorio).",
+        "tab:gsv_desfase_modelos", cuerpo, "lcllll", nota,
     )
 
 
@@ -164,6 +242,7 @@ def main() -> None:
     for nombre, tex in {
         "tab_gsv_prediccion_luz.tex": tabla_prediccion_luz(),
         "tab_gsv_pobreza.tex": tabla_pobreza(),
+        "tab_gsv_desfase_modelos.tex": tabla_desfase_modelos(),
     }.items():
         (OUTPUT_DIR / nombre).write_text(tex, encoding="utf-8")
         print(f"Tabla exportada: {OUTPUT_DIR / nombre}")

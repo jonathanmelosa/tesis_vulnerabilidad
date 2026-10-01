@@ -34,6 +34,7 @@ COMO CORRER
     python src/graf_dmsp_monotonico_categoria.py
 """
 
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -43,70 +44,56 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 TABLES_DIR = PROJECT_ROOT / "outputs" / "tables" / "eda_transicion_covariables"
 FIGURES_DIR = PROJECT_ROOT / "outputs" / "figures" / "eda_transicion_covariables"
 
-# Misma paleta categorica que el resto de la tesis (build_pobreza_desagregaciones.py,
-# mapa_transicion_regiones.py) -- consistencia de color por grupo en todo el documento.
-COLOR_CATEGORIA = {
-    "Nunca pobre": "#2a78d6",
-    "Sale de la pobreza": "#1baf7a",
-    "Entra en pobreza": "#eb6834",
-    "Siempre pobre": "#e34948",
-}
-INK_PRIMARIO = "#0b0b0b"
-INK_SECUNDARIO = "#52514e"
-INK_MUTED = "#898781"
-GRIDLINE = "#e1e0d9"
-SURFACE = "#fcfcfb"
+# Estilo comun de las figuras del documento (2026-10-01): misma paleta por
+# grupo, letra en puntos de impresion y sin titulo dentro de la imagen (lo
+# que decia el titulo -- barra = media ponderada, linea = mediana -- pasa al
+# caption de main.tex).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import estilo_figuras as ef  # noqa: E402
 
-plt.rcParams.update({
-    "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "axes.edgecolor": GRIDLINE,
-    "axes.labelcolor": INK_SECUNDARIO, "text.color": INK_PRIMARIO,
-    "xtick.color": INK_MUTED, "ytick.color": INK_MUTED, "font.family": "sans-serif",
-    "font.size": 10.5, "axes.grid": True, "grid.color": GRIDLINE, "grid.linewidth": 0.6,
-    "axes.spines.top": False, "axes.spines.right": False, "axes.spines.left": False,
-})
+COLOR_CATEGORIA = ef.COLOR_CATEGORIA
+INK_PRIMARIO = ef.INK_PRIMARIO
+ef.aplicar_estilo()
+plt.rcParams.update({"axes.spines.left": False, "axes.grid.axis": "x"})
 
 
 def graficar_panel(ax, tabla: pd.DataFrame, titulo: str) -> None:
     tabla = tabla.sort_values("dmsp_media_ponderada")
     colores = [COLOR_CATEGORIA[c] for c in tabla["categoria"]]
     barras = ax.barh(tabla["categoria"], tabla["dmsp_media_ponderada"], color=colores, height=0.62)
-    ax.bar_label(barras, fmt="%.1f", padding=6, fontsize=10.5, color=INK_PRIMARIO, fontweight="medium")
+    # Valor de la media despues de lo que termine mas a la derecha (la barra
+    # o la marca de la mediana), para que ninguno de los dos lo tape.
+    for barra, valor, mediana in zip(barras, tabla["dmsp_media_ponderada"], tabla["dmsp_mediana"]):
+        ax.text(max(valor, mediana) + 1.5, barra.get_y() + barra.get_height() / 2, f"{valor:.1f}",
+                ha="left", va="center", fontsize=ef.TAM_LETRA_PEQUENA, color=INK_PRIMARIO)
 
     # mediana como marcador secundario, para dejar ver que el patron no
     # depende de valores atipicos (misma relacion monotonica en ambas metricas)
-    ax.scatter(tabla["dmsp_mediana"], tabla["categoria"], marker="|", s=380,
-               color=INK_PRIMARIO, linewidths=2.2, zorder=5, label="Mediana")
+    ax.scatter(tabla["dmsp_mediana"], tabla["categoria"], marker="|", s=160,
+               color=INK_PRIMARIO, linewidths=1.6, zorder=5, label="Mediana")
 
-    ax.set_xlim(0, tabla["dmsp_media_ponderada"].max() * 1.28)
-    ax.set_title(titulo, fontsize=12, loc="left", pad=10)
-    ax.set_xlabel("DMSP-OLS -- iluminación nocturna (0-63)")
-    ax.tick_params(axis="y", labelsize=10.5)
+    ax.set_xlim(0, 72)
+    ax.set_title(titulo)
 
 
 def main() -> None:
     monetaria = pd.read_csv(TABLES_DIR / "dmsp_por_categoria_monetaria_2010_2013.csv")
     ipm = pd.read_csv(TABLES_DIR / "dmsp_por_categoria_ipm_2010_2013.csv")
 
-    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.4))
+    fig, axes = plt.subplots(1, 2, figsize=(ef.ancho(0.95), 2.6))
     graficar_panel(axes[0], monetaria, "Pobreza monetaria")
     graficar_panel(axes[1], ipm, "Pobreza multidimensional (IPM)")
 
-    handles = [plt.Line2D([0], [0], marker="|", linestyle="", color=INK_PRIMARIO,
-                           markersize=14, markeredgewidth=2.2, label="Mediana")]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.02),
-               frameon=False, fontsize=9.5, ncol=1)
+    handles = [plt.Rectangle((0, 0), 1, 1, color=ef.INK_MUTED, label="Media ponderada"),
+               plt.Line2D([0], [0], marker="|", linestyle="", color=INK_PRIMARIO,
+                          markersize=9, markeredgewidth=1.6, label="Mediana")]
+    fig.supxlabel("Iluminación nocturna, DMSP-OLS (0 a 63)", fontsize=ef.TAM_LETRA,
+                  color=ef.INK_SECUNDARIO, y=0.1)
+    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.04), ncol=2)
+    fig.tight_layout(rect=(0, 0.12, 1, 1))
 
-    fig.suptitle(
-        "La iluminación nocturna aumenta de forma monotónica entre los 4 grupos de transición\n"
-        "(barra = media ponderada; línea = mediana), 2010 → 2013",
-        fontsize=12.5, y=1.06,
-    )
-    fig.tight_layout()
-
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     out = FIGURES_DIR / "dmsp_monotonico_categoria.png"
-    fig.savefig(out, dpi=200, bbox_inches="tight", facecolor=SURFACE)
-    plt.close(fig)
+    ef.guardar(fig, out)
     print(f"Guardado: {out}")
 
 

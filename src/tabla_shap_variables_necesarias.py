@@ -27,6 +27,10 @@ from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 CONFIG = {
@@ -66,18 +70,15 @@ def generar_tex(df: pd.DataFrame) -> str:
     lineas = [
         r"\begin{table}[H]",
         r"  \centering",
-        r"  \caption{Concentración de la señal predictiva (SHAP), variables",
-        r"  originales agregadas (dummies \emph{one-hot} e indicadores de",
-        r"  faltante sumados a su variable de origen antes de calcular la",
-        r"  masa acumulada).}",
+        r"  \caption{Concentración de la importancia SHAP por algoritmo y",
+        r"  especificación, pobreza monetaria, 2013$\to$2016.}",
         r"  \label{tab:shap_variables_necesarias}",
         r"  \footnotesize",
         r"  \setlength{\tabcolsep}{5pt}",
-        r"  \resizebox{\textwidth}{!}{%",
         r"  \begin{tabular}{llccc}",
         r"    \toprule",
-        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{Variables (total)} & "
-        r"\textbf{\% SHAP en top-10} & \textbf{Variables para 80\% del SHAP} \\",
+        r"    \textbf{Algoritmo} & \textbf{Espec.} & \textbf{\shortstack{Variables\\(total)}} & "
+        r"\textbf{\shortstack{\% SHAP en las\\10 primeras}} & \textbf{\shortstack{Variables para el\\80\% del SHAP}} \\",
         r"    \midrule",
     ]
     especificaciones = sorted(df["especificacion"].unique())
@@ -87,8 +88,22 @@ def generar_tex(df: pd.DataFrame) -> str:
             lineas.append(formatear_fila(fila))
         if i < len(especificaciones) - 1:
             lineas.append(r"    \addlinespace")
-    lineas += [r"    \bottomrule", r"  \end{tabular}", r"  }"]
-    return "\n".join(lineas)
+    # Nota y cierre del entorno dentro del .tex (2026-10-01): antes el
+    # \end{table} vivia en main.tex y las definiciones iban en el titulo.
+    lineas += [
+        r"    \bottomrule",
+        r"  \end{tabular}",
+        r"  \begin{minipage}{0.95\textwidth}",
+        r"    \vspace{4pt}",
+        r"    \footnotesize \textit{Nota:} Importancia SHAP calculada sobre el conjunto",
+        r"    de prueba. Variables originales: las \emph{dummies one-hot} y los",
+        r"    indicadores de faltante se suman a su variable de origen antes de",
+        r"    calcular la masa acumulada. Espec.: especificación (A con ingreso y",
+        r"    gasto del hogar, B sin ellos). " + FUENTE,
+        r"  \end{minipage}",
+        r"\end{table}",
+    ]
+    return aplicar_signo_menos("\n".join(lineas))
 
 
 def main() -> None:
@@ -100,7 +115,7 @@ def main() -> None:
     tex = generar_tex(df)
     ruta_tex = out_dir / "tab_shap_variables_necesarias.tex"
     ruta_tex.write_text(tex, encoding="utf-8")
-    print(f"Tabla exportada (cuerpo de tabular; encabezado table/caption/nota siguen a mano en main.tex): {ruta_tex}")
+    print(f"Tabla exportada: {ruta_tex}")
     print("\n" + tex)
 
 

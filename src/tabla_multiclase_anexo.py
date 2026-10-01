@@ -38,9 +38,14 @@ COMO CORRER
     python src/tabla_multiclase_anexo.py
 """
 
+import sys
 from pathlib import Path
 
 import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from estilo_tablas import FUENTE, aplicar_signo_menos  # noqa: E402
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MULTICLASE = REPO_ROOT / "data" / "processed" / "benchmark_resultados" / "multiclase"
@@ -61,18 +66,18 @@ METRICAS = [
     ("balanced_accuracy_media", r"\shortstack{Exactitud\\balanceada}"),
     ("f1_macro_media", r"\shortstack{F1\\macro}"),
     ("auc_ovr_macro_media", r"\shortstack{AUC-ROC\\macro}"),
-    ("auc_entra_vs_resto_media", r"\shortstack{AUC entra\\vs.\ resto}"),
+    ("auc_entra_vs_resto_media", r"\shortstack{AUC entra\\frente al resto}"),
     ("recall_entra_media", r"\shortstack{Recall\\entra}"),
     ("precision_top10_entra_media", r"\shortstack{Prec.-top10\\entra}"),
 ]
 
 PARES = [
-    ("auc_nunca_pobre_vs_siempre_pobre", r"\shortstack{Nunca vs.\\siempre}"),
-    ("auc_nunca_pobre_vs_entra", r"\shortstack{Nunca vs.\\entra}"),
-    ("auc_nunca_pobre_vs_sale", r"\shortstack{Nunca vs.\\sale}"),
-    ("auc_entra_vs_siempre_pobre", r"\shortstack{Entra vs.\\siempre}"),
-    ("auc_sale_vs_siempre_pobre", r"\shortstack{Sale vs.\\siempre}"),
-    ("auc_entra_vs_sale", r"\shortstack{\textbf{Entra vs.}\\\textbf{sale}}"),
+    ("auc_nunca_pobre_vs_siempre_pobre", r"\shortstack{Nunca frente\\a siempre}"),
+    ("auc_nunca_pobre_vs_entra", r"\shortstack{Nunca frente\\a entra}"),
+    ("auc_nunca_pobre_vs_sale", r"\shortstack{Nunca frente\\a sale}"),
+    ("auc_entra_vs_siempre_pobre", r"\shortstack{Entra frente\\a siempre}"),
+    ("auc_sale_vs_siempre_pobre", r"\shortstack{Sale frente\\a siempre}"),
+    ("auc_entra_vs_sale", r"\shortstack{\textbf{Entra frente}\\\textbf{a sale}}"),
 ]
 
 
@@ -103,11 +108,11 @@ def _tabla(caption: str, label: str, columnas: list, filas: list, nota: str) -> 
         r"  }",
         r"  \begin{minipage}{0.95\textwidth}",
         r"    \vspace{4pt}",
-        f"    \\footnotesize \\textit{{Nota:}} {nota} Fuente: cálculos propios.",
+        f"    \\footnotesize \\textit{{Nota:}} {nota} {FUENTE}",
         r"  \end{minipage}",
         r"\end{table}",
     ]
-    return "\n".join(lineas) + "\n"
+    return aplicar_signo_menos("\n".join(lineas)) + "\n"
 
 
 def tabla_metricas(registro: pd.DataFrame) -> str:
@@ -131,7 +136,8 @@ def tabla_metricas(registro: pd.DataFrame) -> str:
         "Tabla~\\ref{tab:hiperparametros}."
     )
     return _tabla(
-        "Desempeño del modelo multiclase (cuatro grupos) en el conjunto de prueba.",
+        "Desempeño del modelo multiclase (cuatro grupos) en el conjunto de prueba, "
+        "pobreza monetaria, 2013$\\to$2016.",
         "tab:multiclase_metricas", columnas, filas, nota,
     )
 
@@ -187,7 +193,8 @@ def tabla_auc_pares(boot: pd.DataFrame, semillas: pd.DataFrame) -> str:
         "variables de DMSP-OLS y sin ellas; $^{\\dagger}$: intervalo que excluye el cero."
     )
     return _tabla(
-        "AUC-ROC del modelo multiclase por par de grupos de la matriz de transición.",
+        "AUC-ROC del modelo multiclase por par de grupos de la matriz de transición, "
+        "pobreza monetaria, 2013$\\to$2016.",
         "tab:multiclase_auc_pares", columnas, filas, nota,
     )
 

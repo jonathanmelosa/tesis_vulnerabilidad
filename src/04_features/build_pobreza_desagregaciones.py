@@ -88,6 +88,7 @@ archivo. Paleta y reglas de color siguen la skill de dataviz del proyecto
 eje; etiquetas directas en vez de solo leyenda cuando el espacio alcanza).
 """
 
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -130,22 +131,12 @@ INK_MUTED = "#898781"
 GRIDLINE = "#e1e0d9"
 SURFACE = "#fcfcfb"
 
-plt.rcParams.update({
-    "figure.facecolor": SURFACE,
-    "axes.facecolor": SURFACE,
-    "axes.edgecolor": GRIDLINE,
-    "axes.labelcolor": INK_SECUNDARIO,
-    "text.color": INK_PRIMARIO,
-    "xtick.color": INK_MUTED,
-    "ytick.color": INK_MUTED,
-    "font.family": "sans-serif",
-    "font.size": 10,
-    "axes.grid": True,
-    "grid.color": GRIDLINE,
-    "grid.linewidth": 0.6,
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-})
+# Estilo comun de las figuras del documento (2026-10-01): misma paleta,
+# letra en puntos de impresion y sin titulo dentro de la imagen.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import estilo_figuras as ef  # noqa: E402
+
+ef.aplicar_estilo()
 
 JEFE_TOKENS = {"jefe de hogar", "jefe(a)"}
 
@@ -486,28 +477,26 @@ ANO_POR_OLA = {1: 2010, 2: 2013, 3: 2016}
 def _guardar(fig: plt.Figure, nombre: str) -> None:
     fig.tight_layout()
     ruta = FIGURES_DIR / nombre
-    fig.savefig(ruta, dpi=200)
-    plt.close(fig)
+    ef.guardar(fig, ruta)
     print(f"Guardado: {ruta}")
 
 
 def graf_incidencia_series(tabla_ola: pd.DataFrame) -> None:
     """Incidencia (P0) de pobreza por ingreso vs. gasto, contra la LP, en el tiempo."""
     sub = tabla_ola[tabla_ola["linea"] == "lp"]
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.75), 3.0))
     colores = {"ingreso": PALETA["azul"], "gasto": PALETA["naranja"]}
     for medida, color in colores.items():
         serie = sub[sub["medida"] == medida].sort_values("ola")
         anos = serie["ola"].map(ANO_POR_OLA)
         ax.plot(anos, serie["P0"] * 100, marker="o", markersize=6, linewidth=2, color=color, label=medida.capitalize())
         for x, y in zip(anos, serie["P0"] * 100):
-            ax.annotate(f"{y:.1f}%", (x, y), textcoords="offset points", xytext=(0, 8),
-                        ha="center", fontsize=9, color=INK_SECUNDARIO)
+            ax.annotate(f"{y:.1f}%", (x, y), textcoords="offset points", xytext=(0, 7),
+                        ha="center", fontsize=ef.TAM_LETRA_PEQUENA, color=INK_SECUNDARIO)
     ax.set_ylim(0, max(sub["P0"]) * 100 * 1.25)
     ax.set_xticks(list(ANO_POR_OLA.values()))
     ax.set_ylabel("Incidencia de pobreza (%)")
-    ax.set_title("Pobreza monetaria por ingreso vs. gasto (P0, vs. LP)")
-    ax.legend(frameon=False, loc="upper right")
+    ax.legend(loc="upper right")
     _guardar(fig, "01_incidencia_ingreso_vs_gasto.png")
 
 
@@ -519,16 +508,15 @@ def graf_fgt_trio(tabla_ola: pd.DataFrame) -> None:
 
     x = np.arange(len(anos))
     ancho = 0.25
-    fig, ax = plt.subplots(figsize=(6.5, 4.2))
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.8), 3.0))
     for i, (col, etiqueta, color) in enumerate(indicadores):
         valores = sub[col].to_numpy() * 100
         barras = ax.bar(x + (i - 1) * ancho, valores, width=ancho * 0.9, color=color, label=etiqueta)
-        ax.bar_label(barras, fmt="%.1f", padding=2, fontsize=8, color=INK_SECUNDARIO)
+        ax.bar_label(barras, fmt="%.1f", padding=2, fontsize=ef.TAM_LETRA_PEQUENA, color=INK_SECUNDARIO)
     ax.set_xticks(x)
     ax.set_xticklabels(anos)
-    ax.set_ylabel("% de la linea de pobreza (LP)")
-    ax.set_title("Indicadores FGT de pobreza por ingreso (vs. LP)")
-    ax.legend(frameon=False, loc="upper right")
+    ax.set_ylabel("% de la línea de pobreza")
+    ax.legend(loc="upper right")
     _guardar(fig, "02_fgt_incidencia_brecha_severidad.png")
 
 
@@ -669,7 +657,7 @@ def graf_robustez_transiciones(resumenes: list, sin_excepcional: list, sin_ayuda
     categorias = ["Nunca pobre", "Sale de la pobreza", "Entra en pobreza", "Siempre pobre"]
     periodos = [f"{ANO_POR_OLA[r['ola_inicial']]}-{ANO_POR_OLA[r['ola_final']]}" for r in resumenes]
 
-    fig, axes = plt.subplots(1, len(periodos), figsize=(6.5 * len(periodos), 4.6), sharey=True)
+    fig, axes = plt.subplots(1, len(periodos), figsize=(ef.ancho(0.95), 3.2), sharey=True)
     if len(periodos) == 1:
         axes = [axes]
 
@@ -687,17 +675,18 @@ def graf_robustez_transiciones(resumenes: list, sin_excepcional: list, sin_ayuda
             ax.bar(x, valores, bottom=base, color=color, label=cat, width=0.6)
             for j, v in enumerate(valores):
                 if v > 3:
-                    ax.text(j, base[j] + v / 2, f"{v:.1f}", ha="center", va="center", fontsize=8, color="white")
+                    ax.text(j, base[j] + v / 2, f"{v:.1f}", ha="center", va="center",
+                            fontsize=ef.TAM_LETRA_PEQUENA - 1, color="white")
             base += valores
         ax.set_xticks(x)
-        ax.set_xticklabels([nombre for nombre, _ in especificaciones], fontsize=9)
-        ax.set_title(f"{periodos[i]}", fontsize=10)
+        ax.set_xticklabels([nombre for nombre, _ in especificaciones])
+        ax.set_title(periodos[i].replace("-", f" {ef.FLECHA} "))
         ax.set_ylim(0, 100)
         if i == 0:
             ax.set_ylabel("% de hogares (panel emparejado)")
 
-    axes[-1].legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=4, fontsize=8)
-    fig.suptitle("Robustez de las transiciones de pobreza a especificaciones alternativas del ingreso")
+    handles, labels = axes[-1].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, -0.06), ncol=4)
     _guardar(fig, "07_robustez_transiciones.png")
 
 
@@ -706,11 +695,11 @@ def graf_sensibilidad_banda(sensibilidad_por_periodo: dict) -> None:
     categorias = ["Nunca pobre", "Sale de la pobreza", "Entra en pobreza", "Siempre pobre"]
     periodos = list(sensibilidad_por_periodo.keys())
 
-    fig, axes = plt.subplots(1, len(periodos), figsize=(6.5 * len(periodos), 4.6), sharey=True)
+    fig, axes = plt.subplots(1, len(periodos), figsize=(ef.ancho(0.95), 3.2), sharey=True)
     if len(periodos) == 1:
         axes = [axes]
 
-    columnas = [("banda_lp90", "LP -10%"), ("baseline_lp", "LP"), ("banda_lp110", "LP +10%")]
+    columnas = [("banda_lp90", "LP −10%"), ("baseline_lp", "LP"), ("banda_lp110", "LP +10%")]
     for i, (ax, periodo) in enumerate(zip(axes, periodos)):
         tabla = sensibilidad_por_periodo[periodo].set_index("categoria")
         x = np.arange(len(columnas))
@@ -721,31 +710,31 @@ def graf_sensibilidad_banda(sensibilidad_por_periodo: dict) -> None:
             ax.bar(x, valores, bottom=base, color=color, label=cat, width=0.6)
             for j, v in enumerate(valores):
                 if v > 3:
-                    ax.text(j, base[j] + v / 2, f"{v:.1f}", ha="center", va="center", fontsize=8, color="white")
+                    ax.text(j, base[j] + v / 2, f"{v:.1f}", ha="center", va="center",
+                            fontsize=ef.TAM_LETRA_PEQUENA - 1, color="white")
             base += valores
         ax.set_xticks(x)
-        ax.set_xticklabels([etiqueta for _, etiqueta in columnas], fontsize=9)
-        ax.set_title(periodo, fontsize=10)
+        ax.set_xticklabels([etiqueta for _, etiqueta in columnas])
+        ax.set_title(str(periodo).replace("-", f" {ef.FLECHA} "))
         ax.set_ylim(0, 100)
         if i == 0:
             ax.set_ylabel("% de hogares (panel emparejado)")
 
-    axes[-1].legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.15), ncol=4, fontsize=8)
-    fig.suptitle("Sensibilidad de las transiciones a una banda +-10% alrededor de la LP")
+    handles, labels = axes[-1].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", bbox_to_anchor=(0.5, -0.06), ncol=4)
     _guardar(fig, "08_sensibilidad_banda.png")
 
 
 def graf_atricion(atricion: pd.DataFrame) -> None:
     """Atricion total del panel (hogares que no aparecen en absoluto en la ola siguiente)."""
     periodos = [
-        f"{ANO_POR_OLA[fila.ola_inicial]}-{ANO_POR_OLA[fila.ola_final]}"
+        f"{ANO_POR_OLA[fila.ola_inicial]} {ef.FLECHA} {ANO_POR_OLA[fila.ola_final]}"
         for fila in atricion.itertuples()
     ]
-    fig, ax = plt.subplots(figsize=(5, 4))
-    barras = ax.bar(periodos, atricion["pct_atricion"], color=PALETA["rojo"], width=0.5)
-    ax.bar_label(barras, fmt="%.1f%%", padding=4, fontsize=10, color=INK_SECUNDARIO)
-    ax.set_ylabel("Atricion del panel (%)")
-    ax.set_title("Atricion total del panel entre olas consecutivas")
+    fig, ax = plt.subplots(figsize=(ef.ancho(0.55), 2.6))
+    barras = ax.bar(periodos, atricion["pct_atricion"], color=ef.COLOR_SERIE, width=0.5)
+    ax.bar_label(barras, fmt="%.1f%%", padding=3, fontsize=ef.TAM_LETRA_PEQUENA, color=INK_SECUNDARIO)
+    ax.set_ylabel("Atrición del panel (%)")
     ax.set_ylim(0, max(atricion["pct_atricion"]) * 1.4)
     _guardar(fig, "09_atricion_panel.png")
 

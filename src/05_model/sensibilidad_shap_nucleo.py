@@ -125,6 +125,9 @@ def ejercicio_nucleo(base22: set) -> pd.DataFrame:
             "de_las_22_conserva": len(base22 & nucleos[FUENTE_TABLA]),
             "n_en_las_4_fuentes": len(en_4),
             "de_las_7_universales_en_las_4": len(set(UNIVERSALES) & en_4),
+            # Nombres (2026-10-01): el texto cita cuales sobreviven a los
+            # criterios mas estrictos, no solo cuantas.
+            "universales_en_las_4": ";".join(sorted(set(UNIVERSALES) & en_4)),
         })
     return pd.DataFrame(filas)
 
