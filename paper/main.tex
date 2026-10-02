@@ -160,9 +160,8 @@ vigente y aporta poco bajo pobreza multidimensional; su valor está en
 priorizar territorios donde no hay encuesta o está desactualizada, porque
 cubre todo el país y cambia poco en el tiempo.
 
-\textbf{Palabras clave:} vulnerabilidad a la pobreza,
-aprendizaje automático, datos geoespaciales, ELCA,
-focalización, Colombia.
+\textbf{Palabras clave:} dinámica de la pobreza, aprendizaje automático,
+luces nocturnas, teledetección, datos de panel, focalización, Colombia.
 
 \end{abstract}
 
@@ -1739,6 +1738,39 @@ focalización en dos etapas propuesta en la Sección~\ref{subsec:politica},
 con el modelo para definir el riesgo y un choque verificado para activar
 el apoyo, conectaría estos resultados con el diseño del SISBEN IV y del
 Registro Social de Hogares.
+
+% ============================================================
+% DISPONIBILIDAD DE DATOS Y CODIGO
+% Paquete de replicacion pendiente (2026-10-01): repositorio nuevo y limpio
+% solo con lo que reproduce el paper, archivado en Zenodo con DOI. Al
+% publicarlo, reemplazar la nota "en construccion" por la cita @software y
+% verificar las condiciones de acceso de la ELCA y de la sala de datos.
+% ============================================================
+\section*{Disponibilidad de datos y código}
+\addcontentsline{toc}{section}{Disponibilidad de datos y código}
+\label{sec:disponibilidad}
+
+\textit{[En construcción: el enlace al repositorio y su identificador
+permanente (DOI) se agregarán en la versión final.]}
+
+El código que reproduce todas las tablas, figuras y cifras de este
+documento se publicará en un repositorio de acceso abierto, archivado con
+un identificador permanente. El paquete permitirá reproducir los
+resultados en dos niveles. Con acceso a los datos originales, se podrá
+repetir todo el proceso, desde la construcción del panel hasta el
+entrenamiento de los modelos. Sin ese acceso, cualquier persona podrá
+regenerar todas las tablas y figuras a partir de los resultados agregados
+que se publican con el código, que no contienen información individual de
+los hogares.
+
+Los microdatos de la ELCA se obtienen de la Universidad de los Andes,
+según sus condiciones de acceso. Las coordenadas de los hogares,
+necesarias para construir las variables geoespaciales, son de acceso
+restringido y solo pueden consultarse en la sala de procesamiento de datos
+de la Universidad de los Andes. Las fuentes satelitales (DMSP-OLS, ALOS
+PALSAR y Landsat 5 TM) son públicas y se obtienen con los scripts del
+repositorio a través de Google Earth Engine; las imágenes de Google Street
+View no se redistribuyen, por sus condiciones de uso.
 
 % ============================================================
 % REFERENCIAS
