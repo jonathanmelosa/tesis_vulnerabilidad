@@ -138,25 +138,25 @@
 \setstretch{1.15}% interlineado menor que el cuerpo para que resumen y palabras clave quepan en la pagina 1
 \noindent
 Los sistemas de focalización en Colombia, como el SISBEN y el Registro
-Social de Hogares, clasifican a los hogares según su situación actual y no anticipan qué hogares no pobres
-caerán en pobreza. Este trabajo evalúa si fuentes geoespaciales públicas
-mejoran la predicción de la caída en pobreza, monetaria y multidimensional,
-frente a usar solo la Encuesta Longitudinal Colombiana (ELCA).
-Se entrenan modelos con cinco algoritmos de aprendizaje supervisado, con y
-sin ingreso y gasto del hogar, en las transiciones 2010--2013 del panel, y
-se evalúan en las de 2013--2016. Los modelos identifican a los hogares
-vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77) que casi no
-depende del algoritmo ni del ingreso: pocas variables, como
-riqueza, educación, activos y vivienda, concentran la señal, y el hogar
-vulnerable se parece más al que acaba de salir de la pobreza que al que
-nunca fue pobre. Quienes caen reportan más choques posteriores
-a la predicción, lo que sugiere que parte del riesgo depende de eventos que
-la ola base no permite anticipar; entre quienes caen, permanecen en la
-pobreza los que tenían menos activos financieros y menos cotización a pensión.
-La iluminación nocturna, la única fuente con cobertura
-suficiente, describe bien la geografía de la pobreza, pero no mejora la
-predicción de la pobreza monetaria cuando hay una encuesta robusta vigente y 
-aporta pero poco bajo pobreza multidimensional; su valor está en
+Social de Hogares, clasifican a los hogares según su situación actual y no
+anticipan qué hogares no pobres caerán en pobreza. Este trabajo evalúa si
+fuentes geoespaciales públicas mejoran la predicción de la caída en
+pobreza, monetaria y multidimensional, frente a usar solo la Encuesta
+Longitudinal Colombiana (ELCA). Se entrenan modelos con cinco algoritmos
+de aprendizaje supervisado, con y sin ingreso y gasto del hogar, en las
+transiciones 2010--2013 del panel, y se evalúan en las de 2013--2016. Los
+modelos identifican a los vulnerables con una capacidad moderada (AUC-ROC
+de 0.73 a 0.77) que casi no depende del algoritmo ni del ingreso, y pocas
+variables de acumulación, como riqueza, educación, activos y vivienda,
+concentran la señal. Reconocen bien la precariedad, pero no quién caerá:
+los hogares marcados que no caen también son precarios, el que entra en
+pobreza se parece más al que acaba de salir que al que nunca fue pobre, y
+quienes caen reportan más choques posteriores a la predicción. La mayoría
+de quienes caen vuelve a salir; permanecen los que tenían menos activos
+financieros y cotización a pensión. La iluminación nocturna, la única
+fuente con cobertura suficiente, describe bien la geografía de la
+pobreza, pero no mejora la predicción monetaria cuando hay una encuesta
+vigente y aporta poco bajo pobreza multidimensional; su valor está en
 priorizar territorios donde no hay encuesta o está desactualizada, porque
 cubre todo el país y cambia poco en el tiempo.
 
@@ -258,16 +258,25 @@ principal; las demás se evalúan de forma exploratoria
 
 Los resultados muestran que los modelos identifican a los hogares
 vulnerables con una capacidad moderada (AUC-ROC de 0.73 a 0.77), similar
-entre algoritmos y casi igual sin el ingreso del hogar; que un núcleo
-pequeño de variables de acumulación concentra la señal, y que el hogar
-vulnerable se parece más al que acaba de salir de la pobreza que al que
-nunca fue pobre; además, que quienes efectivamente caen reportan más
-choques posteriores a la predicción. La iluminación nocturna no mejora la
-predicción cuando hay una encuesta vigente, porque su información ya está
-contenida en la encuesta, pero es más estable en el tiempo y su pequeño
-aporte bajo pobreza multidimensional se concentra en zonas rurales, lo que
-la hace útil para priorizar territorios y como respaldo entre rondas de
-encuesta.
+entre algoritmos y casi igual sin el ingreso del hogar, y que un núcleo
+pequeño de variables de acumulación concentra la señal. Los modelos
+reconocen bien la precariedad, pero no quién caerá: los hogares que marcan
+sin que caigan también son precarios, el hogar vulnerable se parece más al
+que acaba de salir de la pobreza que al que nunca fue pobre, y quienes
+efectivamente caen reportan más choques posteriores a la predicción. El
+límite parece estar en la información disponible y no en el algoritmo. La
+mayoría de quienes caen en 2013 vuelve a salir antes de 2016; quedan
+atrapados los que tenían menos activos financieros y menos cotización a
+pensión. La iluminación nocturna no mejora la predicción cuando hay una
+encuesta vigente, porque su información ya está contenida en la encuesta,
+pero es más estable en el tiempo y su pequeño aporte bajo pobreza
+multidimensional se concentra en zonas rurales, lo que la hace útil para
+priorizar territorios y como respaldo entre rondas de encuesta. El radar
+y las imágenes ópticas reproducen el mismo gradiente sin agregar
+información, y las fotos a nivel de calle, aunque prometedoras, aún tienen
+poca cobertura. Para la focalización, los resultados sugieren fijar el
+umbral según el costo del instrumento, activar el apoyo con choques
+verificados y graduar con seguimiento a quienes salen de la pobreza.
 
 La contribución de este trabajo es doble. Primero, metodológica: a
 diferencia de la literatura de predicción de pobreza contemporánea, este
@@ -285,7 +294,8 @@ abordan.
 El resto del documento se organiza así. La Sección~\ref{sec:literatura}
 revisa el marco conceptual de vulnerabilidad a la pobreza y la literatura
 de aprendizaje automático aplicada a su predicción. La
-Sección~\ref{sec:datos} describe la ELCA y las fuentes geoespaciales. La
+Sección~\ref{sec:datos} describe la ELCA, las fuentes geoespaciales y la
+dinámica de la pobreza en el panel. La
 Sección~\ref{sec:estrategia} detalla la estrategia empírica: construcción
 de la variable de resultado, especificación de los modelos, validación fuera de muestra y
 tratamiento del desbalance de clases. La Sección~\ref{sec:resultados}
